@@ -1,6 +1,6 @@
 :root {
   /* 定义CSS变量，便于统一管理和响应式调整 */
-  --board-width: 440px; /* 放大10%，从400px改为440px */
+  --board-width: 55vh; /* 默认使用视口高度的55% */
   --control-panel-width: calc(var(--board-width) * 2/3);
   --block-gap: 30px;
   --border-radius: 8px;
@@ -141,7 +141,7 @@ body {
 /* 竖屏模式下的响应式布局 */
 @media (max-width: 991px) {
   :root {
-    --board-width: 330px; /* 放大10%，从300px改为330px */
+    --board-width: 95vw; /* 竖屏模式下使用视口宽度的95% */
     --control-panel-width: var(--board-width);
     --block-gap: 20px;
   }
@@ -167,7 +167,7 @@ body {
   
   .control-panel {
     height: auto;
-    min-height: 330px; /* 相应地调整最小高度 */
+    min-height: var(--board-width); /* 使用相同的变量以保持比例 */
   }
   
   .display-block .value {
@@ -178,7 +178,7 @@ body {
 /* 极窄屏幕的额外适配 */
 @media (max-width: 480px) {
   :root {
-    --board-width: 308px; /* 放大10%，从280px改为308px */
+    --board-width: 95vw; /* 保持视口宽度的95% */
     --block-gap: 15px;
   }
   

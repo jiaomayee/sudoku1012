@@ -43,8 +43,8 @@ const Cell = styled(({isPrefilled, isHighlighted, isSelected, isError, row, col,
     if (props.isError) return props.theme?.error || '#e74c3c';
     return props.theme?.primary || '#3498db';
   }};
-  /* 基础边框样式 */
-  border: 0.5px solid ${props => props.theme?.gridLine || '#e0e0e0'};
+  /* 基础边框样式 - 单元格之间使用虚线 */
+  border: 0.5px dashed ${props => props.theme?.gridLine || '#e0e0e0'};
   /* 边缘单元格处理 */
   ${props => props.row === 0 && `border-top: none;`}
   ${props => props.row === 8 && `border-bottom: none;`}
@@ -81,14 +81,14 @@ const Cell = styled(({isPrefilled, isHighlighted, isSelected, isError, row, col,
   /* 确保边框始终可见 */
   outline: 0;
   
-  /* 粗边框表示3x3子网格 */
+  /* 细实线表示3x3子网格（宫）之间的分隔 */
   ${props => {
     let borders = '';
     if (props.col % 3 === 0 && props.col > 0) {
-      borders += 'border-left: 1.5px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
+      borders += 'border-left: 1px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
     }
     if (props.row % 3 === 0 && props.row > 0) {
-      borders += 'border-top: 1.5px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
+      borders += 'border-top: 1px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
     }
     return borders;
   }}

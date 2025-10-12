@@ -129,6 +129,15 @@ const NumberButton = styled(({isActive, disabled, ...props}) => <button {...prop
   min-height: 40px;
   max-height: 60px;
   
+  /* 横屏模式下增大按钮尺寸和文字大小 */
+  @media (min-width: 992px) {
+    padding: 12px;
+    font-size: calc(var(--board-width) * 0.065);
+    min-height: 50px;
+    max-height: 80px;
+    border-radius: 10px;
+  }
+  
   /* 竖屏模式下减小按钮尺寸和字体 */
   @media (max-width: 991px) {
     padding: 6px;

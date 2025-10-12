@@ -116,6 +116,7 @@ body {
   width: var(--board-width);
   height: var(--board-width);
   position: relative;
+  box-sizing: border-box;
 }
 
 /* 确保数独棋盘本身占满容器空间 */
@@ -124,6 +125,7 @@ body {
   height: 100%;
   position: relative;
   box-sizing: border-box;
+  margin: 0; /* 移除可能存在的边距 */
 }
 
 /* 操作面板样式 - 宽度为棋盘宽度的2/3，高度与棋盘一致 */

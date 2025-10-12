@@ -24,7 +24,7 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   grid-gap: 0;
 `;
 
-const Cell = styled(({isPrefilled, isHighlighted, isSelected, isError, row, col, theme, ...props}) => <div {...props} />)`
+const Cell = styled(({isPrefilled, isHighlighted, isSelected, isError, isIncorrect, row, col, theme, ...props}) => <div {...props} />)`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,14 +33,14 @@ const Cell = styled(({isPrefilled, isHighlighted, isSelected, isError, row, col,
   font-weight: ${props => props.isPrefilled ? 700 : 500};
   cursor: ${props => props.isPrefilled ? 'default' : 'pointer'};
   background-color: ${props => {
-    if (props.isError) return (props.theme?.error || '#e74c3c') + '22';
+    if (props.isError || props.isIncorrect) return (props.theme?.error || '#e74c3c') + '22';
     if (props.isHighlighted) return props.theme?.highlight || '#e0efff';
     if (props.isSelected) return (props.theme?.primary || '#3498db') + '33';
     return props.theme?.surface || '#ffffff';
   }};
   color: ${props => {
+    if (props.isError || props.isIncorrect) return props.theme?.error || '#e74c3c';
     if (props.isPrefilled) return props.theme?.text || '#34495e';
-    if (props.isError) return props.theme?.error || '#e74c3c';
     return props.theme?.primary || '#3498db';
   }};
   /* 基础边框样式 - 单元格之间使用虚线 */
@@ -100,7 +100,7 @@ const Cell = styled(({isPrefilled, isHighlighted, isSelected, isError, row, col,
   }
 `;
 
-const SudokuBoard = ({ board, selectedCell, highlightedCells, onCellClick }) => {
+const SudokuBoard = ({ board, selectedCell, highlightedCells, incorrectCells, onCellClick }) => {
   const { theme } = useTheme();
   
   // 创建一个示例棋盘数据（如果没有提供）
@@ -129,6 +129,17 @@ const SudokuBoard = ({ board, selectedCell, highlightedCells, onCellClick }) => 
     return value === 'error';
   };
   
+  const isCellIncorrect = (row, col) => {
+    if (!incorrectCells) return false;
+    if (Array.isArray(incorrectCells)) {
+      return incorrectCells.some(cell => cell.row === row && cell.col === col);
+    }
+    if (incorrectCells.has) {
+      return incorrectCells.has(`${row}-${col}`);
+    }
+    return false;
+  };
+  
   return (
     <BoardContainer theme={theme}>
       {displayBoard.map((row, rowIndex) =>
@@ -137,6 +148,7 @@ const SudokuBoard = ({ board, selectedCell, highlightedCells, onCellClick }) => 
           const isHighlighted = isCellHighlighted(rowIndex, colIndex);
           const isSelected = isCellSelected(rowIndex, colIndex);
           const isError = isCellError(value);
+          const isIncorrect = isCellIncorrect(rowIndex, colIndex);
           
           return (
             <Cell
@@ -147,6 +159,7 @@ const SudokuBoard = ({ board, selectedCell, highlightedCells, onCellClick }) => 
               isHighlighted={isHighlighted}
               isSelected={isSelected}
               isError={isError}
+              isIncorrect={isIncorrect}
               onClick={() => handleCellClick(rowIndex, colIndex)}
               theme={theme}
             >

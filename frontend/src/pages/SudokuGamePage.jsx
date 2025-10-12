@@ -232,11 +232,27 @@ const SudokuGamePage = () => {
           } else {
             // 备用：使用离线谜题
             console.log('初始化使用离线谜题');
-            const offlinePuzzle = generateOfflinePuzzle(difficulty);
-            if (sudokuContext?.setCurrentBoard && sudokuContext?.setCurrentPuzzle && sudokuContext?.setSolution) {
-              sudokuContext.setCurrentPuzzle(offlinePuzzle);
-              sudokuContext.setCurrentBoard(offlinePuzzle.puzzle);
-              sudokuContext.setSolution(offlinePuzzle.solution);
+            // 安全地导入并使用离线谜题生成函数
+            try {
+              // 动态导入离线谜题生成逻辑
+              const { generateOfflinePuzzle } = await import('../context/SudokuContext');
+              if (generateOfflinePuzzle) {
+                const offlinePuzzle = generateOfflinePuzzle(difficulty);
+                if (sudokuContext?.setCurrentBoard && sudokuContext?.setCurrentPuzzle && sudokuContext?.setSolution) {
+                  sudokuContext.setCurrentPuzzle(offlinePuzzle);
+                  sudokuContext.setCurrentBoard(offlinePuzzle?.puzzle || Array(9).fill().map(() => Array(9).fill(0)));
+                  sudokuContext.setSolution(offlinePuzzle?.solution || Array(9).fill().map(() => Array(9).fill(0)));
+                }
+              }
+            } catch (importError) {
+              console.error('导入离线谜题生成函数失败:', importError);
+              // 创建空棋盘作为最后备用
+              const emptyBoard = Array(9).fill().map(() => Array(9).fill(0));
+              if (sudokuContext?.setCurrentBoard && sudokuContext?.setCurrentPuzzle && sudokuContext?.setSolution) {
+                sudokuContext.setCurrentPuzzle({ puzzle: emptyBoard, solution: emptyBoard });
+                sudokuContext.setCurrentBoard(emptyBoard);
+                sudokuContext.setSolution(emptyBoard);
+              }
             }
           }
         } catch (error) {
@@ -303,7 +319,7 @@ const SudokuGamePage = () => {
             {/* 显示区块 - 精简显示 */}
             <div className="display-block">
               <div>
-                错误：<span className="value error-count">{errorCount}</span>
+                错误：<span className="value error-count" style={{color: '#ff4d4d'}}>{errorCount}</span>
               </div>
               <div>
                 {getDifficultyName()}
@@ -319,6 +335,7 @@ const SudokuGamePage = () => {
                 board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
                 selectedCell={selectedCell}
                 highlightedCells={sudokuContext?.highlightedCells || []}
+                incorrectCells={sudokuContext?.incorrectCells || new Set()}
                 onCellClick={handleCellClick}
               />
             </div>
@@ -351,7 +368,7 @@ const SudokuGamePage = () => {
               {/* 显示区块 - 右侧，宽度为棋盘的2/3，精简显示 */}
               <div className="display-block">
                 <div>
-                  错误：<span className="value error-count">{errorCount}</span>
+                  错误：<span className="value error-count" style={{color: '#ff4d4d'}}>{errorCount}</span>
                 </div>
                 <div>
                   {getDifficultyName()}
@@ -368,9 +385,10 @@ const SudokuGamePage = () => {
               <div className="board-container" ref={boardContainerRef}>
                 <SudokuBoard
                   board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
-                  selectedCell={selectedCell}
-                  highlightedCells={sudokuContext?.highlightedCells || []}
-                  onCellClick={handleCellClick}
+                selectedCell={selectedCell}
+                highlightedCells={sudokuContext?.highlightedCells || []}
+                incorrectCells={sudokuContext?.incorrectCells || new Set()}
+                onCellClick={handleCellClick}
                 />
               </div>
               

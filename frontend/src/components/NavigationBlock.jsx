@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
+import DifficultySelectModal from './DifficultySelectModal';
 const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   border-radius: 8px;
@@ -108,27 +109,31 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
   const { theme } = useTheme();
   const sudokuContext = useSudoku();
   const { startLoading, stopLoading } = useLoading();
-  const [showDirectNewGame, setShowDirectNewGame] = useState(true); // 直接使用组件内的新游戏逻辑
+  const [showDifficultyModal, setShowDifficultyModal] = useState(false); // 控制难度选择模态框显示
 
-  // 组件内直接处理新游戏逻辑
-  const handleDirectNewGame = async () => {
-    console.log('NavigationBlock: 直接处理新游戏');
+  // 处理新建游戏按钮点击
+  const handleNewGameClick = () => {
+    console.log('NavigationBlock: 打开难度选择模态框');
+    // 显示难度选择模态框
+    setShowDifficultyModal(true);
+  };
+
+  // 处理难度选择
+  const handleDifficultySelect = async (selectedDifficulty) => {
+    console.log('NavigationBlock: 选择难度:', selectedDifficulty);
     try {
       if (startLoading) {
         startLoading('生成新谜题...');
       }
 
-      const defaultDifficulty = DIFFICULTY_LEVELS.MEDIUM;
-      console.log(`使用默认难度: ${defaultDifficulty}`);
-
       // 尝试使用上下文的函数
       if (sudokuContext?.startNewGame) {
         console.log('调用 context.startNewGame');
-        await sudokuContext.startNewGame(null, defaultDifficulty);
+        await sudokuContext.startNewGame(null, selectedDifficulty);
         console.log('startNewGame 完成');
       } else if (sudokuContext?.generateNewPuzzle) {
         console.log('调用 context.generateNewPuzzle');
-        await sudokuContext.generateNewPuzzle(defaultDifficulty);
+        await sudokuContext.generateNewPuzzle(selectedDifficulty);
         console.log('generateNewPuzzle 完成');
       } else {
         console.error('上下文函数不可用');
@@ -143,41 +148,51 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
   };
 
   return (
-    <NavBlockContainer>
-      <ButtonGrid>
-        {/* 新建游戏按钮 - 使用组件内的直接处理方法 */}
-        <NavButton onClick={handleDirectNewGame}>
-          <ButtonIcon><Icons.NewGame /></ButtonIcon>
-          新建游戏
-        </NavButton>
-        
-        {/* 暂停计时按钮 */}
-        <NavButton onClick={onPauseTimer}>
-          <ButtonIcon>
-            {isTimerActive ? <Icons.Pause /> : <Icons.Play />}
-          </ButtonIcon>
-          {isTimerActive ? '暂停计时' : '继续'}
-        </NavButton>
-        
-        {/* 技巧提示按钮 */}
-        <NavButton onClick={onGetHint}>
-          <ButtonIcon><Icons.Hint /></ButtonIcon>
-          技巧提示
-        </NavButton>
-        
-        {/* 候选数按钮 */}
-        <NavButton onClick={onToggleNotes} isActive={isNotesMode}>
-          <ButtonIcon><Icons.Notes /></ButtonIcon>
-          候选数
-        </NavButton>
-        
-        {/* 设置按钮 */}
-        <NavButton onClick={onSettings}>
-          <ButtonIcon><Icons.Settings /></ButtonIcon>
-          设置
-        </NavButton>
-      </ButtonGrid>
-    </NavBlockContainer>
+    <>
+      <NavBlockContainer>
+        <ButtonGrid>
+          {/* 新建游戏按钮 - 打开难度选择模态框 */}
+          <NavButton onClick={handleNewGameClick}>
+            <ButtonIcon><Icons.NewGame /></ButtonIcon>
+            新建游戏
+          </NavButton>
+          
+          {/* 暂停计时按钮 */}
+          <NavButton onClick={onPauseTimer}>
+            <ButtonIcon>
+              {isTimerActive ? <Icons.Pause /> : <Icons.Play />}
+            </ButtonIcon>
+            {isTimerActive ? '暂停计时' : '继续'}
+          </NavButton>
+          
+          {/* 技巧提示按钮 */}
+          <NavButton onClick={onGetHint}>
+            <ButtonIcon><Icons.Hint /></ButtonIcon>
+            技巧提示
+          </NavButton>
+          
+          {/* 候选数按钮 */}
+          <NavButton onClick={onToggleNotes} isActive={isNotesMode}>
+            <ButtonIcon><Icons.Notes /></ButtonIcon>
+            候选数
+          </NavButton>
+          
+          {/* 设置按钮 */}
+          <NavButton onClick={onSettings}>
+            <ButtonIcon><Icons.Settings /></ButtonIcon>
+            设置
+          </NavButton>
+        </ButtonGrid>
+      </NavBlockContainer>
+      
+      {/* 难度选择模态框 */}
+      <DifficultySelectModal
+        isOpen={showDifficultyModal}
+        onClose={() => setShowDifficultyModal(false)}
+        onSelectDifficulty={handleDifficultySelect}
+        initialDifficulty={sudokuContext?.difficulty || DIFFICULTY_LEVELS.MEDIUM}
+      />
+    </>
   );
 };
 

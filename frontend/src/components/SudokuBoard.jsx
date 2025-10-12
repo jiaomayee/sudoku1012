@@ -11,12 +11,12 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   border-radius: 5px;
   background-color: ${props => props.theme?.surface || '#ffffff'};
   position: relative;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: hidden !important;
   z-index: 1;
   /* 确保网格在任何情况下都不会变形 */
   aspect-ratio: 1;

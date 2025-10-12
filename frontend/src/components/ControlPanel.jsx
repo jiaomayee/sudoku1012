@@ -394,21 +394,21 @@ const ControlPanel = ({
             className={activeTab === 'keyboard' ? 'active' : ''}
             onClick={() => setActiveTab('keyboard')}
           >
-            数字键盘
+            键盘
           </TabButton>
           <TabButton 
             isActive={activeTab === 'techniques'} 
             className={activeTab === 'techniques' ? 'active' : ''}
             onClick={() => setActiveTab('techniques')}
           >
-            可用技巧
+            技巧
           </TabButton>
           <TabButton 
             isActive={activeTab === 'solution'} 
             className={activeTab === 'solution' ? 'active' : ''}
             onClick={() => setActiveTab('solution')}
           >
-            技巧解题
+            解题
           </TabButton>
         </TabBar>
         

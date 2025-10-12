@@ -81,14 +81,14 @@ const Cell = styled(({isPrefilled, isHighlighted, isSelected, isError, row, col,
   /* 确保边框始终可见 */
   outline: 0;
   
-  /* 细实线表示3x3子网格（宫）之间的分隔 */
+  /* 实线表示3x3子网格（宫）之间的分隔 */
   ${props => {
     let borders = '';
     if (props.col % 3 === 0 && props.col > 0) {
-      borders += 'border-left: 1.5px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
+      borders += 'border-left: 2px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
     }
     if (props.row % 3 === 0 && props.row > 0) {
-      borders += 'border-top: 1.5px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
+      borders += 'border-top: 2px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
     }
     return borders;
   }}

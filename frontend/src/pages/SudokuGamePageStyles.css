@@ -1,0 +1,201 @@
+:root {
+  /* 定义CSS变量，便于统一管理和响应式调整 */
+  --board-width: 400px;
+  --control-panel-width: calc(var(--board-width) * 2/3);
+  --block-gap: 30px;
+  --border-radius: 8px;
+}
+
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+}
+
+/* 主容器样式 */
+.sudoku-game-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 游戏内容区域 - 横屏模式使用两行两列布局 */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--block-gap);
+  width: 100%;
+  margin-top: 20px;
+  align-items: center;
+}
+
+/* 顶部行 - 包含导航区块和显示区块 */
+.top-row {
+  display: flex;
+  gap: var(--block-gap);
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* 底部行 - 包含棋盘区块和操作区块 */
+.bottom-row {
+  display: flex;
+  gap: var(--block-gap);
+  width: 100%;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* 导航区块样式 - 移除重复的容器样式，避免两层区块效果 */
+.nav-block {
+  width: var(--board-width); /* 与数独棋盘宽度一致 */
+  height: auto;
+}
+
+/* 显示区块样式 - 仅保留错误次数、难度和计时器 */
+.display-block {
+  background-color: #ffffff;
+  border-radius: var(--border-radius);
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: row; /* 水平排列三个内容项 */
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: var(--control-panel-width); /* 与操作面板宽度一致 */
+  height: auto;
+}
+
+.display-block div {
+  display: flex;
+  flex-direction: row; /* 水平排列文字和值，使"错误：0"显示在一行 */
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  gap: 5px;
+}
+
+.display-block .value {
+  font-size: 24px; /* 保持足够的字体大小以确保可读性 */
+  font-weight: bold;
+  color: #34495e; /* 使用主题文字颜色 */
+  margin-top: 5px;
+}
+
+.display-block .error-count {
+  color: #e74c3c; /* 使用红色字体显示错误次数 */
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* 数独棋盘容器样式 */
+.board-container {
+  background-color: #ffffff;
+  border-radius: var(--border-radius);
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--board-width);
+  height: var(--board-width);
+  position: relative;
+}
+
+/* 确保数独棋盘本身占满容器空间 */
+.sudoku-board {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* 操作面板样式 - 宽度为棋盘宽度的2/3，高度与棋盘一致 */
+.control-panel {
+  background-color: #ffffff;
+  border-radius: var(--border-radius);
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: var(--control-panel-width);
+  height: var(--board-width);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* 竖屏模式下的响应式布局 */
+@media (max-width: 991px) {
+  :root {
+    --board-width: 300px;
+    --control-panel-width: var(--board-width);
+    --block-gap: 20px;
+  }
+  
+  .sudoku-game-container {
+    padding: 10px;
+  }
+  
+  .top-row,
+  .bottom-row {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .nav-block,
+  .display-block,
+  .board-container,
+  .control-panel {
+    width: 100%;
+    max-width: var(--board-width);
+    height: auto;
+  }
+  
+  .control-panel {
+    height: auto;
+    min-height: 300px;
+  }
+  
+  .display-block .value {
+    font-size: 20px;
+  }
+}
+
+/* 极窄屏幕的额外适配 */
+@media (max-width: 480px) {
+  :root {
+    --board-width: 280px;
+    --block-gap: 15px;
+  }
+  
+  .sudoku-game-container {
+    padding: 5px;
+  }
+}
+
+/* 横屏模式下的额外优化 */
+@media (min-width: 992px) {
+  .board-container {
+    width: var(--board-width);
+    height: var(--board-width);
+  }
+  
+  .control-panel {
+    width: var(--control-panel-width);
+    height: var(--board-width);
+  }
+}

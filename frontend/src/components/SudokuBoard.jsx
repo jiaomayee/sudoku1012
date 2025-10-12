@@ -8,7 +8,7 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   grid-template-rows: repeat(9, 1fr);
   /* 设计边框样式 */
   border: 2px solid ${props => props.theme?.gridLineThick || '#34495e'};
-  border-radius: 5px;
+  border-radius: 10px;
   background-color: ${props => props.theme?.surface || '#ffffff'};
   position: relative;
   width: 100% !important;
@@ -85,10 +85,10 @@ const Cell = styled(({isPrefilled, isHighlighted, isSelected, isError, row, col,
   ${props => {
     let borders = '';
     if (props.col % 3 === 0 && props.col > 0) {
-      borders += 'border-left: 1px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
+      borders += 'border-left: 1.5px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
     }
     if (props.row % 3 === 0 && props.row > 0) {
-      borders += 'border-top: 1px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
+      borders += 'border-top: 1.5px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
     }
     return borders;
   }}

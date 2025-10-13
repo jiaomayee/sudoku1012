@@ -43,25 +43,59 @@ export const SudokuContextProvider = ({ children }) => {
     const initPuzzle = async () => {
       console.log('SudokuContext: 初始化自动生成谜题');
       try {
-        // 使用离线谜题生成器
-        const defaultDifficulty = DIFFICULTY_LEVELS.MEDIUM;
-        console.log(`使用默认难度: ${defaultDifficulty}`);
+        // 直接使用预设的数独题目
+        console.log('使用预设的数独题目');
+        const simplePuzzle = [
+          [5, 3, 0, 0, 7, 0, 0, 0, 0],
+          [6, 0, 0, 1, 9, 5, 0, 0, 0],
+          [0, 9, 8, 0, 0, 0, 0, 6, 0],
+          [8, 0, 0, 0, 6, 0, 0, 0, 3],
+          [4, 0, 0, 8, 0, 3, 0, 0, 1],
+          [7, 0, 0, 0, 2, 0, 0, 0, 6],
+          [0, 6, 0, 0, 0, 0, 2, 8, 0],
+          [0, 0, 0, 4, 1, 9, 0, 0, 5],
+          [0, 0, 0, 0, 8, 0, 0, 7, 9]
+        ];
         
-        // 使用新的离线谜题生成函数
-        const { puzzle, solution } = generateOfflinePuzzle(defaultDifficulty);
-        console.log('离线谜题生成完成');
+        const simpleSolution = [
+          [5, 3, 4, 6, 7, 8, 9, 1, 2],
+          [6, 7, 2, 1, 9, 5, 3, 4, 8],
+          [1, 9, 8, 3, 4, 2, 5, 6, 7],
+          [8, 5, 9, 7, 6, 1, 4, 2, 3],
+          [4, 2, 6, 8, 5, 3, 7, 9, 1],
+          [7, 1, 3, 9, 2, 4, 8, 5, 6],
+          [9, 6, 1, 5, 3, 7, 2, 8, 4],
+          [2, 8, 7, 4, 1, 9, 6, 3, 5],
+          [3, 4, 5, 2, 8, 6, 1, 7, 9]
+        ];
         
-        setCurrentPuzzle({ puzzle, solution });
-        setCurrentBoard(puzzle);
-        setSolution(solution);
+        const puzzleData = { puzzle: simplePuzzle, solution: simpleSolution };
+        console.log('预设谜题数据:', puzzleData);
+        
+        // 格式化数据
+        const formattedData = formatPuzzleData(puzzleData);
+        console.log('格式化后的数据:', formattedData);
+        
+        setCurrentPuzzle(formattedData);
+        console.log('设置 currentPuzzle 完成');
+        
+        setCurrentBoard(formattedData.puzzle);
+        console.log('设置 currentBoard 完成，currentBoard:', formattedData.puzzle);
+        
+        setSolution(formattedData.solution);
+        console.log('设置 solution 完成');
+        
         setGameStarted(true);
+        console.log('设置 gameStarted 为 true');
+        
         setGameCompleted(false);
         setTimerActive(true);
         setErrorCount(0); // 初始化错误计数
         setIncorrectCells(new Set()); // 初始化错误单元格集合
-        console.log('谜题已设置到状态中');
+        console.log('谜题初始化完成');
       } catch (error) {
         console.error('自动初始化谜题失败:', error);
+        console.error('错误详情:', error.message, error.stack);
       }
     };
 
@@ -197,22 +231,35 @@ export const SudokuContextProvider = ({ children }) => {
         } catch (apiError) {
           console.warn('从题库获取专家级谜题失败，回退到程序生成:', apiError);
           // 如果API失败，回退到程序生成
-          puzzleData = generateOfflinePuzzle(targetDifficulty);
+          puzzleData = await generateOfflinePuzzle(targetDifficulty);
         }
       } else {
         console.log('非专家难度：使用程序生成谜题');
         // 简单/中等/困难难度使用程序生成
-        puzzleData = generateOfflinePuzzle(targetDifficulty);
+        puzzleData = await generateOfflinePuzzle(targetDifficulty);
       }
 
       // 格式化数据为统一格式
       const formattedData = formatPuzzleData(puzzleData);
-      console.log('谜题数据准备完成');
+      console.log('谜题数据准备完成，formattedData:', formattedData);
+      console.log('puzzleData.puzzle 是否存在:', !!formattedData.puzzle);
+      if (formattedData.puzzle) {
+        console.log('puzzle 类型:', Array.isArray(formattedData.puzzle) ? '数组' : typeof formattedData.puzzle);
+        console.log('puzzle 长度:', Array.isArray(formattedData.puzzle) ? formattedData.puzzle.length : '不是数组');
+        if (Array.isArray(formattedData.puzzle) && formattedData.puzzle.length > 0) {
+          console.log('puzzle 第一行:', formattedData.puzzle[0]);
+        }
+      }
       
       // 更新状态
       setCurrentPuzzle(formattedData);
+      console.log('设置 currentPuzzle 完成');
+      
       setCurrentBoard(formattedData.puzzle);
+      console.log('设置 currentBoard 完成');
+      
       setSolution(formattedData.solution);
+      console.log('设置 solution 完成');
       setGameStarted(true);
       setGameCompleted(false);
       setTimeElapsed(0);
@@ -266,22 +313,35 @@ export const SudokuContextProvider = ({ children }) => {
         } catch (apiError) {
           console.warn('从题库获取专家级谜题失败，回退到程序生成:', apiError);
           // 如果API失败，回退到程序生成
-          puzzleData = generateOfflinePuzzle(targetDifficulty);
+          puzzleData = await generateOfflinePuzzle(targetDifficulty);
         }
       } else {
         console.log('非专家难度：使用程序生成谜题');
         // 简单/中等/困难难度使用程序生成
-        puzzleData = generateOfflinePuzzle(targetDifficulty);
+        puzzleData = await generateOfflinePuzzle(targetDifficulty);
       }
 
       // 格式化数据为统一格式
       const formattedData = formatPuzzleData(puzzleData);
-      console.log('谜题数据准备完成');
+      console.log('谜题数据准备完成，formattedData:', formattedData);
+      console.log('puzzleData.puzzle 是否存在:', !!formattedData.puzzle);
+      if (formattedData.puzzle) {
+        console.log('puzzle 类型:', Array.isArray(formattedData.puzzle) ? '数组' : typeof formattedData.puzzle);
+        console.log('puzzle 长度:', Array.isArray(formattedData.puzzle) ? formattedData.puzzle.length : '不是数组');
+        if (Array.isArray(formattedData.puzzle) && formattedData.puzzle.length > 0) {
+          console.log('puzzle 第一行:', formattedData.puzzle[0]);
+        }
+      }
       
       // 更新状态
       setCurrentPuzzle(formattedData);
+      console.log('设置 currentPuzzle 完成');
+      
       setCurrentBoard(formattedData.puzzle);
+      console.log('设置 currentBoard 完成');
+      
       setSolution(formattedData.solution);
+      console.log('设置 solution 完成');
       setGameStarted(true);
       setGameCompleted(false);
       setTimeElapsed(0);
@@ -310,12 +370,17 @@ export const SudokuContextProvider = ({ children }) => {
   const generateOfflinePuzzle = async (difficulty = 'medium') => {
     try {
       console.log(`开始生成${difficulty}难度的数独题目...`);
-      const { puzzle, solution } = await generateSudoku(difficulty);
+      const result = await generateSudoku(difficulty);
+      
+      console.log('generateSudoku 返回结果:', result);
       
       // 验证生成的谜题
-      if (!puzzle || !solution) {
+      if (!result || !result.puzzle || !result.solution) {
+        console.error('生成的数独数据不完整:', result);
         throw new Error('生成的数独数据不完整');
       }
+      
+      const { puzzle, solution } = result;
       
       // 验证数独有唯一解
       const hasUnique = hasUniqueSolution(puzzle);
@@ -326,11 +391,13 @@ export const SudokuContextProvider = ({ children }) => {
       }
       
       console.log(`成功生成${difficulty}难度的数独题目，使用DLX算法验证了唯一解`);
+      console.log('谜题数据预览:', puzzle.slice(0, 2).map(row => row.slice(0, 2).join(',')).join(';'));
+      
       return { puzzle, solution };
     } catch (error) {
       console.error(`生成${difficulty}难度的数独题目时出错:`, error);
       // 如果生成失败，尝试使用备用方法
-      return generateBackupPuzzle(difficulty);
+      return await generateBackupPuzzle(difficulty);
     }
   };
 
@@ -349,11 +416,11 @@ export const SudokuContextProvider = ({ children }) => {
   };
 
   // 辅助函数：备用谜题生成方法
-  const generateBackupPuzzle = (difficulty = 'medium') => {
+  const generateBackupPuzzle = async (difficulty = 'medium') => {
     try {
       console.log(`使用备用方法生成${difficulty}难度的数独题目...`);
       // 直接使用sudokuUtils中的函数
-      const { puzzle, solution } = generateSudoku(difficulty);
+      const { puzzle, solution } = await generateSudoku(difficulty);
       
       console.log(`备用方法成功生成${difficulty}难度的数独题目`);
       return { puzzle, solution };
@@ -419,11 +486,14 @@ export const SudokuContextProvider = ({ children }) => {
         return { puzzle, solution };
       }
       // 如果已经是二维数组
-      return { puzzle: data.puzzle, solution: data.solution };
+      if (Array.isArray(data.puzzle) && data.puzzle.length === 9 && Array.isArray(data.solution) && data.solution.length === 9) {
+        return { puzzle: data.puzzle, solution: data.solution };
+      }
     }
-    // 如果输入不完整，确保返回有效格式的对象
-    console.warn('formatPuzzleData: 输入数据不完整或格式不正确', data);
-    return data || { puzzle: null, solution: null };
+    // 如果输入不完整或格式不正确，返回默认的9x9零数组
+    console.warn('formatPuzzleData: 输入数据不完整或格式不正确，返回默认空数组', data);
+    const defaultArray = Array(9).fill().map(() => Array(9).fill(0));
+    return { puzzle: defaultArray, solution: defaultArray };
   };
 
   // 检查单元格输入是否正确

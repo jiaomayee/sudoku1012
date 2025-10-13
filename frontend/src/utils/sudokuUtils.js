@@ -208,7 +208,7 @@ export const generateCompletedBoard = () => {
 };
 
 // 根据难度级别生成数独谜题
-export const generateSudoku = (difficulty = 'medium') => {
+export const generateSudoku = async (difficulty = 'medium') => {
   console.log(`开始生成${difficulty}难度的数独题目`);
   
   // 首先生成完整的数独解

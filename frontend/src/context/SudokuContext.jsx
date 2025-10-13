@@ -514,9 +514,15 @@ export const SudokuContextProvider = ({ children }) => {
     return value === solution[row][col];
   };
 
-  // 填充数字并进行实时校验
+  // 填充单元格
   const fillCell = (row, col, value) => {
     if (!gameStarted || gameCompleted) return;
+    
+    // 检查是否为预填数字，如果是则不允许修改
+    if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== null && originalPuzzle[row][col] !== 0) {
+      console.log('Cannot modify prefilled cell:', row, col);
+      return;
+    }
     
     const newBoard = [...currentBoard.map(row => [...row])];
     const cellKey = `${row}-${col}`;
@@ -572,6 +578,12 @@ export const SudokuContextProvider = ({ children }) => {
   // 清除单元格
   const clearCell = (row, col) => {
     if (!gameStarted || gameCompleted) return;
+    
+    // 检查是否为预填数字，如果是则不允许删除
+    if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== 0) {
+      console.log('Cannot clear prefilled cell:', row, col);
+      return;
+    }
     
     const newBoard = [...currentBoard.map(row => [...row])];
     const cellKey = `${row}-${col}`;

@@ -27,8 +27,8 @@ const Cell = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(var(--board-width) * 0.12);
-  font-weight: 400;
+  font-size: calc(var(--board-width) * 0.10);
+  font-weight: 300;
   cursor: pointer;
   background-color: #ffffff;
   color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
@@ -54,11 +54,12 @@ const Cell = styled.div`
   }
   
   &.highlighted {
-    background-color: #e0efff;
+    background-color: #cce5ff;
+    box-shadow: inset 0 0 0 1px #3498db;
   }
   
   &.selected {
-    background-color: #3498db33;
+    background-color: #ffffff;
     border: 2px solid #3498db;
     z-index: 2;
   }
@@ -66,14 +67,17 @@ const Cell = styled.div`
   &.error,
   &.incorrect {
     color: red;
+    background-color: #ffe6e6;
   }
   
   &.same-number {
-    background-color: #e8f4f8;
+    background-color: #d1ecf1;
+    border: 1px solid #7dc8d8;
   }
   
   &.same-region {
-    background-color: #f0f8ff;
+    background-color: #e8f4fd;
+    border: 1px solid #90c8e8;
   }
   
   &:not(.prefilled):hover {

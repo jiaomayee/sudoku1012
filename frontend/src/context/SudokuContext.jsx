@@ -23,6 +23,7 @@ export const SudokuContextProvider = ({ children }) => {
   // 数独状态
   const [currentPuzzle, setCurrentPuzzle] = useState(null);
   const [currentBoard, setCurrentBoard] = useState(null);
+  const [originalPuzzle, setOriginalPuzzle] = useState(null); // 添加原始谜题状态，用于区分预填数字和用户输入数字
   const [solution, setSolution] = useState(null);
   const [difficulty, setDifficulty] = useState(DIFFICULTY_LEVELS.MEDIUM);
   const [gameStarted, setGameStarted] = useState(false);
@@ -78,6 +79,9 @@ export const SudokuContextProvider = ({ children }) => {
         
         setCurrentPuzzle(formattedData);
         console.log('设置 currentPuzzle 完成');
+        
+        setOriginalPuzzle(formattedData.puzzle); // 保存原始谜题，用于区分预填数字
+        console.log('设置 originalPuzzle 完成');
         
         setCurrentBoard(formattedData.puzzle);
         console.log('设置 currentBoard 完成，currentBoard:', formattedData.puzzle);
@@ -255,6 +259,9 @@ export const SudokuContextProvider = ({ children }) => {
       setCurrentPuzzle(formattedData);
       console.log('设置 currentPuzzle 完成');
       
+      setOriginalPuzzle(formattedData.puzzle); // 保存原始谜题，用于区分预填数字
+      console.log('设置 originalPuzzle 完成');
+      
       setCurrentBoard(formattedData.puzzle);
       console.log('设置 currentBoard 完成');
       
@@ -336,6 +343,9 @@ export const SudokuContextProvider = ({ children }) => {
       // 更新状态
       setCurrentPuzzle(formattedData);
       console.log('设置 currentPuzzle 完成');
+      
+      setOriginalPuzzle(formattedData.puzzle); // 保存原始谜题，用于区分预填数字
+      console.log('设置 originalPuzzle 完成');
       
       setCurrentBoard(formattedData.puzzle);
       console.log('设置 currentBoard 完成');
@@ -709,6 +719,7 @@ export const SudokuContextProvider = ({ children }) => {
   const value = {
     currentPuzzle,
     currentBoard,
+    originalPuzzle, // 导出原始谜题，用于区分预填数字
     solution,
     difficulty,
     gameStarted,

@@ -31,7 +31,7 @@ const Cell = styled.div`
   font-weight: 400;
   cursor: pointer;
   background-color: #ffffff;
-  color: #000000;
+  color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
   border: 0.5px dashed ${props => props.theme?.gridLine || '#e0e0e0'};
   transition: all 0.2s ease;
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
@@ -106,7 +106,7 @@ const Cell = styled.div`
 `;
 
 // JS逻辑函数
-const SudokuBoard = ({ board, selectedCell, onCellClick }) => {
+const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle }) => {
   const { theme } = useTheme();
   
   // 直接使用预设的棋盘数据进行测试
@@ -126,8 +126,17 @@ const SudokuBoard = ({ board, selectedCell, onCellClick }) => {
   const displayBoard = board || testBoard;
   
   // 单元格属性判断逻辑
-  const isCellPrefilled = (value) => {
-    return value !== null && value !== 0 && typeof value === 'number';
+  const isCellPrefilled = (value, row, col) => {
+    // 如果有原始谜题，使用它来判断预填数字
+    if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== null && originalPuzzle[row][col] !== 0) {
+      return true;
+    }
+    // 备用逻辑：如果没有原始谜题，对于测试数据使用原来的判断方式
+    if (displayBoard === testBoard) {
+      return value !== null && value !== 0 && typeof value === 'number';
+    }
+    // 默认不标记为预填
+    return false;
   };
   
   const isCellError = (value) => {
@@ -149,9 +158,8 @@ const SudokuBoard = ({ board, selectedCell, onCellClick }) => {
     const classes = [];
     
     // 基础状态类
-    if (isCellPrefilled(value)) classes.push('prefilled');
+    if (isCellPrefilled(value, row, col)) classes.push('prefilled');
     if (isCellError(value)) classes.push('error');
-    
     // 选中状态和相关高亮
     if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
       classes.push('selected');

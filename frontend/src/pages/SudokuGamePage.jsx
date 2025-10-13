@@ -15,6 +15,7 @@ const SudokuGamePage = () => {
   
   // 安全地从sudokuContext中解构值，提供默认值
   const currentBoard = sudokuContext?.currentBoard || Array(9).fill().map(() => Array(9).fill(0));
+  const originalPuzzle = sudokuContext?.originalPuzzle || null;
   const selectedCell = sudokuContext?.selectedCell || null;
   const difficulty = sudokuContext?.difficulty || 'medium';
   const timeElapsed = sudokuContext?.timeElapsed || 0;
@@ -339,6 +340,7 @@ const SudokuGamePage = () => {
             <div className="board-container" ref={boardContainerRef}>
               <SudokuBoard
                 board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
+                originalPuzzle={originalPuzzle}
                 selectedCell={selectedCell}
                 highlightedCells={sudokuContext?.highlightedCells || []}
                 incorrectCells={sudokuContext?.incorrectCells || new Set()}
@@ -391,6 +393,7 @@ const SudokuGamePage = () => {
               <div className="board-container" ref={boardContainerRef}>
                 <SudokuBoard
                   board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
+                  originalPuzzle={originalPuzzle}
                 selectedCell={selectedCell}
                 highlightedCells={sudokuContext?.highlightedCells || []}
                 incorrectCells={sudokuContext?.incorrectCells || new Set()}

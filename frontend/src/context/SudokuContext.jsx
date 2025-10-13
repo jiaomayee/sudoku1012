@@ -4,6 +4,7 @@ import localforage from 'localforage';
 import { useUser } from './UserContext';
 import { api } from '../services/api';
 import DLX from '../utils/DLX'; // 添加DLX算法导入
+import { generateSudoku, solveSudoku, hasUniqueSolution } from '../utils/sudokuUtils';
 
 // 创建数独上下文
 const SudokuContext = createContext();
@@ -305,89 +306,32 @@ export const SudokuContextProvider = ({ children }) => {
 
 
 
-  // 辅助函数：使用程序生成离线谜题
-  const generateOfflinePuzzle = (difficulty) => {
-    console.log('generateOfflinePuzzle: 生成离线谜题，难度:', difficulty);
-    
-    // 根据难度确定空格数量范围
-    const emptyCellsConfig = {
-      easy: { min: 35, max: 40 },
-      medium: { min: 45, max: 50 },
-      hard: { min: 55, max: 58 },
-      expert: { min: 60, max: 64 }
-    };
-    
-    const { min, max } = emptyCellsConfig[difficulty] || emptyCellsConfig.medium;
-    const emptyCellsCount = Math.floor(Math.random() * (max - min + 1)) + min;
-    
-    const dlx = new DLX();
-    
-    // 尝试次数限制
-    const MAX_ATTEMPTS = 100;
-    let attempts = 0;
-    
-    while (attempts < MAX_ATTEMPTS) {
-      attempts++;
+  // 生成离线数独谜题
+  const generateOfflinePuzzle = async (difficulty = 'medium') => {
+    try {
+      console.log(`开始生成${difficulty}难度的数独题目...`);
+      const { puzzle, solution } = await generateSudoku(difficulty);
       
-      // 创建一个已解决的数独
-      const solution = generateRandomCompletedBoard();
-      
-      // 深拷贝解决方案作为谜题
-      const puzzle = solution.map(row => [...row]);
-      
-      // 创建所有单元格的列表
-      const cells = [];
-      for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
-          cells.push({ row, col });
-        }
+      // 验证生成的谜题
+      if (!puzzle || !solution) {
+        throw new Error('生成的数独数据不完整');
       }
       
-      // 随机打乱单元格顺序
-      shuffleArray(cells);
-      
-      // 尝试移除数字，同时确保保持唯一解
-      let removedCount = 0;
-      for (const cell of cells) {
-        if (removedCount >= emptyCellsCount) break;
-        
-        // 保存当前值
-        const originalValue = puzzle[cell.row][cell.col];
-        if (originalValue === 0) continue;
-        
-        // 暂时移除该数字
-        puzzle[cell.row][cell.col] = 0;
-        
-        // 检查移除后是否仍有唯一解
-        if (dlx.hasUniqueSolution(puzzle)) {
-          // 保持移除状态
-          removedCount++;
-        } else {
-          // 如果不是唯一解，恢复原值
-          puzzle[cell.row][cell.col] = originalValue;
-        }
+      // 验证数独有唯一解
+      const hasUnique = hasUniqueSolution(puzzle);
+      if (!hasUnique) {
+        console.warn('警告：生成的数独题目可能没有唯一解');
+        // 尝试重新生成
+        return generateOfflinePuzzle(difficulty);
       }
       
-      // 验证生成的谜题是否符合要求
-      if (removedCount >= min && removedCount <= max) {
-        // 再次检查谜题是否有唯一解
-        const hasUnique = dlx.hasUniqueSolution(puzzle);
-        if (hasUnique) {
-          // 验证解决方案是否正确
-          const solved = dlx.solveSudoku(puzzle);
-          const solutionIsCorrect = compareBoards(solved, solution);
-          
-          if (solutionIsCorrect) {
-            console.log(`成功生成谜题：难度=${difficulty}，空格数=${removedCount}，尝试次数=${attempts}`);
-            return { puzzle, solution };
-          }
-        }
-      }
+      console.log(`成功生成${difficulty}难度的数独题目，使用DLX算法验证了唯一解`);
+      return { puzzle, solution };
+    } catch (error) {
+      console.error(`生成${difficulty}难度的数独题目时出错:`, error);
+      // 如果生成失败，尝试使用备用方法
+      return generateBackupPuzzle(difficulty);
     }
-    
-    console.warn(`达到最大尝试次数(${MAX_ATTEMPTS})，使用备用谜题生成`);
-    // 如果尝试多次仍未成功，使用备用方案
-    return generateBackupPuzzle(difficulty);
   };
 
   // 辅助函数：比较两个数独棋盘是否相同
@@ -405,101 +349,48 @@ export const SudokuContextProvider = ({ children }) => {
   };
 
   // 辅助函数：备用谜题生成方法
-  const generateBackupPuzzle = (difficulty) => {
-    console.log('使用备用谜题生成方法');
-    
-    // 创建一个基础已解决数独
-    const solution = generateRandomCompletedBoard();
-    
-    // 根据难度确定空格数量
-    const emptyCellsCount = {
-      easy: 40,
-      medium: 50,
-      hard: 58,
-      expert: 64
-    }[difficulty] || 50;
-    
-    // 深拷贝解决方案作为谜题
-    const puzzle = solution.map(row => [...row]);
-    
-    // 随机移除一些数字
-    let cellsToRemove = emptyCellsCount;
-    const removedCells = new Set();
-    
-    while (cellsToRemove > 0) {
-      const row = Math.floor(Math.random() * 9);
-      const col = Math.floor(Math.random() * 9);
-      const cellKey = `${row}-${col}`;
+  const generateBackupPuzzle = (difficulty = 'medium') => {
+    try {
+      console.log(`使用备用方法生成${difficulty}难度的数独题目...`);
+      // 直接使用sudokuUtils中的函数
+      const { puzzle, solution } = generateSudoku(difficulty);
       
-      if (puzzle[row][col] !== 0 && !removedCells.has(cellKey)) {
-        // 先保存原始值
-        const tempValue = puzzle[row][col];
-        puzzle[row][col] = 0;
-        
-        // 使用DLX尝试求解
-        const dlx = new DLX();
-        const solved = dlx.solveSudoku(puzzle);
-        
-        if (solved) {
-          // 保留空格
-          removedCells.add(cellKey);
-          cellsToRemove--;
-        } else {
-          // 无法求解，恢复原值
-          puzzle[row][col] = tempValue;
-        }
-      }
+      console.log(`备用方法成功生成${difficulty}难度的数独题目`);
+      return { puzzle, solution };
+    } catch (error) {
+      console.error(`备用方法生成数独题目失败:`, error);
+      // 如果备用方法也失败，返回一个预设的简单谜题
+      const simplePuzzle = [
+        [5, 3, 0, 0, 7, 0, 0, 0, 0],
+        [6, 0, 0, 1, 9, 5, 0, 0, 0],
+        [0, 9, 8, 0, 0, 0, 0, 6, 0],
+        [8, 0, 0, 0, 6, 0, 0, 0, 3],
+        [4, 0, 0, 8, 0, 3, 0, 0, 1],
+        [7, 0, 0, 0, 2, 0, 0, 0, 6],
+        [0, 6, 0, 0, 0, 0, 2, 8, 0],
+        [0, 0, 0, 4, 1, 9, 0, 0, 5],
+        [0, 0, 0, 0, 8, 0, 0, 7, 9]
+      ];
+      
+      const simpleSolution = [
+        [5, 3, 4, 6, 7, 8, 9, 1, 2],
+        [6, 7, 2, 1, 9, 5, 3, 4, 8],
+        [1, 9, 8, 3, 4, 2, 5, 6, 7],
+        [8, 5, 9, 7, 6, 1, 4, 2, 3],
+        [4, 2, 6, 8, 5, 3, 7, 9, 1],
+        [7, 1, 3, 9, 2, 4, 8, 5, 6],
+        [9, 6, 1, 5, 3, 7, 2, 8, 4],
+        [2, 8, 7, 4, 1, 9, 6, 3, 5],
+        [3, 4, 5, 2, 8, 6, 1, 7, 9]
+      ];
+      
+      console.log(`使用预设的简单数独题目作为最后的备用`);
+      return { puzzle: simplePuzzle, solution: simpleSolution };
     }
-    
-    return { puzzle, solution };
   };
 
-  // 辅助函数：生成随机完成的数独棋盘
-  const generateRandomCompletedBoard = () => {
-    // 基础模板
-    const baseBoard = [
-      [5, 3, 4, 6, 7, 8, 9, 1, 2],
-      [6, 7, 2, 1, 9, 5, 3, 4, 8],
-      [1, 9, 8, 3, 4, 2, 5, 6, 7],
-      [8, 5, 9, 7, 6, 1, 4, 2, 3],
-      [4, 2, 6, 8, 5, 3, 7, 9, 1],
-      [7, 1, 3, 9, 2, 4, 8, 5, 6],
-      [9, 6, 1, 5, 3, 7, 2, 8, 4],
-      [2, 8, 7, 4, 1, 9, 6, 3, 5],
-      [3, 4, 5, 2, 8, 6, 1, 7, 9]
-    ];
-    
-    // 随机打乱行和列，以增加随机性
-    const shuffledBoard = shuffleSudokuBoard(baseBoard);
-    return shuffledBoard;
-  };
-
-  // 辅助函数：打乱数独棋盘以增加随机性
-  const shuffleSudokuBoard = (board) => {
-    const result = board.map(row => [...row]);
-    
-    // 随机打乱3x3块内的行
-    for (let block = 0; block < 3; block++) {
-      const startRow = block * 3;
-      // 随机打乱块内的行
-      const rows = [0, 1, 2].map(i => result[startRow + i]);
-      shuffleArray(rows);
-      rows.forEach((row, i) => result[startRow + i] = row);
-    }
-    
-    // 随机打乱3x3块内的列
-    for (let block = 0; block < 3; block++) {
-      const startCol = block * 3;
-      // 对每一行，打乱块内的列
-      for (let row = 0; row < 9; row++) {
-        const cols = [0, 1, 2].map(i => result[row][startCol + i]);
-        shuffleArray(cols);
-        cols.forEach((val, i) => result[row][startCol + i] = val);
-      }
-    }
-    
-    return result;
-  };
+  // 使用从sudokuUtils导入的函数替代自定义实现
+  // 保留shuffleArray函数用于其他需要的地方
 
   // 辅助函数：打乱数组
   const shuffleArray = (array) => {

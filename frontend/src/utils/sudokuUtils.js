@@ -1,9 +1,13 @@
 // 数独游戏核心逻辑工具函数
+import DLX from './DLX.js';
 
 // 创建空的9x9数独板
 export const createEmptyBoard = () => {
   return Array(9).fill().map(() => Array(9).fill(0));
 };
+
+// 创建DLX实例用于数独求解和唯一性验证
+const dlxSolver = new DLX();
 
 // 检查在指定位置放置数字是否有效
 export const isValidMove = (board, row, col, num) => {
@@ -49,6 +53,17 @@ export const findEmptyCell = (board) => {
 
 // 使用回溯算法求解数独
 export const solveSudoku = (board) => {
+  try {
+    // 优先使用DLX算法求解，更高效
+    const solution = dlxSolver.solveSudoku(board);
+    if (solution) {
+      return solution;
+    }
+    // 如果DLX无法求解，回退到原算法
+  } catch (error) {
+    console.error('使用DLX算法求解数独时出错:', error);
+  }
+  
   // 创建副本避免修改原数组
   const grid = board.map(row => [...row]);
   
@@ -77,7 +92,19 @@ export const solveSudoku = (board) => {
 };
 
 // 检查数独是否有唯一解
+// 使用DLX算法进行高效验证，比回溯算法更快更可靠
 export const hasUniqueSolution = (board) => {
+  try {
+    return dlxSolver.hasUniqueSolution(board);
+  } catch (error) {
+    console.error('验证数独唯一性时出错:', error);
+    // 出错时回退到原始算法
+    return fallbackHasUniqueSolution(board);
+  }
+};
+
+// 备用的回溯算法实现，仅在DLX算法出错时使用
+const fallbackHasUniqueSolution = (board) => {
   // 复制当前数独板
   const grid = board.map(row => [...row]);
   let solutionsCount = 0;
@@ -120,48 +147,77 @@ export const generateRandomNumbers = () => {
 
 // 生成完整的数独解（填充整个棋盘）
 export const generateCompletedBoard = () => {
-  const board = createEmptyBoard();
+  console.debug('开始生成完整的数独解');
+  const maxAttempts = 10; // 最大尝试次数
   
-  // 填充对角线的3x3宫格
-  for (let box = 0; box < 9; box += 3) {
-    const numbers = generateRandomNumbers();
-    let index = 0;
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 3; col++) {
-        board[box + row][box + col] = numbers[index++];
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const board = createEmptyBoard();
+      
+      // 填充对角线的3x3宫格（这是一种确保数独可解的常见技巧）
+      for (let box = 0; box < 9; box += 3) {
+        const numbers = generateRandomNumbers();
+        let index = 0;
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            board[box + row][box + col] = numbers[index++];
+          }
+        }
       }
+      
+      // 使用DLX算法求解剩余部分，效率更高
+      const completedBoard = dlxSolver.solveSudoku(board);
+      
+      if (completedBoard && isValidSudoku(completedBoard)) {
+        console.debug(`成功生成完整数独解（尝试次数：${attempt}）`);
+        return completedBoard;
+      }
+      
+      // 如果DLX失败，回退到回溯算法
+      const solve = () => {
+        const empty = findEmptyCell(board);
+        if (!empty) return true;
+        
+        const [row, col] = empty;
+        const numbers = generateRandomNumbers(); // 使用随机顺序增加变化性
+        
+        for (const num of numbers) {
+          if (isValidMove(board, row, col, num)) {
+            board[row][col] = num;
+            
+            if (solve()) return true;
+            
+            board[row][col] = 0; // 回溯
+          }
+        }
+        
+        return false;
+      };
+      
+      if (solve() && isValidSudoku(board)) {
+        console.debug(`使用回溯算法成功生成完整数独解（尝试次数：${attempt}）`);
+        return board;
+      }
+    } catch (error) {
+      console.error(`生成数独解时出错（尝试 ${attempt}/${maxAttempts}）:`, error);
     }
   }
   
-  // 求解剩余部分
-  const solve = () => {
-    const empty = findEmptyCell(board);
-    if (!empty) return true;
-    
-    const [row, col] = empty;
-    const numbers = generateRandomNumbers(); // 使用随机顺序增加变化性
-    
-    for (const num of numbers) {
-      if (isValidMove(board, row, col, num)) {
-        board[row][col] = num;
-        
-        if (solve()) return true;
-        
-        board[row][col] = 0; // 回溯
-      }
-    }
-    
-    return false;
-  };
-  
-  solve();
-  return board;
+  console.error(`超过最大尝试次数（${maxAttempts}），无法生成有效的数独解`);
+  return null;
 };
 
 // 根据难度级别生成数独谜题
 export const generateSudoku = (difficulty = 'medium') => {
+  console.log(`开始生成${difficulty}难度的数独题目`);
+  
   // 首先生成完整的数独解
   const solution = generateCompletedBoard();
+  if (!solution) {
+    console.error('生成完整数独解失败');
+    return null;
+  }
+  
   const board = solution.map(row => [...row]);
   
   // 根据难度决定要移除的数字数量
@@ -200,7 +256,7 @@ export const generateSudoku = (difficulty = 'medium') => {
     [positions[i], positions[j]] = [positions[j], positions[i]];
   }
   
-  // 逐个尝试移除数字
+  // 逐个尝试移除数字，使用DLX算法验证唯一性
   for (const [row, col] of positions) {
     if (removedCells >= cellsToRemove) break;
     
@@ -210,16 +266,73 @@ export const generateSudoku = (difficulty = 'medium') => {
     // 检查移除后是否仍有唯一解
     if (hasUniqueSolution(board)) {
       removedCells++;
+      console.debug(`已移除单元格(${row},${col})，当前已移除${removedCells}/${cellsToRemove}个`);
     } else {
       // 如果移除后解不唯一，恢复该数字
       board[row][col] = temp;
     }
   }
   
+  // 验证生成的题目是否有效
+  const isValidPuzzle = hasUniqueSolution(board);
+  if (!isValidPuzzle) {
+    console.warn(`警告：生成的${difficulty}难度题目可能没有唯一解，尝试重新生成`);
+    // 可以选择重新生成，但为了避免无限循环，这里直接返回当前结果
+  }
+  
+  console.log(`成功生成${difficulty}难度数独题目，保留了${81 - removedCells}个数字`);
+  
   return {
     puzzle: board,
     solution: solution
   };
+};
+
+// 检查整个数独板是否有效（不包含冲突）
+export const isValidSudoku = (board) => {
+  // 检查每一行
+  for (let row = 0; row < 9; row++) {
+    const seen = new Set();
+    for (let col = 0; col < 9; col++) {
+      const num = board[row][col];
+      if (num !== 0) {
+        if (seen.has(num)) return false;
+        seen.add(num);
+      }
+    }
+  }
+  
+  // 检查每一列
+  for (let col = 0; col < 9; col++) {
+    const seen = new Set();
+    for (let row = 0; row < 9; row++) {
+      const num = board[row][col];
+      if (num !== 0) {
+        if (seen.has(num)) return false;
+        seen.add(num);
+      }
+    }
+  }
+  
+  // 检查每个3x3宫格
+  for (let boxRow = 0; boxRow < 3; boxRow++) {
+    for (let boxCol = 0; boxCol < 3; boxCol++) {
+      const seen = new Set();
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const row = boxRow * 3 + r;
+          const col = boxCol * 3 + c;
+          const num = board[row][col];
+          if (num !== 0) {
+            if (seen.has(num)) return false;
+            seen.add(num);
+          }
+        }
+      }
+    }
+  }
+  
+  return true;
 };
 
 // 检查数独是否已完成
@@ -524,6 +637,63 @@ export const getConflictingCells = (board) => {
 // 克隆数独板
 export const cloneBoard = (board) => {
   return board.map(row => [...row]);
+};
+
+// 测试数独生成功能
+export const testSudokuGeneration = () => {
+  console.log('开始测试数独生成功能...');
+  const difficulties = ['easy', 'medium', 'hard', 'expert'];
+  
+  difficulties.forEach(difficulty => {
+    console.log(`\n测试${difficulty}难度数独生成:`);
+    const result = generateSudoku(difficulty);
+    
+    if (!result) {
+      console.error(`${difficulty}难度数独生成失败`);
+      return;
+    }
+    
+    const { puzzle, solution } = result;
+    
+    // 验证生成的数独题目是有效的
+    const isPuzzleValid = isValidSudoku(puzzle);
+    console.log(`${difficulty}难度题目是否有效:`, isPuzzleValid);
+    
+    // 验证生成的数独解是有效的
+    const isSolutionValid = isValidSudoku(solution) && isSudokuComplete(solution);
+    console.log(`${difficulty}难度解是否有效且完整:`, isSolutionValid);
+    
+    // 验证题目有唯一解
+    const hasUniqueSol = hasUniqueSolution(puzzle);
+    console.log(`${difficulty}难度题目是否有唯一解:`, hasUniqueSol);
+    
+    // 计算保留的数字数量
+    let filledCount = 0;
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (puzzle[row][col] !== 0) filledCount++;
+      }
+    }
+    console.log(`${difficulty}难度题目保留的数字数量:`, filledCount);
+    
+    // 验证解是否匹配题目
+    const isSolutionMatching = verifySolution(puzzle, solution);
+    console.log(`${difficulty}难度解是否与题目匹配:`, isSolutionMatching);
+  });
+  
+  console.log('\n数独生成功能测试完成!');
+};
+
+// 验证解是否匹配题目
+const verifySolution = (puzzle, solution) => {
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
+      if (puzzle[row][col] !== 0 && puzzle[row][col] !== solution[row][col]) {
+        return false;
+      }
+    }
+  }
+  return true;
 };
 
 // 计算数独完成进度百分比

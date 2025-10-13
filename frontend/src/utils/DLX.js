@@ -21,7 +21,16 @@ class ColumnHeader extends Node {
   }
 }
 
-class DLX { constructor() { this.root = new Node(-1, -1); // 根节点 this.colHeaders = []; // 列头节点数组 this.solution = []; // 存储解决方案 this.rows = []; // 存储所有行节点 } // 将数独问题转换为精确覆盖问题的矩阵 setupSudokuMatrix(puzzle) { // 数独问题转换为精确覆盖问题需要4种约束： // 1. 单元格约束：每个单元格必须填入一个数字 // 2. 行约束：每一行中每个数字必须恰好出现一次 // 3. 列约束：每一列中每个数字必须恰好出现一次 // 4. 3x3宫格约束：每个3x3宫格中每个数字必须恰好出现一次 
+class DLX {
+  constructor() {
+    this.root = new Node(-1, -1); // 根节点
+    this.colHeaders = []; // 列头节点数组
+    this.solution = []; // 存储解决方案
+    this.rows = []; // 存储所有行节点
+  }
+  
+  // 将数独问题转换为精确覆盖问题的矩阵
+  setupSudokuMatrix(puzzle) { // 数独问题转换为精确覆盖问题需要4种约束： // 1. 单元格约束：每个单元格必须填入一个数字 // 2. 行约束：每一行中每个数字必须恰好出现一次 // 3. 列约束：每一列中每个数字必须恰好出现一次 // 4. 3x3宫格约束：每个3x3宫格中每个数字必须恰好出现一次 
     const N = 9; // 数独大小
     const NUM_CONSTRAINTS = 4 * N * N; // 约束数量
     const NUM_POSSIBLE_PLACEMENTS = N * N * N; // 可能的放置方式数量

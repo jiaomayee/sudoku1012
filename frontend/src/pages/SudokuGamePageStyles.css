@@ -1,6 +1,6 @@
 :root {
   /* 定义CSS变量，便于统一管理和响应式调整 */
-  --board-width: 55vh; /* 默认使用视口高度的55% */
+  --board-width: min(55vh, 55vw, 600px); /* 大屏幕上使用视口较小值，最大600px */
   --control-panel-width: calc(var(--board-width) * 2/3);
   --block-gap: 30px;
   --border-radius: 8px;
@@ -192,11 +192,38 @@ body {
   }
 }
 
-/* 横屏模式下的额外优化 */
+/* 横屏模式（大屏幕始终使用） */
 @media (min-width: 992px) {
+  /* 确保主内容区域使用两行两列布局 */
+  .main-content {
+    flex-direction: column;
+    gap: var(--block-gap);
+  }
+  
+  .top-row,
+  .bottom-row {
+    display: flex;
+    flex-direction: row;
+    gap: var(--block-gap);
+    width: 100%;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  
+  .nav-block {
+    width: var(--board-width);
+    height: auto; /* 保持自动高度 */
+  }
+  
   .board-container {
     width: var(--board-width);
     height: var(--board-width);
+  }
+  
+  .display-block {
+    width: var(--control-panel-width);
+    height: auto;
+    min-height: 60px;
   }
   
   .control-panel {

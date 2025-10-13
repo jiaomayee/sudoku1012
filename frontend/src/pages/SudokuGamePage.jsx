@@ -40,8 +40,14 @@ const SudokuGamePage = () => {
   // 监听窗口大小变化
   useEffect(() => {
     const handleResize = () => {
-      const portrait = window.innerHeight > window.innerWidth;
-      setIsPortrait(portrait);
+      // 首先根据屏幕宽度判断，大屏幕始终使用横屏布局
+      // 992px 是横屏布局的最小宽度阈值
+      const isSmallScreen = window.innerWidth < 992;
+      // 小屏幕再根据方向判断
+      const isPortraitOrientation = window.innerHeight > window.innerWidth;
+      
+      // 大屏幕始终使用横屏布局，小屏幕根据方向决定
+      setIsPortrait(isSmallScreen && isPortraitOrientation);
     };
     
     window.addEventListener('resize', handleResize);

@@ -322,6 +322,16 @@ const SudokuGamePage = () => {
   
   return (
     <div className="sudoku-game-container">
+      {/* 游戏暂停蒙板 */}
+      {!isTimerActive && (
+        <div className="pause-overlay" onClick={handlePauseTimer}>
+          <div className="pause-message">
+            <h2>游戏已暂停</h2>
+            <p>点击任意位置继续游戏</p>
+          </div>
+        </div>
+      )}
+      
       {/* 主要内容区域 */}
       <div className="main-content">
         {isPortrait ? (

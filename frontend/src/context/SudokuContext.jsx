@@ -942,6 +942,11 @@ export const SudokuContextProvider = ({ children }) => {
     }
   };
 
+  // 切换计时器活跃状态
+  const toggleTimer = () => {
+    setTimerActive(prev => !prev);
+  };
+
   // 提示下一步
   const getHint = async () => {
     try {
@@ -1074,6 +1079,7 @@ export const SudokuContextProvider = ({ children }) => {
     setSelectedCell,
     setHighlightedCells,
     setTimerActive,
+    toggleTimer, // 添加切换计时器方法
     togglePencilMode, // 添加切换铅笔模式方法
     togglePencilNote, // 添加切换铅笔标注方法
     clearPencilNotes, // 添加清除铅笔标注方法

@@ -5,43 +5,47 @@ import { useTheme } from '../context/ThemeContext';
 const DisplayBlockContainer = styled(({theme, ...props}) => <div {...props} />).attrs({ className: 'display-block' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   border-radius: 8px;
-  padding: 4px;
+  padding: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   width: 100%; // 继承父容器宽度，确保与操作区块同宽
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   margin: 0;
   box-sizing: border-box;
+  min-height: 0;
 `;
 
 const ErrorCount = styled.div`
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: ${props => props.theme?.error || '#e74c3c'};
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
   margin: 0;
+  padding: 0;
 `;
 
 const DifficultyDisplay = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: ${props => props.theme?.text || '#34495e'};
   text-align: center;
   margin: 0;
+  padding: 0;
 `;
 
 const TimerDisplay = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   color: ${props => props.theme?.primary || '#3498db'};
   font-family: 'Courier New', monospace;
   margin: 0;
+  padding: 0;
 `;
 
 const DisplayBlock = ({ 

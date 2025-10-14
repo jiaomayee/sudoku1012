@@ -206,7 +206,8 @@ const ActionButton = styled(({isDanger, isActive, ...props}) => <button {...prop
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  // 简化transition，只保留必要的颜色变化
+  transition: background-color 0.2s ease;
   font-family: inherit;
   margin: 4px 0;
   box-sizing: border-box;
@@ -228,11 +229,10 @@ const ActionButton = styled(({isDanger, isActive, ...props}) => <button {...prop
       if (props.isActive) return props.theme?.primaryDark || '#2980b9';
       return (props.theme?.border || '#e0e0e0') + '44';
     }};
-    // 移除transform，防止鼠标移入时的位置变化
   }
   
   &:active {
-    // 移除transform，保持按钮稳定
+    // 确保没有任何transform或box-shadow效果
   }
 `;
 
@@ -244,11 +244,11 @@ const TechniqueItem = styled.div`
   border: 1px solid ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.border || '#e0e0e0')};
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  // 简化transition，只保留必要的颜色变化
+  transition: background-color 0.2s ease;
   
   &:hover {
     background-color: ${props => (props.theme?.primary || '#3498db') + '10'};
-    transform: translateX(2px);
   }
 `;
 

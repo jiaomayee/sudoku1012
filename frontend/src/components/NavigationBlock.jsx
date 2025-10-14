@@ -44,7 +44,8 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   padding: 12px 6px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  // 简化transition，只保留必要的颜色变化
+  transition: background-color 0.2s ease;
   min-height: 60px;
   font-size: 12px;
   line-height: 1.2;
@@ -55,11 +56,10 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   
   &:hover {
     background-color: ${props => (props.theme?.primary || '#3498db') + '15'};
-    transform: translateY(-1px);
   }
   
   &:active {
-    transform: translateY(0);
+    // 确保没有任何transform或box-shadow效果
   }
 `;
 

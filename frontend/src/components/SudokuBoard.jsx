@@ -111,15 +111,48 @@ const Cell = styled.div`
 
 // 铅笔模式下的数字标注组件
 const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
-  // 定义九宫格布局的样式
-  const notesContainer = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gridTemplateRows: 'repeat(3, 1fr)',
-    width: '100%',
-    height: '100%',
-    padding: '1px', // 减小内边距以增加可用空间
-    gridGap: '0px' // 移除网格间距以减小行间距
+  // 计算实际包含的数字数量
+  const activeNotes = Array.isArray(notes) ? 
+    notes : 
+    Object.keys(notes).filter(num => notes[num]).map(Number);
+  
+  // 根据活跃数字数量动态调整容器样式
+  const getContainerStyle = () => {
+    // 基础样式
+    const baseStyle = {
+      display: 'grid',
+      width: '100%',
+      height: '100%',
+      padding: '1px',
+      boxSizing: 'border-box'
+    };
+    
+    // 根据活跃数字数量设置不同的网格布局
+    if (activeNotes.length <= 3) {
+      // 单行显示
+      return {
+        ...baseStyle,
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateRows: '1fr',
+        alignItems: 'center'
+      };
+    } else if (activeNotes.length <= 6) {
+      // 两行显示
+      return {
+        ...baseStyle,
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateRows: 'repeat(2, 1fr)',
+        gridGap: '0px'
+      };
+    } else {
+      // 三行显示
+      return {
+        ...baseStyle,
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateRows: 'repeat(3, 1fr)',
+        gridGap: '0px'
+      };
+    }
   };
   
   // 为每个数字创建位置映射
@@ -134,11 +167,11 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
     8: { gridRow: 3, gridColumn: 2 },
     9: { gridRow: 3, gridColumn: 3 }
   };
-
+  
   return (
-    <div style={notesContainer}>
-      {notes.map(number => {
-        const isHighlighted = number === highlightedNumber;
+    <div style={getContainerStyle()}>
+      {activeNotes.map((number) => {
+        const isHighlighted = highlightedNumber === number;
         return (
           <div
             key={number}
@@ -147,12 +180,13 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '0.85rem', // 略微减小字体大小，确保三行都能完整显示
+              fontSize: '0.85rem',
               fontWeight: isHighlighted ? 'bold' : '500',
               color: isHighlighted ? '#007bff' : '#4A6FA5',
               backgroundColor: isHighlighted ? '#fff3cd' : 'transparent',
-              margin: '0', // 确保没有额外的外边距
-              lineHeight: '1.2' // 设置行高，优化文字垂直对齐
+              margin: '0',
+              lineHeight: '1.2',
+              boxSizing: 'border-box'
             }}
           >
             {number}

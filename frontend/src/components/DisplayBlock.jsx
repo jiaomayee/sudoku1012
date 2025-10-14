@@ -5,13 +5,13 @@ import { useTheme } from '../context/ThemeContext';
 const DisplayBlockContainer = styled(({theme, ...props}) => <div {...props} />).attrs({ className: 'display-block' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   border-radius: 8px;
-  padding: 15px;
+  padding: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 2px;
   width: 100%; // 继承父容器宽度，确保与操作区块同宽
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   margin: 0;
@@ -19,7 +19,7 @@ const DisplayBlockContainer = styled(({theme, ...props}) => <div {...props} />).
 `;
 
 const ErrorCount = styled.div`
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   color: ${props => props.theme?.error || '#e74c3c'};
   display: flex;
@@ -29,7 +29,7 @@ const ErrorCount = styled.div`
 `;
 
 const DifficultyDisplay = styled.div`
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: ${props => props.theme?.text || '#34495e'};
   text-align: center;
@@ -37,7 +37,7 @@ const DifficultyDisplay = styled.div`
 `;
 
 const TimerDisplay = styled.div`
-  font-size: 18px;
+  font-size: 14px;
   font-weight: bold;
   color: ${props => props.theme?.primary || '#3498db'};
   font-family: 'Courier New', monospace;

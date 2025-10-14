@@ -181,7 +181,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
 };
 
 // JS逻辑函数
-const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPencilMode, pencilNotes }) => {
+const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPencilMode, pencilNotes, incorrectCells }) => {
   const { theme } = useTheme();
   
   // 直接使用预设的棋盘数据进行测试
@@ -218,6 +218,25 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
     return value === 'error';
   };
   
+  // 检查单元格是否为错误单元格
+  const isCellIncorrect = (row, col) => {
+    // 检查incorrectCells是否存在且包含当前单元格坐标
+    if (!incorrectCells) return false;
+    
+    // 检查incorrectCells是否为Set对象
+    if (incorrectCells instanceof Set) {
+      const cellKey = `${row}-${col}`;
+      return incorrectCells.has(cellKey);
+    }
+    
+    // 检查incorrectCells是否为数组
+    if (Array.isArray(incorrectCells)) {
+      return incorrectCells.some(cell => cell.row === row && cell.col === col);
+    }
+    
+    return false;
+  };
+  
   // 获取单元格所在的宫索引
   const getBoxIndex = (row, col) => {
     return Math.floor(row / 3) * 3 + Math.floor(col / 3);
@@ -236,7 +255,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
     
     // 基础状态类
     if (isCellPrefilled(value, row, col)) classes.push('prefilled');
-    if (isCellError(value)) classes.push('error');
+    if (isCellError(value) || isCellIncorrect(row, col)) classes.push('error');
     // 选中状态和相关高亮
     if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
       classes.push('selected');
@@ -304,9 +323,10 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
             if (selectedCellValue !== 0 && selectedCellValue !== 'error') {
               const isSelectedPrefilled = isCellPrefilled(selectedCellValue, selectedCell.row, selectedCell.col);
               const isSelectedError = isCellError(selectedCellValue);
+              const isSelectedIncorrect = isCellIncorrect(selectedCell.row, selectedCell.col);
               
               // 最终确认：只有预填数字或非错误的用户输入才触发高亮
-              if (isSelectedPrefilled || !isSelectedError) {
+              if (isSelectedPrefilled || (!isSelectedError && !isSelectedIncorrect)) {
                 highlightedNumber = selectedCellValue;
               }
             }

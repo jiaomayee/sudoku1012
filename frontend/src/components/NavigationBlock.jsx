@@ -35,37 +35,32 @@ const ButtonGrid = styled.div`
 
 const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: ${props => props.isActive ? (props.theme?.primary || '#3498db') + '22' : (props.theme?.surface || '#ffffff')};
   color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.text || '#333333')};
   border: 2px solid ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.border || '#e0e0e0')};
-  padding: 12px 6px;
+  padding: 12px;
   border-radius: 8px;
   cursor: pointer;
-  // 简化transition，只保留必要的颜色变化
   transition: background-color 0.2s ease;
   min-height: 60px;
   font-size: 12px;
-  line-height: 1.2;
-  text-align: center;
   font-family: inherit;
   margin: 0;
   box-sizing: border-box;
+  position: relative;
   
   &:hover {
     background-color: ${props => (props.theme?.primary || '#3498db') + '15'};
   }
   
   &:active {
-    // 确保没有任何transform或box-shadow效果
   }
 `;
 
 const ButtonIcon = styled.span`
   font-size: 24px;
-  margin-bottom: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,35 +147,30 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
       <NavBlockContainer>
         <ButtonGrid>
           {/* 新建游戏按钮 - 打开难度选择模态框 */}
-          <NavButton onClick={handleNewGameClick}>
+          <NavButton onClick={handleNewGameClick} title="新建游戏">
             <ButtonIcon><Icons.NewGame /></ButtonIcon>
-            新建游戏
           </NavButton>
           
           {/* 暂停计时按钮 */}
-          <NavButton onClick={onPauseTimer}>
+          <NavButton onClick={onPauseTimer} title={isTimerActive ? '暂停计时' : '继续'}>
             <ButtonIcon>
               {isTimerActive ? <Icons.Pause /> : <Icons.Play />}
             </ButtonIcon>
-            {isTimerActive ? '暂停计时' : '继续'}
           </NavButton>
           
           {/* 技巧提示按钮 */}
-          <NavButton onClick={onGetHint}>
+          <NavButton onClick={onGetHint} title="技巧提示">
             <ButtonIcon><Icons.Hint /></ButtonIcon>
-            技巧提示
           </NavButton>
           
           {/* 候选数按钮 */}
-          <NavButton onClick={onToggleNotes}>
+          <NavButton onClick={onToggleNotes} title="候选数">
             <ButtonIcon><Icons.Notes /></ButtonIcon>
-            候选数
           </NavButton>
           
           {/* 设置按钮 */}
-          <NavButton onClick={onSettings}>
+          <NavButton onClick={onSettings} title="设置">
             <ButtonIcon><Icons.Settings /></ButtonIcon>
-            设置
           </NavButton>
         </ButtonGrid>
       </NavBlockContainer>

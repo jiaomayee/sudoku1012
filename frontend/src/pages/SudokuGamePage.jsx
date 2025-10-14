@@ -34,11 +34,12 @@ const SudokuGamePage = () => {
   const getHint = sudokuContext?.getHint || (() => {});
   const openSettings = sudokuContext?.openSettings || (() => {});
   const fillCell = sudokuContext?.fillCell || (() => {});
-  
+  const fillAllCandidates = sudokuContext?.fillAllCandidates || (() => {});
+
   const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
   const [showDifficultyModal, setShowDifficultyModal] = useState(false);
   const [showPencilModeInstructions, setShowPencilModeInstructions] = useState(false);
-  
+  const [showNotesInstructions, setShowNotesInstructions] = useState(false);
   const boardContainerRef = useRef(null);
   const timerRef = useRef(null);
   
@@ -290,6 +291,17 @@ const SudokuGamePage = () => {
     }
   };
 
+  // 处理候选数按钮点击
+  const handleToggleNotes = () => {
+    if (fillAllCandidates) {
+      // 计算并填充所有候选数
+      fillAllCandidates();
+      // 使用提醒弹窗替代alert
+      setShowNotesInstructions(true);
+      setTimeout(() => setShowNotesInstructions(false), 2000);
+    }
+  };
+  
   // 处理切换铅笔模式
   const handleTogglePencilMode = () => {
     if (togglePencilMode) {
@@ -320,7 +332,7 @@ const SudokuGamePage = () => {
                 onNewGame={handleNewGame}
                 onPauseTimer={handlePauseTimer}
                 onGetHint={handleGetHint}
-                onToggleNotes={handleTogglePencilMode}
+                onToggleNotes={handleToggleNotes}
                 onSettings={handleSettings}
                 isNotesMode={isPencilMode}
                 isTimerActive={isTimerActive}
@@ -374,7 +386,7 @@ const SudokuGamePage = () => {
                   onNewGame={handleNewGame}
                   onPauseTimer={handlePauseTimer}
                   onGetHint={handleGetHint}
-                  onToggleNotes={handleTogglePencilMode}
+                  onToggleNotes={handleToggleNotes}
                   onSettings={handleSettings}
                   isNotesMode={isPencilMode}
                   isTimerActive={isTimerActive}
@@ -445,6 +457,13 @@ const SudokuGamePage = () => {
       {showPencilModeInstructions && (
         <div className="pencil-mode-instructions">
           {isPencilMode ? '进入铅笔模式，可以添加候选数字' : '退出铅笔模式，返回正常输入'}
+        </div>
+      )}
+      
+      {/* 候选数提示信息 */}
+      {showNotesInstructions && (
+        <div className="pencil-mode-instructions">
+          已为所有空白格子计算并填充候选数
         </div>
       )}
     </div>

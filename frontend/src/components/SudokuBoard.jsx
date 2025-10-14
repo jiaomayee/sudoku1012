@@ -60,6 +60,8 @@ const Cell = styled.div`
   &.selected {
     background-color: #ffffff;
     z-index: 2;
+    /* 为选中的单元格添加蓝色实线边框 */
+    border: 2px solid #3498db !important;
   }
   
   &.error,

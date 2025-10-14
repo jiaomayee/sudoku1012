@@ -35,6 +35,7 @@ const SudokuGamePage = () => {
   const openSettings = sudokuContext?.openSettings || (() => {});
   const fillCell = sudokuContext?.fillCell || (() => {});
   const fillAllCandidates = sudokuContext?.fillAllCandidates || (() => {});
+  const undo = sudokuContext?.undo || (() => {}); // 添加undo函数引用
 
   const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
   const [showDifficultyModal, setShowDifficultyModal] = useState(false);
@@ -370,6 +371,7 @@ const SudokuGamePage = () => {
             <ControlPanel
               onNumberSelect={handleNumberSelect}
               onClearCell={enhancedClearCell}
+              onUndo={undo} // 添加onUndo属性
               selectedNumber={selectedCell?.value || null}
               isPencilMode={isPencilMode}
               onTogglePencilMode={handleTogglePencilMode}
@@ -424,15 +426,16 @@ const SudokuGamePage = () => {
               </div>
               
               {/* 操作区块 - 右侧，宽度为棋盘的2/3，高度与棋盘一致 */}
-              <div className="controls-container">
-                <ControlPanel
-                  onNumberSelect={handleNumberSelect}
-                  onClearCell={enhancedClearCell}
-                  selectedNumber={selectedCell?.value || null}
-                  isPencilMode={isPencilMode}
-                  onTogglePencilMode={handleTogglePencilMode}
-                />
-              </div>
+            <div className="controls-container">
+              <ControlPanel
+                onNumberSelect={handleNumberSelect}
+                onClearCell={enhancedClearCell}
+                onUndo={undo} // 添加onUndo属性
+                selectedNumber={selectedCell?.value || null}
+                isPencilMode={isPencilMode}
+                onTogglePencilMode={handleTogglePencilMode}
+              />
+            </div>
             </div>
           </>
         )}

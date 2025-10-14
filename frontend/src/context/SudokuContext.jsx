@@ -629,7 +629,7 @@ export const SudokuContextProvider = ({ children }) => {
     setPencilNotes(newPencilNotes);
   };
 
-  // 更新fillCell函数，使其能处理铅笔模式
+  // 更新fillCell函数，使其能处理铅笔模式并添加自动删减候选数功能
   const fillCell = (row, col, value) => {
     if (!gameStarted || gameCompleted) return;
     
@@ -671,11 +671,65 @@ export const SudokuContextProvider = ({ children }) => {
     setCurrentBoard(newBoard);
     
     // 如果填入了数字，清除该单元格的标注
-    if (value !== 0 && pencilNotes[cellKey]) {
-      const newPencilNotes = { ...pencilNotes };
+    const newPencilNotes = { ...pencilNotes };
+    if (value !== 0 && newPencilNotes[cellKey]) {
       delete newPencilNotes[cellKey];
-      setPencilNotes(newPencilNotes);
     }
+    
+    // 当用户填入正确数字时，自动删减同行、同列、同宫的候选数
+    if (value !== 0 && isCorrect) {
+      // 处理同行
+      for (let c = 0; c < 9; c++) {
+        if (c !== col) {
+          const targetCellKey = `${row}-${c}`;
+          if (newPencilNotes[targetCellKey]) {
+            // 过滤掉相同的数字
+            newPencilNotes[targetCellKey] = newPencilNotes[targetCellKey].filter(n => n !== value);
+            // 如果过滤后没有候选数，删除该单元格的记录
+            if (newPencilNotes[targetCellKey].length === 0) {
+              delete newPencilNotes[targetCellKey];
+            }
+          }
+        }
+      }
+      
+      // 处理同列
+      for (let r = 0; r < 9; r++) {
+        if (r !== row) {
+          const targetCellKey = `${r}-${col}`;
+          if (newPencilNotes[targetCellKey]) {
+            // 过滤掉相同的数字
+            newPencilNotes[targetCellKey] = newPencilNotes[targetCellKey].filter(n => n !== value);
+            // 如果过滤后没有候选数，删除该单元格的记录
+            if (newPencilNotes[targetCellKey].length === 0) {
+              delete newPencilNotes[targetCellKey];
+            }
+          }
+        }
+      }
+      
+      // 处理同宫
+      const boxRow = Math.floor(row / 3) * 3;
+      const boxCol = Math.floor(col / 3) * 3;
+      for (let r = boxRow; r < boxRow + 3; r++) {
+        for (let c = boxCol; c < boxCol + 3; c++) {
+          if (r !== row || c !== col) {
+            const targetCellKey = `${r}-${c}`;
+            if (newPencilNotes[targetCellKey]) {
+              // 过滤掉相同的数字
+              newPencilNotes[targetCellKey] = newPencilNotes[targetCellKey].filter(n => n !== value);
+              // 如果过滤后没有候选数，删除该单元格的记录
+              if (newPencilNotes[targetCellKey].length === 0) {
+                delete newPencilNotes[targetCellKey];
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // 更新铅笔标注
+    setPencilNotes(newPencilNotes);
     
     // 更新错误单元格集合和错误计数
     const updatedIncorrectCells = new Set(incorrectCells);
@@ -887,6 +941,97 @@ export const SudokuContextProvider = ({ children }) => {
     }
   };
 
+  // 计算并填充所有空白格子的候选数
+  const fillAllCandidates = () => {
+    if (!gameStarted || gameCompleted || !currentBoard) return;
+    
+    const newPencilNotes = {};
+    
+    // 保存当前状态到历史记录
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      type: 'fill-candidates'
+    });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    
+    // 遍历所有单元格
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        // 跳过预填数字和已有数字的单元格
+        if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== 0 || 
+            currentBoard[row] && currentBoard[row][col] !== 0) {
+          continue;
+        }
+        
+        // 计算该单元格的候选数
+        const candidates = calculateCellCandidates(row, col);
+        if (candidates.length > 0) {
+          newPencilNotes[`${row}-${col}`] = candidates;
+        }
+      }
+    }
+    
+    // 更新铅笔标注数据
+    setPencilNotes(newPencilNotes);
+    
+    // 提示用户已填充候选数
+    toast.info('已为所有空白格子计算并填充候选数！', {
+      position: 'top-right',
+      autoClose: 2000
+    });
+  };
+  
+  // 计算单个单元格的候选数
+  const calculateCellCandidates = (row, col) => {
+    if (!currentBoard) return [];
+    
+    const candidates = [];
+    
+    // 检查1-9每个数字是否可以填入该单元格
+    for (let num = 1; num <= 9; num++) {
+      if (isValidMove(row, col, num)) {
+        candidates.push(num);
+      }
+    }
+    
+    return candidates.sort((a, b) => a - b);
+  };
+  
+  // 检查在指定位置填入数字是否有效
+  const isValidMove = (row, col, num) => {
+    if (!currentBoard) return false;
+    
+    // 检查同一行
+    for (let c = 0; c < 9; c++) {
+      if (currentBoard[row][c] === num) {
+        return false;
+      }
+    }
+    
+    // 检查同一列
+    for (let r = 0; r < 9; r++) {
+      if (currentBoard[r][col] === num) {
+        return false;
+      }
+    }
+    
+    // 检查同一3x3宫
+    const boxRow = Math.floor(row / 3) * 3;
+    const boxCol = Math.floor(col / 3) * 3;
+    for (let r = boxRow; r < boxRow + 3; r++) {
+      for (let c = boxCol; c < boxCol + 3; c++) {
+        if (currentBoard[r][c] === num) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  };
+  
   const value = {
     currentPuzzle,
     currentBoard,
@@ -916,6 +1061,7 @@ export const SudokuContextProvider = ({ children }) => {
     togglePencilMode, // 添加切换铅笔模式方法
     togglePencilNote, // 添加切换铅笔标注方法
     clearPencilNotes, // 添加清除铅笔标注方法
+    fillAllCandidates, // 添加填充所有候选数方法
     
     loadSavedProgress,
     saveGameProgress,

@@ -34,10 +34,13 @@ export const SudokuContextProvider = ({ children }) => {
   const [candidates, setCandidates] = useState({});
   const [highlightedCells, setHighlightedCells] = useState([]);
   const [activeTechniques, setActiveTechniques] = useState([]);
-  const [history, setHistory] = useState([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [errorCount, setErrorCount] = useState(0); // 添加错误计数状态
-  const [incorrectCells, setIncorrectCells] = useState(new Set()); // 跟踪错误单元格的集合
+    const [history, setHistory] = useState([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
+    // 错误计数状态
+    const [errorCount, setErrorCount] = useState(0);
+    // 累计错误次数状态 - 每次填入错误数字时+1，不因删除而减少
+    const [cumulativeErrorCount, setCumulativeErrorCount] = useState(0);
+    const [incorrectCells, setIncorrectCells] = useState(new Set()); // 跟踪错误单元格的集合
   const [isPencilMode, setIsPencilMode] = useState(false); // 铅笔模式状态
   const [pencilNotes, setPencilNotes] = useState({}); // 存储标注数字，格式为 {"row-col": [1, 2, 3]}
 
@@ -51,6 +54,7 @@ export const SudokuContextProvider = ({ children }) => {
         setHistory([]);
         setHistoryIndex(-1);
         setErrorCount(0);
+        setCumulativeErrorCount(0);
         setIncorrectCells(new Set());
         
         // 直接使用预设的数独题目
@@ -104,6 +108,7 @@ export const SudokuContextProvider = ({ children }) => {
         setGameCompleted(false);
         setTimerActive(true);
         setErrorCount(0); // 初始化错误计数
+        setCumulativeErrorCount(0); // 初始化累计错误次数
         setIncorrectCells(new Set()); // 初始化错误单元格集合
         console.log('谜题初始化完成');
       } catch (error) {
@@ -173,6 +178,7 @@ export const SudokuContextProvider = ({ children }) => {
         setGameStarted(latestProgress.gameStarted);
         setGameCompleted(latestProgress.gameCompleted);
         setErrorCount(latestProgress.errorCount || 0); // 加载错误计数
+        setCumulativeErrorCount(latestProgress.errorCount || 0); // 加载累计错误次数
         setIncorrectCells(new Set(latestProgress.incorrectCells || [])); // 加载错误单元格
         setTimerActive(false); // 加载时暂停计时器
       }
@@ -198,7 +204,7 @@ export const SudokuContextProvider = ({ children }) => {
         timeElapsed: timeElapsed,
         gameStarted: gameStarted,
         gameCompleted: gameCompleted,
-        errorCount: errorCount,
+        errorCount: cumulativeErrorCount, // 保存累计错误次数
         incorrectCells: Array.from(incorrectCells),
         lastModified: Date.now()
       };
@@ -216,13 +222,14 @@ export const SudokuContextProvider = ({ children }) => {
     console.log('SudokuContext: 开始新游戏', { puzzleId, difficultyOverride });
     try {
       // 停止当前计时器并重置状态
-      setTimerActive(false);
-      setTimeElapsed(0);
-      setGameCompleted(false);
-      setHistory([]);
-      setHistoryIndex(-1);
-      setErrorCount(0); // 重置错误计数
-      setIncorrectCells(new Set()); // 重置错误单元格
+    setTimerActive(false);
+    setTimeElapsed(0);
+    setGameCompleted(false);
+    setHistory([]);
+    setHistoryIndex(-1);
+    setErrorCount(0); // 重置错误计数
+    setCumulativeErrorCount(0); // 重置累计错误次数
+    setIncorrectCells(new Set()); // 重置错误单元格
       setPencilNotes({}); // 重置候选数/标注，修复残留问题
       
       // 使用指定难度或当前难度
@@ -304,13 +311,14 @@ export const SudokuContextProvider = ({ children }) => {
     console.log('SudokuContext: 生成新谜题', { targetDifficulty });
     try {
       // 停止当前计时器并重置状态
-      setTimerActive(false);
-      setTimeElapsed(0);
-      setGameCompleted(false);
-      setHistory([]);
-      setHistoryIndex(-1);
-      setErrorCount(0); // 重置错误计数
-      setIncorrectCells(new Set()); // 重置错误单元格
+    setTimerActive(false);
+    setTimeElapsed(0);
+    setGameCompleted(false);
+    setHistory([]);
+    setHistoryIndex(-1);
+    setErrorCount(0); // 重置错误计数
+    setCumulativeErrorCount(0); // 重置累计错误次数
+    setIncorrectCells(new Set()); // 重置错误单元格
       setPencilNotes({}); // 重置候选数/标注，修复残留问题
       
       // 使用指定难度或当前难度
@@ -746,8 +754,11 @@ export const SudokuContextProvider = ({ children }) => {
     if (value !== 0) { // 只在校验非空单元格
       if (!isCorrect) {
         // 输入错误
+        // 如果填入的是错误数字且该单元格之前不是错误状态，则累计错误次数+1
+        if (!incorrectCells.has(cellKey)) {
+          setCumulativeErrorCount(prev => prev + 1);
+        }
         updatedIncorrectCells.add(cellKey);
-        setErrorCount(updatedIncorrectCells.size);
         
         // 视觉反馈：短暂显示错误提示
         toast.error('输入错误，请重试！', { 
@@ -758,12 +769,10 @@ export const SudokuContextProvider = ({ children }) => {
       } else {
         // 输入正确，从错误集合中移除
         updatedIncorrectCells.delete(cellKey);
-        setErrorCount(updatedIncorrectCells.size);
       }
     } else {
       // 清除单元格，从错误集合中移除
       updatedIncorrectCells.delete(cellKey);
-      setErrorCount(updatedIncorrectCells.size);
     }
     
     setIncorrectCells(updatedIncorrectCells);
@@ -830,17 +839,16 @@ export const SudokuContextProvider = ({ children }) => {
       setGameCompleted(false); // 撤销后游戏不再完成
       
       // 重新计算错误单元格和错误计数
-      const updatedIncorrectCells = new Set();
-      for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
-          const value = prevState.board[i][j];
-          if (value !== 0 && solution && value !== solution[i][j]) {
-            updatedIncorrectCells.add(`${i}-${j}`);
-          }
+    const updatedIncorrectCells = new Set();
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        const value = prevState.board[i][j];
+        if (value !== 0 && solution && value !== solution[i][j]) {
+          updatedIncorrectCells.add(`${i}-${j}`);
         }
       }
-      setIncorrectCells(updatedIncorrectCells);
-      setErrorCount(updatedIncorrectCells.size);
+    }
+    setIncorrectCells(updatedIncorrectCells);
     }
   };
 
@@ -858,17 +866,16 @@ export const SudokuContextProvider = ({ children }) => {
       setHistoryIndex(historyIndex + 1);
       
       // 重新计算错误单元格和错误计数
-      const updatedIncorrectCells = new Set();
-      for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
-          const value = nextState.board[i][j];
-          if (value !== 0 && solution && value !== solution[i][j]) {
-            updatedIncorrectCells.add(`${i}-${j}`);
-          }
+    const updatedIncorrectCells = new Set();
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        const value = nextState.board[i][j];
+        if (value !== 0 && solution && value !== solution[i][j]) {
+          updatedIncorrectCells.add(`${i}-${j}`);
         }
       }
-      setIncorrectCells(updatedIncorrectCells);
-      setErrorCount(updatedIncorrectCells.size);
+    }
+    setIncorrectCells(updatedIncorrectCells);
       
       // 再次检查游戏是否完成
       checkGameCompletion(nextState.board);
@@ -1058,7 +1065,7 @@ export const SudokuContextProvider = ({ children }) => {
     activeTechniques,
     history,
     historyIndex,
-    errorCount,
+    errorCount: cumulativeErrorCount, // 使用累计错误次数
     incorrectCells,
     isPencilMode, // 添加铅笔模式状态
     pencilNotes, // 添加铅笔标注数据

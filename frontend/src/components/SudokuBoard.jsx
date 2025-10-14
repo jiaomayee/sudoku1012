@@ -118,9 +118,10 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
     gridTemplateRows: 'repeat(3, 1fr)',
     width: '100%',
     height: '100%',
-    padding: '2px'
+    padding: '1px', // 减小内边距以增加可用空间
+    gridGap: '0px' // 移除网格间距以减小行间距
   };
-
+  
   // 为每个数字创建位置映射
   const numberPositions = {
     1: { gridRow: 1, gridColumn: 1 },
@@ -146,10 +147,12 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '0.9rem', // 增大候选数字体大小以提高可读性
+              fontSize: '0.85rem', // 略微减小字体大小，确保三行都能完整显示
               fontWeight: isHighlighted ? 'bold' : '500',
               color: isHighlighted ? '#007bff' : '#4A6FA5',
-              backgroundColor: isHighlighted ? '#fff3cd' : 'transparent'
+              backgroundColor: isHighlighted ? '#fff3cd' : 'transparent',
+              margin: '0', // 确保没有额外的外边距
+              lineHeight: '1.2' // 设置行高，优化文字垂直对齐
             }}
           >
             {number}

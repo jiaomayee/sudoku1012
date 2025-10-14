@@ -123,7 +123,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
       display: 'grid',
       width: '100%',
       height: '100%',
-      padding: '1px',
+      padding: '0px', // 完全移除内边距
       boxSizing: 'border-box'
     };
     
@@ -145,11 +145,11 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
         gridGap: '0px'
       };
     } else {
-      // 三行显示
+      // 三行显示 - 调整行高分配，让底部行有足够空间
       return {
         ...baseStyle,
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gridTemplateRows: 'repeat(3, 1fr)',
+        gridTemplateRows: '27% 27% 32%', // 底部行稍微增加比例
         gridGap: '0px'
       };
     }
@@ -180,7 +180,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '0.85rem',
+              fontSize: activeNotes.length > 6 ? '0.75rem' : '0.85rem', // 三行显示时使用更小的字体
               fontWeight: isHighlighted ? 'bold' : '500',
               color: isHighlighted ? '#007bff' : '#4A6FA5',
               backgroundColor: isHighlighted ? '#fff3cd' : 'transparent',

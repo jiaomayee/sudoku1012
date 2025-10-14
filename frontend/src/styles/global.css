@@ -28,15 +28,15 @@ button {
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 button:hover {
-  transform: translateY(-1px);
+  /* 移除transform效果，避免按钮缩放感 */
 }
 
 button:active {
-  transform: translateY(0);
+  /* 移除transform效果 */
 }
 
 button:disabled {

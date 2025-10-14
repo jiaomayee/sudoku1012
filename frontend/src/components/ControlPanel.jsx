@@ -16,7 +16,8 @@ const ControlPanelContainer = styled.div.attrs({ className: 'control-panel' })`
   
   /* 横屏模式下，高度与棋盘一致 */
   height: var(--board-width);
-  overflow-y: auto;
+  /* 移除overflow-y: auto，避免显示滚动条 */
+  overflow: hidden;
   
   /* 竖屏模式下自适应高度 */
   @media (max-width: 991px) {
@@ -84,7 +85,8 @@ const TabContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  /* 移除overflow-y: auto，避免显示滚动条 */
+  overflow: hidden;
   margin: 0;
   padding: 2px;
 `;

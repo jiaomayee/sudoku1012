@@ -165,7 +165,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               fontSize: fontSize,
               fontWeight: isHighlighted ? 'bold' : '500',
               color: isHighlighted ? '#007bff' : '#4A6FA5',
-              backgroundColor: isHighlighted ? '#fff3cd' : 'transparent',
+              backgroundColor: isHighlighted ? '#d1ecf1' : 'transparent',
               margin: '0',
               lineHeight: '1.2',
               boxSizing: 'border-box',

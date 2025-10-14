@@ -125,7 +125,8 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
   font-size: calc(var(--board-width) * 0.055);
   font-weight: 600;
   cursor: ${props => props.disabled ? 'default' : 'pointer'};
-  transition: all 0.2s ease;
+  // 简化transition，只保留必要的颜色变化，移除所有可能导致尺寸/位置变化的属性
+  transition: background-color 0.2s ease;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -161,12 +162,11 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
       if (props.isPencilMode) return '#b2ebf2';
       return (props.theme?.primary || '#3498db') + '22';
     }};
-    // 移除transform和box-shadow，防止鼠标移入时的放大缩小效果
+    // 确保没有任何transform或box-shadow效果
   }
   
   &:active:not(:disabled) {
-    // 移除transform，保持按钮稳定
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    // 移除box-shadow，确保按钮保持完全稳定
   }
 `;
 

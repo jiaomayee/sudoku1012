@@ -116,43 +116,26 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
     notes : 
     Object.keys(notes).filter(num => notes[num]).map(Number);
   
-  // 根据活跃数字数量动态调整容器样式
+  // 根据活跃数字数量动态调整容器样式，确保不同行数的候选数在垂直对齐和行间距方面保持一致的视觉效果，无论显示为单行、两行还是三行。
   const getContainerStyle = () => {
-    // 基础样式
-    const baseStyle = {
+    // 基础样式 - 为所有情况添加一致的垂直居中
+    return {
       display: 'grid',
       width: '100%',
       height: '100%',
-      padding: '0px', // 完全移除内边距
-      boxSizing: 'border-box'
+      padding: '0px',
+      boxSizing: 'border-box',
+      alignItems: 'center', // 垂直居中所有内容
+      justifyContent: 'center', // 水平居中所有内容
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      // 根据活跃数字数量设置不同的网格布局
+      gridTemplateRows: activeNotes.length <= 3 ? 
+        '1fr' : // 单行显示
+        activeNotes.length <= 6 ? 
+          'repeat(2, 1fr)' : // 两行显示
+          'repeat(3, 1fr)', // 三行显示
+      gridGap: '0px'
     };
-    
-    // 根据活跃数字数量设置不同的网格布局
-    if (activeNotes.length <= 3) {
-      // 单行显示
-      return {
-        ...baseStyle,
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gridTemplateRows: '1fr',
-        alignItems: 'center'
-      };
-    } else if (activeNotes.length <= 6) {
-      // 两行显示
-      return {
-        ...baseStyle,
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gridTemplateRows: 'repeat(2, 1fr)',
-        gridGap: '0px'
-      };
-    } else {
-      // 三行显示 - 调整行高分配，让底部行有足够空间
-      return {
-        ...baseStyle,
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gridTemplateRows: '27% 27% 32%', // 底部行稍微增加比例
-        gridGap: '0px'
-      };
-    }
   };
   
   // 为每个数字创建位置映射
@@ -168,6 +151,9 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
     9: { gridRow: 3, gridColumn: 3 }
   };
   
+  // 为所有情况使用统一的字体大小，确保视觉一致性
+  const fontSize = activeNotes.length > 6 ? '0.75rem' : '0.85rem';
+  
   return (
     <div style={getContainerStyle()}>
       {activeNotes.map((number) => {
@@ -180,13 +166,16 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: activeNotes.length > 6 ? '0.75rem' : '0.85rem', // 三行显示时使用更小的字体
+              fontSize: fontSize,
               fontWeight: isHighlighted ? 'bold' : '500',
               color: isHighlighted ? '#007bff' : '#4A6FA5',
               backgroundColor: isHighlighted ? '#fff3cd' : 'transparent',
               margin: '0',
               lineHeight: '1.2',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              // 确保数字在其单元格内居中
+              width: '100%',
+              height: '100%'
             }}
           >
             {number}

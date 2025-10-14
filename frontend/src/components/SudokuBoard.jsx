@@ -146,7 +146,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '0.7rem',
+              fontSize: '0.9rem', // 增大候选数字体大小以提高可读性
               fontWeight: isHighlighted ? 'bold' : '500',
               color: isHighlighted ? '#007bff' : '#4A6FA5',
               backgroundColor: isHighlighted ? '#fff3cd' : 'transparent'

@@ -116,29 +116,23 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
     notes : 
     Object.keys(notes).filter(num => notes[num]).map(Number);
   
-  // 根据活跃数字数量动态调整容器样式，确保不同行数的候选数在垂直对齐和行间距方面保持一致的视觉效果，无论显示为单行、两行还是三行。
+  // 使用固定的网格布局，确保所有单元格中的候选数位置保持一致
+  // 无论候选数有多少，都使用相同的网格结构
   const getContainerStyle = () => {
-    // 基础样式 - 为所有情况添加一致的垂直居中
     return {
       display: 'grid',
       width: '100%',
       height: '100%',
       padding: '0px',
       boxSizing: 'border-box',
-      alignItems: 'center', // 垂直居中所有内容
-      justifyContent: 'center', // 水平居中所有内容
+      // 固定的3x3网格，确保所有候选数位置一致
       gridTemplateColumns: 'repeat(3, 1fr)',
-      // 根据活跃数字数量设置不同的网格布局
-      gridTemplateRows: activeNotes.length <= 3 ? 
-        '1fr' : // 单行显示
-        activeNotes.length <= 6 ? 
-          'repeat(2, 1fr)' : // 两行显示
-          'repeat(3, 1fr)', // 三行显示
+      gridTemplateRows: 'repeat(3, 1fr)',
       gridGap: '0px'
     };
   };
   
-  // 为每个数字创建位置映射
+  // 为每个数字创建固定的位置映射
   const numberPositions = {
     1: { gridRow: 1, gridColumn: 1 },
     2: { gridRow: 1, gridColumn: 2 },
@@ -152,7 +146,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
   };
   
   // 为所有情况使用统一的字体大小，确保视觉一致性
-  const fontSize = activeNotes.length > 6 ? '0.75rem' : '0.85rem';
+  const fontSize = '0.8rem';
   
   return (
     <div style={getContainerStyle()}>
@@ -173,7 +167,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               margin: '0',
               lineHeight: '1.2',
               boxSizing: 'border-box',
-              // 确保数字在其单元格内居中
+              // 固定大小，确保位置一致性
               width: '100%',
               height: '100%'
             }}

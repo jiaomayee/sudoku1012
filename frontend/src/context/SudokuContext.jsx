@@ -46,6 +46,13 @@ export const SudokuContextProvider = ({ children }) => {
     const initPuzzle = async () => {
       console.log('SudokuContext: 初始化自动生成谜题');
       try {
+        // 重置所有状态，确保没有残留数据
+        setPencilNotes({}); // 重置候选数/标注
+        setHistory([]);
+        setHistoryIndex(-1);
+        setErrorCount(0);
+        setIncorrectCells(new Set());
+        
         // 直接使用预设的数独题目
         console.log('使用预设的数独题目');
         const simplePuzzle = [
@@ -216,6 +223,7 @@ export const SudokuContextProvider = ({ children }) => {
       setHistoryIndex(-1);
       setErrorCount(0); // 重置错误计数
       setIncorrectCells(new Set()); // 重置错误单元格
+      setPencilNotes({}); // 重置候选数/标注，修复残留问题
       
       // 使用指定难度或当前难度
       const targetDifficulty = difficultyOverride || difficulty;
@@ -303,6 +311,7 @@ export const SudokuContextProvider = ({ children }) => {
       setHistoryIndex(-1);
       setErrorCount(0); // 重置错误计数
       setIncorrectCells(new Set()); // 重置错误单元格
+      setPencilNotes({}); // 重置候选数/标注，修复残留问题
       
       // 使用指定难度或当前难度
       if (targetDifficulty !== difficulty) {

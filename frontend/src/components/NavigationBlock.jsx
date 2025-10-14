@@ -7,7 +7,7 @@ import DifficultySelectModal from './DifficultySelectModal';
 const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   border-radius: 8px;
-  padding: 15px;
+  padding: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%; // 与数独棋盘同宽
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
@@ -29,8 +29,9 @@ const NavTitle = styled.h3`
 const ButtonGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr); // 5个按钮平均分布
-  gap: 8px;
+  gap: 4px;
   margin: 0;
+  padding: 4px 0;
 `;
 
 const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`

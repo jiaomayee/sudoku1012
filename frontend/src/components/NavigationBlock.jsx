@@ -40,11 +40,11 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   background-color: ${props => props.isActive ? (props.theme?.primary || '#3498db') + '22' : (props.theme?.surface || '#ffffff')};
   color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.text || '#333333')};
   border: 2px solid ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.border || '#e0e0e0')};
-  padding: 12px;
+  padding: 8px;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  min-height: 60px;
+  min-height: 48px;
   font-size: 12px;
   font-family: inherit;
   margin: 0;
@@ -60,7 +60,7 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
 `;
 
 const ButtonIcon = styled.span`
-  font-size: 24px;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;

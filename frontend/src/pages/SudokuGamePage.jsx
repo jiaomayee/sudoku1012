@@ -6,6 +6,8 @@ import NavigationBlock from '../components/NavigationBlock';
 import DifficultySelectModal from '../components/DifficultySelectModal';
 import { useSudoku } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPencilAlt, faPen } from '@fortawesome/free-solid-svg-icons';
 import './SudokuGamePageStyles.css';
 
 const SudokuGamePage = () => {
@@ -21,19 +23,21 @@ const SudokuGamePage = () => {
   const timeElapsed = sudokuContext?.timeElapsed || 0;
   const errorCount = sudokuContext?.errorCount || 0;
   const isTimerActive = sudokuContext?.isTimerActive ?? true;
-  const isNotesMode = sudokuContext?.isNotesMode ?? false;
+  const isPencilMode = sudokuContext?.isPencilMode ?? false;
   const setSelectedCell = sudokuContext?.setSelectedCell || (() => {});
   const setDifficulty = sudokuContext?.setDifficulty || (() => {});
   const setBoard = sudokuContext?.setBoard || (() => {});
   const setSolution = sudokuContext?.setSolution || (() => {});
   const generateNewPuzzle = sudokuContext?.generateNewPuzzle || (() => Promise.resolve());
-  const toggleNotesMode = sudokuContext?.toggleNotesMode || (() => {});
+  const togglePencilMode = sudokuContext?.togglePencilMode || (() => {});
   const toggleTimer = sudokuContext?.toggleTimer || (() => {});
   const getHint = sudokuContext?.getHint || (() => {});
   const openSettings = sudokuContext?.openSettings || (() => {});
+  const fillCell = sudokuContext?.fillCell || (() => {});
   
   const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
   const [showDifficultyModal, setShowDifficultyModal] = useState(false);
+  const [showPencilModeInstructions, setShowPencilModeInstructions] = useState(false);
   
   const boardContainerRef = useRef(null);
   const timerRef = useRef(null);
@@ -86,11 +90,8 @@ const SudokuGamePage = () => {
     if (!selectedCell) return;
     
     try {
-      if (sudokuContext?.updateCell) {
-        sudokuContext.updateCell(selectedCell.row, selectedCell.col, number);
-      } else {
-        console.warn('updateCell function not available in context');
-      }
+      // 使用fillCell替代updateCell
+      fillCell(selectedCell.row, selectedCell.col, number);
     } catch (error) {
       console.error('Error updating cell:', error);
     }
@@ -289,10 +290,13 @@ const SudokuGamePage = () => {
     }
   };
 
-  // 处理切换候选数
-  const handleToggleNotes = () => {
-    if (toggleNotesMode) {
-      toggleNotesMode();
+  // 处理切换铅笔模式
+  const handleTogglePencilMode = () => {
+    if (togglePencilMode) {
+      togglePencilMode();
+      // 显示短暂的提示信息
+      setShowPencilModeInstructions(true);
+      setTimeout(() => setShowPencilModeInstructions(false), 2000);
     }
   };
 
@@ -316,9 +320,9 @@ const SudokuGamePage = () => {
                 onNewGame={handleNewGame}
                 onPauseTimer={handlePauseTimer}
                 onGetHint={handleGetHint}
-                onToggleNotes={handleToggleNotes}
+                onToggleNotes={handleTogglePencilMode}
                 onSettings={handleSettings}
-                isNotesMode={isNotesMode}
+                isNotesMode={isPencilMode}
                 isTimerActive={isTimerActive}
               />
             </div>
@@ -345,6 +349,8 @@ const SudokuGamePage = () => {
                 highlightedCells={sudokuContext?.highlightedCells || []}
                 incorrectCells={sudokuContext?.incorrectCells || new Set()}
                 onCellClick={handleCellClick}
+                isPencilMode={isPencilMode}
+                pencilNotes={sudokuContext?.pencilNotes || []}
               />
             </div>
             
@@ -353,6 +359,8 @@ const SudokuGamePage = () => {
               onNumberSelect={handleNumberSelect}
               onClearCell={enhancedClearCell}
               selectedNumber={selectedCell?.value || null}
+              isPencilMode={isPencilMode}
+              onTogglePencilMode={handleTogglePencilMode}
             />
           </>
         ) : (
@@ -366,9 +374,9 @@ const SudokuGamePage = () => {
                   onNewGame={handleNewGame}
                   onPauseTimer={handlePauseTimer}
                   onGetHint={handleGetHint}
-                  onToggleNotes={handleToggleNotes}
+                  onToggleNotes={handleTogglePencilMode}
                   onSettings={handleSettings}
-                  isNotesMode={isNotesMode}
+                  isNotesMode={isPencilMode}
                   isTimerActive={isTimerActive}
                 />
               </div>
@@ -398,15 +406,21 @@ const SudokuGamePage = () => {
                 highlightedCells={sudokuContext?.highlightedCells || []}
                 incorrectCells={sudokuContext?.incorrectCells || new Set()}
                 onCellClick={handleCellClick}
+                isPencilMode={isPencilMode}
+                pencilNotes={sudokuContext?.pencilNotes || []}
                 />
               </div>
               
               {/* 操作区块 - 右侧，宽度为棋盘的2/3，高度与棋盘一致 */}
-              <ControlPanel
-                onNumberSelect={handleNumberSelect}
-                onClearCell={enhancedClearCell}
-                selectedNumber={selectedCell?.value || null}
-              />
+              <div className="controls-container">
+                <ControlPanel
+                  onNumberSelect={handleNumberSelect}
+                  onClearCell={enhancedClearCell}
+                  selectedNumber={selectedCell?.value || null}
+                  isPencilMode={isPencilMode}
+                  onTogglePencilMode={handleTogglePencilMode}
+                />
+              </div>
             </div>
           </>
         )}
@@ -426,6 +440,13 @@ const SudokuGamePage = () => {
         onSelectDifficulty={handleDifficultySelect}
         initialDifficulty={difficulty}
       />
+      
+      {/* 铅笔模式提示信息 */}
+      {showPencilModeInstructions && (
+        <div className="pencil-mode-instructions">
+          {isPencilMode ? '进入铅笔模式，可以添加候选数字' : '退出铅笔模式，返回正常输入'}
+        </div>
+      )}
     </div>
   );
 };

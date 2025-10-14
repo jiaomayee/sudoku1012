@@ -172,7 +172,7 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
           </NavButton>
           
           {/* 候选数按钮 */}
-          <NavButton onClick={onToggleNotes} isActive={isNotesMode}>
+          <NavButton onClick={onToggleNotes}>
             <ButtonIcon><Icons.Notes /></ButtonIcon>
             候选数
           </NavButton>

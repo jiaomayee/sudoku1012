@@ -106,12 +106,20 @@ const NumberPad = styled.div`
   }
 `;
 
-const NumberButton = styled(({isActive, disabled, ...props}) => <button {...props} />)`
-  background-color: ${props => props.disabled ? (props.theme?.disabled || '#f5f5f5') : 
-                      (props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.surface || '#ffffff'))};
-  color: ${props => props.disabled ? (props.theme?.textDisabled || '#bdc3c7') : 
-           (props.isActive ? 'white' : (props.theme?.text || '#333333'))};
-  border: 2px solid ${props => props.theme?.primary || '#3498db'};
+const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <button {...props} />)`
+  background-color: ${props => {
+    if (props.disabled) return props.theme?.disabled || '#f5f5f5';
+    if (props.isActive) return props.theme?.primary || '#3498db';
+    if (props.isPencilMode) return '#e0f7fa';
+    return props.theme?.surface || '#ffffff';
+  }};
+  color: ${props => {
+    if (props.disabled) return props.theme?.textDisabled || '#bdc3c7';
+    if (props.isActive) return 'white';
+    if (props.isPencilMode) return '#00838f';
+    return props.theme?.text || '#333333';
+  }};
+  border: 2px solid ${props => props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db')};
   padding: 8px;
   border-radius: 8px;
   font-size: calc(var(--board-width) * 0.055);
@@ -148,13 +156,16 @@ const NumberButton = styled(({isActive, disabled, ...props}) => <button {...prop
   }
   
   &:hover:not(:disabled) {
-    background-color: ${props => props.isActive ? (props.theme?.primaryDark || '#2980b9') : (props.theme?.primary || '#3498db') + '22'};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background-color: ${props => {
+      if (props.isActive) return props.theme?.primaryDark || '#2980b9';
+      if (props.isPencilMode) return '#b2ebf2';
+      return (props.theme?.primary || '#3498db') + '22';
+    }};
+    // 移除transform和box-shadow，防止鼠标移入时的放大缩小效果
   }
   
   &:active:not(:disabled) {
-    transform: translateY(0);
+    // 移除transform，保持按钮稳定
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
@@ -174,10 +185,22 @@ const ActionButtons = styled.div`
   }
 `;
 
-const ActionButton = styled(({isDanger, ...props}) => <button {...props} />)`
-  background-color: ${props => props.isDanger ? (props.theme?.error || '#ff4444') : (props.theme?.surface || '#ffffff')};
-  color: ${props => props.isDanger ? 'white' : (props.theme?.text || '#333333')};
-  border: 2px solid ${props => props.isDanger ? (props.theme?.error || '#ff4444') : (props.theme?.border || '#e0e0e0')};
+const ActionButton = styled(({isDanger, isActive, ...props}) => <button {...props} />)`
+  background-color: ${props => {
+    if (props.isDanger) return props.theme?.error || '#ff4444';
+    if (props.isActive) return props.theme?.primary || '#3498db';
+    return props.theme?.surface || '#ffffff';
+  }};
+  color: ${props => {
+    if (props.isDanger) return 'white';
+    if (props.isActive) return 'white';
+    return props.theme?.text || '#333333';
+  }};
+  border: 2px solid ${props => {
+    if (props.isDanger) return props.theme?.error || '#ff4444';
+    if (props.isActive) return props.theme?.primary || '#3498db';
+    return props.theme?.border || '#e0e0e0';
+  }};
   padding: 14px 16px;
   border-radius: 8px;
   font-size: 15px;
@@ -200,12 +223,16 @@ const ActionButton = styled(({isDanger, ...props}) => <button {...props} />)`
   }
   
   &:hover {
-    background-color: ${props => props.isDanger ? (props.theme?.error || '#ff4444') + 'aa' : (props.theme?.border || '#e0e0e0') + '44'};
-    transform: translateY(-1px);
+    background-color: ${props => {
+      if (props.isDanger) return (props.theme?.error || '#ff4444') + 'aa';
+      if (props.isActive) return props.theme?.primaryDark || '#2980b9';
+      return (props.theme?.border || '#e0e0e0') + '44';
+    }};
+    // 移除transform，防止鼠标移入时的位置变化
   }
   
   &:active {
-    transform: translateY(0);
+    // 移除transform，保持按钮稳定
   }
 `;
 
@@ -334,7 +361,8 @@ const ControlPanel = ({
   onClearCell,
   onUndo,
   onTogglePencilMode,
-  selectedNumber 
+  selectedNumber,
+  isPencilMode
 }) => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
@@ -430,6 +458,7 @@ const ControlPanel = ({
                   <NumberButton
                     key={number}
                     isActive={selectedNumber === number}
+                    isPencilMode={isPencilMode}
                     onClick={() => onNumberSelect(number)}
                   >
                     {number}
@@ -437,15 +466,71 @@ const ControlPanel = ({
                 ))}
               </NumberPad>
               
-              <ActionButtons>
-                <ActionButton onClick={onUndo}>
-                  撤回
+              <ActionButtons style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', padding: '4px', alignItems: 'center', justifyContent: 'center'}}>
+                {/* 撤回按钮 - 使用左箭头图标表示撤回操作 */}
+                <ActionButton 
+                  onClick={onUndo}
+                  title="撤回"
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="m15 18-6-6 6-6"/>
+                  </svg>
                 </ActionButton>
-                <ActionButton isDanger onClick={onClearCell}>
-                  清除
+                
+                {/* 清除按钮 - 使用垃圾桶图标表示清空单元格内容 */}
+                <ActionButton 
+                  onClick={onClearCell}
+                  title="清空单元格"
+                  isDanger
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 6h18"/>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    <line x1="10" x2="10" y1="11" y2="17"/>
+                    <line x1="14" x2="14" y1="11" y2="17"/>
+                  </svg>
                 </ActionButton>
-                <ActionButton onClick={onTogglePencilMode}>
-                  铅笔
+                
+                {/* 铅笔按钮 - 使用铅笔图标表示铅笔模式 */}
+                <ActionButton 
+                  onClick={onTogglePencilMode}
+                  title={isPencilMode ? "退出铅笔模式" : "进入铅笔模式"}
+                  isActive={isPencilMode}
+                >
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="currentColor" 
+                    stroke="white" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                  </svg>
                 </ActionButton>
               </ActionButtons>
             </>

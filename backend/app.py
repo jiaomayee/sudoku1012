@@ -6,6 +6,7 @@ import uvicorn
 from routes.sudoku_routes import router as sudoku_router
 from routes.user_routes import router as user_router
 from routes.stats_routes import router as stats_router
+from routes.custom_sudoku_api import router as custom_sudoku_router
 
 # 创建FastAPI应用实例
 app = FastAPI(
@@ -27,6 +28,8 @@ app.add_middleware(
 app.include_router(sudoku_router, prefix="/sudoku", tags=["sudoku"])
 app.include_router(user_router, prefix="/user", tags=["user"])
 app.include_router(stats_router, prefix="/stats", tags=["stats"])
+# 注册自定义数独API路由（用于从题库获取数据）
+app.include_router(custom_sudoku_router, tags=["custom_sudoku"])
 
 # 根路径
 @app.get("/")

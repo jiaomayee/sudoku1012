@@ -64,20 +64,48 @@ export const api = {
   // 获取随机谜题
   getRandomPuzzleByDifficulty: async (difficulty) => {
     try {
-      console.log(`尝试获取难度为${difficulty}的随机谜题`);
-      const response = await apiClient.get(`/sudoku/puzzles/random/${difficulty}`);
-      console.log('成功获取随机谜题');
-      return response;
-    } catch (error) {
-      // 提供更详细的错误信息
-      const errorDetails = error.response?.data || error.message || '未知错误';
-      console.error(`获取随机谜题失败: ${difficulty}难度，错误详情:`, errorDetails);
+      // 添加日志记录
+      console.log(`Fetching puzzle with difficulty: ${difficulty}`);
       
-      // 抛出带有详细信息的错误对象
-      throw {
-        message: `获取${difficulty}难度随机谜题失败`,
-        details: errorDetails,
-        originalError: error
+      // 调用后端API获取指定难度的随机谜题
+      const response = await apiClient.get(`/sudoku/puzzles/random/${difficulty}`);
+      
+      // 确保响应数据存在且格式正确
+      if (!response || !response.puzzle) {
+        console.error('Invalid puzzle data received from server');
+        // 如果数据无效，使用默认的空数独
+        return {
+          puzzle: Array(9).fill().map(() => Array(9).fill(0)),
+          solution: Array(9).fill().map(() => Array(9).fill(0)),
+          difficulty: difficulty
+        };
+      }
+      
+      // 验证并处理响应数据
+      const { puzzle, solution, difficulty: responseDifficulty } = response;
+      
+      console.log('完整响应数据:', JSON.stringify(response));
+      
+      // 检查solution是否存在且有效，如果不存在则尝试生成或使用空数组
+      let validSolution = solution;
+      if (!validSolution || !Array.isArray(validSolution) || validSolution.length !== 9) {
+        console.warn('Solution data is missing or invalid');
+        // 如果没有solution，使用空数组作为备用
+        validSolution = Array(9).fill().map(() => Array(9).fill(0));
+      }
+      
+      return {
+        puzzle: puzzle,
+        solution: validSolution,
+        difficulty: responseDifficulty || difficulty
+      };
+    } catch (error) {
+      console.error('Error fetching puzzle:', error);
+      // 发生错误时返回默认的空数独
+      return {
+        puzzle: Array(9).fill().map(() => Array(9).fill(0)),
+        solution: Array(9).fill().map(() => Array(9).fill(0)),
+        difficulty: difficulty
       };
     }
   },
@@ -107,9 +135,10 @@ export const api = {
   // 验证数独
   validateSudoku: async (board) => {
     try {
-      return await apiClient.post('/sudoku/validate', {
+      const response = await apiClient.post('/sudoku/validate', {
         board: board
       });
+      return response;
     } catch (error) {
       console.error('验证数独失败:', error);
       throw error;

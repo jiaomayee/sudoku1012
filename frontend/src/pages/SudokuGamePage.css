@@ -1,0 +1,147 @@
+/* 铅笔模式按钮样式 */
+.pencil-mode-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  margin: 10px auto;
+  border: 2px solid #3498db;
+  border-radius: 8px;
+  background-color: white;
+  color: #3498db;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.pencil-mode-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
+}
+
+.pencil-mode-button.active {
+  background-color: #26a69a;
+  color: white;
+  border-color: #00897b;
+}
+
+.pencil-mode-button.active:hover {
+  background-color: #00897b;
+  box-shadow: 0 4px 8px rgba(38, 166, 154, 0.3);
+}
+
+.pencil-icon {
+  font-size: 18px;
+}
+
+/* 铅笔模式下的单元格样式 */
+.cell.pencil-selected {
+  background-color: #e0f7fa !important;
+  border-color: #26a69a !important;
+}
+
+/* 数字按钮在铅笔模式下的样式 */
+.number-buttons.pencil-mode .number-button {
+  background-color: #e0f7fa;
+  color: #00838f;
+  border-color: #26a69a;
+}
+
+.number-buttons.pencil-mode .number-button.selected {
+  background-color: #26a69a;
+  color: white;
+  border-color: #00897b;
+}
+
+/* 清除按钮在铅笔模式下的样式 */
+.clear-button.pencil-mode {
+  background-color: #ffecb3;
+  color: #f57c00;
+}
+
+/* 模式指示器 */
+.mode-indicator {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.mode-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background-color: #f5f5f5;
+}
+
+.mode-text.pencil-active {
+  color: #00897b;
+  background-color: #e0f7fa;
+  font-weight: 600;
+}
+
+/* 铅笔模式提示信息 */
+.pencil-mode-instructions {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(38, 166, 154, 0.9);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  85% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+/* 控制按钮容器 */
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .pencil-mode-button {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-width: 120px;
+  }
+  
+  .pencil-icon {
+    font-size: 16px;
+  }
+  
+  .pencil-mode-instructions {
+    font-size: 14px;
+    padding: 12px 20px;
+    max-width: 80%;
+    text-align: center;
+  }
+}

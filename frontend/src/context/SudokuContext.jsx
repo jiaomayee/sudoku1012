@@ -38,6 +38,8 @@ export const SudokuContextProvider = ({ children }) => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [errorCount, setErrorCount] = useState(0); // 添加错误计数状态
   const [incorrectCells, setIncorrectCells] = useState(new Set()); // 跟踪错误单元格的集合
+  const [isPencilMode, setIsPencilMode] = useState(false); // 铅笔模式状态
+  const [pencilNotes, setPencilNotes] = useState({}); // 存储标注数字，格式为 {"row-col": [1, 2, 3]}
 
   // 初始化时自动生成谜题
   useEffect(() => {
@@ -479,25 +481,57 @@ export const SudokuContextProvider = ({ children }) => {
 
   // 辅助函数：格式化谜题数据
   const formatPuzzleData = (data) => {
+    console.log('formatPuzzleData 输入:', data);
+    
     // 处理API返回的数据格式
-    if (data && data.puzzle && data.solution) {
+    if (data && data.puzzle) {
       // 如果是字符串格式，转换为二维数组
       if (typeof data.puzzle === 'string' && data.puzzle.length === 81) {
         const puzzle = [];
-        const solution = [];
         for (let i = 0; i < 9; i++) {
           puzzle.push([]);
-          solution.push([]);
           for (let j = 0; j < 9; j++) {
             puzzle[i].push(parseInt(data.puzzle[i * 9 + j]) || 0);
-            solution[i].push(parseInt(data.solution[i * 9 + j]) || 0);
           }
         }
-        return { puzzle, solution };
+        // 即使没有solution，也返回谜题数据
+        return { 
+          puzzle, 
+          solution: data.solution ? 
+            (typeof data.solution === 'string' && data.solution.length === 81 ? 
+              // 处理字符串格式的solution
+              (() => {
+                const sol = [];
+                for (let i = 0; i < 9; i++) {
+                  sol.push([]);
+                  for (let j = 0; j < 9; j++) {
+                    sol[i].push(parseInt(data.solution[i * 9 + j]) || 0);
+                  }
+                }
+                return sol;
+              })() : 
+              // 如果不是字符串，使用原谜题作为solution
+              puzzle
+            ) : puzzle 
+        };
       }
       // 如果已经是二维数组
-      if (Array.isArray(data.puzzle) && data.puzzle.length === 9 && Array.isArray(data.solution) && data.solution.length === 9) {
-        return { puzzle: data.puzzle, solution: data.solution };
+      if (Array.isArray(data.puzzle) && data.puzzle.length === 9) {
+        // 确保puzzle是9x9的二维数组
+        const validPuzzle = data.puzzle.map(row => 
+          Array.isArray(row) && row.length === 9 ? row : Array(9).fill(0)
+        );
+        
+        // 处理solution
+        let validSolution = validPuzzle; // 默认使用puzzle作为solution
+        if (data.solution && Array.isArray(data.solution) && data.solution.length === 9) {
+          validSolution = data.solution.map(row => 
+            Array.isArray(row) && row.length === 9 ? row : Array(9).fill(0)
+          );
+        }
+        
+        console.log('formatPuzzleData 输出:', { puzzle: validPuzzle, solution: validSolution });
+        return { puzzle: validPuzzle, solution: validSolution };
       }
     }
     // 如果输入不完整或格式不正确，返回默认的9x9零数组
@@ -508,13 +542,94 @@ export const SudokuContextProvider = ({ children }) => {
 
   // 检查单元格输入是否正确
   const validateCellInput = (row, col, value) => {
-    if (!solution) return true; // 如果没有解决方案，默认认为正确
-    
-    // 检查输入值是否与解决方案匹配
-    return value === solution[row][col];
+  // 验证单元格输入是否正确
+  if (!solution || !solution[row] || solution[row][col] === undefined) {
+    return true; // 如果没有解决方案，默认允许输入
+  }
+  
+  return solution[row][col] === value;
+};
+
+  // 切换铅笔模式
+  const togglePencilMode = () => {
+    setIsPencilMode(prev => !prev);
   };
 
-  // 填充单元格
+  // 在铅笔模式下添加或移除标注数字
+  const togglePencilNote = (row, col, number) => {
+    if (!gameStarted || gameCompleted) return;
+    
+    // 检查是否为预填数字，如果是则不允许修改
+    if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== null && originalPuzzle[row][col] !== 0) {
+      console.log('Cannot modify prefilled cell with notes:', row, col);
+      return;
+    }
+    
+    const cellKey = `${row}-${col}`;
+    const newPencilNotes = { ...pencilNotes };
+    
+    // 保存当前状态到历史记录
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      row, 
+      col, 
+      type: 'pencil'
+    });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    
+    // 如果单元格已有标注，检查是否包含要添加/移除的数字
+    if (newPencilNotes[cellKey]) {
+      // 如果数字已存在，移除它
+      if (newPencilNotes[cellKey].includes(number)) {
+        newPencilNotes[cellKey] = newPencilNotes[cellKey].filter(n => n !== number);
+        // 如果没有标注数字了，删除该单元格的记录
+        if (newPencilNotes[cellKey].length === 0) {
+          delete newPencilNotes[cellKey];
+        }
+      } else {
+        // 添加新数字，保持排序
+        newPencilNotes[cellKey] = [...new Set([...newPencilNotes[cellKey], number])].sort((a, b) => a - b);
+      }
+    } else {
+      // 创建新的标注数组
+      newPencilNotes[cellKey] = [number];
+    }
+    
+    setPencilNotes(newPencilNotes);
+  };
+  
+  // 清除单元格的所有标注
+  const clearPencilNotes = (row, col) => {
+    if (!gameStarted || gameCompleted) return;
+    
+    const cellKey = `${row}-${col}`;
+    
+    // 如果单元格没有标注，直接返回
+    if (!pencilNotes[cellKey]) return;
+    
+    // 保存当前状态到历史记录
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      row, 
+      col, 
+      type: 'clear-pencil'
+    });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    
+    // 创建新的标注对象，不包含要清除的单元格
+    const newPencilNotes = { ...pencilNotes };
+    delete newPencilNotes[cellKey];
+    
+    setPencilNotes(newPencilNotes);
+  };
+
+  // 更新fillCell函数，使其能处理铅笔模式
   const fillCell = (row, col, value) => {
     if (!gameStarted || gameCompleted) return;
     
@@ -524,19 +639,43 @@ export const SudokuContextProvider = ({ children }) => {
       return;
     }
     
+    // 如果是铅笔模式，使用标注功能
+    if (isPencilMode) {
+      if (value === 0) {
+        clearPencilNotes(row, col);
+      } else {
+        togglePencilNote(row, col, value);
+      }
+      return;
+    }
+    
     const newBoard = [...currentBoard.map(row => [...row])];
     const cellKey = `${row}-${col}`;
     const isCorrect = validateCellInput(row, col, value);
     
     // 保存当前状态到历史记录
     const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push({ board: currentBoard, row, col, prevValue: currentBoard[row][col] });
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      row, 
+      col, 
+      prevValue: currentBoard[row][col],
+      type: 'fill'
+    });
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
     
     // 更新单元格
     newBoard[row][col] = value;
     setCurrentBoard(newBoard);
+    
+    // 如果填入了数字，清除该单元格的标注
+    if (value !== 0 && pencilNotes[cellKey]) {
+      const newPencilNotes = { ...pencilNotes };
+      delete newPencilNotes[cellKey];
+      setPencilNotes(newPencilNotes);
+    }
     
     // 更新错误单元格集合和错误计数
     const updatedIncorrectCells = new Set(incorrectCells);
@@ -570,12 +709,7 @@ export const SudokuContextProvider = ({ children }) => {
     checkGameCompletion(newBoard);
   };
 
-  // 更新单元格（供外部组件使用的别名）
-  const updateCell = (row, col, value) => {
-    fillCell(row, col, value);
-  };
-
-  // 清除单元格
+  // 更新clearCell函数，使其能处理铅笔模式
   const clearCell = (row, col) => {
     if (!gameStarted || gameCompleted) return;
     
@@ -585,14 +719,27 @@ export const SudokuContextProvider = ({ children }) => {
       return;
     }
     
-    const newBoard = [...currentBoard.map(row => [...row])];
-    const cellKey = `${row}-${col}`;
-    
     // 保存当前状态到历史记录
     const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push({ board: currentBoard, row, col, prevValue: currentBoard[row][col] });
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      row, 
+      col, 
+      prevValue: currentBoard[row][col],
+      type: 'clear'
+    });
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
+    
+    // 如果是铅笔模式，清除标注
+    if (isPencilMode) {
+      clearPencilNotes(row, col);
+      return;
+    }
+    
+    const newBoard = [...currentBoard.map(row => [...row])];
+    const cellKey = `${row}-${col}`;
     
     // 清除单元格
     newBoard[row][col] = 0;
@@ -605,11 +752,17 @@ export const SudokuContextProvider = ({ children }) => {
     setErrorCount(updatedIncorrectCells.size);
   };
 
-  // 撤销操作
+  // 更新undo函数，使其能处理铅笔模式的操作
   const undo = () => {
     if (historyIndex >= 0) {
       const prevState = history[historyIndex];
       setCurrentBoard(prevState.board);
+      
+      // 如果历史记录包含pencilNotes，恢复它
+      if (prevState.pencilNotes) {
+        setPencilNotes(prevState.pencilNotes);
+      }
+      
       setHistoryIndex(historyIndex - 1);
       setGameCompleted(false); // 撤销后游戏不再完成
       
@@ -628,11 +781,17 @@ export const SudokuContextProvider = ({ children }) => {
     }
   };
 
-  // 重做操作
+  // 更新redo函数，使其能处理铅笔模式的操作
   const redo = () => {
     if (historyIndex < history.length - 1) {
       const nextState = history[historyIndex + 1];
       setCurrentBoard(nextState.board);
+      
+      // 如果历史记录包含pencilNotes，恢复它
+      if (nextState.pencilNotes) {
+        setPencilNotes(nextState.pencilNotes);
+      }
+      
       setHistoryIndex(historyIndex + 1);
       
       // 重新计算错误单元格和错误计数
@@ -747,18 +906,22 @@ export const SudokuContextProvider = ({ children }) => {
     historyIndex,
     errorCount,
     incorrectCells,
+    isPencilMode, // 添加铅笔模式状态
+    pencilNotes, // 添加铅笔标注数据
     
     setDifficulty,
     setSelectedCell,
     setHighlightedCells,
     setTimerActive,
+    togglePencilMode, // 添加切换铅笔模式方法
+    togglePencilNote, // 添加切换铅笔标注方法
+    clearPencilNotes, // 添加清除铅笔标注方法
     
     loadSavedProgress,
     saveGameProgress,
     startNewGame,
     generateNewPuzzle,
     fillCell,
-    updateCell,
     clearCell,
     undo,
     redo,

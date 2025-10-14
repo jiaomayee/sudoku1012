@@ -106,23 +106,18 @@ def create_app(config_name: Optional[str] = None) -> Flask:
             'message': 'An unexpected error occurred'
         }, 500
     
-    # 应用程序初始化钩子
-    @app.before_first_request
-    def before_first_request() -> None:
-        """
-        应用程序首次请求前执行的钩子
-        """
-        # 创建数据库表
-        with app.app_context():
-            try:
-                db.create_all()
-                logger.info("Database tables created successfully")
-            except Exception as e:
-                logger.error(f"Error creating database tables: {str(e)}")
-                raise
-        
-        # 初始化应用程序数据（如果需要）
-        initialize_app_data(app)
+    # 移除before_first_request装饰器，直接在应用创建时初始化
+    # 在应用上下文外创建表（这在应用工厂模式中更为常见）
+    with app.app_context():
+        try:
+            db.create_all()
+            logger.info("Database tables created successfully")
+        except Exception as e:
+            logger.error(f"Error creating database tables: {str(e)}")
+            raise
+    
+    # 初始化应用程序数据
+    initialize_app_data(app)
     
     # 应用程序上下文处理器
     @app.context_processor

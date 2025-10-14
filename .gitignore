@@ -71,3 +71,16 @@ typings/
 
 # Windows files
 Thumbs.db
+
+# Vite build directory
+frontend/.vite/
+
+# Patch files
+patches/
+
+# Database backup files
+*.db.bak
+
+# Test scripts (临时文件，可删除)
+check_db_structure.py
+test_expert_puzzle.py

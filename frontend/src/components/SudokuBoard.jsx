@@ -55,12 +55,10 @@ const Cell = styled.div`
   
   &.highlighted {
     background-color: #cce5ff;
-    box-shadow: inset 0 0 0 1px #3498db;
   }
   
   &.selected {
     background-color: #ffffff;
-    border: 2px solid #3498db;
     z-index: 2;
   }
   
@@ -72,12 +70,14 @@ const Cell = styled.div`
   
   &.same-number {
     background-color: #d1ecf1;
-    border: 1px solid #7dc8d8;
   }
   
   &.same-region {
     background-color: #e8f4fd;
-    border: 1px solid #90c8e8;
+  }
+  
+  &.same-note {
+    background-color: #fff3cd;
   }
   
   &:not(.prefilled):hover {
@@ -109,8 +109,59 @@ const Cell = styled.div`
   }}
 `;
 
+// 铅笔模式下的数字标注组件
+const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
+  // 定义九宫格布局的样式
+  const notesContainer = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridTemplateRows: 'repeat(3, 1fr)',
+    width: '100%',
+    height: '100%',
+    padding: '2px'
+  };
+
+  // 为每个数字创建位置映射
+  const numberPositions = {
+    1: { gridRow: 1, gridColumn: 1 },
+    2: { gridRow: 1, gridColumn: 2 },
+    3: { gridRow: 1, gridColumn: 3 },
+    4: { gridRow: 2, gridColumn: 1 },
+    5: { gridRow: 2, gridColumn: 2 },
+    6: { gridRow: 2, gridColumn: 3 },
+    7: { gridRow: 3, gridColumn: 1 },
+    8: { gridRow: 3, gridColumn: 2 },
+    9: { gridRow: 3, gridColumn: 3 }
+  };
+
+  return (
+    <div style={notesContainer}>
+      {notes.map(number => {
+        const isHighlighted = number === highlightedNumber;
+        return (
+          <div
+            key={number}
+            style={{
+              ...numberPositions[number],
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.7rem',
+              fontWeight: isHighlighted ? 'bold' : '500',
+              color: isHighlighted ? '#007bff' : '#4A6FA5',
+              backgroundColor: isHighlighted ? '#fff3cd' : 'transparent'
+            }}
+          >
+            {number}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 // JS逻辑函数
-const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle }) => {
+const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPencilMode, pencilNotes }) => {
   const { theme } = useTheme();
   
   // 直接使用预设的棋盘数据进行测试
@@ -160,6 +211,8 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle }) => {
   // 生成单元格的CSS类名
   const getCellClasses = (row, col, value) => {
     const classes = [];
+    const cellKey = `${row}-${col}`;
+    const currentCellNotes = pencilNotes && pencilNotes[cellKey] || [];
     
     // 基础状态类
     if (isCellPrefilled(value, row, col)) classes.push('prefilled');
@@ -167,13 +220,25 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle }) => {
     // 选中状态和相关高亮
     if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
       classes.push('selected');
+      classes.push(isPencilMode ? 'pencil-selected' : 'normal-selected');
     } else if (selectedCell) {
       const selectedValue = displayBoard[selectedCell.row][selectedCell.col];
+      const selectedCellKey = `${selectedCell.row}-${selectedCell.col}`;
+      const selectedCellNotes = pencilNotes && pencilNotes[selectedCellKey] || [];
       
       // 高亮相同数字的单元格
       if (value && value === selectedValue) {
         classes.push('same-number');
       }
+      
+      // 移除这段代码，因为我们现在直接在PencilNotes组件中高亮标注数字本身，而不是整个单元格
+      // 高亮具有相同标注数字的单元格
+      // if (currentCellNotes.length > 0 && selectedCellNotes.length > 0) {
+      //   const hasCommonNote = currentCellNotes.some(note => selectedCellNotes.includes(note));
+      //   if (hasCommonNote) {
+      //     classes.push('same-note');
+      //   }
+      // }
       
       // 高亮同行、同列、同宫的单元格
       if (isSameRegion(row, col, selectedCell.row, selectedCell.col)) {
@@ -196,19 +261,55 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle }) => {
       {displayBoard.map((row, rowIndex) =>
         row.map((value, colIndex) => {
           const cellClasses = getCellClasses(rowIndex, colIndex, value);
+          const cellKey = `${rowIndex}-${colIndex}`;
+          const cellNotes = pencilNotes && pencilNotes[cellKey] || [];
+          const hasNotes = cellNotes.length > 0;
+          
+          // 计算是否需要高亮标注数字
+          let highlightedNumber = null;
+          
+          // 严格条件检查：
+          // 1. 确保选中单元格存在且有有效坐标
+          // 2. 确保选中单元格有实际数字（非0）
+          // 3. 确保数字有效（非error）
+          if (selectedCell && 
+              selectedCell.row !== undefined && 
+              selectedCell.col !== undefined && 
+              displayBoard[selectedCell.row] && 
+              displayBoard[selectedCell.row][selectedCell.col]) {
+              
+            const selectedCellValue = displayBoard[selectedCell.row][selectedCell.col];
+            
+            // 关键条件：必须有实际数字（非0）且非错误
+            if (selectedCellValue !== 0 && selectedCellValue !== 'error') {
+              const isSelectedPrefilled = isCellPrefilled(selectedCellValue, selectedCell.row, selectedCell.col);
+              const isSelectedError = isCellError(selectedCellValue);
+              
+              // 最终确认：只有预填数字或非错误的用户输入才触发高亮
+              if (isSelectedPrefilled || !isSelectedError) {
+                highlightedNumber = selectedCellValue;
+              }
+            }
+          }
           
           return (
-            <Cell
-              key={`${rowIndex}-${colIndex}`}
-              row={rowIndex}
-              col={colIndex}
-              className={cellClasses}
-              onClick={() => handleCellClick(rowIndex, colIndex)}
-              theme={theme}
-            >
-              {value && value !== 0 && value !== 'error' ? value : ''}
-            </Cell>
-          );
+              <Cell
+                key={cellKey}
+                row={rowIndex}
+                col={colIndex}
+                className={cellClasses}
+                onClick={() => handleCellClick(rowIndex, colIndex)}
+                theme={theme}
+              >
+                {value && value !== 0 && value !== 'error' ? (
+                  value
+                ) : hasNotes ? (
+                  <PencilNotes notes={cellNotes} highlightedNumber={highlightedNumber} />
+                ) : (
+                  ''
+                )}
+              </Cell>
+            );
         })
       )}
     </BoardContainer>

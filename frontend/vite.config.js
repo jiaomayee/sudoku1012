@@ -20,7 +20,8 @@ export default defineConfig({
       // 配置API代理
       '/sudoku': {
         target: 'http://localhost:8000',
-        changeOrigin: true
+        changeOrigin: true,
+        rewrite: (path) => path
       }
     },
     hmr: {

@@ -5,10 +5,9 @@ import sqlite3
 import os
 from typing import List, Dict, Any, Optional
 import numpy as np
-from fastapi import APIRouter, Query, Path, HTTPException
 
 # 题库数据库路径
-PUZZLE_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "date", "sudoku_date.db")
+PUZZLE_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "date", "sudoku_date.db")
 
 # 创建路由
 router = APIRouter()
@@ -58,12 +57,11 @@ async def generate_sudoku(
         
         # 返回数独谜题和ID
         return {
-                "puzzle_id": puzzle_id,
-                "difficulty": difficulty,
-                "puzzle": puzzle,
-                "solution": solution,
-                "created_at": current_time
-            }
+            "puzzle_id": puzzle_id,
+            "difficulty": difficulty,
+            "puzzle": puzzle,
+            "created_at": current_time
+        }
     except Exception as e:
         logger.error(f"生成数独谜题失败: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="生成数独谜题失败")
@@ -378,37 +376,35 @@ async def get_random_puzzle_by_difficulty(
             "expert": "专家"
         }
         
+        # 确保数据库文件存在
+        if not os.path.exists(PUZZLE_DB_PATH):
+            raise HTTPException(status_code=404, detail="题库数据库文件不存在")
+        
+        # 连接到题库数据库
+        conn = sqlite3.connect(PUZZLE_DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
         # 查询指定难度的随机谜题
-        # 对于专家难度，先尝试从数据库获取，失败则生成
-        result = None
-        conn = None
+        cursor.execute(
+            "SELECT puzzle, solution FROM puzzles WHERE difficulty = ? ORDER BY RANDOM() LIMIT 1",
+            (difficulty_mapping.get(difficulty, "中等"),)
+        )
         
-        if difficulty == "expert" and os.path.exists(PUZZLE_DB_PATH):
-            try:
-                # 连接到题库数据库
-                conn = sqlite3.connect(PUZZLE_DB_PATH)
-                conn.row_factory = sqlite3.Row
-                cursor = conn.cursor()
-                
-                cursor.execute(
-                    "SELECT puzzle_data, solution FROM questions WHERE difficulty_level = ? ORDER BY RANDOM() LIMIT 1",
-                    (difficulty_mapping.get(difficulty, "专家"),)
-                )
-                
-                result = cursor.fetchone()
-            except Exception as e:
-                logger.warning(f"从题库数据库获取谜题失败: {e}")
-            finally:
-                if conn:
-                    conn.close()
+        result = cursor.fetchone()
+        conn.close()
         
-        # 如果没有从数据库获取到结果，则生成新谜题
         if not result:
             # 如果没有找到，尝试生成新的谜题
             puzzle, solution = generate_sudoku_puzzle(difficulty)
             puzzle_id = common_utils.generate_unique_id()
+            
+            # 将puzzle和solution转换为字符串格式
+            puzzle_str = json.dumps(puzzle)
+            solution_str = json.dumps(solution)
             current_time = get_current_time()
             
+            # 返回数独谜题
             return {
                 "puzzle_id": puzzle_id,
                 "difficulty": difficulty,
@@ -416,49 +412,10 @@ async def get_random_puzzle_by_difficulty(
                 "solution": solution,
                 "created_at": current_time
             }
-        elif difficulty == "expert" and result:
-            # 解析谜题和答案
-            # 注意：这里的puzzle_data是字符串格式的数独，需要转换为二维数组
-            puzzle_str = result["puzzle_data"]
-            solution_str = result["solution"]
-            
-            # 添加数据验证，确保字符串长度正确且包含足够的非零数字
-            if len(puzzle_str) < 81 or len(solution_str) < 81:
-                logger.warning(f"从数据库获取的数独字符串长度不足81字符，谜题长度:{len(puzzle_str)}，答案长度:{len(solution_str)}")
-                # 如果数据不完整，使用生成的谜题替代
-                puzzle, solution = generate_sudoku_puzzle(difficulty)
-            else:
-                # 将字符串格式的数独转换为二维数组
-                def str_to_grid(sudoku_str):
-                    grid = []
-                    non_zero_count = 0
-                    for i in range(9):
-                        row = []
-                        for j in range(9):
-                            try:
-                                char = sudoku_str[i*9 + j]
-                                value = int(char) if char != '0' else 0
-                                row.append(value)
-                                if value != 0:
-                                    non_zero_count += 1
-                            except (IndexError, ValueError):
-                                # 如果访问超出范围或转换失败，使用0填充
-                                row.append(0)
-                        grid.append(row)
-                    return grid, non_zero_count
-                
-                puzzle, non_zero_count = str_to_grid(puzzle_str)
-                solution, _ = str_to_grid(solution_str)
-                
-                # 检查非零数字数量是否满足数独规则（至少17个）
-                if non_zero_count < 17:
-                    logger.warning(f"从数据库获取的数独非零数字数量不足（{non_zero_count}个），需要至少17个非零数字")
-                    # 如果非零数字不足，使用生成的谜题替代
-                    puzzle, solution = generate_sudoku_puzzle(difficulty)
-        else:
-            # 非专家难度直接生成
-            puzzle, solution = generate_sudoku_puzzle(difficulty)
         
+        # 解析谜题和答案
+        puzzle = json.loads(result["puzzle"])
+        solution = json.loads(result["solution"])
         puzzle_id = common_utils.generate_unique_id()
         current_time = get_current_time()
         

@@ -37,14 +37,15 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props => props.isActive ? (props.theme?.primary || '#3498db') + '22' : (props.theme?.surface || '#ffffff')};
+  background-color: transparent;
   color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.text || '#333333')};
-  border: 2px solid ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.border || '#e0e0e0')};
+  border: none;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
   min-height: 48px;
+  min-width: 48px;
   font-size: 12px;
   font-family: inherit;
   margin: 0;
@@ -55,7 +56,8 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
     background-color: ${props => (props.theme?.primary || '#3498db') + '15'};
   }
   
-  &:active {
+  &:focus {
+    outline: none;
   }
 `;
 

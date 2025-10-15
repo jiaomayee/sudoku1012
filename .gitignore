@@ -84,3 +84,26 @@ patches/
 # Test scripts (临时文件，可删除)
 check_db_structure.py
 test_expert_puzzle.py
+
+# Python virtual environment
+.venv/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# IDE specific files
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db

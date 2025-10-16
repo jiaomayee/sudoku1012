@@ -1,7 +1,6 @@
 :root {
   /* 定义CSS变量，便于统一管理和响应式调整 */
   --board-width: min(55vh, 55vw, 600px); /* 大屏幕上使用视口较小值，最大600px */
-  --board-height: var(--board-width); /* 默认情况下高度等于宽度，保持正方形 */
   --control-panel-width: calc(var(--board-width) * 2/3);
   --block-gap: 30px;
   --border-radius: 8px;
@@ -121,11 +120,10 @@ body {
   align-items: center;
   justify-content: center;
   width: var(--board-width);
-  height: var(--board-height);
+  height: var(--board-width);
   position: relative;
   box-sizing: border-box;
   overflow: hidden; /* 防止内容溢出 */
-  max-height: 100%; /* 确保不超过父容器高度 */
 }
 
 /* 确保数独棋盘本身占满容器空间 */
@@ -146,28 +144,9 @@ body {
   padding: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: var(--control-panel-width);
-  height: var(--board-height);
+  height: var(--board-width);
   position: relative;
   box-sizing: border-box;
-  overflow-y: auto; /* 允许内容在高度不足时滚动 */
-}
-
-/* 横屏模式下的响应式布局 - 调整棋盘尺寸为屏幕高度的65% */
-@media (min-width: 992px) {
-  :root {
-    --board-height: min(65vh, 90vw); /* 横屏模式下棋盘高度为屏幕高度的65% */
-    --board-width: var(--board-height); /* 保持正方形比例，宽度等于高度 */
-  }
-  
-  .board-container {
-    width: var(--board-width);
-    height: var(--board-height);
-  }
-  
-  .control-panel {
-    width: var(--control-panel-width);
-    height: var(--board-height);
-  }
 }
 
 /* 竖屏模式下的响应式布局 */
@@ -225,7 +204,6 @@ body {
   .main-content {
     flex-direction: column;
     gap: var(--block-gap);
-    max-height: calc(100vh - 100px); /* 限制主内容区域的最大高度 */
   }
   
   .top-row,
@@ -245,7 +223,7 @@ body {
   
   .board-container {
     width: var(--board-width);
-    height: var(--board-height);
+    height: var(--board-width);
   }
   
   .display-block {
@@ -256,38 +234,7 @@ body {
   
   .control-panel {
     width: var(--control-panel-width);
-    height: var(--board-height);
-  }
-  
-  /* 针对横屏模式下视口高度不足的情况 */
-  @media (max-height: 700px) {
-    :root {
-      --board-width: min(45vh, 55vw, 500px); /* 降低高度比例 */
-      --block-gap: 20px; /* 减小间隙 */
-    }
-    
-    .main-content {
-      max-height: calc(100vh - 80px);
-    }
-    
-    .sudoku-game-container {
-      padding: 15px;
-    }
-  }
-  
-  @media (max-height: 600px) {
-    :root {
-      --board-width: min(40vh, 50vw, 400px); /* 进一步降低高度比例 */
-      --block-gap: 15px; /* 进一步减小间隙 */
-    }
-    
-    .main-content {
-      max-height: calc(100vh - 60px);
-    }
-    
-    .sudoku-game-container {
-      padding: 10px;
-    }
+    height: var(--board-width);
   }
 }
 

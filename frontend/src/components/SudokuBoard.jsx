@@ -12,11 +12,11 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   position: relative;
   width: 100% !important;
-  height: 100% !important;
+  aspect-ratio: 1 / 1 !important;
   margin: 0 auto !important;
-  padding: 6px;
+  padding: 0;
   box-sizing: border-box;
-  overflow: hidden !important;
+  overflow: visible !important;
   z-index: 1;
   grid-gap: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -44,7 +44,6 @@ const Cell = styled.div`
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  min-height: 40px;
   min-width: 0;
   width: 100%;
   height: 100%;

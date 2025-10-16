@@ -1,6 +1,6 @@
 :root {
   /* 定义CSS变量，便于统一管理和响应式调整 */
-  --board-width: min(55vh, 55vw, 600px); /* 大屏幕上使用视口较小值，最大600px */
+  --board-width: min(60vh, 60vw, 600px); /* 大屏幕上使用视口较小值，最大600px */
   --control-panel-width: calc(var(--board-width) * 2/3);
   --block-gap: 30px;
   --border-radius: 8px;

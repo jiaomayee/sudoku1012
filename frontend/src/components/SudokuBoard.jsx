@@ -8,7 +8,7 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
   border: 3px solid ${props => props.theme?.gridLineThick || '#34495e'};
-  border-radius: 12px;
+  border-radius: var(--border-radius);
   background-color: ${props => props.theme?.surface || '#ffffff'};
   position: relative;
   width: 100% !important;
@@ -38,7 +38,7 @@ const Cell = styled.div`
   cursor: pointer;
   background-color: ${props => props.theme?.cellBackground || '#ffffff'};
   color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
-  border: 1px solid ${props => props.theme?.gridLine || '#e0e0e0'};
+  border: 1px dashed ${props => props.theme?.gridLine || '#e0e0e0'};
   transition: all 0.2s ease;
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   margin: 0;

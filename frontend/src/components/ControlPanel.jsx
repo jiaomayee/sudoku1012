@@ -131,7 +131,7 @@ const NumberPad = styled.div`
   }
 `;
 
-const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remainingCount, ...props}) => <button {...props} />)`
+const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remainingCount, ...props}) => <button disabled={disabled} {...props} />)`
   background-color: ${props => {
     if (props.disabled) return props.theme?.disabled || '#f5f5f5';
     if (props.isActive) return props.theme?.primary || '#3498db';
@@ -573,7 +573,7 @@ const ControlPanel = ({
                       showCount={!isPencilMode} // 仅在非铅笔模式下显示角标
                       remainingCount={remainingCount}
                       data-count={remainingCount}
-                      onClick={() => onNumberSelect(number)}
+                      onClick={() => !isDisabled && onNumberSelect(number)}
                     >
                       {number}
                     </NumberButton>

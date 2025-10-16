@@ -36,6 +36,30 @@ const SudokuGamePage = () => {
   const fillCell = sudokuContext?.fillCell || (() => {});
   const fillAllCandidates = sudokuContext?.fillAllCandidates || (() => {});
   const undo = sudokuContext?.undo || (() => {}); // 添加undo函数引用
+  const solution = sudokuContext?.solution || Array(9).fill().map(() => Array(9).fill(0)); // 获取解决方案用于计算剩余数字
+  
+  // 计算每个数字的剩余未填入数量
+  const calculateRemainingNumbers = () => {
+    const remainingCounts = {};
+    // 初始化所有数字的剩余数量为9（标准数独每个数字出现9次）
+    for (let num = 1; num <= 9; num++) {
+      remainingCounts[num] = 9;
+    }
+    
+    // 遍历当前棋盘，减少已填入的数字计数
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        const cellValue = currentBoard[i][j];
+        if (cellValue !== 0 && solution[i][j] === cellValue) { // 只计算正确填入的数字
+          remainingCounts[cellValue]--;
+        }
+      }
+    }
+    
+    return remainingCounts;
+  };
+  
+  const remainingNumbers = calculateRemainingNumbers(); // 计算剩余数字数量
 
   const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
   const [showDifficultyModal, setShowDifficultyModal] = useState(false);
@@ -379,13 +403,14 @@ const SudokuGamePage = () => {
             
             {/* 操作面板 */}
             <ControlPanel
-              onNumberSelect={handleNumberSelect}
-              onClearCell={enhancedClearCell}
-              onUndo={undo} // 添加onUndo属性
-              selectedNumber={selectedCell?.value || null}
-              isPencilMode={isPencilMode}
-              onTogglePencilMode={handleTogglePencilMode}
-            />
+                onNumberSelect={handleNumberSelect}
+                onClearCell={enhancedClearCell}
+                onUndo={undo} // 添加onUndo属性
+                selectedNumber={selectedCell?.value || null}
+                isPencilMode={isPencilMode}
+                onTogglePencilMode={handleTogglePencilMode}
+                remainingNumbers={remainingNumbers} // 添加剩余数字数量
+              />
           </>
         ) : (
           // 横屏模式：按照UI文档要求的两行两列布局
@@ -444,6 +469,7 @@ const SudokuGamePage = () => {
                 selectedNumber={selectedCell?.value || null}
                 isPencilMode={isPencilMode}
                 onTogglePencilMode={handleTogglePencilMode}
+                remainingNumbers={remainingNumbers} // 添加剩余数字数量
               />
             </div>
             </div>

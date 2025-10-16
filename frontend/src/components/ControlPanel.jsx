@@ -131,7 +131,7 @@ const NumberPad = styled.div`
   }
 `;
 
-const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <button {...props} />)`
+const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, ...props}) => <button {...props} />)`
   background-color: ${props => {
     if (props.disabled) return props.theme?.disabled || '#f5f5f5';
     if (props.isActive) return props.theme?.primary || '#3498db';
@@ -164,6 +164,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
   height: auto;
   min-height: 36px;
   max-height: none;
+  position: relative; /* 为角标定位 */
   
   /* 横屏模式下调整按钮样式 */
   @media (min-width: 992px) {
@@ -198,6 +199,43 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
   &:active:not(:disabled) {
     transform: scale(0.95);
     transition: transform 0.1s ease;
+  }
+  
+  // 角标样式
+  &::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: ${props => props.theme?.primary || '#3498db'};
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: ${props => props.showCount ? 1 : 0};
+    pointer-events: none;
+    z-index: 1;
+    /* 横屏模式下角标调整 */
+    @media (min-width: 992px) {
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      top: -10px;
+      right: -10px;
+    }
+    /* 竖屏模式下角标调整 */
+    @media (max-width: 991px) {
+      width: 16px;
+      height: 16px;
+      font-size: 10px;
+      top: -6px;
+      right: -6px;
+    }
   }
 `;
 
@@ -418,7 +456,8 @@ const ControlPanel = ({
   onUndo,
   onTogglePencilMode,
   selectedNumber,
-  isPencilMode
+  isPencilMode,
+  remainingNumbers = {} // 添加剩余数字数量属性，默认为空对象
 }) => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
@@ -511,16 +550,23 @@ const ControlPanel = ({
             <>
               <NumberPad>
                 {/* 数字按钮 1-9 */}
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(number => (
-                  <NumberButton
-                    key={`number-${number}`}
-                    isActive={selectedNumber === number}
-                    isPencilMode={isPencilMode}
-                    onClick={() => onNumberSelect(number)}
-                  >
-                    {number}
-                  </NumberButton>
-                ))}
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(number => {
+                  const remainingCount = remainingNumbers[number] || 9; // 获取剩余数量，默认为9
+                  const isDisabled = remainingCount === 0; // 当剩余数量为0时禁用按钮
+                  return (
+                    <NumberButton
+                      key={`number-${number}`}
+                      isActive={selectedNumber === number}
+                      isPencilMode={isPencilMode}
+                      disabled={isDisabled}
+                      showCount={!isPencilMode} // 仅在非铅笔模式下显示角标
+                      data-count={remainingCount}
+                      onClick={() => onNumberSelect(number)}
+                    >
+                      {number}
+                    </NumberButton>
+                  );
+                })}
                 
                 {/* 操作按钮 - 使用与数字按钮相同的样式 */}
                 {/* 撤回按钮 - 使用左箭头图标 */}

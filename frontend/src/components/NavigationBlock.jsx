@@ -46,15 +46,15 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props => props.theme?.surface || '#ffffff'};
+  background-color: ${props => props.theme?.background || '#f8f9fa'};
   color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.text || '#333333')};
-  border: 2px solid ${props => props.theme?.border || '#e0e0e0'};
+  border: none;
   border-radius: 8px;
-  padding: 8px;
+  padding: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 45px;
-  min-width: 45px;
+  min-height: 36px;
+  min-width: 36px;
   font-size: 12px;
   font-family: inherit;
   margin: 0;
@@ -104,7 +104,7 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
 `;
 
 const ButtonIcon = styled.span`
-  font-size: 18px;
+  font-size: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,32 +113,39 @@ const ButtonIcon = styled.span`
 // 简单的图标组件
 const Icons = {
   NewGame: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
       <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
     </svg>
   ),
   Pause: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
       <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
     </svg>
   ),
   Play: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
       <path d="M8 5v14l11-7z"/>
     </svg>
   ),
   Hint: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFD700">
+      <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
     </svg>
   ),
   Notes: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+      {/* 数独格子背景 */}
+      <rect x="4" y="4" width="16" height="16" rx="2" fill="transparent" stroke="currentColor" strokeWidth="1.5"/>
+      {/* 添加2x2网格分割线 */}
+      <line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" strokeWidth="1" strokeDasharray="1"/>
+      <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="1" strokeDasharray="1"/>
+      {/* 显示两个数字：2（左上角）和5（右下角） */}
+      <text x="7" y="10" fontSize="6" fontWeight="bold">2</text>
+      <text x="15" y="18" fontSize="6" fontWeight="bold">5</text>
     </svg>
   ),
   Settings: () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
       <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
     </svg>
   )

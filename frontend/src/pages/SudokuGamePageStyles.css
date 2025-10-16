@@ -150,22 +150,43 @@ body {
 }
 
 /* 竖屏模式下的响应式布局 */
-@media (max-width: 991px) {
-  :root {
-    --board-width: 95vw; /* 竖屏模式下使用视口宽度的95% */
-    --control-panel-width: var(--board-width);
-    --block-gap: 20px;
-  }
-  
-  .sudoku-game-container {
-    padding: 10px;
-  }
-  
-  .top-row,
-  .bottom-row {
-    flex-direction: column;
-    align-items: center;
-  }
+  @media (max-width: 991px) {
+    :root {
+      --board-width: 95vw; /* 竖屏模式下使用视口宽度的95% */
+      --control-panel-width: var(--board-width);
+      --block-gap: 2px; /* 进一步减小区块间距 */
+    }
+    
+    .sudoku-game-container {
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .main-content {
+      margin-top: 0;
+      gap: 0; /* 移除主内容区域的间距 */
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .top-row {
+      flex-direction: column;
+      align-items: center;
+      gap: 0; /* 移除顶部行内区块间距 */
+      margin: 0;
+      padding: 0;
+    }
+    
+    .bottom-row {
+      flex-direction: column;
+      align-items: center;
+      gap: 0; /* 移除底部行内区块间距 */
+      margin: 0;
+      padding: 0;
+    }
   
   .nav-block,
   .display-block,
@@ -181,8 +202,31 @@ body {
     min-height: var(--board-width); /* 使用相同的变量以保持比例 */
   }
   
+  /* 显示区块样式修改 */
+  .display-block {
+    background-color: transparent; /* 设置为透明 */
+    padding: 1px 5px; /* 最小化内边距 */
+    box-shadow: none; /* 移除阴影 */
+    height: auto; /* 自动高度 */
+    min-height: 24px; /* 最小化显示区块高度 */
+    gap: 5px; /* 减小内部间距 */
+    margin: 0;
+  }
+  
+  .display-block div {
+    font-size: 14px; /* 保持与横屏一致的字体大小 */
+    gap: 4px; /* 保持与横屏一致的标签内间距 */
+    margin: 0;
+  }
+  
   .display-block .value {
-    font-size: 20px;
+    font-size: 16px; /* 保持与横屏一致的数值大小 */
+    margin: 0;
+  }
+  
+  .display-block .error-count {
+    font-size: 18px; /* 保持与横屏一致的错误次数大小 */
+    margin: 0;
   }
 }
 
@@ -199,22 +243,25 @@ body {
 }
 
 /* 横屏模式（大屏幕始终使用） */
-@media (min-width: 992px) {
-  /* 确保主内容区域使用两行两列布局 */
-  .main-content {
-    flex-direction: column;
-    gap: var(--block-gap);
-  }
-  
-  .top-row,
-  .bottom-row {
-    display: flex;
-    flex-direction: row;
-    gap: var(--block-gap);
-    width: 100%;
-    justify-content: center;
-    align-items: flex-start;
-  }
+  @media (min-width: 992px) {
+    /* 确保主内容区域使用两行两列布局 */
+    .main-content {
+      flex-direction: column;
+      gap: var(--block-gap);
+      width: 100%;
+      margin-top: 20px;
+      align-items: center;
+    }
+    
+    .top-row,
+    .bottom-row {
+      display: flex;
+      flex-direction: row;
+      gap: var(--block-gap);
+      width: 100%;
+      justify-content: center;
+      align-items: flex-start;
+    }
   
   .nav-block {
     width: var(--board-width);

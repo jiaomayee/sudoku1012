@@ -505,9 +505,10 @@ const ControlPanel = ({
           {activeTab === 'keyboard' && (
             <>
               <NumberPad>
+                {/* 数字按钮 1-9 */}
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(number => (
                   <NumberButton
-                    key={number}
+                    key={`number-${number}`}
                     isActive={selectedNumber === number}
                     isPencilMode={isPencilMode}
                     onClick={() => onNumberSelect(number)}
@@ -515,11 +516,11 @@ const ControlPanel = ({
                     {number}
                   </NumberButton>
                 ))}
-              </NumberPad>
-              
-              <ActionButtons style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', padding: '4px', alignItems: 'center', justifyContent: 'center'}}>
-                {/* 撤回按钮 - 使用左箭头图标表示撤回操作 */}
-                <ActionButton 
+                
+                {/* 操作按钮 - 使用与数字按钮相同的样式 */}
+                {/* 撤回按钮 - 使用左箭头图标 */}
+                <NumberButton
+                  key="undo"
                   onClick={onUndo}
                   title="撤回"
                 >
@@ -536,13 +537,18 @@ const ControlPanel = ({
                   >
                     <path d="m15 18-6-6 6-6"/>
                   </svg>
-                </ActionButton>
+                </NumberButton>
                 
-                {/* 清除按钮 - 使用垃圾桶图标表示清空单元格内容 */}
-                <ActionButton 
+                {/* 清除按钮 - 使用垃圾桶图标 */}
+                <NumberButton
+                  key="clear"
                   onClick={onClearCell}
                   title="清空单元格"
-                  isDanger
+                  style={{ 
+                    backgroundColor: isPencilMode ? '#ffebee' : theme?.error || '#ff4444',
+                    color: 'white',
+                    borderColor: theme?.error || '#ff4444'
+                  }}
                 >
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -561,10 +567,11 @@ const ControlPanel = ({
                     <line x1="10" x2="10" y1="11" y2="17"/>
                     <line x1="14" x2="14" y1="11" y2="17"/>
                   </svg>
-                </ActionButton>
+                </NumberButton>
                 
-                {/* 铅笔按钮 - 使用铅笔图标表示铅笔模式 */}
-                <ActionButton 
+                {/* 铅笔按钮 - 使用铅笔图标 */}
+                <NumberButton
+                  key="pencil"
                   onClick={onTogglePencilMode}
                   title={isPencilMode ? "退出铅笔模式" : "进入铅笔模式"}
                   isActive={isPencilMode}
@@ -574,16 +581,16 @@ const ControlPanel = ({
                     width="24" 
                     height="24" 
                     viewBox="0 0 24 24" 
-                    fill="currentColor" 
-                    stroke="white" 
+                    fill="none" 
+                    stroke={isPencilMode ? "white" : "currentColor"} 
                     strokeWidth="2" 
                     strokeLinecap="round" 
                     strokeLinejoin="round"
                   >
                     <path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
                   </svg>
-                </ActionButton>
-              </ActionButtons>
+                </NumberButton>
+              </NumberPad>
             </>
           )}
           

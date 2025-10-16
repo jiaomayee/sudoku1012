@@ -64,17 +64,21 @@ const TabBar = styled.div`
 // 标签按钮
 const TabButton = styled(({ isActive, ...props }) => <button {...props} />)`
   flex: 1;
-  padding: 10px 16px;
+  padding: 6px 12px; /* 减小内边距以降低按钮高度 */
   background-color: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  font-size: 14px;
+  font-size: 13px; /* 略微减小字体大小 */
   font-weight: ${props => props.isActive ? '600' : '500'};
   color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.textSecondary || '#7f8c8d')};
   cursor: pointer;
   transition: all 0.2s ease;
   margin: 0;
   box-sizing: border-box;
+  min-height: 36px; /* 设置最小高度确保触摸友好性 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   // 悬停效果（仅在非移动设备上）
   @media (hover: hover) {

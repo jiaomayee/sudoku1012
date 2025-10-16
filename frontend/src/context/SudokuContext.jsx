@@ -244,6 +244,7 @@ export const SudokuContextProvider = ({ children }) => {
       let puzzleData;
       let generationAttempts = 0;
       const maxAttempts = 3;
+      let isFromJson = false; // 标记谜题是否来自JSON文件
       
       // 尝试生成谜题，最多尝试maxAttempts次
       while (!puzzleData && generationAttempts < maxAttempts) {
@@ -259,6 +260,7 @@ export const SudokuContextProvider = ({ children }) => {
               const puzzleFromJson = await getRandomExpertPuzzle();
               if (puzzleFromJson && puzzleFromJson.puzzle && puzzleFromJson.solution) {
                 puzzleData = puzzleFromJson;
+                isFromJson = true;
                 console.log('成功从JSON文件获取专家级谜题');
               } else {
                 console.warn('从JSON文件获取的谜题数据不完整，回退到程序生成');
@@ -373,7 +375,12 @@ export const SudokuContextProvider = ({ children }) => {
         updateUserStats({ puzzlesStarted: 1 });
       }
 
-      toast.success('已生成新谜题！', { position: 'top-right', autoClose: 2000 });
+      // 根据难度和题目来源显示不同的提示
+      if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
+        toast.success(isFromJson ? '已加载专家题库题目！' : '已生成专家难度题目！', { position: 'top-right', autoClose: 2000 });
+      } else {
+        toast.success('已生成新谜题！', { position: 'top-right', autoClose: 2000 });
+      }
       console.log('新游戏设置完成');
       return formattedData;
     } catch (error) {

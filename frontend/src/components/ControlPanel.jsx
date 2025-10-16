@@ -551,7 +551,8 @@ const ControlPanel = ({
               <NumberPad>
                 {/* 数字按钮 1-9 */}
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(number => {
-                  const remainingCount = remainingNumbers[number] || 9; // 获取剩余数量，默认为9
+                  // 使用hasOwnProperty确保当值为0时也能正确处理，而不是使用默认值9
+                  const remainingCount = remainingNumbers.hasOwnProperty(number) ? remainingNumbers[number] : 9;
                   const isDisabled = remainingCount === 0; // 当剩余数量为0时禁用按钮
                   return (
                     <NumberButton

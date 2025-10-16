@@ -14,7 +14,7 @@ const lightTheme = {
   info: '#2196F3',
   
   // 背景色
-  background: '#F5F7FA',
+  background: '#EEEEF2',
   surface: '#FFFFFF',
   
   // 文本颜色

@@ -540,7 +540,8 @@ const ControlPanel = ({
                     strokeLinecap="round" 
                     strokeLinejoin="round"
                   >
-                    <path d="m15 18-6-6 6-6"/>
+                    <path d="M3 7v6h6"/>
+                    <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
                   </svg>
                 </NumberButton>
                 
@@ -550,7 +551,7 @@ const ControlPanel = ({
                   onClick={onClearCell}
                   title="清空单元格"
                   style={{ 
-                    backgroundColor: isPencilMode ? '#ffebee' : theme?.error || '#ff4444',
+                    backgroundColor: theme?.error || '#ff4444',
                     color: 'white',
                     borderColor: theme?.error || '#ff4444'
                   }}

@@ -150,7 +150,8 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
   font-size: calc(var(--board-width) * 0.055);
   font-weight: 600;
   cursor: ${props => props.disabled ? 'default' : 'pointer'};
-  transition: all 0.2s ease;
+  /* 简化transition，避免轮廓问题 */
+  transition: background-color 0.15s ease, color 0.15s ease;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -158,29 +159,30 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   margin: 0;
   box-sizing: border-box;
-  /* 增加触摸区域大小，更适合手机操作 */
-  min-height: 40px;
-  max-height: 60px;
+  /* 按钮尺寸跟随操作区块宽度变化 */
+  width: 100%;
+  height: auto;
+  min-height: 36px;
+  max-height: none;
   
-  /* 横屏模式下增大按钮尺寸和文字大小 */
+  /* 横屏模式下调整按钮样式 */
   @media (min-width: 992px) {
     padding: 12px;
     font-size: calc(var(--board-width) * 0.065);
-    min-height: 50px;
-    max-height: 80px;
+    min-height: 48px;
     border-radius: 10px;
   }
   
-  /* 竖屏模式下减小按钮尺寸和字体 */
+  /* 竖屏模式下调整按钮样式 */
   @media (max-width: 991px) {
     padding: 6px;
     font-size: calc(var(--board-width) * 0.045);
-    min-height: 36px;
+    min-height: 32px;
     border-radius: 6px;
     border-width: 1.5px;
   }
   
-  // 悬停效果（仅在非移动设备上）
+  // 悬停效果（仅在非移动设备上）- 简化悬停效果，避免轮廓问题
   @media (hover: hover) {
     &:hover:not(:disabled) {
       background-color: ${props => {
@@ -188,8 +190,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
         if (props.isPencilMode) return '#b2ebf2';
         return (props.theme?.primary || '#3498db') + '22';
       }};
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
   }
   

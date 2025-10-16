@@ -188,14 +188,24 @@ body {
       padding: 0;
     }
   
-  .nav-block,
-  .display-block,
-  .board-container,
-  .control-panel {
-    width: 100%;
-    max-width: var(--board-width);
-    height: auto;
-  }
+  .nav-block {
+      width: 100%;
+      max-width: var(--board-width);
+      height: auto;
+    }
+    
+    /* 竖屏模式下隐藏顶部菜单栏 */
+    nav {
+      display: none;
+    }
+    
+    .display-block,
+    .board-container,
+    .control-panel {
+      width: 100%;
+      max-width: var(--board-width);
+      height: auto;
+    }
   
   .control-panel {
     height: auto;

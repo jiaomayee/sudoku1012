@@ -152,10 +152,10 @@ body {
   overflow-y: auto; /* 允许内容在高度不足时滚动 */
 }
 
-/* 横屏模式下的响应式布局 - 调整棋盘尺寸为屏幕高度的70% */
+/* 横屏模式下的响应式布局 - 调整棋盘尺寸为屏幕高度的65% */
 @media (min-width: 992px) {
   :root {
-    --board-height: min(70vh, 90vw); /* 横屏模式下棋盘高度为屏幕高度的70% */
+    --board-height: min(65vh, 90vw); /* 横屏模式下棋盘高度为屏幕高度的65% */
     --board-width: var(--board-height); /* 保持正方形比例，宽度等于高度 */
   }
   

@@ -5,6 +5,7 @@ import { useUser } from './UserContext';
 import { api } from '../services/api';
 import DLX from '../utils/DLX'; // 添加DLX算法导入
 import { generateSudoku, solveSudoku, hasUniqueSolution } from '../utils/sudokuUtils';
+import { getRandomExpertPuzzle } from '../utils/puzzleUtils'; // 导入从JSON获取专家级题目的函数
 
 // 创建数独上下文
 const SudokuContext = createContext();
@@ -222,14 +223,14 @@ export const SudokuContextProvider = ({ children }) => {
     console.log('SudokuContext: 开始新游戏', { puzzleId, difficultyOverride });
     try {
       // 停止当前计时器并重置状态
-    setTimerActive(false);
-    setTimeElapsed(0);
-    setGameCompleted(false);
-    setHistory([]);
-    setHistoryIndex(-1);
-    setErrorCount(0); // 重置错误计数
-    setCumulativeErrorCount(0); // 重置累计错误次数
-    setIncorrectCells(new Set()); // 重置错误单元格
+      setTimerActive(false);
+      setTimeElapsed(0);
+      setGameCompleted(false);
+      setHistory([]);
+      setHistoryIndex(-1);
+      setErrorCount(0); // 重置错误计数
+      setCumulativeErrorCount(0); // 重置累计错误次数
+      setIncorrectCells(new Set()); // 重置错误单元格
       setPencilNotes({}); // 重置候选数/标注，修复残留问题
       
       // 使用指定难度或当前难度
@@ -241,35 +242,109 @@ export const SudokuContextProvider = ({ children }) => {
       }
       
       let puzzleData;
+      let generationAttempts = 0;
+      const maxAttempts = 3;
       
-      // 根据难度选择生成方式：专家难度从题库获取，其他难度使用程序生成
-      if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
-        console.log('专家难度：尝试从题库获取谜题');
+      // 尝试生成谜题，最多尝试maxAttempts次
+      while (!puzzleData && generationAttempts < maxAttempts) {
+        generationAttempts++;
+        console.log(`尝试生成谜题 (${generationAttempts}/${maxAttempts})`);
+        
         try {
-          // 尝试从API获取题库中的专家级谜题
-          puzzleData = await api.getRandomPuzzleByDifficulty(targetDifficulty);
-          console.log('成功从题库获取专家级谜题');
-        } catch (apiError) {
-          console.warn('从题库获取专家级谜题失败，回退到程序生成:', apiError);
-          // 如果API失败，回退到程序生成
-          puzzleData = await generateOfflinePuzzle(targetDifficulty);
+          // 根据难度选择生成方式：专家难度从JSON文件获取，其他难度使用程序生成
+          if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
+            console.log('专家难度：尝试从JSON文件获取谜题');
+            try {
+              // 从JSON文件获取专家级谜题
+              const puzzleFromJson = await getRandomExpertPuzzle();
+              if (puzzleFromJson && puzzleFromJson.puzzle && puzzleFromJson.solution) {
+                puzzleData = puzzleFromJson;
+                console.log('成功从JSON文件获取专家级谜题');
+              } else {
+                console.warn('从JSON文件获取的谜题数据不完整，回退到程序生成');
+                // 继续循环，下次尝试程序生成
+              }
+            } catch (jsonError) {
+              console.warn('从JSON文件获取专家级谜题失败，回退到程序生成:', jsonError);
+              // 继续循环，下次尝试程序生成
+            }
+          }
+          
+          // 如果JSON获取失败或不是专家难度，使用程序生成
+          if (!puzzleData) {
+            console.log('使用程序生成谜题');
+            puzzleData = await generateOfflinePuzzle(targetDifficulty);
+          }
+        } catch (generationError) {
+          console.error(`生成谜题失败 (尝试 ${generationAttempts}/${maxAttempts}):`, generationError);
+          // 继续尝试下一次
         }
-      } else {
-        console.log('非专家难度：使用程序生成谜题');
-        // 简单/中等/困难难度使用程序生成
-        puzzleData = await generateOfflinePuzzle(targetDifficulty);
+      }
+      
+      // 如果多次尝试后仍未生成谜题，使用备用谜题
+      if (!puzzleData) {
+        console.error('多次尝试生成谜题失败，使用备用谜题');
+        const simplePuzzle = [
+          [5, 3, 0, 0, 7, 0, 0, 0, 0],
+          [6, 0, 0, 1, 9, 5, 0, 0, 0],
+          [0, 9, 8, 0, 0, 0, 0, 6, 0],
+          [8, 0, 0, 0, 6, 0, 0, 0, 3],
+          [4, 0, 0, 8, 0, 3, 0, 0, 1],
+          [7, 0, 0, 0, 2, 0, 0, 0, 6],
+          [0, 6, 0, 0, 0, 0, 2, 8, 0],
+          [0, 0, 0, 4, 1, 9, 0, 0, 5],
+          [0, 0, 0, 0, 8, 0, 0, 7, 9]
+        ];
+        
+        const simpleSolution = [
+          [5, 3, 4, 6, 7, 8, 9, 1, 2],
+          [6, 7, 2, 1, 9, 5, 3, 4, 8],
+          [1, 9, 8, 3, 4, 2, 5, 6, 7],
+          [8, 5, 9, 7, 6, 1, 4, 2, 3],
+          [4, 2, 6, 8, 5, 3, 7, 9, 1],
+          [7, 1, 3, 9, 2, 4, 8, 5, 6],
+          [9, 6, 1, 5, 3, 7, 2, 8, 4],
+          [2, 8, 7, 4, 1, 9, 6, 3, 5],
+          [3, 4, 5, 2, 8, 6, 1, 7, 9]
+        ];
+        
+        puzzleData = { puzzle: simplePuzzle, solution: simpleSolution };
       }
 
       // 格式化数据为统一格式
       const formattedData = formatPuzzleData(puzzleData);
       console.log('谜题数据准备完成，formattedData:', formattedData);
-      console.log('puzzleData.puzzle 是否存在:', !!formattedData.puzzle);
-      if (formattedData.puzzle) {
-        console.log('puzzle 类型:', Array.isArray(formattedData.puzzle) ? '数组' : typeof formattedData.puzzle);
-        console.log('puzzle 长度:', Array.isArray(formattedData.puzzle) ? formattedData.puzzle.length : '不是数组');
-        if (Array.isArray(formattedData.puzzle) && formattedData.puzzle.length > 0) {
-          console.log('puzzle 第一行:', formattedData.puzzle[0]);
-        }
+      
+      // 确保formattedData包含有效的puzzle和solution
+      if (!formattedData || !formattedData.puzzle || !Array.isArray(formattedData.puzzle) || formattedData.puzzle.length !== 9) {
+        console.error('格式化后的数据无效，使用备用谜题');
+        // 使用备用谜题
+        const simplePuzzle = [
+          [5, 3, 0, 0, 7, 0, 0, 0, 0],
+          [6, 0, 0, 1, 9, 5, 0, 0, 0],
+          [0, 9, 8, 0, 0, 0, 0, 6, 0],
+          [8, 0, 0, 0, 6, 0, 0, 0, 3],
+          [4, 0, 0, 8, 0, 3, 0, 0, 1],
+          [7, 0, 0, 0, 2, 0, 0, 0, 6],
+          [0, 6, 0, 0, 0, 0, 2, 8, 0],
+          [0, 0, 0, 4, 1, 9, 0, 0, 5],
+          [0, 0, 0, 0, 8, 0, 0, 7, 9]
+        ];
+        
+        const simpleSolution = [
+          [5, 3, 4, 6, 7, 8, 9, 1, 2],
+          [6, 7, 2, 1, 9, 5, 3, 4, 8],
+          [1, 9, 8, 3, 4, 2, 5, 6, 7],
+          [8, 5, 9, 7, 6, 1, 4, 2, 3],
+          [4, 2, 6, 8, 5, 3, 7, 9, 1],
+          [7, 1, 3, 9, 2, 4, 8, 5, 6],
+          [9, 6, 1, 5, 3, 7, 2, 8, 4],
+          [2, 8, 7, 4, 1, 9, 6, 3, 5],
+          [3, 4, 5, 2, 8, 6, 1, 7, 9]
+        ];
+        
+        formattedData.puzzle = simplePuzzle;
+        formattedData.solution = simpleSolution;
       }
       
       // 更新状态
@@ -284,6 +359,8 @@ export const SudokuContextProvider = ({ children }) => {
       
       setSolution(formattedData.solution);
       console.log('设置 solution 完成');
+      
+      // 确保gameStarted为true
       setGameStarted(true);
       setGameCompleted(false);
       setTimeElapsed(0);
@@ -301,7 +378,49 @@ export const SudokuContextProvider = ({ children }) => {
       return formattedData;
     } catch (error) {
       console.error('开始新游戏失败:', error);
-      toast.error('生成谜题失败，请重试', { position: 'top-right', autoClose: 2000 });
+      // 即使出错，也要确保状态正确设置
+      try {
+        // 使用备用谜题
+        const simplePuzzle = [
+          [5, 3, 0, 0, 7, 0, 0, 0, 0],
+          [6, 0, 0, 1, 9, 5, 0, 0, 0],
+          [0, 9, 8, 0, 0, 0, 0, 6, 0],
+          [8, 0, 0, 0, 6, 0, 0, 0, 3],
+          [4, 0, 0, 8, 0, 3, 0, 0, 1],
+          [7, 0, 0, 0, 2, 0, 0, 0, 6],
+          [0, 6, 0, 0, 0, 0, 2, 8, 0],
+          [0, 0, 0, 4, 1, 9, 0, 0, 5],
+          [0, 0, 0, 0, 8, 0, 0, 7, 9]
+        ];
+        
+        const simpleSolution = [
+          [5, 3, 4, 6, 7, 8, 9, 1, 2],
+          [6, 7, 2, 1, 9, 5, 3, 4, 8],
+          [1, 9, 8, 3, 4, 2, 5, 6, 7],
+          [8, 5, 9, 7, 6, 1, 4, 2, 3],
+          [4, 2, 6, 8, 5, 3, 7, 9, 1],
+          [7, 1, 3, 9, 2, 4, 8, 5, 6],
+          [9, 6, 1, 5, 3, 7, 2, 8, 4],
+          [2, 8, 7, 4, 1, 9, 6, 3, 5],
+          [3, 4, 5, 2, 8, 6, 1, 7, 9]
+        ];
+        
+        const fallbackData = { puzzle: simplePuzzle, solution: simpleSolution };
+        
+        setCurrentPuzzle(fallbackData);
+        setOriginalPuzzle(simplePuzzle);
+        setCurrentBoard(simplePuzzle);
+        setSolution(simpleSolution);
+        setGameStarted(true);
+        setGameCompleted(false);
+        setTimerActive(true);
+        
+        toast.success('已使用备用谜题！', { position: 'top-right', autoClose: 2000 });
+        return fallbackData;
+      } catch (fallbackError) {
+        console.error('使用备用谜题也失败:', fallbackError);
+        toast.error('生成谜题失败，请刷新页面重试', { position: 'top-right', autoClose: 2000 });
+      }
       return null;
     }
   };
@@ -329,16 +448,22 @@ export const SudokuContextProvider = ({ children }) => {
       
       let puzzleData;
       
-      // 根据难度选择生成方式：专家难度从题库获取，其他难度使用程序生成
+      // 根据难度选择生成方式：专家难度从JSON文件获取，其他难度使用程序生成
       if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
-        console.log('专家难度：尝试从题库获取谜题');
+        console.log('专家难度：尝试从JSON文件获取谜题');
         try {
-          // 尝试从API获取题库中的专家级谜题
-          puzzleData = await api.getRandomPuzzleByDifficulty(targetDifficulty);
-          console.log('成功从题库获取专家级谜题');
-        } catch (apiError) {
-          console.warn('从题库获取专家级谜题失败，回退到程序生成:', apiError);
-          // 如果API失败，回退到程序生成
+          // 从JSON文件获取专家级谜题
+          const puzzleFromJson = await getRandomExpertPuzzle();
+          if (puzzleFromJson && puzzleFromJson.puzzle && puzzleFromJson.solution) {
+            puzzleData = puzzleFromJson;
+            console.log('成功从JSON文件获取专家级谜题');
+          } else {
+            console.warn('从JSON文件获取的谜题数据不完整，回退到程序生成');
+            puzzleData = await generateOfflinePuzzle(targetDifficulty);
+          }
+        } catch (jsonError) {
+          console.warn('从JSON文件获取专家级谜题失败，回退到程序生成:', jsonError);
+          // 如果JSON获取失败，回退到程序生成
           puzzleData = await generateOfflinePuzzle(targetDifficulty);
         }
       } else {

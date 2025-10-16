@@ -5,14 +5,22 @@ import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
 import DifficultySelectModal from './DifficultySelectModal';
 const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
-  background-color: ${props => props.theme?.surface || '#ffffff'};
-  border-radius: 8px;
-  padding: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: ${props => props.theme?.background || '#f8f9fa'};
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
   width: 100%; // 与数独棋盘同宽
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
-  margin: 0;
+  margin: 0 0 20px 0;
   box-sizing: border-box;
+  border: 1px solid ${props => props.theme?.border || '#e0e0e0'};
+  transition: all 0.3s ease;
+  
+  // 添加悬停效果
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
   // 确保在父容器中正确对齐
   align-self: flex-start;
 `;
@@ -38,27 +46,60 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: transparent;
+  background-color: ${props => props.theme?.surface || '#ffffff'};
   color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.text || '#333333')};
-  border: none;
-  padding: 6px;
-  border-radius: 50%;
+  border: 2px solid ${props => props.theme?.border || '#e0e0e0'};
+  border-radius: 8px;
+  padding: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  min-height: 40px;
-  min-width: 40px;
+  transition: all 0.2s ease;
+  min-height: 45px;
+  min-width: 45px;
   font-size: 12px;
   font-family: inherit;
   margin: 0;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
+  
+  // 添加渐变背景效果
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+    transition: all 0.5s ease;
+  }
   
   &:hover {
     background-color: ${props => (props.theme?.primary || '#3498db') + '15'};
+    border-color: ${props => props.theme?.primary || '#3498db'};
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    
+    &::before {
+      left: 100%;
+    }
   }
   
   &:focus {
     outline: none;
+    border-color: ${props => props.theme?.primary || '#3498db'};
+  }
+  
+  &:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+  
+  // 激活状态
+  &.active {
+    background-color: ${props => props.theme?.primary || '#3498db'};
+    color: white;
+    border-color: ${props => props.theme?.primaryDark || '#2980b9'};
   }
 `;
 

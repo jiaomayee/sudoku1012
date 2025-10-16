@@ -7,19 +7,26 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
-  border: 2px solid ${props => props.theme?.gridLineThick || '#34495e'};
-  border-radius: 10px;
-  background-color: #ffffff;
+  border: 3px solid ${props => props.theme?.gridLineThick || '#34495e'};
+  border-radius: 12px;
+  background-color: ${props => props.theme?.surface || '#ffffff'};
   position: relative;
   width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  max-width: var(--board-width, 450px);
+  margin: 0 auto !important;
+  padding: 6px;
   box-sizing: border-box;
   overflow: hidden !important;
   z-index: 1;
   aspect-ratio: 1;
   grid-gap: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  
+  // 在横屏模式下增加一些阴影深度
+  @media (min-width: 992px) {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
 `;
 
 // 单元格基础样式 - 只负责显示，不包含复杂逻辑判断
@@ -27,18 +34,18 @@ const Cell = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(var(--board-width) * 0.10);
-  font-weight: 300;
+  font-size: calc(var(--board-width) * 0.08);
+  font-weight: 500;
   cursor: pointer;
-  background-color: #ffffff;
+  background-color: ${props => props.theme?.cellBackground || '#ffffff'};
   color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
-  border: 0.5px dashed ${props => props.theme?.gridLine || '#e0e0e0'};
+  border: 1px solid ${props => props.theme?.gridLine || '#e0e0e0'};
   transition: all 0.2s ease;
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  min-height: 0;
+  min-height: 40px;
   min-width: 0;
   width: 100%;
   height: 100%;
@@ -50,7 +57,8 @@ const Cell = styled.div`
   /* 基础样式类 */
   &.prefilled {
     cursor: default;
-    color: #666666;
+    color: ${props => props.theme?.textOriginal || '#666666'};
+    font-weight: bold;
   }
   
   &.highlighted {
@@ -61,13 +69,14 @@ const Cell = styled.div`
     background-color: #ffffff;
     z-index: 2;
     /* 为选中的单元格添加蓝色实线边框 */
-    border: 2px solid #3498db !important;
+    border: 2px solid ${props => props.theme?.primary || '#3498db'} !important;
   }
   
   &.error,
   &.incorrect {
-    color: red;
-    background-color: #ffe6e6;
+    color: ${props => props.theme?.error || 'red'};
+    background-color: ${props => (props.theme?.error || '#e74c3c') + '20'};
+    border-color: ${props => props.theme?.error || 'red'};
   }
   
   &.same-number {
@@ -80,10 +89,6 @@ const Cell = styled.div`
   
   &.same-note {
     background-color: #fff3cd;
-  }
-  
-  &:not(.prefilled):hover {
-    background-color: #3498db11;
   }
 
   /* 边缘单元格处理 */
@@ -109,6 +114,29 @@ const Cell = styled.div`
     }
     return borders;
   }}
+  
+  // 悬停效果（仅在非移动设备上）
+  @media (hover: hover) {
+    &:not(.prefilled):hover {
+      background-color: ${props => (props.theme?.primary || '#3498db') + '15'} !important;
+    }
+  }
+  
+  // 触摸反馈
+  &:active {
+    transform: scale(0.97);
+  }
+  
+  // 横屏模式下调整字体大小
+  @media (min-width: 992px) {
+    font-size: calc(var(--board-width) * 0.09);
+  }
+  
+  // 竖屏模式下调整字体大小
+  @media (max-width: 991px) {
+    font-size: calc(var(--board-width) * 0.07);
+    min-height: 36px;
+  }
 `;
 
 // 铅笔模式下的数字标注组件
@@ -186,31 +214,19 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
 const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPencilMode, pencilNotes, incorrectCells }) => {
   const { theme } = useTheme();
   
-  // 直接使用预设的棋盘数据进行测试
-  const testBoard = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-  ];
-  
-  // 使用测试数据或props中的board
-  const displayBoard = board || testBoard;
+  // 使用传入的board数据，如果为空则使用空的9x9数组作为备选
+  const displayBoard = board || Array(9).fill().map(() => Array(9).fill(0));
+  const displayOriginalPuzzle = originalPuzzle || Array(9).fill().map(() => Array(9).fill(0));
+  // 确保pencilNotes对象存在
+  const displayPencilNotes = pencilNotes || {};
+  // 确保incorrectCells集合存在
+  const displayIncorrectCells = incorrectCells || new Set();
   
   // 单元格属性判断逻辑
   const isCellPrefilled = (value, row, col) => {
-    // 如果有原始谜题，使用它来判断预填数字
-    if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== null && originalPuzzle[row][col] !== 0) {
+    // 使用displayOriginalPuzzle来判断预填数字
+    if (displayOriginalPuzzle && displayOriginalPuzzle[row] && displayOriginalPuzzle[row][col] !== null && displayOriginalPuzzle[row][col] !== 0) {
       return true;
-    }
-    // 备用逻辑：如果没有原始谜题，对于测试数据使用原来的判断方式
-    if (displayBoard === testBoard) {
-      return value !== null && value !== 0 && typeof value === 'number';
     }
     // 默认不标记为预填
     return false;
@@ -222,20 +238,15 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
   
   // 检查单元格是否为错误单元格
   const isCellIncorrect = (row, col) => {
-    // 检查incorrectCells是否存在且包含当前单元格坐标
-    if (!incorrectCells) return false;
-    
-    // 检查incorrectCells是否为Set对象
-    if (incorrectCells instanceof Set) {
-      const cellKey = `${row}-${col}`;
-      return incorrectCells.has(cellKey);
+    const cellKey = `${row}-${col}`;
+    // 使用displayIncorrectCells来检查错误单元格
+    if (displayIncorrectCells instanceof Set) {
+      return displayIncorrectCells.has(cellKey);
     }
-    
-    // 检查incorrectCells是否为数组
-    if (Array.isArray(incorrectCells)) {
-      return incorrectCells.some(cell => cell.row === row && cell.col === col);
+    // 兼容数组格式
+    if (Array.isArray(displayIncorrectCells)) {
+      return displayIncorrectCells.some(cell => cell.row === row && cell.col === col);
     }
-    
     return false;
   };
   
@@ -253,7 +264,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
   const getCellClasses = (row, col, value) => {
     const classes = [];
     const cellKey = `${row}-${col}`;
-    const currentCellNotes = pencilNotes && pencilNotes[cellKey] || [];
+    const currentCellNotes = displayPencilNotes[cellKey] || [];
     
     // 基础状态类
     if (isCellPrefilled(value, row, col)) classes.push('prefilled');
@@ -265,7 +276,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
     } else if (selectedCell) {
       const selectedValue = displayBoard[selectedCell.row][selectedCell.col];
       const selectedCellKey = `${selectedCell.row}-${selectedCell.col}`;
-      const selectedCellNotes = pencilNotes && pencilNotes[selectedCellKey] || [];
+      const selectedCellNotes = displayPencilNotes[selectedCellKey] || [];
       
       // 高亮相同数字的单元格
       if (value && value === selectedValue) {
@@ -303,7 +314,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
         row.map((value, colIndex) => {
           const cellClasses = getCellClasses(rowIndex, colIndex, value);
           const cellKey = `${rowIndex}-${colIndex}`;
-          const cellNotes = pencilNotes && pencilNotes[cellKey] || [];
+          const cellNotes = displayPencilNotes[cellKey] || [];
           const hasNotes = cellNotes.length > 0;
           
           // 计算是否需要高亮标注数字

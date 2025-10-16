@@ -11,9 +11,17 @@ const ModalOverlay = styled.div`
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 `;
 
 const ModalContainer = styled.div`
@@ -21,28 +29,54 @@ const ModalContainer = styled.div`
   border-radius: 12px;
   padding: 24px;
   max-width: 400px;
-  width: 90%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  animation: modalFadeIn 0.3s ease-out;
-  font-family: 'Arial', 'Microsoft YaHei', sans-serif;
-
-  @keyframes modalFadeIn {
-    from {
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  font-family: inherit;
+  border: 1px solid ${props => props.theme?.border || '#e0e0e0'};
+  transform: translateY(0);
+  animation: slideIn 0.3s ease-out;
+  
+  @keyframes slideIn {
+    from { 
       opacity: 0;
       transform: translateY(-20px);
     }
-    to {
+    to { 
       opacity: 1;
       transform: translateY(0);
     }
+  }
+  
+  // 小屏幕适配
+  @media (max-width: 576px) {
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
   }
 `;
 
 const ModalTitle = styled.h2`
   color: ${props => props.theme?.text || '#333333'};
-  margin: 0 0 20px 0;
-  font-size: 20px;
+  margin: 0 0 24px 0;
+  font-size: 22px;
   text-align: center;
+  font-weight: 700;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  padding-bottom: 16px;
+  border-bottom: 1px solid ${props => props.theme?.border || '#e0e0e0'};
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 3px;
+    background-color: ${props => props.theme?.primary || '#3498db'};
+    border-radius: 3px;
+  }
 `;
 
 const DifficultyButtons = styled.div`
@@ -53,24 +87,93 @@ const DifficultyButtons = styled.div`
 `;
 
 const DifficultyButton = styled(({ isSelected, ...props }) => <button {...props} />)`
+  width: 100%;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  border: 2px solid ${props => props.isSelected ? (props.theme?.primary || '#3498db') : (props.theme?.border || '#e0e0e0')};
+  border-radius: 8px;
   background-color: ${props => props.isSelected ? (props.theme?.primary || '#3498db') : (props.theme?.surface || '#ffffff')};
   color: ${props => props.isSelected ? 'white' : (props.theme?.text || '#333333')};
-  border: 2px solid ${props => props.theme?.primary || '#3498db'};
-  padding: 16px 12px;
-  border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-
-  &:hover {
-    background-color: ${props => props.isSelected ? (props.theme?.primaryDark || '#2980b9') : (props.theme?.primary || '#3498db') + '22'};
-    transform: translateY(-1px);
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 60px;
+  box-sizing: border-box;
+  
+  // 添加渐变背景效果
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+    transition: all 0.5s ease;
   }
-
+  
+  // 悬停效果（仅在非移动设备上）
+  @media (hover: hover) {
+    &:hover {
+      background-color: ${props => props.isSelected ? (props.theme?.primaryDark || '#2980b9') : (props.theme?.surfaceHighlight || '#f5f5f5')};
+      transform: translateX(4px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+      
+      &::before {
+        left: 100%;
+      }
+    }
+  }
+  
+  // 触摸反馈
   &:active {
-    transform: translateY(0);
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  // 不同难度的特殊样式
+  &.easy {
+    border-color: ${props => props.isSelected ? (props.theme?.primary || '#3498db') : (props.theme?.success || '#2ecc71')};
+    
+    &:hover {
+      background-color: ${props => props.isSelected ? (props.theme?.primaryDark || '#2980b9') : (props.theme?.success || '#2ecc71') + '10'};
+    }
+  }
+  
+  &.medium {
+    border-color: ${props => props.isSelected ? (props.theme?.primary || '#3498db') : (props.theme?.warning || '#f39c12')};
+    
+    &:hover {
+      background-color: ${props => props.isSelected ? (props.theme?.primaryDark || '#2980b9') : (props.theme?.warning || '#f39c12') + '10'};
+    }
+  }
+  
+  &.hard {
+    border-color: ${props => props.isSelected ? (props.theme?.primary || '#3498db') : (props.theme?.error || '#e74c3c')};
+    
+    &:hover {
+      background-color: ${props => props.isSelected ? (props.theme?.primaryDark || '#2980b9') : (props.theme?.error || '#e74c3c') + '10'};
+    }
+  }
+  
+  &.expert {
+    border-color: ${props => props.isSelected ? (props.theme?.primary || '#3498db') : (props.theme?.text || '#34495e')};
+    
+    &:hover {
+      background-color: ${props => props.isSelected ? (props.theme?.primaryDark || '#2980b9') : (props.theme?.text || '#34495e') + '10'};
+    }
   }
 `;
 
@@ -172,6 +275,7 @@ const DifficultySelectModal = ({ isOpen, onClose, onSelectDifficulty, initialDif
                 isSelected={selectedDifficulty === value}
                 onClick={() => setSelectedDifficulty(value)}
                 theme={theme}
+                className={key.toLowerCase()}
               >
                 {setting.name}
                 <DifficultyDescription>{setting.description}</DifficultyDescription>

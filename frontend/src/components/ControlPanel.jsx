@@ -6,13 +6,14 @@ const ControlPanelContainer = styled.div.attrs({ className: 'control-panel' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   width: calc(var(--board-width) * 2 / 3);
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   margin: 0;
   box-sizing: border-box;
+  transition: all 0.2s ease;
   
   /* 横屏模式下，高度与棋盘一致 */
   height: var(--board-width);
@@ -25,6 +26,11 @@ const ControlPanelContainer = styled.div.attrs({ className: 'control-panel' })`
     width: 100%;
     padding: 12px;
     border-radius: 6px;
+  }
+  
+  // 横屏模式下增加阴影深度
+  @media (min-width: 992px) {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -58,25 +64,38 @@ const TabBar = styled.div`
 // 标签按钮
 const TabButton = styled(({ isActive, ...props }) => <button {...props} />)`
   flex: 1;
-  padding: 8px 16px;
+  padding: 10px 16px;
   background-color: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: ${props => props.isActive ? '600' : '500'};
   color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.textSecondary || '#7f8c8d')};
   cursor: pointer;
   transition: all 0.2s ease;
   margin: 0;
   box-sizing: border-box;
   
-  &:hover {
-    color: ${props => props.theme?.primary || '#3498db'};
+  // 悬停效果（仅在非移动设备上）
+  @media (hover: hover) {
+    &:hover {
+      color: ${props => props.theme?.primary || '#3498db'};
+      transform: translateY(-1px);
+    }
   }
   
   &.active {
     border-bottom-color: ${props => props.theme?.primary || '#3498db'};
+    border-bottom-width: 3px;
     color: ${props => props.theme?.primary || '#3498db'};
+    transform: translateY(-1px);
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  // 触摸反馈
+  &:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
   }
 `;
 
@@ -127,8 +146,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
   font-size: calc(var(--board-width) * 0.055);
   font-weight: 600;
   cursor: ${props => props.disabled ? 'default' : 'pointer'};
-  // 简化transition，只保留必要的颜色变化，移除所有可能导致尺寸/位置变化的属性
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -158,17 +176,23 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, ...props}) => <b
     border-width: 1.5px;
   }
   
-  &:hover:not(:disabled) {
-    background-color: ${props => {
-      if (props.isActive) return props.theme?.primaryDark || '#2980b9';
-      if (props.isPencilMode) return '#b2ebf2';
-      return (props.theme?.primary || '#3498db') + '22';
-    }};
-    // 确保没有任何transform或box-shadow效果
+  // 悬停效果（仅在非移动设备上）
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: ${props => {
+        if (props.isActive) return props.theme?.primaryDark || '#2980b9';
+        if (props.isPencilMode) return '#b2ebf2';
+        return (props.theme?.primary || '#3498db') + '22';
+      }};
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
   }
   
+  // 触摸反馈
   &:active:not(:disabled) {
-    // 移除box-shadow，确保按钮保持完全稳定
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
   }
 `;
 
@@ -208,13 +232,15 @@ const ActionButton = styled(({isDanger, isActive, ...props}) => <button {...prop
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  // 简化transition，只保留必要的颜色变化
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   font-family: inherit;
   margin: 4px 0;
   box-sizing: border-box;
   /* 增加触摸区域大小 */
   min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   /* 竖屏模式下调整按钮尺寸 */
   @media (max-width: 991px) {
@@ -225,16 +251,23 @@ const ActionButton = styled(({isDanger, isActive, ...props}) => <button {...prop
     border-width: 1.5px;
   }
   
-  &:hover {
-    background-color: ${props => {
-      if (props.isDanger) return (props.theme?.error || '#ff4444') + 'aa';
-      if (props.isActive) return props.theme?.primaryDark || '#2980b9';
-      return (props.theme?.border || '#e0e0e0') + '44';
-    }};
+  // 悬停效果（仅在非移动设备上）
+  @media (hover: hover) {
+    &:hover {
+      background-color: ${props => {
+        if (props.isDanger) return (props.theme?.error || '#ff4444') + 'aa';
+        if (props.isActive) return props.theme?.primaryDark || '#2980b9';
+        return (props.theme?.border || '#e0e0e0') + '44';
+      }};
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
   }
   
+  // 触摸反馈
   &:active {
-    // 确保没有任何transform或box-shadow效果
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
   }
 `;
 
@@ -311,6 +344,7 @@ const ToggleLabel = styled.span`
   font-size: 14px;
   color: ${props => props.theme?.text || '#34495e'};
   font-weight: 500;
+  transition: color 0.2s ease;
 `;
 
 const ToggleSwitch = styled.label`
@@ -318,6 +352,8 @@ const ToggleSwitch = styled.label`
   display: inline-block;
   width: 50px;
   height: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 `;
 
 const ToggleInput = styled.input`
@@ -330,7 +366,11 @@ const ToggleInput = styled.input`
   }
   
   &:checked + span:before {
-    transform: translateX(26px);
+    transform: translateX(26px) scale(1.1);
+  }
+  
+  &:focus + span {
+    box-shadow: 0 0 0 4px ${props => (props.theme?.primary || '#3498db') + '33'};
   }
 `;
 
@@ -342,8 +382,9 @@ const ToggleSlider = styled.span`
   right: 0;
   bottom: 0;
   background-color: ${props => props.theme?.border || '#e0e0e0'};
-  transition: 0.4s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 34px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   
   &:before {
     position: absolute;
@@ -353,8 +394,16 @@ const ToggleSlider = styled.span`
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: 0.4s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  // 悬停效果（仅在非移动设备上）
+  @media (hover: hover) {
+    &:hover:before {
+      transform: scale(1.2);
+    }
   }
 `;
 

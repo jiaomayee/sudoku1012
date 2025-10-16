@@ -152,6 +152,24 @@ body {
   overflow-y: auto; /* 允许内容在高度不足时滚动 */
 }
 
+/* 横屏模式下的响应式布局 - 调整棋盘尺寸为屏幕高度的70% */
+@media (min-width: 992px) {
+  :root {
+    --board-height: min(70vh, 90vw); /* 横屏模式下棋盘高度为屏幕高度的70% */
+    --board-width: var(--board-height); /* 保持正方形比例，宽度等于高度 */
+  }
+  
+  .board-container {
+    width: var(--board-width);
+    height: var(--board-height);
+  }
+  
+  .control-panel {
+    width: var(--control-panel-width);
+    height: var(--board-height);
+  }
+}
+
 /* 竖屏模式下的响应式布局 */
 @media (max-width: 991px) {
   :root {

@@ -128,16 +128,26 @@ const Cell = styled.div`
   
   // 横屏模式下调整字体大小
   @media (min-width: 992px) {
-    font-size: calc(min(var(--board-width), var(--board-height)) * 0.09);
+    font-size: calc(var(--board-width) * 0.09);
+  }
+  
+  // 屏幕较大时适当减小字体比例以避免文字过大
+  @media (min-width: 992px) and (min-height: 800px) {
+    font-size: calc(var(--board-width) * 0.08);
+  }
+  
+  // 屏幕非常大时进一步减小字体比例
+  @media (min-width: 992px) and (min-height: 900px) {
+    font-size: calc(var(--board-width) * 0.075);
   }
   
   // 高度不足时的字体大小调整
   @media (min-width: 992px) and (max-height: 700px) {
-    font-size: calc(min(var(--board-width), var(--board-height)) * 0.08);
+    font-size: calc(var(--board-width) * 0.08);
   }
   
   @media (min-width: 992px) and (max-height: 600px) {
-    font-size: calc(min(var(--board-width), var(--board-height)) * 0.07);
+    font-size: calc(var(--board-width) * 0.07);
   }
   
   // 竖屏模式下调整字体大小

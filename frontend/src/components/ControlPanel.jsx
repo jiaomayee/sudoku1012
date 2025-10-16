@@ -131,7 +131,7 @@ const NumberPad = styled.div`
   }
 `;
 
-const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, ...props}) => <button {...props} />)`
+const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remainingCount, ...props}) => <button {...props} />)`
   background-color: ${props => {
     if (props.disabled) return props.theme?.disabled || '#f5f5f5';
     if (props.isActive) return props.theme?.primary || '#3498db';
@@ -144,7 +144,10 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, ...pr
     if (props.isPencilMode) return '#00838f';
     return props.theme?.text || '#333333';
   }};
-  border: 2px solid ${props => props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db')};
+  border: 2px solid ${props => {
+    if (props.disabled) return props.theme?.border || '#e0e0e0'; // 禁用时边框为灰色
+    return props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db');
+  }};
   padding: 8px;
   border-radius: 8px;
   font-size: calc(var(--board-width) * 0.055);
@@ -193,6 +196,12 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, ...pr
       }};
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
+    // 确保禁用按钮悬停时不改变样式
+    &:hover:disabled {
+      background-color: ${props => props.theme?.disabled || '#f5f5f5'};
+      color: ${props => props.theme?.textDisabled || '#bdc3c7'};
+      border-color: ${props => props.theme?.border || '#e0e0e0'};
+    }
   }
   
   // 触摸反馈
@@ -217,7 +226,8 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, ...pr
     justify-content: center;
     font-size: 12px;
     font-weight: 600;
-    opacity: ${props => props.showCount ? 1 : 0};
+    // 当showCount为false或剩余数量为0时隐藏角标
+    opacity: ${props => props.showCount && props.remainingCount > 0 ? 1 : 0};
     pointer-events: none;
     z-index: 1;
     /* 横屏模式下角标调整 */
@@ -561,6 +571,7 @@ const ControlPanel = ({
                       isPencilMode={isPencilMode}
                       disabled={isDisabled}
                       showCount={!isPencilMode} // 仅在非铅笔模式下显示角标
+                      remainingCount={remainingCount}
                       data-count={remainingCount}
                       onClick={() => onNumberSelect(number)}
                     >

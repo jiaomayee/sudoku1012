@@ -56,7 +56,7 @@ const Cell = styled.div`
   &.prefilled {
     cursor: default;
     color: ${props => props.theme?.textOriginal || '#666666'};
-    font-weight: bold;
+    font-weight: 400; /* 将预填数字字体调整为较细 */
   }
   
   &.highlighted {

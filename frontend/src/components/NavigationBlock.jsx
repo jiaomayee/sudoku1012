@@ -46,8 +46,8 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props => props.theme?.background || '#f8f9fa'};
-  color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.text || '#333333')};
+  background-color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.background || '#f8f9fa')};
+  color: ${props => props.isActive ? 'white' : (props.theme?.text || '#333333')};
   border: none;
   border-radius: 8px;
   padding: 4px;
@@ -75,7 +75,9 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   }
   
   &:hover {
-    background-color: ${props => (props.theme?.primary || '#3498db') + '15'};
+    background-color: ${props => props.isActive ? 
+      (props.theme?.primary || '#3498db') : 
+      (props.theme?.primary || '#3498db') + '15'};
     border-color: ${props => props.theme?.primary || '#3498db'};
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -93,13 +95,6 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   &:active {
     transform: scale(0.95);
     transition: transform 0.1s ease;
-  }
-  
-  // 激活状态
-  &.active {
-    background-color: ${props => props.theme?.primary || '#3498db'};
-    color: white;
-    border-color: ${props => props.theme?.primaryDark || '#2980b9'};
   }
 `;
 
@@ -156,6 +151,7 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
   const sudokuContext = useSudoku();
   const { startLoading, stopLoading } = useLoading();
   const [showDifficultyModal, setShowDifficultyModal] = useState(false); // 控制难度选择模态框显示
+  const [isNotesButtonActive, setIsNotesButtonActive] = useState(false); // 控制候选数按钮激活状态
 
   // 处理新建游戏按钮点击
   const handleNewGameClick = () => {
@@ -168,6 +164,8 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
   const handleDifficultySelect = async (selectedDifficulty) => {
     console.log('NavigationBlock: 选择难度:', selectedDifficulty);
     try {
+      // 重置候选数按钮激活状态
+      setIsNotesButtonActive(false);
       if (startLoading) {
         startLoading('生成新谜题...');
       }
@@ -215,9 +213,16 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
           </NavButton>
           
           {/* 候选数按钮 */}
-          <NavButton onClick={onToggleNotes} title="候选数">
-            <ButtonIcon><Icons.Notes /></ButtonIcon>
-          </NavButton>
+            <NavButton 
+              onClick={() => {
+                onToggleNotes();
+                setIsNotesButtonActive(true); // 点击时设置为激活状态
+              }} 
+              title="候选数" 
+              isActive={isNotesButtonActive}
+            >
+              <ButtonIcon><Icons.Notes /></ButtonIcon>
+            </NavButton>
           
           {/* 设置按钮 */}
           <NavButton onClick={onSettings} title="设置">

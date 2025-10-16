@@ -89,7 +89,6 @@ const DifficultyButtons = styled.div`
 const DifficultyButton = styled(({ isSelected, ...props }) => <button {...props} />)`
   width: 100%;
   padding: 16px 20px;
-  margin-bottom: 12px;
   border: 2px solid ${props => props.isSelected ? (props.theme?.primary || '#3498db') : (props.theme?.border || '#e0e0e0')};
   border-radius: 8px;
   background-color: ${props => props.isSelected ? (props.theme?.primary || '#3498db') : (props.theme?.surface || '#ffffff')};
@@ -103,8 +102,8 @@ const DifficultyButton = styled(({ isSelected, ...props }) => <button {...props}
   position: relative;
   overflow: hidden;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   min-height: 60px;
   box-sizing: border-box;
   
@@ -139,9 +138,7 @@ const DifficultyButton = styled(({ isSelected, ...props }) => <button {...props}
     transition: transform 0.1s ease;
   }
   
-  &:last-child {
-    margin-bottom: 0;
-  }
+  /* 移除:last-child选择器，使用grid的gap属性控制间距 */
   
   // 不同难度的特殊样式
   &.easy {

@@ -70,17 +70,17 @@ body {
 .display-block {
   background-color: #ffffff;
   border-radius: var(--border-radius);
-  padding: 0;
+  padding: 10px 20px; /* 增大左右边距 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: row; /* 水平排列三个内容项 */
   align-items: center;
   justify-content: space-between;
-  gap: 5px;
+  gap: 15px; /* 增大三个标签之间的间距 */
   width: var(--control-panel-width); /* 与操作面板宽度一致 */
   height: auto;
   min-height: 0;
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .display-block div {
@@ -89,13 +89,13 @@ body {
   align-items: center;
   justify-content: center;
   margin: 0;
-  gap: 2px;
-  line-height: 1;
-  font-size: 12px;
+  gap: 4px; /* 增大标签内文字和值之间的间距 */
+  line-height: 1.2;
+  font-size: 14px; /* 增大标签文字大小 */
 }
 
 .display-block .value {
-  font-size: 14px;
+  font-size: 16px; /* 增大数值大小 */
   font-weight: bold;
   color: #34495e; /* 使用主题文字颜色 */
   margin-top: 0;
@@ -104,7 +104,7 @@ body {
 
 .display-block .error-count {
   color: #e74c3c; /* 使用红色字体显示错误次数 */
-  font-size: 16px;
+  font-size: 18px; /* 增大错误次数数值大小 */
   font-weight: bold;
   padding: 0;
 }

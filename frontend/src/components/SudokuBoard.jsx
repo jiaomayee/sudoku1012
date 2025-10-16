@@ -12,13 +12,12 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   position: relative;
   width: 100% !important;
-  max-width: var(--board-width, 450px);
+  height: 100% !important;
   margin: 0 auto !important;
   padding: 6px;
   box-sizing: border-box;
   overflow: hidden !important;
   z-index: 1;
-  aspect-ratio: 1;
   grid-gap: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
@@ -129,7 +128,16 @@ const Cell = styled.div`
   
   // 横屏模式下调整字体大小
   @media (min-width: 992px) {
-    font-size: calc(var(--board-width) * 0.09);
+    font-size: calc(min(var(--board-width), var(--board-height)) * 0.09);
+  }
+  
+  // 高度不足时的字体大小调整
+  @media (min-width: 992px) and (max-height: 700px) {
+    font-size: calc(min(var(--board-width), var(--board-height)) * 0.08);
+  }
+  
+  @media (min-width: 992px) and (max-height: 600px) {
+    font-size: calc(min(var(--board-width), var(--board-height)) * 0.07);
   }
   
   // 竖屏模式下调整字体大小

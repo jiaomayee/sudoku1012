@@ -4,28 +4,34 @@ import { useTheme } from '../context/ThemeContext';
 
 const ControlPanelContainer = styled.div.attrs({ className: 'control-panel' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   width: calc(var(--board-width) * 2 / 3);
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   margin: 0;
   box-sizing: border-box;
-  transition: all 0.2s ease;
+  border: 1px solid ${props => props.theme?.border || '#e0e0e0'};
+  transition: all 0.3s ease;
   
   /* 横屏模式下，高度与棋盘一致 */
   height: var(--board-width);
   /* 移除overflow-y: auto，避免显示滚动条 */
   overflow: hidden;
   
+  // 添加悬停效果，与导航栏和棋盘保持一致
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
   /* 竖屏模式下自适应高度 */
   @media (max-width: 991px) {
     height: auto;
     width: 100%;
     padding: 12px;
-    border-radius: 6px;
+    border-radius: 10px;
   }
   
   // 横屏模式下增加阴影深度
@@ -143,17 +149,17 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     if (props.isActive || props.isPencilMode) return 'white';
     return props.theme?.text || '#333333';
   }};
-  border: 2px solid ${props => {
+  border: 1px solid ${props => {
     if (props.disabled) return props.theme?.border || '#e0e0e0'; // 禁用时边框为灰色
     return props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db');
   }};
   padding: 8px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: calc(var(--board-width) * 0.085);
-  font-weight: 400;
+  font-weight: 500;
   cursor: ${props => props.disabled ? 'pointer' : 'pointer'};
-  /* 简化transition，避免轮廓问题 */
-  transition: background-color 0.15s ease, color 0.15s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -181,30 +187,33 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     padding: 6px;
     font-size: calc(var(--board-width) * 0.06);
     min-height: 32px;
-    border-radius: 8px;
-    border-width: 1.5px;
+    border-radius: 10px;
+    border-width: 1px;
   }
   
-  // 悬停效果（仅在非移动设备上）- 简化悬停效果，避免轮廓问题
+  // 悬停效果（仅在非移动设备上）
   @media (hover: hover) {
     &:hover:not(:disabled) {
       background-color: ${props => {
         if (props.isActive || props.isPencilMode) return props.theme?.primaryDark || '#2980b9';
-        return (props.theme?.primary || '#3498db') + '22';
+        return (props.theme?.primary || '#3498db') + '15';
       }};
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
     }
     // 确保禁用按钮悬停时不改变样式
     &:hover:disabled {
       background-color: ${props => props.theme?.disabled || '#f5f5f5'};
       color: ${props => props.theme?.textDisabled || '#bdc3c7'};
       border-color: ${props => props.theme?.border || '#e0e0e0'};
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transform: none;
     }
   }
   
   // 触摸反馈
   &:active:not(:disabled) {
-    transform: scale(0.98);
+    transform: scale(0.95);
     transition: transform 0.1s ease;
   }
   

@@ -180,7 +180,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   /* 竖屏模式下调整按钮样式 */
   @media (max-width: 991px) {
     padding: 6px;
-    font-size: calc(var(--board-width) * 0.045);
+    font-size: calc(var(--board-width) * 0.06);
     min-height: 32px;
     border-radius: 8px;
     border-width: 1.5px;

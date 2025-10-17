@@ -84,7 +84,7 @@ const TabButton = styled(({ isActive, ...props }) => <button {...props} />)`
   @media (hover: hover) {
     &:hover {
       color: ${props => props.theme?.primary || '#3498db'};
-      transform: translateY(-1px);
+      transform: translateY(-0.5px);
     }
   }
   
@@ -92,7 +92,7 @@ const TabButton = styled(({ isActive, ...props }) => <button {...props} />)`
     border-bottom-color: ${props => props.theme?.primary || '#3498db'};
     border-bottom-width: 3px;
     color: ${props => props.theme?.primary || '#3498db'};
-    transform: translateY(-1px);
+    transform: translateY(-0.5px);
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
   }
   
@@ -149,10 +149,10 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     return props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db');
   }};
   padding: 8px;
-  border-radius: 8px;
-  font-size: calc(var(--board-width) * 0.055);
-  font-weight: 600;
-  cursor: ${props => props.disabled ? 'default' : 'pointer'};
+  border-radius: 10px;
+  font-size: calc(var(--board-width) * 0.085);
+  font-weight: 400;
+  cursor: ${props => props.disabled ? 'pointer' : 'pointer'};
   /* 简化transition，避免轮廓问题 */
   transition: background-color 0.15s ease, color 0.15s ease;
   aspect-ratio: 1;
@@ -172,9 +172,9 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   /* 横屏模式下调整按钮样式 */
   @media (min-width: 992px) {
     padding: 12px;
-    font-size: calc(var(--board-width) * 0.065);
+    font-size: calc(var(--board-width) * 0.095);
     min-height: 48px;
-    border-radius: 10px;
+    border-radius: 12px;
   }
   
   /* 竖屏模式下调整按钮样式 */
@@ -182,7 +182,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     padding: 6px;
     font-size: calc(var(--board-width) * 0.045);
     min-height: 32px;
-    border-radius: 6px;
+    border-radius: 8px;
     border-width: 1.5px;
   }
   
@@ -206,7 +206,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   
   // 触摸反馈
   &:active:not(:disabled) {
-    transform: scale(0.95);
+    transform: scale(0.98);
     transition: transform 0.1s ease;
   }
   
@@ -214,16 +214,17 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   &::after {
     content: attr(data-count);
     position: absolute;
-    top: -8px;
-    right: -8px;
+    top: 0;
+    right: 0;
     background-color: ${props => props.theme?.primary || '#3498db'};
     color: white;
-    border-radius: 50%;
+    border-radius: 0 0 0 100%;
     width: 20px;
     height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
     font-size: 12px;
     font-weight: 600;
     // 当showCount为false或剩余数量为0时隐藏角标
@@ -235,16 +236,24 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
       width: 24px;
       height: 24px;
       font-size: 14px;
-      top: -10px;
-      right: -10px;
+      top: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
     }
-    /* 竖屏模式下角标调整 */
-    @media (max-width: 991px) {
-      width: 16px;
-      height: 16px;
-      font-size: 10px;
-      top: -6px;
-      right: -6px;
+    /* 竖屏模式下的角标调整 */
+    @media (max-width: 576px) {
+      width: 18px;
+      height: 18px;
+      font-size: 11px;
+      top: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
     }
   }
 `;
@@ -312,14 +321,14 @@ const ActionButton = styled(({isDanger, isActive, ...props}) => <button {...prop
         if (props.isActive) return props.theme?.primaryDark || '#2980b9';
         return (props.theme?.border || '#e0e0e0') + '44';
       }};
-      transform: translateY(-2px);
+      transform: translateY(-0.5px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
   }
   
   // 触摸反馈
   &:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
     transition: transform 0.1s ease;
   }
 `;

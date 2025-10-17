@@ -259,38 +259,49 @@ const SudokuGamePage = () => {
             startLoading('加载游戏...');
           }
           
-          if (sudokuContext?.startNewGame) {
-            await sudokuContext.startNewGame(null, difficulty);
-          } else if (sudokuContext?.generateNewPuzzle) {
-            await sudokuContext.generateNewPuzzle(difficulty);
+          // 直接使用本地生成的预设谜题作为首选，确保页面加载时立即显示棋盘
+          console.log('直接使用本地预设谜题初始化游戏');
+          const presetPuzzle = [
+            [5, 3, 0, 0, 7, 0, 0, 0, 0],
+            [6, 0, 0, 1, 9, 5, 0, 0, 0],
+            [0, 9, 8, 0, 0, 0, 0, 6, 0],
+            [8, 0, 0, 0, 6, 0, 0, 0, 3],
+            [4, 0, 0, 8, 0, 3, 0, 0, 1],
+            [7, 0, 0, 0, 2, 0, 0, 0, 6],
+            [0, 6, 0, 0, 0, 0, 2, 8, 0],
+            [0, 0, 0, 4, 1, 9, 0, 0, 5],
+            [0, 0, 0, 0, 8, 0, 0, 7, 9]
+          ];
+          
+          const presetSolution = [
+            [5, 3, 4, 6, 7, 8, 9, 1, 2],
+            [6, 7, 2, 1, 9, 5, 3, 4, 8],
+            [1, 9, 8, 3, 4, 2, 5, 6, 7],
+            [8, 5, 9, 7, 6, 1, 4, 2, 3],
+            [4, 2, 6, 8, 5, 3, 7, 9, 1],
+            [7, 1, 3, 9, 2, 4, 8, 5, 6],
+            [9, 6, 1, 5, 3, 7, 2, 8, 4],
+            [2, 8, 7, 4, 1, 9, 6, 3, 5],
+            [3, 4, 5, 2, 8, 6, 1, 7, 9]
+          ];
+          
+          // 设置棋盘数据
+          if (sudokuContext?.setCurrentBoard && sudokuContext?.setOriginalPuzzle && sudokuContext?.setSolution) {
+            sudokuContext.setCurrentBoard(presetPuzzle);
+            sudokuContext.setOriginalPuzzle(presetPuzzle);
+            sudokuContext.setSolution(presetSolution);
           } else {
-            // 备用：使用离线谜题
-            console.log('初始化使用离线谜题');
-            // 安全地导入并使用离线谜题生成函数
-            try {
-              // 动态导入离线谜题生成逻辑
-              const { generateOfflinePuzzle } = await import('../context/SudokuContext');
-              if (generateOfflinePuzzle) {
-                const offlinePuzzle = generateOfflinePuzzle(difficulty);
-                if (sudokuContext?.setCurrentBoard && sudokuContext?.setCurrentPuzzle && sudokuContext?.setSolution) {
-                  sudokuContext.setCurrentPuzzle(offlinePuzzle);
-                  sudokuContext.setCurrentBoard(offlinePuzzle?.puzzle || Array(9).fill().map(() => Array(9).fill(0)));
-                  sudokuContext.setSolution(offlinePuzzle?.solution || Array(9).fill().map(() => Array(9).fill(0)));
-                }
-              }
-            } catch (importError) {
-              console.error('导入离线谜题生成函数失败:', importError);
-              // 创建空棋盘作为最后备用
-              const emptyBoard = Array(9).fill().map(() => Array(9).fill(0));
-              if (sudokuContext?.setCurrentBoard && sudokuContext?.setCurrentPuzzle && sudokuContext?.setSolution) {
-                sudokuContext.setCurrentPuzzle({ puzzle: emptyBoard, solution: emptyBoard });
-                sudokuContext.setCurrentBoard(emptyBoard);
-                sudokuContext.setSolution(emptyBoard);
-              }
+            // 如果上下文方法不可用，尝试其他方式
+            console.log('尝试使用上下文的其他方法初始化游戏');
+            if (sudokuContext?.startNewGame) {
+              await sudokuContext.startNewGame(null, difficulty);
+            } else if (sudokuContext?.generateNewPuzzle) {
+              await sudokuContext.generateNewPuzzle(difficulty);
             }
           }
         } catch (error) {
           console.error('初始化游戏失败:', error);
+          console.error('错误详情:', error.message, error.stack);
         } finally {
           if (stopLoading) {
             stopLoading();

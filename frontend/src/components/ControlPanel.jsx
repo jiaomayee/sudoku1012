@@ -159,7 +159,8 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   color: ${props => {
     if (props.disabled) return props.theme?.textDisabled || '#bdc3c7';
     if (props.isActive || props.isPencilMode) return 'white';
-    return props.theme?.text || '#333333';
+    // 数字按钮使用蓝色字体
+    return '#3498db';
   }};
   // 增强边框颜色层次感
   border: 1px solid ${props => {
@@ -202,7 +203,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   /* 横屏模式下调整按钮样式 */
   @media (min-width: 992px) {
     padding: 12px;
-    font-size: calc(var(--board-width) * 0.095);
+    font-size: calc(var(--board-width) * 0.12);
     min-height: 48px;
     border-radius: 12px;
   }
@@ -210,7 +211,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   /* 竖屏模式下调整按钮样式 */
   @media (max-width: 991px) {
     padding: 6px;
-    font-size: calc(var(--board-width) * 0.06);
+    font-size: calc(var(--board-width) * 0.08);
     min-height: 32px;
     border-radius: 10px;
     border-width: 1px;

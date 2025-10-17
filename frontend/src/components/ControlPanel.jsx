@@ -149,8 +149,13 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     if (props.isActive || props.isPencilMode) return 'white';
     return props.theme?.text || '#333333';
   }};
+  // 增强边框颜色层次感
   border: 1px solid ${props => {
     if (props.disabled) return props.theme?.border || '#e0e0e0'; // 禁用时边框为灰色
+    // 普通状态使用更柔和的边框颜色，增加层次感
+    if (!props.isActive && !props.isPencilMode) {
+      return (props.theme?.primary || '#3498db') + '55'; // 半透明主色作为普通边框
+    }
     return props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db');
   }};
   padding: 8px;
@@ -158,7 +163,11 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   font-size: calc(var(--board-width) * 0.085);
   font-weight: 500;
   cursor: ${props => props.disabled ? 'pointer' : 'pointer'};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  // 使用多层阴影增强立体感
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
   transition: all 0.3s ease;
   aspect-ratio: 1;
   display: flex;
@@ -173,6 +182,10 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   min-height: 36px;
   max-height: none;
   position: relative; /* 为角标定位 */
+  // 背景渐变增强立体感
+  background-image: ${props => props.isActive || props.isPencilMode || props.disabled 
+    ? 'none' 
+    : `linear-gradient(135deg, ${props.theme?.surface || '#ffffff'} 0%, ${(props.theme?.surface || '#ffffff') + 'cc'} 100%)`};
   
   /* 横屏模式下调整按钮样式 */
   @media (min-width: 992px) {
@@ -198,23 +211,39 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
         if (props.isActive || props.isPencilMode) return props.theme?.primaryDark || '#2980b9';
         return (props.theme?.primary || '#3498db') + '15';
       }};
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      // 增强悬停时的阴影效果
+      box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      // 增强边框颜色
+      border-color: ${props => {
+        return props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db') + 'aa';
+      }};
       transform: translateY(-2px);
+      // 悬停时移除背景渐变
+      background-image: none;
     }
     // 确保禁用按钮悬停时不改变样式
     &:hover:disabled {
       background-color: ${props => props.theme?.disabled || '#f5f5f5'};
       color: ${props => props.theme?.textDisabled || '#bdc3c7'};
       border-color: ${props => props.theme?.border || '#e0e0e0'};
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7);
       transform: none;
+      background-image: none;
     }
   }
   
-  // 触摸反馈
+  // 触摸反馈 - 增强立体感变化
   &:active:not(:disabled) {
-    transform: scale(0.95);
-    transition: transform 0.1s ease;
+    transform: scale(0.95) translateY(1px);
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.1s ease;
   }
   
   // 角标样式

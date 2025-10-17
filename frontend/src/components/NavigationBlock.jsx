@@ -11,7 +11,7 @@ const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
   width: 100%; // 与数独棋盘同宽
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
-  margin: 0 0 20px 0;
+  margin: 0;
   box-sizing: border-box;
   border: 1px solid ${props => props.theme?.border || '#e0e0e0'};
   transition: all 0.3s ease;

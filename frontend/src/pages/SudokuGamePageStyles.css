@@ -166,7 +166,7 @@ body {
     
     .main-content {
       margin-top: 0;
-      gap: 0; /* 移除主内容区域的间距 */
+      gap: 10px; /* 为竖屏模式添加适当间距 */
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -175,7 +175,7 @@ body {
     .top-row {
       flex-direction: column;
       align-items: center;
-      gap: 0; /* 移除顶部行内区块间距 */
+      gap: 0; /* 导航栏与显示区块紧贴 */
       margin: 0;
       padding: 0;
     }

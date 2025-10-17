@@ -371,6 +371,7 @@ const SudokuGamePage = () => {
                 onSettings={handleSettings}
                 isNotesMode={isPencilMode}
                 isTimerActive={isTimerActive}
+                gameCompleted={sudokuContext?.gameCompleted || false}
               />
             </div>
             

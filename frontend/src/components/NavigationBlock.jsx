@@ -146,7 +146,7 @@ const Icons = {
   )
 };
 
-const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, onSettings, isNotesMode = false, isTimerActive = true }) => {
+const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, onSettings, isNotesMode = false, isTimerActive = true, gameCompleted = false }) => {
   const { theme } = useTheme();
   const sudokuContext = useSudoku();
   const { startLoading, stopLoading } = useLoading();
@@ -201,9 +201,9 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
           </NavButton>
           
           {/* 暂停计时按钮 */}
-          <NavButton onClick={onPauseTimer} title={isTimerActive ? '暂停计时' : '继续'}>
+          <NavButton onClick={!gameCompleted ? onPauseTimer : undefined} disabled={gameCompleted} title={gameCompleted ? '游戏已完成' : (isTimerActive ? '暂停计时' : '继续')}>
             <ButtonIcon>
-              {isTimerActive ? <Icons.Pause /> : <Icons.Play />}
+              {gameCompleted || isTimerActive ? <Icons.Pause /> : <Icons.Play />}
             </ButtonIcon>
           </NavButton>
           

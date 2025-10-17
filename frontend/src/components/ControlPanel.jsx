@@ -135,13 +135,12 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   background-color: ${props => {
     if (props.disabled) return props.theme?.disabled || '#f5f5f5';
     if (props.isActive) return props.theme?.primary || '#3498db';
-    if (props.isPencilMode) return '#e0f7fa';
+    if (props.isPencilMode) return props.theme?.primary || '#3498db';
     return props.theme?.surface || '#ffffff';
   }};
   color: ${props => {
     if (props.disabled) return props.theme?.textDisabled || '#bdc3c7';
-    if (props.isActive) return 'white';
-    if (props.isPencilMode) return '#00838f';
+    if (props.isActive || props.isPencilMode) return 'white';
     return props.theme?.text || '#333333';
   }};
   border: 2px solid ${props => {
@@ -190,8 +189,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   @media (hover: hover) {
     &:hover:not(:disabled) {
       background-color: ${props => {
-        if (props.isActive) return props.theme?.primaryDark || '#2980b9';
-        if (props.isPencilMode) return '#b2ebf2';
+        if (props.isActive || props.isPencilMode) return props.theme?.primaryDark || '#2980b9';
         return (props.theme?.primary || '#3498db') + '22';
       }};
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);

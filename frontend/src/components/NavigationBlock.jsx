@@ -47,7 +47,7 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   align-items: center;
   justify-content: center;
   background-color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.background || '#f8f9fa')};
-  color: ${props => props.isActive ? 'white' : (props.theme?.text || '#333333')};
+  color: ${props => props.isActive ? 'white' : (props.theme?.text || '#666666')};
   border: none;
   border-radius: 8px;
   padding: 4px;

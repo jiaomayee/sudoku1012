@@ -192,8 +192,25 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
     9: { gridRow: 3, gridColumn: 3 }
   };
   
-  // 为所有情况使用统一的字体大小，确保视觉一致性
-  const fontSize = '0.8rem';
+  // 为所有情况使用统一的字体大小，但根据屏幕方向响应式调整
+  const getFontSize = () => {
+    // 默认字体大小
+    let size = '0.8rem';
+    
+    // 竖屏模式下减小字体大小
+    if (window.innerWidth <= 991) {
+      // 根据屏幕宽度进一步调整
+      if (window.innerWidth <= 576) {
+        size = '0.65rem'; // 小屏手机进一步减小
+      } else {
+        size = '0.7rem'; // 一般竖屏设备
+      }
+    }
+    
+    return size;
+  };
+  
+  const fontSize = getFontSize();
   
   return (
     <div style={getContainerStyle()}>

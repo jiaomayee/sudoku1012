@@ -657,8 +657,10 @@ const ControlPanel = ({
                     backgroundColor: theme?.error || '#ff4444',
                     color: 'white',
                     borderColor: theme?.error || '#ff4444',
-                    // 移除内阴影，增强外阴影以提高可见性
-                    boxShadow: '0 3px 6px rgba(255, 68, 68, 0.3), 0 1px 1px rgba(255, 255, 255, 0.1)'
+                    // 移除背景渐变，避免磨砂效果
+                    backgroundImage: 'none',
+                    // 使用纯色阴影增强可见性
+                    boxShadow: '0 3px 6px rgba(255, 68, 68, 0.3), 0 1px 1px rgba(255, 255, 255, 0.15)'
                   }}
                 >
                   <svg 

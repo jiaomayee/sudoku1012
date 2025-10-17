@@ -62,49 +62,61 @@ const TabsContainer = styled.div`
 // 标签页标题栏
 const TabBar = styled.div`
   display: flex;
-  border-bottom: 2px solid ${props => props.theme?.border || '#e0e0e0'};
-  margin-bottom: 12px;
-  padding-bottom: 4px;
+  border-bottom: 1px solid ${props => props.theme?.border || '#e0e0e0'};
+  margin-bottom: 8px;
+  padding-bottom: 0;
 `;
 
 // 标签按钮
 const TabButton = styled(({ isActive, ...props }) => <button {...props} />)`
   flex: 1;
-  padding: 6px 12px; /* 减小内边距以降低按钮高度 */
-  background-color: transparent;
+  padding: 4px 8px; /* 进一步减小内边距以降低按钮高度 */
+  background-color: ${props => props.isActive ? (props.theme?.primary || '#3498db') + '15' : 'transparent'};
   border: none;
-  border-bottom: 2px solid transparent;
-  font-size: 13px; /* 略微减小字体大小 */
-  font-weight: ${props => props.isActive ? '600' : '500'};
+  border-radius: 6px 6px 0 0; /* 顶部圆角，使其更直观 */
+  font-size: 14px; /* 略微增大字体大小以提高可读性 */
+  font-weight: ${props => props.isActive ? '700' : '500'};
   color: ${props => props.isActive ? (props.theme?.primary || '#3498db') : (props.theme?.textSecondary || '#7f8c8d')};
   cursor: pointer;
   transition: all 0.2s ease;
-  margin: 0;
+  margin: 0 2px;
   box-sizing: border-box;
-  min-height: 36px; /* 设置最小高度确保触摸友好性 */
+  min-height: 32px; /* 降低最小高度 */
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   
   // 悬停效果（仅在非移动设备上）
   @media (hover: hover) {
     &:hover {
       color: ${props => props.theme?.primary || '#3498db'};
-      transform: translateY(-0.5px);
+      background-color: ${props => (props.theme?.primary || '#3498db') + '10'};
     }
   }
   
   &.active {
-    border-bottom-color: ${props => props.theme?.primary || '#3498db'};
-    border-bottom-width: 3px;
+    background-color: ${props => (props.theme?.primary || '#3498db') + '20'};
     color: ${props => props.theme?.primary || '#3498db'};
-    transform: translateY(-0.5px);
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.15);
+  }
+  
+  // 活动标签下方的指示器
+  &.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background-color: ${props => props.theme?.primary || '#3498db'};
+    border-radius: 3px;
   }
   
   // 触摸反馈
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
     transition: transform 0.1s ease;
   }
 `;
@@ -117,7 +129,7 @@ const TabContent = styled.div`
   /* 移除overflow-y: auto，避免显示滚动条 */
   overflow: hidden;
   margin: 0;
-  padding: 2px;
+  padding: 0;
 `;
 
 // 数字键盘标签页内容

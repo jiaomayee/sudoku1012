@@ -175,7 +175,7 @@ html, body {
     
     .main-content {
       margin-top: 0;
-      gap: 10px; /* 为竖屏模式添加适当间距 */
+      gap: 5px; /* 减小竖屏模式下区块间距 */
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -192,7 +192,7 @@ html, body {
     .bottom-row {
       flex-direction: column;
       align-items: center;
-      gap: 15px; /* 增加底部行内区块间距 */
+      gap: 5px; /* 减小竖屏模式下区块间距 */
       margin: 0;
       padding: 0;
     }

@@ -2,13 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 
-// 棋盘容器样式
+// 棋盘容器样式 - 按照导航栏风格美化
 const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
   border: 3px solid ${props => props.theme?.gridLineThick || '#34495e'};
-  border-radius: var(--border-radius);
+  border-radius: 12px;
   background-color: ${props => props.theme?.surface || '#ffffff'};
   position: relative;
   width: 100% !important;
@@ -19,12 +19,36 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   overflow: visible !important;
   z-index: 1;
   grid-gap: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
+  // 使用多层阴影增加立体感
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border: 1px solid ${props => props.theme?.border || '#e0e0e0'};
+  transition: all 0.3s ease;
+  font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   
-  // 在横屏模式下增加一些阴影深度
+  // 增加悬停效果，与导航栏保持一致
+  &:hover {
+    box-shadow: 
+      0 6px 12px rgba(0, 0, 0, 0.15),
+      0 12px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+  
+  // 在横屏模式下增加更深的阴影效果
   @media (min-width: 992px) {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.15),
+      0 16px 48px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    
+    &:hover {
+      box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.18),
+        0 20px 64px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
   }
 `;
 

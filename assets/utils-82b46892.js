@@ -1,4 +1,4 @@
-import{c as e,g as n}from"./react-vendor-b3f8d475.js";function r(e){throw new Error('Could not dynamically require "'+e+'". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.')}var t={exports:{}};
+import{c as e,g as n}from"./react-vendor-a24cebf1.js";function r(e){throw new Error('Could not dynamically require "'+e+'". Please configure the dynamicRequireTargets or/and ignoreDynamicRequires option of @rollup/plugin-commonjs appropriately for this require call to work.')}var t={exports:{}};
 /*!
     localForage -- Offline Storage, Improved
     Version 1.10.0

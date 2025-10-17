@@ -226,16 +226,16 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
   
   // 为所有情况使用统一的字体大小，但根据屏幕方向响应式调整
   const getFontSize = () => {
-    // 默认字体大小
-    let size = '0.8rem';
+    // 增加默认字体大小
+    let size = '0.92rem'; // 略微增大默认字体
     
-    // 竖屏模式下减小字体大小
+    // 竖屏模式下略微增大字体大小
     if (window.innerWidth <= 991) {
       // 根据屏幕宽度进一步调整
       if (window.innerWidth <= 576) {
-        size = '0.65rem'; // 小屏手机进一步减小
+        size = '0.82rem'; // 小屏手机继续微调
       } else {
-        size = '0.7rem'; // 一般竖屏设备
+        size = '0.88rem'; // 一般竖屏设备继续微调
       }
     }
     
@@ -261,9 +261,13 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               color: isHighlighted ? '#007bff' : '#4A6FA5',
               backgroundColor: isHighlighted ? '#d1ecf1' : 'transparent',
               margin: '0',
-              lineHeight: '1.2',
+              padding: '0',
+              lineHeight: '0.82',
+              letterSpacing: '-0.04em',
               boxSizing: 'border-box',
-              // 固定大小，确保位置一致性
+              overflow: 'visible',
+              transform: 'scale(1.07)',
+              textAlign: 'center',
               width: '100%',
               height: '100%'
             }}

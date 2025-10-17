@@ -39,18 +39,26 @@ const Cell = styled.div`
   background-color: ${props => props.theme?.cellBackground || '#ffffff'};
   color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
   border: 1px dashed ${props => props.theme?.gridLine || '#e0e0e0'};
-  transition: all 0.2s ease;
-  font-family: 'Arial', 'Microsoft YaHei', sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  min-width: 0;
-  width: 100%;
-  height: 100%;
-  word-break: break-all;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  outline: 0;
+    transition: all 0.2s ease;
+    font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    outline: 0;
+    
+    /* 完全移除3x3子网格之间的虚线边框，避免与粗边框重叠 */
+     /* 处理列方向的网格分隔线 */
+     ${props => props.col % 3 === 0 && props.col > 0 && `border-left: none;`}
+     ${props => props.col % 3 === 2 && `border-right: none;`}
+     /* 处理行方向的网格分隔线 */
+     ${props => props.row % 3 === 0 && props.row > 0 && `border-top: none;`}
+     ${props => props.row % 3 === 2 && `border-bottom: none;`}
 
   /* 基础样式类 */
   &.prefilled {

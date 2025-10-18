@@ -988,18 +988,10 @@ export const SudokuContextProvider = ({ children }) => {
     setLockedCells(updatedLockedCells);
   };
 
-  // 更新undo函数，使其能处理铅笔模式的操作，并且正确处理历史记录
+  // 更新undo函数，使其能处理铅笔模式的操作，并允许撤回所有操作（包括正确输入）
   const undo = () => {
-    // 从当前历史索引开始查找有效的可撤销操作
-    let effectiveIndex = historyIndex;
-    
-    // 只跳过当前索引的正确输入记录，而不是所有
-    if (effectiveIndex >= 0 && history[effectiveIndex] && history[effectiveIndex].isCorrectInput) {
-      effectiveIndex--;
-    }
-    
-    if (effectiveIndex >= 0) {
-      const prevState = history[effectiveIndex];
+    if (historyIndex >= 0) {
+      const prevState = history[historyIndex];
       setCurrentBoard(prevState.board);
       
       // 如果历史记录包含pencilNotes，恢复它
@@ -1007,7 +999,7 @@ export const SudokuContextProvider = ({ children }) => {
         setPencilNotes(prevState.pencilNotes);
       }
       
-      setHistoryIndex(effectiveIndex - 1);
+      setHistoryIndex(historyIndex - 1);
       setGameCompleted(false); // 撤销后游戏不再完成
       
       // 重新计算错误单元格和错误计数

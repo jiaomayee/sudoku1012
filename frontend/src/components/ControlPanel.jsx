@@ -697,6 +697,7 @@ const ControlPanel = ({
                   onClick={onTogglePencilMode}
                   title={isPencilMode ? "退出铅笔模式" : "进入铅笔模式"}
                   isActive={isPencilMode}
+                  isPencilMode={isPencilMode} // 添加isPencilMode属性，使其样式与数字按钮一致
                 >
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -704,7 +705,7 @@ const ControlPanel = ({
                     height="24" 
                     viewBox="0 0 24 24" 
                     fill="none" 
-                    stroke={isPencilMode ? "white" : "currentColor"} 
+                    stroke="currentColor" 
                     strokeWidth="2" 
                     strokeLinecap="round" 
                     strokeLinejoin="round"

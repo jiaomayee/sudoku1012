@@ -162,26 +162,23 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     // 数字按钮使用蓝色字体
     return '#3498db';
   }};
-  // 增强边框颜色层次感
-  border: 1px solid ${props => {
-    if (props.disabled) return props.theme?.border || '#e0e0e0'; // 禁用时边框为灰色
-    // 普通状态使用更柔和的边框颜色，增加层次感
-    if (!props.isActive && !props.isPencilMode) {
-      return (props.theme?.primary || '#3498db') + '55'; // 半透明主色作为普通边框
-    }
-    return props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db');
+  // 边框样式 - 铅笔模式下简化为与操作按钮一致
+  border: ${props => {
+    if (props.disabled) return '1px solid ' + (props.theme?.border || '#e0e0e0'); // 禁用时边框为灰色
+    if (props.isPencilMode) return '2px solid ' + (props.theme?.primary || '#3498db'); // 铅笔模式下使用与操作按钮一致的边框宽度
+    // 普通状态保持原有样式
+    return '1px solid ' + (props.theme?.primary || '#3498db') + '55'; // 半透明主色作为普通边框
   }};
   padding: 8px;
-  border-radius: 12px;
+  border-radius: 8px; // 减小圆角，与操作按钮更接近
   font-size: calc(var(--board-width) * 0.085);
   font-weight: 500;
   cursor: ${props => props.disabled ? 'pointer' : 'pointer'};
-  // 使用多层阴影增强立体感
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.1),
-    0 4px 12px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  transition: all 0.3s ease;
+  // 简化阴影，铅笔模式下不使用多层阴影
+  box-shadow: ${props => props.isPencilMode ? 'none' : 
+    `0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7)`};
+  transition: all 0.2s ease; // 简化过渡效果，与操作按钮一致
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -195,8 +192,8 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
   min-height: 36px;
   max-height: none;
   position: relative; /* 为角标定位 */
-  // 背景渐变增强立体感
-  background-image: ${props => props.isActive || props.isPencilMode || props.disabled 
+  // 铅笔模式下不使用背景渐变
+  background-image: ${props => props.isPencilMode || props.isActive || props.disabled 
     ? 'none' 
     : `linear-gradient(135deg, ${props.theme?.surface || '#ffffff'} 0%, ${(props.theme?.surface || '#ffffff') + 'cc'} 100%)`};
   
@@ -224,16 +221,15 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
         if (props.isActive || props.isPencilMode) return props.theme?.primaryDark || '#2980b9';
         return (props.theme?.primary || '#3498db') + '15';
       }};
-      // 增强悬停时的阴影效果
-      box-shadow: 
-        0 4px 8px rgba(0, 0, 0, 0.15),
-        0 8px 24px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-      // 增强边框颜色
+      // 简化悬停阴影，铅笔模式下更简约
+      box-shadow: ${props => props.isPencilMode ? 
+        '0 4px 8px rgba(0, 0, 0, 0.15)' : 
+        '0 4px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)'};
+      // 铅笔模式下边框颜色保持主色
       border-color: ${props => {
-        return props.isPencilMode ? '#26a69a' : (props.theme?.primary || '#3498db') + 'aa';
+        return props.isPencilMode ? (props.theme?.primary || '#3498db') : (props.theme?.primary || '#3498db') + 'aa';
       }};
-      transform: translateY(-2px);
+      transform: translateY(${props => props.isPencilMode ? '-0.5px' : '-2px'}); // 铅笔模式下位移更小
       // 悬停时移除背景渐变
       background-image: none;
     }
@@ -250,13 +246,13 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     }
   }
   
-  // 触摸反馈 - 增强立体感变化
+  // 触摸反馈 - 铅笔模式下与操作按钮一致的反馈
   &:active:not(:disabled) {
-    transform: scale(0.95) translateY(1px);
-    box-shadow: 
-      0 1px 2px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(0, 0, 0, 0.1);
-    transition: all 0.1s ease;
+    transform: ${props => props.isPencilMode ? 'scale(0.98)' : 'scale(0.95) translateY(1px)'};
+    box-shadow: ${props => props.isPencilMode ? 
+      'none' : 
+      '0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(0, 0, 0, 0.1)'};
+    transition: transform 0.1s ease;
   }
   
   // 角标样式

@@ -281,7 +281,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
 };
 
 // JS逻辑函数
-const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPencilMode, pencilNotes, incorrectCells }) => {
+const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPencilMode, pencilNotes, incorrectCells, highlightedCells }) => {
   const { theme } = useTheme();
   
   // 使用传入的board数据，如果为空则使用空的9x9数组作为备选
@@ -339,6 +339,15 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
     // 基础状态类
     if (isCellPrefilled(value, row, col)) classes.push('prefilled');
     if (isCellError(value) || isCellIncorrect(row, col)) classes.push('error');
+    
+    // 检查是否在高亮单元格列表中（来自点击数字按钮的高亮）
+    if (!selectedCell && highlightedCells && Array.isArray(highlightedCells)) {
+      const isHighlighted = highlightedCells.some(cell => cell.row === row && cell.col === col);
+      if (isHighlighted) {
+        classes.push('highlighted');
+      }
+    }
+    
     // 选中状态和相关高亮
     if (selectedCell && selectedCell.row === row && selectedCell.col === col) {
       classes.push('selected');
@@ -390,11 +399,16 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
           // 计算是否需要高亮标注数字
           let highlightedNumber = null;
           
+          // 检查是否有高亮的数字（来自点击数字按钮）
+          if (!selectedCell && highlightedCells && Array.isArray(highlightedCells) && highlightedCells.length > 0) {
+            // 使用第一个高亮单元格的数字作为要高亮的候选数
+            highlightedNumber = highlightedCells[0].number;
+          } 
           // 严格条件检查：
           // 1. 确保选中单元格存在且有有效坐标
           // 2. 确保选中单元格有实际数字（非0）
           // 3. 确保数字有效（非error）
-          if (selectedCell && 
+          else if (selectedCell && 
               selectedCell.row !== undefined && 
               selectedCell.col !== undefined && 
               displayBoard[selectedCell.row] && 

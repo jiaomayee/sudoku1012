@@ -630,7 +630,10 @@ const ControlPanel = ({
                       showCount={!isPencilMode} // 仅在非铅笔模式下显示角标
                       remainingCount={remainingCount}
                       data-count={remainingCount}
-                      onClick={() => !isDisabled && onNumberSelect(number)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // 阻止事件冒泡
+                        !isDisabled && onNumberSelect(number);
+                      }}
                     >
                       {number}
                     </NumberButton>
@@ -641,7 +644,10 @@ const ControlPanel = ({
                 {/* 撤回按钮 - 使用左箭头图标 */}
                 <NumberButton
                   key="undo"
-                  onClick={onUndo}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    onUndo();
+                  }}
                   title="撤回"
                 >
                   <svg 
@@ -663,7 +669,10 @@ const ControlPanel = ({
                 {/* 清除按钮 - 使用垃圾桶图标 */}
                 <NumberButton
                   key="clear"
-                  onClick={onClearCell}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    onClearCell();
+                  }}
                   title="清空单元格"
                   style={{ 
                     backgroundColor: theme?.error || '#ff4444',
@@ -697,7 +706,10 @@ const ControlPanel = ({
                 {/* 铅笔按钮 - 使用铅笔图标 */}
                 <NumberButton
                   key="pencil"
-                  onClick={onTogglePencilMode}
+                  onClick={(e) => {
+                    e.stopPropagation(); // 阻止事件冒泡
+                    onTogglePencilMode();
+                  }}
                   title={isPencilMode ? "退出铅笔模式" : "进入铅笔模式"}
                   isActive={isPencilMode}
                   isPencilMode={isPencilMode} // 添加isPencilMode属性，使其样式与数字按钮一致

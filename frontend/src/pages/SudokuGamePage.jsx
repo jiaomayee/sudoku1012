@@ -100,6 +100,10 @@ const SudokuGamePage = () => {
     // 如果点击的不是单元格，且不是棋盘容器、控制面板、导航栏或显示区域
     if (!isCell && !isBoardContainer && !isControlPanel && !isNavigationBlock && !isDisplayBlock) {
       setSelectedCell(null);
+      // 清除高亮单元格
+      if (sudokuContext?.setHighlightedCells) {
+        sudokuContext.setHighlightedCells([]);
+      }
     }
   };
   
@@ -143,9 +147,38 @@ const SudokuGamePage = () => {
   
   // 处理数字选择
   const handleNumberSelect = (number) => {
-    if (!selectedCell) return;
-    
     try {
+      // 当没有选中单元格时，高亮相同数字的单元格和候选数
+      if (!selectedCell) {
+        // 收集所有包含相同数字的单元格
+        const highlightedCells = [];
+        
+        // 遍历棋盘，找出所有包含相同数字的单元格
+        for (let row = 0; row < 9; row++) {
+          for (let col = 0; col < 9; col++) {
+            // 检查当前单元格的值
+            const cellValue = currentBoard && currentBoard[row] ? currentBoard[row][col] : 0;
+            // 检查是否是预填数字或用户填入的正确数字
+            const isPrefilled = originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] === number;
+            const isCorrectUserInput = cellValue === number && 
+                                     sudokuContext?.lockedCells && 
+                                     sudokuContext.lockedCells.has(`${row}-${col}`);
+            
+            // 如果是预填数字或用户填入的正确数字且与点击的数字相同
+            if ((isPrefilled || isCorrectUserInput) && number > 0) {
+              highlightedCells.push({ row, col, number });
+            }
+          }
+        }
+        
+        // 设置高亮单元格
+        if (sudokuContext?.setHighlightedCells) {
+          sudokuContext.setHighlightedCells(highlightedCells);
+        }
+        
+        return;
+      }
+      
       // 判断是否为预填数字单元格
       const isPrefilledCell = originalPuzzle && originalPuzzle[selectedCell.row] && 
                              originalPuzzle[selectedCell.row][selectedCell.col] !== 0;

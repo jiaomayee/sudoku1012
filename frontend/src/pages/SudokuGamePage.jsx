@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SudokuBoard from '../components/SudokuBoard';
 import ControlPanel from '../components/ControlPanel';
@@ -67,6 +67,7 @@ const SudokuGamePage = () => {
   const [showNotesInstructions, setShowNotesInstructions] = useState(false);
   const boardContainerRef = useRef(null);
   const timerRef = useRef(null);
+  const gameAreaRef = useRef(null);
   
   // 监听窗口大小变化
   useEffect(() => {
@@ -86,6 +87,35 @@ const SudokuGamePage = () => {
     
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  
+  // 处理点击空白区域取消选中
+  const handleGameAreaClick = (e) => {
+    // 检查点击的是否是数独单元格
+    const isCell = e.target.closest('div[row]') || e.target.closest('div[col]');
+    const isBoardContainer = e.target.closest('.board-container');
+    const isControlPanel = e.target.closest('.controls-container');
+    const isNavigationBlock = e.target.closest('.nav-block');
+    const isDisplayBlock = e.target.closest('.display-block');
+    
+    // 如果点击的不是单元格，且不是棋盘容器、控制面板、导航栏或显示区域
+    if (!isCell && !isBoardContainer && !isControlPanel && !isNavigationBlock && !isDisplayBlock) {
+      setSelectedCell(null);
+    }
+  };
+  
+  // 添加点击事件监听器
+  useEffect(() => {
+    const gameArea = gameAreaRef.current;
+    if (gameArea) {
+      gameArea.addEventListener('click', handleGameAreaClick);
+    }
+    
+    return () => {
+      if (gameArea) {
+        gameArea.removeEventListener('click', handleGameAreaClick);
+      }
+    };
+  }, [selectedCell]);
   
   // 处理单元格选择
   const handleCellClick = (row, col) => {
@@ -116,6 +146,16 @@ const SudokuGamePage = () => {
     if (!selectedCell) return;
     
     try {
+      // 判断是否为预填数字单元格
+      const isPrefilledCell = originalPuzzle && originalPuzzle[selectedCell.row] && 
+                             originalPuzzle[selectedCell.row][selectedCell.col] !== 0;
+      
+      // 如果是预填数字单元格，点击数字按钮时取消选中
+      if (isPrefilledCell) {
+        setSelectedCell(null);
+        return;
+      }
+      
       // 使用fillCell替代updateCell
       fillCell(selectedCell.row, selectedCell.col, number);
     } catch (error) {
@@ -356,7 +396,7 @@ const SudokuGamePage = () => {
   };
   
   return (
-    <div className="sudoku-game-container">
+    <div className="sudoku-game-container" ref={gameAreaRef}>
       {/* 游戏暂停蒙板 */}
       {!isTimerActive && !sudokuContext?.gameCompleted && (
         <div className="pause-overlay" onClick={handlePauseTimer}>
@@ -400,7 +440,7 @@ const SudokuGamePage = () => {
             </div>
             
             {/* 数独棋盘 */}
-            <div className="board-container" ref={boardContainerRef}>
+            <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()}>
               <SudokuBoard
                 board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
                 originalPuzzle={originalPuzzle}
@@ -415,14 +455,15 @@ const SudokuGamePage = () => {
             
             {/* 操作面板 */}
             <ControlPanel
-                onNumberSelect={handleNumberSelect}
-                onClearCell={enhancedClearCell}
-                onUndo={undo} // 添加onUndo属性
-                selectedNumber={selectedCell?.value || null}
-                isPencilMode={isPencilMode}
-                onTogglePencilMode={handleTogglePencilMode}
-                remainingNumbers={remainingNumbers} // 添加剩余数字数量
-              />
+              onClick={(e) => e.stopPropagation()}
+              onNumberSelect={handleNumberSelect}
+              onClearCell={enhancedClearCell}
+              onUndo={undo} // 添加onUndo属性
+              selectedNumber={selectedCell?.value || null}
+              isPencilMode={isPencilMode}
+              onTogglePencilMode={handleTogglePencilMode}
+              remainingNumbers={remainingNumbers} // 添加剩余数字数量
+            />
           </>
         ) : (
           // 横屏模式：按照UI文档要求的两行两列布局
@@ -459,31 +500,31 @@ const SudokuGamePage = () => {
             {/* 底部区域：数独棋盘和操作区块 */}
             <div className="bottom-row">
               {/* 数独棋盘 - 左侧，作为尺寸基准 */}
-              <div className="board-container" ref={boardContainerRef}>
+              <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()}>
                 <SudokuBoard
                   board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
                   originalPuzzle={originalPuzzle}
-                selectedCell={selectedCell}
-                highlightedCells={sudokuContext?.highlightedCells || []}
-                incorrectCells={sudokuContext?.incorrectCells || new Set()}
-                onCellClick={handleCellClick}
-                isPencilMode={isPencilMode}
-                pencilNotes={sudokuContext?.pencilNotes || []}
+                  selectedCell={selectedCell}
+                  highlightedCells={sudokuContext?.highlightedCells || []}
+                  incorrectCells={sudokuContext?.incorrectCells || new Set()}
+                  onCellClick={handleCellClick}
+                  isPencilMode={isPencilMode}
+                  pencilNotes={sudokuContext?.pencilNotes || []}
                 />
               </div>
               
               {/* 操作区块 - 右侧，宽度为棋盘的2/3，高度与棋盘一致 */}
-            <div className="controls-container">
-              <ControlPanel
-                onNumberSelect={handleNumberSelect}
-                onClearCell={enhancedClearCell}
-                onUndo={undo} // 添加onUndo属性
-                selectedNumber={selectedCell?.value || null}
-                isPencilMode={isPencilMode}
-                onTogglePencilMode={handleTogglePencilMode}
-                remainingNumbers={remainingNumbers} // 添加剩余数字数量
-              />
-            </div>
+              <div className="controls-container" onClick={(e) => e.stopPropagation()}>
+                <ControlPanel
+                  onNumberSelect={handleNumberSelect}
+                  onClearCell={enhancedClearCell}
+                  onUndo={undo} // 添加onUndo属性
+                  selectedNumber={selectedCell?.value || null}
+                  isPencilMode={isPencilMode}
+                  onTogglePencilMode={handleTogglePencilMode}
+                  remainingNumbers={remainingNumbers} // 添加剩余数字数量
+                />
+              </div>
             </div>
           </>
         )}

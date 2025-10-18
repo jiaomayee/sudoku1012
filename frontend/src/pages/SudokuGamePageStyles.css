@@ -159,7 +159,7 @@ html, body {
     :root {
       --board-width: calc(100vw - 8px); /* 最大化利用宽度，仅留出少量边距避免溢出 */
       --control-panel-width: 100%; /* 操作面板完全充满宽度 */
-      --block-gap: 4px; /* 最小化区块间距 */
+      --block-gap: 16px; /* 增加区块间距 */
     }
     
     /* 确保页面元素不受设备状态栏等影响 */
@@ -183,19 +183,20 @@ html, body {
     }
     
     .main-content {
-      margin-top: 0;
+      margin-top: var(--block-gap);
       gap: var(--block-gap); /* 使用CSS变量控制间距 */
       flex: 1; /* 占据剩余空间 */
       display: flex;
       flex-direction: column;
       width: 100%;
       overflow-y: auto; /* 允许在小屏幕上滚动 */
+      padding: 0 var(--block-gap) var(--block-gap) var(--block-gap);
     }
     
     .top-row {
       flex-direction: column;
       align-items: stretch; /* 让子元素完全填充宽度 */
-      gap: 0; /* 导航栏与显示区块紧贴 */
+      gap: var(--block-gap); /* 使用与其他区块相同的间距 */
       margin: 0;
       padding: 0;
       width: 100%;
@@ -247,24 +248,25 @@ html, body {
       max-width: 100%;
       height: auto; /* 根据内部组件自适应高度 */
       min-height: auto;
-      padding: 6px;
+      padding: 10px;
       box-sizing: border-box;
-      border-radius: 0; /* 移除圆角以最大化空间利用 */
+      border-radius: var(--border-radius); /* 恢复圆角以保持一致性 */
     }
     
     /* 显示区块样式修改 */
     .display-block {
-      background-color: transparent;
-      padding: 4px 8px;
-      box-shadow: none;
+      background-color: #ffffff;
+      padding: 8px 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       height: auto;
-      min-height: 28px;
-      gap: 8px; /* 适当增加内部间距以提高可读性 */
+      min-height: 32px;
+      gap: 12px; /* 增加内部间距以提高可读性 */
       margin: 0;
       display: flex;
       flex-wrap: nowrap;
       justify-content: space-around;
       width: 100%;
+      border-radius: var(--border-radius);
     }
   
   .display-block div {
@@ -293,7 +295,7 @@ html, body {
 @media (max-width: 480px) {
   :root {
     --board-width: 98vw; /* 增加宽度以更好地利用屏幕空间 */
-    --block-gap: 0;
+    --block-gap: 12px; /* 保留适当间距，避免区块完全紧贴 */
   }
   
   .sudoku-game-container {

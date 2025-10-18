@@ -882,18 +882,18 @@ export const SudokuContextProvider = ({ children }) => {
     setPencilNotes(newPencilNotes);
     
     // 为所有操作添加历史记录，但为正确输入添加标记
-  const newHistory = history.slice(0, historyIndex + 1);
-  newHistory.push({ 
-    board: currentBoard, 
-    pencilNotes: { ...pencilNotes },
-    row, 
-    col, 
-    prevValue: currentBoard[row][col],
-    type: 'fill',
-    isCorrectInput: value !== 0 && isCorrect // 为正确输入添加标记
-  });
-  setHistory(newHistory);
-  setHistoryIndex(newHistory.length - 1);
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      row, 
+      col, 
+      prevValue: currentBoard[row][col],
+      type: 'fill',
+      isCorrectInput: value !== 0 && isCorrect // 为正确输入添加标记
+    });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
 
   // 更新错误单元格集合和错误计数
   const updatedIncorrectCells = new Set(incorrectCells);
@@ -988,12 +988,13 @@ export const SudokuContextProvider = ({ children }) => {
     setLockedCells(updatedLockedCells);
   };
 
-  // 更新undo函数，使其能处理铅笔模式的操作，并且跳过正确输入的历史记录
+  // 更新undo函数，使其能处理铅笔模式的操作，并且正确处理历史记录
   const undo = () => {
+    // 从当前历史索引开始查找有效的可撤销操作
     let effectiveIndex = historyIndex;
     
-    // 跳过所有标记为正确输入的历史记录
-    while (effectiveIndex >= 0 && history[effectiveIndex] && history[effectiveIndex].isCorrectInput) {
+    // 只跳过当前索引的正确输入记录，而不是所有
+    if (effectiveIndex >= 0 && history[effectiveIndex] && history[effectiveIndex].isCorrectInput) {
       effectiveIndex--;
     }
     

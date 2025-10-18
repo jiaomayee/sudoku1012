@@ -158,6 +158,9 @@ const SudokuGamePage = () => {
       
       // 使用fillCell替代updateCell
       fillCell(selectedCell.row, selectedCell.col, number);
+      
+      // 修复竖屏模式下的问题：保持单元格选中状态，不自动取消
+      // 只有在特定条件下才取消选中
     } catch (error) {
       console.error('Error updating cell:', error);
     }
@@ -454,16 +457,17 @@ const SudokuGamePage = () => {
             </div>
             
             {/* 操作面板 */}
-            <ControlPanel
-              onClick={(e) => e.stopPropagation()}
-              onNumberSelect={handleNumberSelect}
-              onClearCell={enhancedClearCell}
-              onUndo={undo} // 添加onUndo属性
-              selectedNumber={selectedCell?.value || null}
-              isPencilMode={isPencilMode}
-              onTogglePencilMode={handleTogglePencilMode}
-              remainingNumbers={remainingNumbers} // 添加剩余数字数量
-            />
+            <div className="controls-container" onClick={(e) => e.stopPropagation()}>
+              <ControlPanel
+                onNumberSelect={handleNumberSelect}
+                onClearCell={enhancedClearCell}
+                onUndo={undo} // 添加onUndo属性
+                selectedNumber={selectedCell?.value || null}
+                isPencilMode={isPencilMode}
+                onTogglePencilMode={handleTogglePencilMode}
+                remainingNumbers={remainingNumbers} // 添加剩余数字数量
+              />
+            </div>
           </>
         ) : (
           // 横屏模式：按照UI文档要求的两行两列布局

@@ -44,6 +44,7 @@ export const SudokuContextProvider = ({ children }) => {
     const [incorrectCells, setIncorrectCells] = useState(new Set()); // 跟踪错误单元格的集合
   const [isPencilMode, setIsPencilMode] = useState(false); // 铅笔模式状态
   const [pencilNotes, setPencilNotes] = useState({}); // 存储标注数字，格式为 {"row-col": [1, 2, 3]}
+  const [lockedCells, setLockedCells] = useState(new Set()); // 存储已锁定的单元格（用户填入正确数字的单元格）
 
   // 初始化时自动生成谜题
   useEffect(() => {
@@ -57,6 +58,7 @@ export const SudokuContextProvider = ({ children }) => {
         setErrorCount(0);
         setCumulativeErrorCount(0);
         setIncorrectCells(new Set());
+        setLockedCells(new Set()); // 重置锁定的单元格
         
         // 直接使用预设的数独题目
         console.log('使用预设的数独题目');
@@ -782,9 +784,17 @@ export const SudokuContextProvider = ({ children }) => {
   const fillCell = (row, col, value) => {
     if (!gameStarted || gameCompleted) return;
     
+    const cellKey = `${row}-${col}`;
+    
     // 检查是否为预填数字，如果是则不允许修改
     if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== null && originalPuzzle[row][col] !== 0) {
       console.log('Cannot modify prefilled cell:', row, col);
+      return;
+    }
+    
+    // 检查是否为已锁定的单元格（用户填入正确数字的单元格），如果是则不允许修改
+    if (lockedCells.has(cellKey)) {
+      console.log('Cannot modify locked cell (correct answer):', row, col);
       return;
     }
     
@@ -799,7 +809,6 @@ export const SudokuContextProvider = ({ children }) => {
     }
     
     const newBoard = [...currentBoard.map(row => [...row])];
-    const cellKey = `${row}-${col}`;
     const isCorrect = validateCellInput(row, col, value);
     
     // 保存当前状态到历史记录
@@ -901,6 +910,11 @@ export const SudokuContextProvider = ({ children }) => {
       } else {
         // 输入正确，从错误集合中移除
         updatedIncorrectCells.delete(cellKey);
+        
+        // 锁定正确填入的单元格，防止再次修改
+        const updatedLockedCells = new Set(lockedCells);
+        updatedLockedCells.add(cellKey);
+        setLockedCells(updatedLockedCells);
       }
     } else {
       // 清除单元格，从错误集合中移除
@@ -917,9 +931,17 @@ export const SudokuContextProvider = ({ children }) => {
   const clearCell = (row, col) => {
     if (!gameStarted || gameCompleted) return;
     
+    const cellKey = `${row}-${col}`;
+    
     // 检查是否为预填数字，如果是则不允许删除
     if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== 0) {
       console.log('Cannot clear prefilled cell:', row, col);
+      return;
+    }
+    
+    // 检查是否为已锁定的单元格（用户填入正确数字的单元格），如果是则不允许清除
+    if (lockedCells.has(cellKey)) {
+      console.log('Cannot clear locked cell (correct answer):', row, col);
       return;
     }
     
@@ -943,17 +965,21 @@ export const SudokuContextProvider = ({ children }) => {
     }
     
     const newBoard = [...currentBoard.map(row => [...row])];
-    const cellKey = `${row}-${col}`;
     
     // 清除单元格
     newBoard[row][col] = 0;
     setCurrentBoard(newBoard);
     
-    // 从错误集合中移除
+    // 清除单元格，从错误集合和锁定集合中移除
     const updatedIncorrectCells = new Set(incorrectCells);
     updatedIncorrectCells.delete(cellKey);
     setIncorrectCells(updatedIncorrectCells);
     setErrorCount(updatedIncorrectCells.size);
+    
+    // 从锁定集合中移除（如果存在）
+    const updatedLockedCells = new Set(lockedCells);
+    updatedLockedCells.delete(cellKey);
+    setLockedCells(updatedLockedCells);
   };
 
   // 更新undo函数，使其能处理铅笔模式的操作
@@ -1200,6 +1226,7 @@ export const SudokuContextProvider = ({ children }) => {
     candidates,
     highlightedCells,
     activeTechniques,
+    lockedCells,
     history,
     historyIndex,
     errorCount: cumulativeErrorCount, // 使用累计错误次数

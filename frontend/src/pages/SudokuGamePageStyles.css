@@ -157,50 +157,65 @@ html, body {
 /* 竖屏模式下的响应式布局 */
   @media (max-width: 991px) {
     :root {
-      --board-width: 98vw; /* 增加宽度以更好地利用屏幕空间 */
-      --control-panel-width: var(--board-width);
-      --block-gap: 0; /* 移除区块间距 */
+      --board-width: calc(100vw - 8px); /* 最大化利用宽度，仅留出少量边距避免溢出 */
+      --control-panel-width: 100%; /* 操作面板完全充满宽度 */
+      --block-gap: 4px; /* 最小化区块间距 */
+    }
+    
+    /* 确保页面元素不受设备状态栏等影响 */
+    html, body {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
     }
     
     .sudoku-game-container {
       max-width: none; /* 移除最大宽度限制 */
       padding: 0 !important; /* 强制移除内边距 */
-      margin: 0 auto !important; /* 水平居中 */
+      margin: 0 !important; /* 完全填充 */
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       width: 100%; /* 使用100%宽度而非100vw避免溢出 */
+      height: 100vh; /* 全屏高度 */
       box-sizing: border-box;
     }
     
     .main-content {
       margin-top: 0;
-      gap: 5px; /* 减小竖屏模式下区块间距 */
-      flex: 1;
+      gap: var(--block-gap); /* 使用CSS变量控制间距 */
+      flex: 1; /* 占据剩余空间 */
       display: flex;
       flex-direction: column;
+      width: 100%;
+      overflow-y: auto; /* 允许在小屏幕上滚动 */
     }
     
     .top-row {
       flex-direction: column;
-      align-items: center;
+      align-items: stretch; /* 让子元素完全填充宽度 */
       gap: 0; /* 导航栏与显示区块紧贴 */
       margin: 0;
       padding: 0;
+      width: 100%;
     }
     
     .bottom-row {
       flex-direction: column;
-      align-items: center;
-      gap: 5px; /* 减小竖屏模式下区块间距 */
+      align-items: stretch; /* 让子元素完全填充宽度 */
+      gap: var(--block-gap); /* 使用CSS变量控制间距 */
       margin: 0;
       padding: 0;
+      width: 100%;
     }
   
   .nav-block {
       width: 100%;
-      max-width: 100%; /* 移除对最大宽度的额外限制 */
+      max-width: 100%;
       height: auto;
+      padding: 0;
+      margin: 0;
     }
     
     /* 竖屏模式下隐藏顶部菜单栏 */
@@ -211,13 +226,19 @@ html, body {
     .display-block,
     .board-container {
       width: 100%;
-      max-width: 100%; /* 移除对最大宽度的额外限制 */
+      max-width: 100%;
       height: auto;
+      margin: 0;
+      padding: 0;
     }
   
   .board-container {
-      width: var(--board-width);
+      width: var(--board-width); /* 使用CSS变量 */
       height: var(--board-width); /* 保持正方形比例 */
+      margin: 0 auto !important; /* 水平居中 */
+      padding: 0 !important;
+      border-radius: 8px;
+      overflow: hidden;
     }
     
     /* 操作面板在竖屏模式下自适应高度 */
@@ -225,35 +246,45 @@ html, body {
       width: 100%;
       max-width: 100%;
       height: auto; /* 根据内部组件自适应高度 */
-      min-height: auto; /* 移除最小高度限制 */
-      padding: 8px; /* 适当的内边距 */
+      min-height: auto;
+      padding: 6px;
       box-sizing: border-box;
+      border-radius: 0; /* 移除圆角以最大化空间利用 */
     }
     
     /* 显示区块样式修改 */
     .display-block {
-      background-color: transparent; /* 设置为透明 */
-      padding: 1px 5px; /* 最小化内边距 */
-      box-shadow: none; /* 移除阴影 */
-      height: auto; /* 自动高度 */
-      min-height: 24px; /* 最小化显示区块高度 */
-      gap: 5px; /* 减小内部间距 */
+      background-color: transparent;
+      padding: 4px 8px;
+      box-shadow: none;
+      height: auto;
+      min-height: 28px;
+      gap: 8px; /* 适当增加内部间距以提高可读性 */
       margin: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-around;
+      width: 100%;
     }
   
   .display-block div {
-    font-size: 14px; /* 保持与横屏一致的字体大小 */
-    gap: 4px; /* 保持与横屏一致的标签内间距 */
+    font-size: 14px;
+    gap: 4px;
     margin: 0;
+    flex: 1; /* 让每个信息项平均分配空间 */
+    display: flex;
+    justify-content: center;
   }
   
   .display-block .value {
-    font-size: 16px; /* 保持与横屏一致的数值大小 */
+    font-size: 16px;
+    font-weight: bold;
     margin: 0;
   }
   
   .display-block .error-count {
-    font-size: 18px; /* 保持与横屏一致的错误次数大小 */
+    font-size: 18px;
+    font-weight: bold;
     margin: 0;
   }
 }

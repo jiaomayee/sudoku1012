@@ -157,8 +157,8 @@ html, body {
 /* 竖屏模式下的响应式布局 */
   @media (max-width: 991px) {
     :root {
-      --board-width: min(80vw, 500px); /* 使用视口宽度的80%，最大500px，保证数字可见性 */
-      --control-panel-width: min(80vw, 500px); /* 操作面板与棋盘宽度一致 */
+      --board-width: calc(100vw - 16px); /* 最大化利用屏幕宽度，保留8px边距 */
+      --control-panel-width: calc(100vw - 16px); /* 操作面板与棋盘宽度一致 */
       --block-gap: 16px; /* 区块间距 */
     }
     
@@ -189,7 +189,7 @@ html, body {
       flex-direction: column;
       width: 100%;
       overflow-y: visible;
-      padding: 0 var(--block-gap) var(--block-gap) var(--block-gap);
+      padding: 0 8px var(--block-gap) 8px; /* 减少水平内边距 */
     }
     
     .top-row {
@@ -232,9 +232,9 @@ html, body {
     }
   
   .board-container {
-      width: var(--board-width); /* 使用CSS变量 */
+      width: 100%; /* 完全充满父容器 */
       height: var(--board-width); /* 保持正方形比例 */
-      margin: 0 auto !important; /* 水平居中 */
+      margin: 0 !important;
       padding: 0 !important;
       border-radius: 8px;
       overflow: hidden;
@@ -243,13 +243,13 @@ html, body {
     
     /* 操作面板在竖屏模式下自适应高度 */
     .control-panel {
-      width: min(80vw, 500px); /* 与棋盘宽度保持一致 */
+      width: 100%; /* 完全充满父容器 */
       height: auto; /* 根据内部组件自适应高度 */
       min-height: auto;
       padding: 15px;
       box-sizing: border-box;
       border-radius: var(--border-radius);
-      align-self: center;
+      align-self: auto; /* 移除居中设置 */
     }
     
     /* 显示区块样式修改 */
@@ -264,9 +264,9 @@ html, body {
       display: flex;
       flex-wrap: nowrap;
       justify-content: space-around;
-      width: min(80vw, 500px); /* 与棋盘宽度保持一致 */
+      width: 100%; /* 完全充满父容器 */
       border-radius: var(--border-radius);
-      align-self: center;
+      align-self: auto; /* 移除居中设置 */
     }
 
   .display-block div {
@@ -295,7 +295,7 @@ html, body {
 /* 极窄屏幕的额外适配 */
 @media (max-width: 480px) {
   :root {
-    --board-width: min(85vw, 400px); /* 稍微增大比例，但设置最大值 */
+    --board-width: calc(100vw - 12px); /* 最大化利用屏幕宽度，保留6px边距 */
     --block-gap: 12px; /* 保留适当间距 */
   }
   
@@ -306,7 +306,7 @@ html, body {
   }
   
   .main-content {
-    padding: 0 calc(var(--block-gap) / 2) calc(var(--block-gap) / 2) calc(var(--block-gap) / 2);
+    padding: 0 6px calc(var(--block-gap) / 2) 6px; /* 进一步减少水平内边距 */
   }
   
   /* 确保数字按钮在小屏幕上也有足够大小 */

@@ -118,8 +118,8 @@ html, body {
 .board-container {
   background-color: #ffffff;
   border-radius: var(--border-radius);
-  padding: 0 !important; /* 移除所有内边距 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0 !important; /* 移除所有内边距，保持棋盘完整尺寸 */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -129,6 +129,11 @@ html, body {
   position: relative;
   box-sizing: border-box;
   overflow: hidden; /* 防止内容溢出 */
+  transition: box-shadow 0.2s ease;
+}
+
+.board-container:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 
 /* 确保数独棋盘本身占满容器空间 */
@@ -152,6 +157,11 @@ html, body {
   height: var(--board-width);
   position: relative;
   box-sizing: border-box;
+  transition: box-shadow 0.2s ease;
+}
+
+.control-panel:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* 竖屏模式下的响应式布局 */
@@ -239,6 +249,7 @@ html, body {
       border-radius: 8px;
       overflow: hidden;
       box-sizing: border-box;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     }
     
     /* 操作面板在竖屏模式下自适应高度 */

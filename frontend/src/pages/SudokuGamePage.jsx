@@ -156,6 +156,16 @@ const SudokuGamePage = () => {
         return;
       }
       
+      // 判断是否为用户填入正确数字的锁定单元格
+      const cellKey = `${selectedCell.row}-${selectedCell.col}`;
+      const isLockedCell = sudokuContext?.lockedCells && sudokuContext.lockedCells.has(cellKey);
+      
+      // 如果是锁定单元格（正确数字），点击数字按钮时取消选中
+      if (isLockedCell) {
+        setSelectedCell(null);
+        return;
+      }
+      
       // 使用fillCell替代updateCell
       fillCell(selectedCell.row, selectedCell.col, number);
       

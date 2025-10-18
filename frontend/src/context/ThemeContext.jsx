@@ -49,44 +49,138 @@ const defaultTheme = {
   }
 };
 
+// 获取默认自定义主题
+const getDefaultCustomTheme = () => ({
+  ...defaultTheme.light,
+  name: '自定义主题'
+});
+
 export const ThemeProvider = ({ children }) => {
-  // 从localStorage获取保存的主题或使用默认值
+  // 从localStorage获取保存的主题模式或使用默认值
   const [themeMode, setThemeMode] = useState(
     localStorage.getItem('themeMode') || 'light'
   );
   
-  const [theme, setTheme] = useState(defaultTheme[themeMode]);
+  // 从localStorage获取保存的自定义主题或使用默认自定义主题
+  const [customTheme, setCustomTheme] = useState(() => {
+    const savedCustomTheme = localStorage.getItem('customTheme');
+    return savedCustomTheme ? JSON.parse(savedCustomTheme) : getDefaultCustomTheme();
+  });
+  
+  // 计算当前使用的主题
+  const [theme, setTheme] = useState(() => {
+    if (themeMode === 'custom') {
+      return customTheme;
+    }
+    return defaultTheme[themeMode === 'system' ? 'light' : themeMode];
+  });
+
+  // 更新当前主题
+  useEffect(() => {
+    let currentTheme;
+    if (themeMode === 'custom') {
+      currentTheme = customTheme;
+    } else if (themeMode === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      currentTheme = defaultTheme[prefersDark ? 'dark' : 'light'];
+    } else {
+      currentTheme = defaultTheme[themeMode];
+    }
+    setTheme(currentTheme);
+  }, [themeMode, customTheme]);
 
   // 切换主题
   const toggleTheme = () => {
     const newMode = themeMode === 'light' ? 'dark' : 'light';
     setThemeMode(newMode);
-    setTheme(defaultTheme[newMode]);
     localStorage.setItem('themeMode', newMode);
   };
 
-  // 设置主题
+  // 设置主题模式
   const setLightTheme = () => {
     setThemeMode('light');
-    setTheme(defaultTheme.light);
     localStorage.setItem('themeMode', 'light');
   };
 
   const setDarkTheme = () => {
     setThemeMode('dark');
-    setTheme(defaultTheme.dark);
     localStorage.setItem('themeMode', 'dark');
+  };
+
+  const setSystemTheme = () => {
+    setThemeMode('system');
+    localStorage.setItem('themeMode', 'system');
+  };
+
+  const setCustomThemeMode = () => {
+    setThemeMode('custom');
+    localStorage.setItem('themeMode', 'custom');
+  };
+
+  // 更新自定义主题
+  const updateCustomTheme = (newTheme) => {
+    const updatedTheme = { ...newTheme, name: newTheme.name || '自定义主题' };
+    setCustomTheme(updatedTheme);
+    localStorage.setItem('customTheme', JSON.stringify(updatedTheme));
+    
+    // 如果当前是自定义主题模式，立即应用
+    if (themeMode === 'custom') {
+      setTheme(updatedTheme);
+    }
+  };
+
+  // 重置自定义主题
+  const resetCustomTheme = () => {
+    const defaultCustom = getDefaultCustomTheme();
+    setCustomTheme(defaultCustom);
+    localStorage.setItem('customTheme', JSON.stringify(defaultCustom));
+  };
+
+  // 导出主题配置
+  const exportTheme = (themeToExport = customTheme) => {
+    const themeStr = JSON.stringify(themeToExport, null, 2);
+    const blob = new Blob([themeStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${themeToExport.name || 'sudoku-theme'}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // 导入主题配置
+  const importTheme = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedTheme = JSON.parse(e.target.result);
+          // 验证主题结构
+          if (importedTheme && typeof importedTheme === 'object') {
+            updateCustomTheme(importedTheme);
+            resolve(importedTheme);
+          } else {
+            reject(new Error('无效的主题文件格式'));
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
   };
 
   // 监听系统主题变化
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
-    const handleChange = (e) => {
-      if (e.matches && themeMode === 'system') {
-        setTheme(defaultTheme.dark);
-      } else if (!e.matches && themeMode === 'system') {
-        setTheme(defaultTheme.light);
+    const handleChange = () => {
+      if (themeMode === 'system') {
+        const prefersDark = mediaQuery.matches;
+        setTheme(defaultTheme[prefersDark ? 'dark' : 'light']);
       }
     };
 
@@ -97,9 +191,16 @@ export const ThemeProvider = ({ children }) => {
   const value = {
     theme,
     themeMode,
+    customTheme,
     toggleTheme,
     setLightTheme,
-    setDarkTheme
+    setDarkTheme,
+    setSystemTheme,
+    setCustomThemeMode,
+    updateCustomTheme,
+    resetCustomTheme,
+    exportTheme,
+    importTheme
   };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku } from '../context/SudokuContext';
 
@@ -51,6 +53,27 @@ const NavLinks = styled.div`
     flex-wrap: wrap;
     justify-content: center;
     gap: 15px;
+  }
+`;
+
+const SettingsButton = styled(Link)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: ${props => props.theme?.surface || '#ffffff'};
+  color: ${props => props.theme?.text || '#333333'};
+  border: 2px solid ${props => props.theme?.border || '#e0e0e0'};
+  transition: all 0.3s ease;
+  text-decoration: none;
+  
+  &:hover {
+    background-color: ${props => props.theme?.primary || '#4a6cf7'};
+    color: white;
+    border-color: ${props => props.theme?.primary || '#4a6cf7'};
+    transform: scale(1.1);
   }
 `;
 
@@ -258,6 +281,9 @@ const Navbar = () => {
             </NavLinks>
             <RightSection>
               {gameStarted && <GameStatus>{getGameStatusText()}</GameStatus>}
+              <SettingsButton to="/settings" theme={theme} title="设置">
+                <FontAwesomeIcon icon={faCog} size="lg" />
+              </SettingsButton>
               <LanguageSelector className="language-selector">
                 <LanguageButton onClick={toggleDropdown}>
                   <LanguageIcon>{selectedLanguage === 'zh' ? '🇨🇳' : '🇺🇸'}</LanguageIcon>

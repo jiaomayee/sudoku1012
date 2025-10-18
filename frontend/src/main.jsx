@@ -8,10 +8,13 @@ import HomePage from './pages/HomePage';
 import SudokuGamePage from './pages/SudokuGamePage';
 import TechniqueLearningPage from './pages/TechniqueLearningPage';
 import ProgressPage from './pages/ProgressPage';
-import StatsPage from './pages/StatisticsPage';
+import StatsPage from "./pages/StatisticsPage.jsx";
+import SettingsPage from './pages/SettingsPage';
+import ThemeEditorPage from './pages/ThemeEditorPage';
 import { SudokuContextProvider } from './context/SudokuContext';
 import { UserContextProvider } from './context/UserContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { LoadingProvider } from './context/LoadingContext';
 import './styles/global.css'; // 全局样式
 
@@ -20,6 +23,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <ThemeProvider>
+      <LanguageProvider>
       <LoadingProvider>
         <UserContextProvider>
           <SudokuContextProvider>
@@ -32,12 +36,15 @@ root.render(
                     <Route path="/techniques" element={<TechniqueLearningPage />} />
                     <Route path="/progress" element={<ProgressPage />} />
                     <Route path="/stats" element={<StatsPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/settings/theme-editor" element={<ThemeEditorPage />} />
                   </Routes>
                 </App>
               </Router>
           </SudokuContextProvider>
         </UserContextProvider>
       </LoadingProvider>
+      </LanguageProvider>
     </ThemeProvider>
     <ToastContainer 
       position="top-right" 

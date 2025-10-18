@@ -253,15 +253,21 @@ html, body {
     }
     
     /* 操作面板在竖屏模式下自适应高度 */
-    .control-panel {
-      width: 100%; /* 完全充满父容器 */
-      height: auto; /* 根据内部组件自适应高度 */
-      min-height: auto;
-      padding: 15px;
-      box-sizing: border-box;
-      border-radius: var(--border-radius);
-      align-self: auto; /* 移除居中设置 */
-    }
+    .controls-container {
+    width: 100%; /* 与棋盘宽度一致 */
+    max-width: var(--board-width); /* 最大宽度不超过棋盘宽度 */
+    margin: 0 auto; /* 居中显示 */
+  }
+  
+  .control-panel {
+    width: 100%; /* 完全充满父容器 */
+    height: auto; /* 根据内部组件自适应高度 */
+    min-height: auto;
+    padding: 15px;
+    box-sizing: border-box;
+    border-radius: var(--border-radius);
+    align-self: auto; /* 移除居中设置 */
+  }
     
     /* 显示区块样式修改 */
     .display-block {

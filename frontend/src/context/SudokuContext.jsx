@@ -811,18 +811,8 @@ export const SudokuContextProvider = ({ children }) => {
     const newBoard = [...currentBoard.map(row => [...row])];
     const isCorrect = validateCellInput(row, col, value);
     
-    // 保存当前状态到历史记录
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push({ 
-      board: currentBoard, 
-      pencilNotes: { ...pencilNotes },
-      row, 
-      col, 
-      prevValue: currentBoard[row][col],
-      type: 'fill'
-    });
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
+    // 只在填入错误数字或清除单元格时记录历史记录
+    // 正确填入的数字不记录到历史记录中，防止用户通过撤回按钮撤销正确输入
     
     // 更新单元格
     newBoard[row][col] = value;
@@ -889,15 +879,31 @@ export const SudokuContextProvider = ({ children }) => {
     // 更新铅笔标注
     setPencilNotes(newPencilNotes);
     
-    // 更新错误单元格集合和错误计数
-    const updatedIncorrectCells = new Set(incorrectCells);
-    
-    if (value !== 0) { // 只在校验非空单元格
-      if (!isCorrect) {
-        // 输入错误
-        // 如果填入的是错误数字且该单元格之前不是错误状态，则累计错误次数+1
-        if (!incorrectCells.has(cellKey)) {
-          setCumulativeErrorCount(prev => prev + 1);
+    // 条件性地添加历史记录
+  // 只在填入错误数字或清除单元格时记录历史
+  if (!isCorrect || value === 0) {
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      row, 
+      col, 
+      prevValue: currentBoard[row][col],
+      type: 'fill'
+    });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  }
+
+  // 更新错误单元格集合和错误计数
+  const updatedIncorrectCells = new Set(incorrectCells);
+  
+  if (value !== 0) { // 只在校验非空单元格
+    if (!isCorrect) {
+      // 输入错误
+      // 如果填入的是错误数字且该单元格之前不是错误状态，则累计错误次数+1
+      if (!incorrectCells.has(cellKey)) {
+        setCumulativeErrorCount(prev => prev + 1);
         }
         updatedIncorrectCells.add(cellKey);
         

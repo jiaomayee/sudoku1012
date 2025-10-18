@@ -255,7 +255,10 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     transition: transform 0.1s ease;
   }
   
-  // 角标样式
+  // 添加overflow: hidden确保角标不超出按钮边界
+  overflow: hidden;
+  
+  // 角标样式 - 使用原设计但确保不超出按钮边界
   &::after {
     content: attr(data-count);
     position: absolute;
@@ -263,7 +266,7 @@ const NumberButton = styled(({isActive, disabled, isPencilMode, showCount, remai
     right: 0;
     background-color: ${props => props.theme?.primary || '#3498db'};
     color: white;
-    border-radius: 0 0 0 100%;
+    border-radius: 0 0 0 100%; // 使用原来的四分之一圆形设计
     width: 20px;
     height: 20px;
     display: flex;

@@ -234,6 +234,8 @@ export const SudokuContextProvider = ({ children }) => {
       setCumulativeErrorCount(0); // 重置累计错误次数
       setIncorrectCells(new Set()); // 重置错误单元格
       setPencilNotes({}); // 重置候选数/标注，修复残留问题
+      setHighlightedCells([]); // 重置高亮单元格，修复新建游戏时高亮残留问题
+      setLockedCells(new Set()); // 重置锁定单元格，修复新建游戏时锁定残留问题
       
       // 使用指定难度或当前难度
       const targetDifficulty = difficultyOverride || difficulty;
@@ -879,21 +881,19 @@ export const SudokuContextProvider = ({ children }) => {
     // 更新铅笔标注
     setPencilNotes(newPencilNotes);
     
-    // 条件性地添加历史记录
-  // 只在填入错误数字或清除单元格时记录历史
-  if (!isCorrect || value === 0) {
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push({ 
-      board: currentBoard, 
-      pencilNotes: { ...pencilNotes },
-      row, 
-      col, 
-      prevValue: currentBoard[row][col],
-      type: 'fill'
-    });
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  }
+    // 为所有操作添加历史记录，但为正确输入添加标记
+  const newHistory = history.slice(0, historyIndex + 1);
+  newHistory.push({ 
+    board: currentBoard, 
+    pencilNotes: { ...pencilNotes },
+    row, 
+    col, 
+    prevValue: currentBoard[row][col],
+    type: 'fill',
+    isCorrectInput: value !== 0 && isCorrect // 为正确输入添加标记
+  });
+  setHistory(newHistory);
+  setHistoryIndex(newHistory.length - 1);
 
   // 更新错误单元格集合和错误计数
   const updatedIncorrectCells = new Set(incorrectCells);
@@ -988,10 +988,17 @@ export const SudokuContextProvider = ({ children }) => {
     setLockedCells(updatedLockedCells);
   };
 
-  // 更新undo函数，使其能处理铅笔模式的操作
+  // 更新undo函数，使其能处理铅笔模式的操作，并且跳过正确输入的历史记录
   const undo = () => {
-    if (historyIndex >= 0) {
-      const prevState = history[historyIndex];
+    let effectiveIndex = historyIndex;
+    
+    // 跳过所有标记为正确输入的历史记录
+    while (effectiveIndex >= 0 && history[effectiveIndex] && history[effectiveIndex].isCorrectInput) {
+      effectiveIndex--;
+    }
+    
+    if (effectiveIndex >= 0) {
+      const prevState = history[effectiveIndex];
       setCurrentBoard(prevState.board);
       
       // 如果历史记录包含pencilNotes，恢复它
@@ -999,24 +1006,39 @@ export const SudokuContextProvider = ({ children }) => {
         setPencilNotes(prevState.pencilNotes);
       }
       
-      setHistoryIndex(historyIndex - 1);
+      setHistoryIndex(effectiveIndex - 1);
       setGameCompleted(false); // 撤销后游戏不再完成
       
       // 重新计算错误单元格和错误计数
-    const updatedIncorrectCells = new Set();
-    for (let i = 0; i < 9; i++) {
-      for (let j = 0; j < 9; j++) {
-        const value = prevState.board[i][j];
-        if (value !== 0 && solution && value !== solution[i][j]) {
-          updatedIncorrectCells.add(`${i}-${j}`);
+      const updatedIncorrectCells = new Set();
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          const value = prevState.board[i][j];
+          if (value !== 0 && solution && value !== solution[i][j]) {
+            updatedIncorrectCells.add(`${i}-${j}`);
+          }
         }
       }
-    }
-    setIncorrectCells(updatedIncorrectCells);
+      setIncorrectCells(updatedIncorrectCells);
+      
+      // 重新计算锁定单元格（只锁定正确填入的数字）
+      const updatedLockedCells = new Set();
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          const value = prevState.board[i][j];
+          if (value !== 0 && solution && value === solution[i][j]) {
+            updatedLockedCells.add(`${i}-${j}`);
+          }
+        }
+      }
+      setLockedCells(updatedLockedCells);
+    } else {
+      // 如果没有可撤销的操作，可以显示提示
+      console.log('没有可撤销的操作');
     }
   };
 
-  // 更新redo函数，使其能处理铅笔模式的操作
+  // 更新redo函数，使其能处理铅笔模式的操作并正确处理锁定单元格
   const redo = () => {
     if (historyIndex < history.length - 1) {
       const nextState = history[historyIndex + 1];
@@ -1030,16 +1052,28 @@ export const SudokuContextProvider = ({ children }) => {
       setHistoryIndex(historyIndex + 1);
       
       // 重新计算错误单元格和错误计数
-    const updatedIncorrectCells = new Set();
-    for (let i = 0; i < 9; i++) {
-      for (let j = 0; j < 9; j++) {
-        const value = nextState.board[i][j];
-        if (value !== 0 && solution && value !== solution[i][j]) {
-          updatedIncorrectCells.add(`${i}-${j}`);
+      const updatedIncorrectCells = new Set();
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          const value = nextState.board[i][j];
+          if (value !== 0 && solution && value !== solution[i][j]) {
+            updatedIncorrectCells.add(`${i}-${j}`);
+          }
         }
       }
-    }
-    setIncorrectCells(updatedIncorrectCells);
+      setIncorrectCells(updatedIncorrectCells);
+      
+      // 重新计算锁定单元格（只锁定正确填入的数字）
+      const updatedLockedCells = new Set();
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          const value = nextState.board[i][j];
+          if (value !== 0 && solution && value === solution[i][j]) {
+            updatedLockedCells.add(`${i}-${j}`);
+          }
+        }
+      }
+      setLockedCells(updatedLockedCells);
       
       // 再次检查游戏是否完成
       checkGameCompletion(nextState.board);

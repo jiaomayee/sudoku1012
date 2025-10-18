@@ -209,28 +209,37 @@ html, body {
     }
     
     .display-block,
-    .board-container,
-    .control-panel {
+    .board-container {
       width: 100%;
       max-width: 100%; /* 移除对最大宽度的额外限制 */
       height: auto;
     }
   
-  .control-panel {
-    height: auto;
-    min-height: var(--board-width); /* 使用相同的变量以保持比例 */
-  }
-  
-  /* 显示区块样式修改 */
-  .display-block {
-    background-color: transparent; /* 设置为透明 */
-    padding: 1px 5px; /* 最小化内边距 */
-    box-shadow: none; /* 移除阴影 */
-    height: auto; /* 自动高度 */
-    min-height: 24px; /* 最小化显示区块高度 */
-    gap: 5px; /* 减小内部间距 */
-    margin: 0;
-  }
+  .board-container {
+      width: var(--board-width);
+      height: var(--board-width); /* 保持正方形比例 */
+    }
+    
+    /* 操作面板在竖屏模式下自适应高度 */
+    .control-panel {
+      width: 100%;
+      max-width: 100%;
+      height: auto; /* 根据内部组件自适应高度 */
+      min-height: auto; /* 移除最小高度限制 */
+      padding: 8px; /* 适当的内边距 */
+      box-sizing: border-box;
+    }
+    
+    /* 显示区块样式修改 */
+    .display-block {
+      background-color: transparent; /* 设置为透明 */
+      padding: 1px 5px; /* 最小化内边距 */
+      box-shadow: none; /* 移除阴影 */
+      height: auto; /* 自动高度 */
+      min-height: 24px; /* 最小化显示区块高度 */
+      gap: 5px; /* 减小内部间距 */
+      margin: 0;
+    }
   
   .display-block div {
     font-size: 14px; /* 保持与横屏一致的字体大小 */

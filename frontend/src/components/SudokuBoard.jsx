@@ -193,7 +193,7 @@ const Cell = styled.div`
 `;
 
 // 铅笔模式下的数字标注组件
-const PencilNotes = ({ notes = [] }) => {
+const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
   // 计算实际包含的数字数量
   const activeNotes = Array.isArray(notes) ? 
     notes : 
@@ -260,8 +260,8 @@ const PencilNotes = ({ notes = [] }) => {
             justifyContent: 'center',
             fontSize: fontSize,
             fontWeight: '500',
-            color: '#4A6FA5',
-            backgroundColor: 'transparent',
+            color: highlightedNumber === number ? '#000000' : '#4A6FA5',
+            backgroundColor: highlightedNumber === number ? '#d1ecf1' : 'transparent',
             margin: '0',
             padding: '0',
             lineHeight: '0.82',
@@ -396,10 +396,8 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
           
           // 计算是否需要高亮标注数字
           let highlightedNumber = null;
-          // 严格条件检查：
-          // 1. 确保选中单元格存在且有有效坐标
-          // 2. 确保选中单元格有实际数字（非0）
-          // 3. 确保数字有效（非error）
+          
+          // 主要逻辑：检查选中单元格的数字是否应该高亮
           if (selectedCell && 
               selectedCell.row !== undefined && 
               selectedCell.col !== undefined && 
@@ -408,16 +406,21 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
               
             const selectedCellValue = displayBoard[selectedCell.row][selectedCell.col];
             
-            // 关键条件：必须有实际数字（非0）且非错误
+            // 放宽条件：只要有实际数字（非0）且非error，就触发高亮
+            // 这包括预填数字和用户填入的正确数字
             if (selectedCellValue !== 0 && selectedCellValue !== 'error') {
-              const isSelectedPrefilled = isCellPrefilled(selectedCellValue, selectedCell.row, selectedCell.col);
-              const isSelectedError = isCellError(selectedCellValue);
-              const isSelectedIncorrect = isCellIncorrect(selectedCell.row, selectedCell.col);
-              
-              // 最终确认：只有预填数字或非错误的用户输入才触发高亮
-              if (isSelectedPrefilled || (!isSelectedError && !isSelectedIncorrect)) {
-                highlightedNumber = selectedCellValue;
-              }
+              highlightedNumber = selectedCellValue;
+            }
+          }
+          
+          // 额外检查：如果没有选中单元格，但通过数字按钮触发了高亮，
+          // highlightedCells数组中可能包含了需要高亮的数字信息
+          if (!highlightedNumber && highlightedCells && Array.isArray(highlightedCells) && highlightedCells.length > 0) {
+            // 检查highlightedCells数组中是否包含数字信息
+            // 有些实现中，highlightedCells可能包含一个number属性来指示要高亮的数字
+            const firstHighlighted = highlightedCells[0];
+            if (firstHighlighted && firstHighlighted.number && firstHighlighted.number !== 0 && firstHighlighted.number !== 'error') {
+              highlightedNumber = firstHighlighted.number;
             }
           }
           
@@ -433,7 +436,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
                 {value && value !== 0 && value !== 'error' ? (
                   value
                 ) : hasNotes ? (
-                  <PencilNotes notes={cellNotes} />
+                  <PencilNotes notes={cellNotes} highlightedNumber={highlightedNumber} />
                 ) : (
                   ''
                 )}

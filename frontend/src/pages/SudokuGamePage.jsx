@@ -521,16 +521,21 @@ const SudokuGamePage = () => {
             </div>
             
             {/* 数独棋盘 */}
-            <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()}>
+            <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
               <SudokuBoard
                 board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
                 originalPuzzle={originalPuzzle}
                 selectedCell={selectedCell}
-                highlightedCells={sudokuContext?.highlightedCells || []}
+                highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => !cell.techniqueIndicator)}
                 incorrectCells={sudokuContext?.incorrectCells || new Set()}
                 onCellClick={handleCellClick}
                 isPencilMode={isPencilMode}
                 pencilNotes={sudokuContext?.pencilNotes || []}
+              />
+              {/* 外挂式技巧高亮层 */}
+              <TechniqueOverlay 
+                highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
+                boardWidth={boardContainerRef.current?.offsetWidth || 450}
               />
             </div>
             
@@ -598,7 +603,6 @@ const SudokuGamePage = () => {
                 <TechniqueOverlay 
                   highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
                   boardWidth={boardContainerRef.current?.offsetWidth || 450}
-                  pencilNotes={pencilNotes}
                 />
               </div>
               

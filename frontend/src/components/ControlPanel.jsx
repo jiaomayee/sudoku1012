@@ -236,7 +236,7 @@ const ControlPanel = ({
                             overflow: 'hidden',
                             
                             // 阴影和过渡
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08)',
                             transition: 'all 0.2s ease'
                           }}
                         >
@@ -565,7 +565,7 @@ const ControlPanel = ({
                           fontSize: '0', // 让内容决定大小
                           
                           // 阴影和过渡
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08)',
                           transition: 'all 0.2s ease'
                         }}
                       >

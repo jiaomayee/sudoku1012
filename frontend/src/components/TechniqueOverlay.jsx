@@ -47,7 +47,7 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
               left: pos.left,
               top: pos.top,
               transform: 'translate(-50%, -50%)',
-              backgroundColor: '#2ecc71', // 绿色背景
+              backgroundColor: '#2ecc71', // 纯色绿色背景
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
@@ -56,7 +56,7 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
               fontWeight: 'bold',
               color: '#ffffff',
               border: '1px solid #ffffff',
-              boxShadow: '0 0 4px rgba(46, 204, 113, 0.8)',
+              boxShadow: 'none', // 移除阴影以避免渐变效果
               width: `${cellWidth * 0.22}px`,
               height: `${cellWidth * 0.22}px`,
               opacity: 1,

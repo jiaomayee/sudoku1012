@@ -1,27 +1,28 @@
 import React from 'react';
 
-// 技巧提示用的候选数组件 - 与原系统保持一致的位置
+// 技巧提示用的候选数组件 - 使用精确的DOM叠加方式
 const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
   // 确保notes是数组且不为null或undefined
   const activeNotes = Array.isArray(notes) ? notes : [];
   
-  // 调整字体大小计算方式，与原系统保持一致
-  const fontSize = `${cellWidth * 0.25}px`;
+  // 计算合适的字体大小
+  const fontSize = `${Math.max(10, cellWidth * 0.15)}px`;
   
-  // 调整数字背景大小
-  const noteSize = cellWidth * 0.18;
-  
-  // 与原系统一致的3x3网格布局
-  const gridPositions = {
-    1: { row: 0, col: 0 }, // 左上
-    2: { row: 0, col: 1 }, // 中上
-    3: { row: 0, col: 2 }, // 右上
-    4: { row: 1, col: 0 }, // 左中
-    5: { row: 1, col: 1 }, // 中
-    6: { row: 1, col: 2 }, // 右中
-    7: { row: 2, col: 0 }, // 左下
-    8: { row: 2, col: 1 }, // 中下
-    9: { row: 2, col: 2 }  // 右下
+  // 与原系统候选数位置精确对齐的映射
+  const getNotePosition = (number) => {
+    // 3x3网格中每个位置的百分比坐标
+    const positions = {
+      1: { top: '15%', left: '15%' },
+      2: { top: '15%', left: '50%' },
+      3: { top: '15%', left: '85%' },
+      4: { top: '50%', left: '15%' },
+      5: { top: '50%', left: '50%' },
+      6: { top: '50%', left: '85%' },
+      7: { top: '85%', left: '15%' },
+      8: { top: '85%', left: '50%' },
+      9: { top: '85%', left: '85%' }
+    };
+    return positions[number] || { top: '50%', left: '50%' };
   };
   
   return (
@@ -32,39 +33,20 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
         left: 0,
         width: '100%',
         height: '100%',
-        padding: '1px', // 与原系统保持一致的内边距
-        boxSizing: 'border-box',
         zIndex: 30 // 确保在最顶层
       }}
     >
       {activeNotes.map((number) => {
-        const pos = gridPositions[number];
-        if (!pos) return null;
-        
-        // 计算每个数字在3x3网格中的精确位置
-        const gridWidth = cellWidth - 2; // 减去1px内边距
-        const gridHeight = cellWidth - 2;
-        const cellPadding = gridWidth * 0.05;
-        
-        const availableWidth = gridWidth - (cellPadding * 2);
-        const availableHeight = gridHeight - (cellPadding * 2);
-        
-        const cellSize = availableWidth / 3;
-        const cellSizeHeight = availableHeight / 3;
-        
-        // 计算位置，确保与原系统一致
-        const positionX = cellPadding + (pos.col * cellSize) + (cellSize / 2) - (noteSize / 2);
-        const positionY = cellPadding + (pos.row * cellSizeHeight) + (cellSizeHeight / 2) - (noteSize / 2);
+        const pos = getNotePosition(number);
         
         return (
           <div
             key={number}
             style={{
               position: 'absolute',
-              left: `${positionX}px`,
-              top: `${positionY}px`,
-              width: `${noteSize}px`,
-              height: `${noteSize}px`,
+              left: pos.left,
+              top: pos.top,
+              transform: 'translate(-50%, -50%)',
               backgroundColor: '#2ecc71', // 绿色背景
               borderRadius: '50%',
               display: 'flex',
@@ -75,6 +57,8 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
               color: '#ffffff',
               border: '1px solid #ffffff',
               boxShadow: '0 0 4px rgba(46, 204, 113, 0.8)',
+              width: `${cellWidth * 0.22}px`,
+              height: `${cellWidth * 0.22}px`,
               opacity: 1,
               pointerEvents: 'none' // 确保不干扰交互
             }}
@@ -87,19 +71,25 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
   );
 };
 
+// 完全隔离的技巧高亮覆盖层组件
 const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
-  // 检查highlightedCells是否存在且为数组
-  if (!highlightedCells || !Array.isArray(highlightedCells) || highlightedCells.length === 0) {
+  // 严格检查highlightedCells，确保它是有效的数组
+  if (!highlightedCells || !Array.isArray(highlightedCells)) {
     return null;
   }
 
-  // 过滤出只有明确需要技巧高亮的单元格
+  // 极其严格的过滤逻辑，只处理明确的技巧高亮单元格
+  // 避免影响原系统的任何正常功能
   const techniqueCells = highlightedCells.filter(cell => 
-    cell && cell.techniqueIndicator === true && 
-    typeof cell.row === 'number' && typeof cell.col === 'number'
+    cell && 
+    cell.techniqueIndicator === true && // 必须显式标记为技巧单元格
+    typeof cell.row === 'number' && 
+    typeof cell.col === 'number' &&
+    cell.row >= 0 && cell.row < 9 && // 确保行列值有效
+    cell.col >= 0 && cell.col < 9
   );
 
-  // 如果没有需要技巧高亮的单元格，返回null
+  // 如果没有明确的技巧高亮单元格，返回null
   if (techniqueCells.length === 0) {
     return null;
   }
@@ -113,8 +103,8 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
         left: 0,
         width: `${boardWidth}px`,
         height: `${boardWidth}px`,
-        pointerEvents: 'none', // 确保不干扰原有棋盘交互
-        zIndex: 15, // 提高z-index确保覆盖棋盘但不干扰交互
+        pointerEvents: 'none', // 完全禁用所有事件，不干扰原系统
+        zIndex: 15, // 适当的z-index确保可见但不影响原系统
         boxSizing: 'border-box',
         display: 'grid',
         gridTemplateColumns: 'repeat(9, 1fr)',
@@ -135,10 +125,11 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
               gridColumn: cell.col + 1,
               gridRow: cell.row + 1,
               width: '100%',
-              height: '100%'
+              height: '100%',
+              pointerEvents: 'none' // 再次确保不干扰交互
             }}
           >
-            {/* 单元格背景高亮 - 使用更精确的选择器 */}
+            {/* 单元格背景高亮 */}
             <div
               style={{
                 position: 'absolute',
@@ -146,14 +137,14 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                backgroundColor: '#ffeaa7', // 柔和的黄色背景
+                backgroundColor: '#ffeaa7', // 黄色背景
                 opacity: 0.6,
                 pointerEvents: 'none',
                 zIndex: 1
               }}
             />
             
-            {/* 显示候选数高亮标记 - 使用绿色背景 */}
+            {/* 显示候选数高亮标记 */}
             {hasNotes && (
               <TechniquePencilNotes 
                 notes={cell.notes} 

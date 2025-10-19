@@ -903,7 +903,18 @@ const ControlPanel = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 3px 6px rgba(0, 0, 0, 0.2)'
+                      boxShadow: '0 3px 6px rgba(0, 0, 0, 0.2)',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2980b9';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#3498db';
+                      e.currentTarget.style.boxShadow = '0 3px 6px rgba(0, 0, 0, 0.2)';
+                      e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
                     应用技巧

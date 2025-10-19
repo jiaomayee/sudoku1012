@@ -71,7 +71,7 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
   );
 };
 
-// 完全隔离的技巧高亮覆盖层组件
+// 完全隔离的技巧高亮覆盖层组件 - 重写为纯透明覆盖模式，避免与原系统交互
 const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
   // 严格检查highlightedCells，确保它是有效的数组
   if (!highlightedCells || !Array.isArray(highlightedCells)) {
@@ -94,6 +94,9 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
     return null;
   }
 
+  // 计算单元格宽度
+  const cellWidth = boardWidth / 9;
+
   return (
     <div 
       className="technique-overlay"
@@ -106,53 +109,37 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
         pointerEvents: 'none', // 完全禁用所有事件，不干扰原系统
         zIndex: 15, // 适当的z-index确保可见但不影响原系统
         boxSizing: 'border-box',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(9, 1fr)',
-        gridTemplateRows: 'repeat(9, 1fr)'
+        background: 'transparent' // 确保背景完全透明
       }}
     >
+      {/* 只渲染需要高亮的候选数，完全移除背景高亮，避免与原系统same-note样式冲突 */}
       {techniqueCells.map((cell) => {
-        const cellWidth = boardWidth / 9;
-        
         // 检查是否有候选数需要显示
         const hasNotes = cell.notes && Array.isArray(cell.notes) && cell.notes.length > 0;
         
-        return (
-          <div
-            key={`tech-${cell.row}-${cell.col}`}
-            style={{
-              position: 'relative',
-              gridColumn: cell.col + 1,
-              gridRow: cell.row + 1,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none' // 再次确保不干扰交互
-            }}
-          >
-            {/* 单元格背景高亮 */}
+        // 只有当有候选数需要显示时才渲染元素
+        if (hasNotes) {
+          return (
             <div
+              key={`tech-${cell.row}-${cell.col}`}
               style={{
                 position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#ffeaa7', // 黄色背景
-                opacity: 0.6,
+                left: `${cell.col * cellWidth}px`,
+                top: `${cell.row * cellWidth}px`,
+                width: `${cellWidth}px`,
+                height: `${cellWidth}px`,
                 pointerEvents: 'none',
-                zIndex: 1
+                zIndex: 30
               }}
-            />
-            
-            {/* 显示候选数高亮标记 */}
-            {hasNotes && (
+            >
               <TechniquePencilNotes 
                 notes={cell.notes} 
-                cellWidth={cellWidth} 
+                cellWidth={cellWidth}
               />
-            )}
-          </div>
-        );
+            </div>
+          );
+        }
+        return null; // 没有候选数时不渲染任何内容
       })}
     </div>
   );

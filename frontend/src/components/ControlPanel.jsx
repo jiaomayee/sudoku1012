@@ -18,8 +18,7 @@ const ControlPanel = ({
   onTogglePencilMode,
   selectedNumber,
   isPencilMode,
-  remainingNumbers = {}, // 添加剩余数字数量属性，默认为空对象
-  onTestTechnique
+  remainingNumbers = {} // 添加剩余数字数量属性，默认为空对象
 }) => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
@@ -107,7 +106,7 @@ const ControlPanel = ({
     
     setTechniqueSteps(steps);
     
-    // 设置技巧指示高亮 - 将发现的填入数字单元格设置黄色背景色
+    // 设置技巧指示高亮 - 使用真实的技巧机会数据
     if (setHighlightedCells) {
       setHighlightedCells([{
         row: technique.row,
@@ -115,11 +114,6 @@ const ControlPanel = ({
         techniqueIndicator: true,
         number: technique.value // 添加number属性，用于候选数高亮
       }]);
-    }
-    
-    // 如果有onTestTechnique回调，调用它来触发技巧指示功能
-    if (onTestTechnique && technique) {
-      onTestTechnique(technique);
     }
     
     // 切换到解题步骤标签页
@@ -908,32 +902,10 @@ const ControlPanel = ({
                   borderRadius: '6px',
                   cursor: 'pointer',
                   fontSize: '14px',
-                  fontWeight: '600',
-                  marginBottom: '8px'
-                }}
-              >
-                刷新技巧列表
-              </button>
-              <button 
-                onClick={() => {
-                  // 触发技巧指示功能测试
-                  if (availableTechniques.length > 0) {
-                    handleTechniqueSelect(availableTechniques[0]);
-                  }
-                }}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  backgroundColor: '#9b59b6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
                   fontWeight: '600'
                 }}
               >
-                测试技巧指示
+                刷新技巧列表
               </button>
             </div>
           )}

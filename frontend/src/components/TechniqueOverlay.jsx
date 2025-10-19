@@ -84,30 +84,29 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, pencilNotes }) => {
                     const col = noteIndex % 3;
                     
                     return (
-                      <div
-                        key={`${note.row}-${note.col}-${note.number}`}
-                        style={{
-                          position: 'absolute',
-                          gridColumn: col + 1,
-                          gridRow: row + 1,
-                          width: `${cellWidth * 0.6}px`,
-                          height: `${cellWidth * 0.6}px`,
-                          backgroundColor: '#2ecc71', // 绿色背景
-                          borderRadius: '50%', // 圆形背景
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: `${cellWidth * 0.2}px`,
-                          fontWeight: 'bold',
-                          color: 'white',
-                          opacity: 0.8,
-                          transform: 'translate(-50%, -50%)',
-                          left: '50%',
-                          top: '50%'
-                        }}
-                      >
-                        {note.number}
-                      </div>
+                        <div
+                          key={`${note.row}-${note.col}-${note.number}`}
+                          style={{
+                            position: 'absolute',
+                            gridColumn: col + 1,
+                            gridRow: row + 1,
+                            width: `${cellWidth * 0.6}px`,
+                            height: `${cellWidth * 0.6}px`,
+                            backgroundColor: '#2ecc71', // 绿色背景
+                            borderRadius: '50%', // 圆形背景
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: `${cellWidth * 0.2}px`,
+                            color: 'white', // 白色字体
+                            opacity: 0.8,
+                            transform: 'translate(-50%, -50%)',
+                            left: '50%',
+                            top: '50%'
+                          }}
+                        >
+                          {note.number}
+                        </div>
                     );
                   }
                   return null;

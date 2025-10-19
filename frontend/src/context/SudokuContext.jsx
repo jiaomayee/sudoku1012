@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import localforage from 'localforage';
 import { useUser } from './UserContext';
@@ -6,6 +6,7 @@ import { api } from '../services/api';
 import DLX from '../utils/DLX'; // 添加DLX算法导入
 import { generateSudoku, solveSudoku, hasUniqueSolution } from '../utils/sudokuUtils';
 import { getRandomExpertPuzzle } from '../utils/puzzleUtils'; // 导入从JSON获取专家级题目的函数
+import { identifyAllTechniques, applyTechnique } from '../utils/sudokuTechniques';
 
 // 创建数独上下文
 const SudokuContext = createContext();
@@ -224,7 +225,16 @@ export const SudokuContextProvider = ({ children }) => {
   const startNewGame = async (puzzleId = null, difficultyOverride = null) => {
     console.log('SudokuContext: 开始新游戏', { puzzleId, difficultyOverride });
     try {
-      // 停止当前计时器并重置状态
+      // 更严格地重置所有状态，确保完全清理
+      // 首先重置所有可能影响界面显示的状态
+      setCurrentBoard(createEmptyBoard()); // 立即设置为空棋盘
+      setPencilNotes({}); // 重置候选数/标注
+      setIsPencilMode(false); // 重置铅笔模式
+      setCandidates({}); // 重置候选数数据
+      setActiveTechniques([]); // 重置活跃技巧
+      setHighlightedCells([]); // 重置高亮单元格
+      
+      // 然后重置游戏状态相关变量
       setTimerActive(false);
       setTimeElapsed(0);
       setGameCompleted(false);
@@ -233,9 +243,14 @@ export const SudokuContextProvider = ({ children }) => {
       setErrorCount(0); // 重置错误计数
       setCumulativeErrorCount(0); // 重置累计错误次数
       setIncorrectCells(new Set()); // 重置错误单元格
-      setPencilNotes({}); // 重置候选数/标注，修复残留问题
-      setHighlightedCells([]); // 重置高亮单元格，修复新建游戏时高亮残留问题
-      setLockedCells(new Set()); // 重置锁定单元格，修复新建游戏时锁定残留问题
+      setLockedCells(new Set()); // 重置锁定单元格
+      
+      // 确保gameStarted状态为true
+      setGameStarted(true);
+      
+      // 添加短暂延迟，确保状态更新完成后再生成新谜题
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       
       // 使用指定难度或当前难度
       const targetDifficulty = difficultyOverride || difficulty;
@@ -436,20 +451,41 @@ export const SudokuContextProvider = ({ children }) => {
     }
   };
 
+  // 创建空的9x9数独棋盘
+  const createEmptyBoard = () => {
+    return Array(9).fill().map(() => Array(9).fill(0));
+  };
+
   // 生成新谜题 - 根据难度选择生成方式
   const generateNewPuzzle = async (targetDifficulty = difficulty) => {
     console.log('SudokuContext: 生成新谜题', { targetDifficulty });
     try {
-      // 停止当前计时器并重置状态
-    setTimerActive(false);
-    setTimeElapsed(0);
-    setGameCompleted(false);
-    setHistory([]);
-    setHistoryIndex(-1);
-    setErrorCount(0); // 重置错误计数
-    setCumulativeErrorCount(0); // 重置累计错误次数
-    setIncorrectCells(new Set()); // 重置错误单元格
-      setPencilNotes({}); // 重置候选数/标注，修复残留问题
+      // 更严格地重置所有状态，确保完全清理
+      // 首先重置所有可能影响界面显示的状态
+      setCurrentBoard(createEmptyBoard()); // 立即设置为空棋盘
+      setPencilNotes({}); // 重置候选数/标注
+      setIsPencilMode(false); // 重置铅笔模式
+      setCandidates({}); // 重置候选数数据
+      setActiveTechniques([]); // 重置活跃技巧
+      setHighlightedCells([]); // 重置高亮单元格
+      
+      // 然后重置游戏状态相关变量
+      setTimerActive(false);
+      setTimeElapsed(0);
+      setGameCompleted(false);
+      setHistory([]);
+      setHistoryIndex(-1);
+      setErrorCount(0); // 重置错误计数
+      setCumulativeErrorCount(0); // 重置累计错误次数
+      setIncorrectCells(new Set()); // 重置错误单元格
+      setLockedCells(new Set()); // 重置锁定单元格
+      
+      // 确保gameStarted状态为true
+      setGameStarted(true);
+      
+      // 添加短暂延迟，确保状态更新完成后再生成新谜题
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       
       // 使用指定难度或当前难度
       if (targetDifficulty !== difficulty) {
@@ -1122,16 +1158,56 @@ export const SudokuContextProvider = ({ children }) => {
   };
 
   // 识别可应用的技巧
-  const identifyTechniques = async () => {
+  const identifyTechniques = useCallback(() => {
     try {
-      const result = await api.identifyTechniques(currentBoard);
-      setActiveTechniques(result.techniques);
-      return result.techniques;
+      // 使用本地实现的技巧识别功能
+      const techniques = identifyAllTechniques(currentBoard, pencilNotes);
+      setActiveTechniques(techniques);
+      return techniques;
     } catch (error) {
       console.error('识别技巧失败:', error);
       return [];
     }
-  };
+  }, [currentBoard, pencilNotes]);
+  
+  // 应用技巧
+  const applyTechniqueToBoard = useCallback((technique) => {
+    try {
+      // 调用技巧应用函数
+      const result = applyTechnique(technique, currentBoard);
+      
+      // 如果应用成功，更新棋盘
+      if (result && result.board) {
+        const { row, col, value } = result.operation;
+        
+        // 保存当前的铅笔模式状态
+        const currentPencilMode = isPencilMode;
+        
+        // 临时关闭铅笔模式，确保技巧应用始终填入正确数字
+        if (currentPencilMode) {
+          setIsPencilMode(false);
+        }
+        
+        // 使用现有的fillCell方法来更新棋盘，这样可以确保历史记录和锁定单元格等状态被正确维护
+        fillCell(row, col, value);
+        
+        // 恢复原始铅笔模式状态
+        if (currentPencilMode) {
+          setIsPencilMode(true);
+        }
+        
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('应用技巧失败:', error);
+      toast.error('应用技巧失败，请重试', {
+        position: 'top-right',
+        autoClose: 2000
+      });
+      return false;
+    }
+  }, [fillCell, currentBoard, isPencilMode]);
 
   // 切换计时器活跃状态
   const toggleTimer = () => {
@@ -1245,51 +1321,53 @@ export const SudokuContextProvider = ({ children }) => {
   };
   
   const value = {
-    currentPuzzle,
-    currentBoard,
-    originalPuzzle, // 导出原始谜题，用于区分预填数字
-    solution,
-    difficulty,
-    gameStarted,
-    gameCompleted,
-    timeElapsed,
-    timerActive: timerActive,
-    isTimerActive: timerActive,
-    selectedCell,
-    candidates,
-    highlightedCells,
-    activeTechniques,
-    lockedCells,
-    history,
-    historyIndex,
-    errorCount: cumulativeErrorCount, // 使用累计错误次数
-    incorrectCells,
-    isPencilMode, // 添加铅笔模式状态
-    pencilNotes, // 添加铅笔标注数据
-    
-    setDifficulty,
-    setSelectedCell,
-    setHighlightedCells,
-    setTimerActive,
-    toggleTimer, // 添加切换计时器方法
-    togglePencilMode, // 添加切换铅笔模式方法
-    togglePencilNote, // 添加切换铅笔标注方法
-    clearPencilNotes, // 添加清除铅笔标注方法
-    fillAllCandidates, // 添加填充所有候选数方法
-    
-    loadSavedProgress,
-    saveGameProgress,
-    startNewGame,
-    generateNewPuzzle,
-    fillCell,
-    clearCell,
-    undo,
-    redo,
-    getCandidates,
-    identifyTechniques,
-    getHint,
-    validateCellInput
-  };
+      // 状态
+      currentPuzzle,
+      currentBoard, // 确保ControlPanel组件可以访问
+      originalPuzzle, // 导出原始谜题，用于区分预填数字
+      solution,
+      difficulty,
+      gameStarted, // 确保ControlPanel组件可以访问
+      gameCompleted,
+      timeElapsed,
+      timerActive: timerActive,
+      isTimerActive: timerActive,
+      selectedCell,
+      candidates, // 导出候选数数据
+      highlightedCells,
+      activeTechniques, // 导出活跃技巧
+      lockedCells,
+      history,
+      historyIndex,
+      errorCount: cumulativeErrorCount, // 使用累计错误次数
+      incorrectCells,
+      isPencilMode, // 添加铅笔模式状态
+      pencilNotes, // 添加铅笔标注数据
+      
+      // 方法
+      setDifficulty,
+      setSelectedCell,
+      setHighlightedCells,
+      setTimerActive,
+      toggleTimer, // 添加切换计时器方法
+      togglePencilMode, // 添加切换铅笔模式方法
+      togglePencilNote, // 添加切换铅笔标注方法
+      clearPencilNotes, // 添加清除铅笔标注方法
+      fillAllCandidates, // 添加填充所有候选数方法
+      loadSavedProgress,
+      saveGameProgress,
+      startNewGame,
+      generateNewPuzzle,
+      fillCell,
+      clearCell,
+      undo,
+      redo,
+      getCandidates,
+      identifyTechniques,
+      applyTechniqueToBoard,
+      getHint,
+      validateCellInput
+    };
 
   return <SudokuContext.Provider value={value}>{children}</SudokuContext.Provider>;
 };

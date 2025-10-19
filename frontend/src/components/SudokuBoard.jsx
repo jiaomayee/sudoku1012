@@ -120,6 +120,10 @@ const Cell = styled.div`
   &.same-note {
     background-color: #fff3cd;
   }
+  
+  &.technique-indicator {
+    background-color: #ffeb3b;
+  }
 
   /* 边缘单元格处理 */
   ${props => props.row === 0 && `border-top: none;`}
@@ -340,11 +344,21 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
     if (isCellPrefilled(value, row, col)) classes.push('prefilled');
     if (isCellError(value) || isCellIncorrect(row, col)) classes.push('error');
     
-    // 检查是否在高亮单元格列表中（来自点击数字按钮的高亮）
+    // 检查是否在高亮单元格列表中
     if (!selectedCell && highlightedCells && Array.isArray(highlightedCells)) {
       const isHighlighted = highlightedCells.some(cell => cell.row === row && cell.col === col);
       if (isHighlighted) {
-        classes.push('highlighted');
+        // 检查是否是技巧指示高亮
+        const isTechniqueIndicator = highlightedCells.some(cell => 
+          cell.row === row && 
+          cell.col === col && 
+          cell.techniqueIndicator
+        );
+        if (isTechniqueIndicator) {
+          classes.push('technique-indicator');
+        } else {
+          classes.push('highlighted');
+        }
       }
     }
     

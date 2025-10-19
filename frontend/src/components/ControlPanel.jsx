@@ -25,7 +25,7 @@ const ControlPanel = ({
   const [selectedTechnique, setSelectedTechnique] = useState(null);
   
   // 从上下文获取技巧和应用技巧的方法
-  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard } = useSudoku();
+  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells } = useSudoku();
   
   // 保存找到的技巧
   const [availableTechniques, setAvailableTechniques] = useState([]);
@@ -42,6 +42,10 @@ const ControlPanel = ({
     setTechniqueSteps([]);
     // 清空可用技巧列表
     setAvailableTechniques([]);
+    // 清除高亮
+    if (setHighlightedCells) {
+      setHighlightedCells([]);
+    }
   }, [gameStarted, currentBoard]); // 当游戏重新开始或棋盘变化时触发
   
   // 查找技巧的函数
@@ -101,6 +105,16 @@ const ControlPanel = ({
     }
     
     setTechniqueSteps(steps);
+    
+    // 设置技巧指示高亮 - 将发现的填入数字单元格设置黄色背景色
+    if (setHighlightedCells) {
+      setHighlightedCells([{
+        row: technique.row,
+        col: technique.col,
+        techniqueIndicator: true
+      }]);
+    }
+    
     // 切换到解题步骤标签页
     setActiveTab('solution');
   };
@@ -110,7 +124,11 @@ const ControlPanel = ({
     if (selectedTechnique) {
       const success = applyTechniqueToBoard(selectedTechnique);
       if (success) {
-        // 应用成功后，重新查找可用技巧
+        // 应用成功后，清除高亮
+        if (setHighlightedCells) {
+          setHighlightedCells([]);
+        }
+        // 重新查找可用技巧
         findTechniques();
       }
     }

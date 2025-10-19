@@ -903,7 +903,7 @@ const ControlPanel = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                      boxShadow: '0 3px 6px rgba(0, 0, 0, 0.2)'
                     }}
                   >
                     应用技巧

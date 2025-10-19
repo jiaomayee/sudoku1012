@@ -122,7 +122,7 @@ const Cell = styled.div`
   }
   
   &.technique-indicator {
-    background-color: #ffeb3b;
+    background-color: #ffeaa7;
   }
 
   /* 边缘单元格处理 */

@@ -352,6 +352,38 @@ const GlobalStyle = createGlobalStyle`
       font-size: 16px;
     }
   }
+
+  /* 数字按钮样式 - 超高优先级 - 修复横屏模式字体小的问题 */
+  .control-panel button.number-button, 
+  .control-panel button.number-button span {
+    font-size: 60px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    /* 使用内联元素和强制字体大小 */
+    display: inline-block;
+    min-height: 1em;
+  }
+  
+  /* 特别针对横屏模式的数字按钮 */
+  @media (min-width: 577px) {
+    .control-panel .number-pad button.number-button, 
+    .control-panel .number-pad button.number-button span {
+      font-size: 60px !important;
+      font-weight: 400 !important; /* 从500改为400，使字体更细 */
+      line-height: 1 !important;
+      /* 增加更具体的选择器来提高优先级 */
+      font-size: 60px !important;
+      /* 确保按钮足够大以容纳大字体 */
+      min-height: 80px;
+    }
+  }
+  
+  /* 全局覆盖任何可能影响的样式 */
+  .number-button span {
+    font-size: 60px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+  }
 `;
 
 // 公共样式组件

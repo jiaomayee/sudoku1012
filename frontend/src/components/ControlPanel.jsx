@@ -215,7 +215,13 @@ const ControlPanel = ({
                 justifyContent: 'center',
                 position: 'relative'
               }}
-              onClick={() => setActiveTab('techniques')}
+              onClick={() => {
+                setActiveTab('techniques');
+                // 取消选中单元格
+                if (setSelectedCell) {
+                  setSelectedCell(null);
+                }
+              }}
             >
               技巧
             </button>

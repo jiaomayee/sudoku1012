@@ -108,11 +108,15 @@ const ControlPanel = ({
     
     // 设置技巧指示高亮 - 使用真实的技巧机会数据
     if (setHighlightedCells) {
+      // 从技巧对象中提取候选数信息
+      const notes = technique.notes || (Array.isArray(technique.cells) && technique.cells.length > 0 ? [technique.value] : []);
+      
       setHighlightedCells([{
         row: technique.row,
         col: technique.col,
         techniqueIndicator: true,
-        number: technique.value // 添加number属性，用于候选数高亮
+        number: technique.value,
+        notes: notes // 添加notes属性，用于候选数高亮显示
       }]);
     }
     

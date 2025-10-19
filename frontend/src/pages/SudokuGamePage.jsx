@@ -414,6 +414,9 @@ const SudokuGamePage = () => {
 
   // 处理获取提示
   const handleGetHint = useCallback(async () => {
+    // 取消选中单元格
+    setSelectedCell(null);
+    
     if (getHint) {
       try {
         const hint = await getHint();
@@ -429,10 +432,13 @@ const SudokuGamePage = () => {
         console.error('获取提示失败:', error);
       }
     }
-  }, [getHint, setHighlightedCells]);
+  }, [getHint, setHighlightedCells, setSelectedCell]);
   
   // 技巧提示 - 识别并显示可用技巧
   const handleShowTechniques = useCallback(() => {
+    // 取消选中单元格
+    setSelectedCell(null);
+    
     const techniques = identifyTechniques();
     if (techniques.length > 0) {
       toast.info(`找到${techniques.length}个可用技巧，可在技巧标签页中查看详情`, {
@@ -445,7 +451,7 @@ const SudokuGamePage = () => {
         autoClose: 2000
       });
     }
-  }, [identifyTechniques]);
+  }, [identifyTechniques, setSelectedCell]);
 
   // 处理候选数按钮点击
   const handleToggleNotes = () => {

@@ -390,13 +390,16 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
         classes.push('same-number');
       }
       
-      // 高亮具有相同标注数字的单元格
+      // 移除高亮相同候选数的功能，避免多个单元格背景变黄
+      // 注释掉以下代码，因为根据软件要求，不需要这个逻辑
+      /*
       if (currentCellNotes.length > 0 && selectedCellNotes.length > 0) {
         const hasCommonNote = currentCellNotes.some(note => selectedCellNotes.includes(note));
         if (hasCommonNote) {
           classes.push('same-note');
         }
       }
+      */
       
       // 高亮同行、同列、同宫的单元格
       if (isSameRegion(row, col, selectedCell.row, selectedCell.col)) {

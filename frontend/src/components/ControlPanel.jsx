@@ -111,8 +111,8 @@ const ControlPanel = ({
       setHighlightedCells([{
         row: technique.row,
         col: technique.col,
-        number: technique.value, // 添加number属性，用于高亮相同数字的候选数
-        techniqueIndicator: true
+        techniqueIndicator: true,
+        number: technique.value // 添加number属性，用于候选数高亮
       }]);
     }
     

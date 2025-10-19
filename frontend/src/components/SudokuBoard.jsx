@@ -193,7 +193,7 @@ const Cell = styled.div`
 `;
 
 // 铅笔模式下的数字标注组件
-const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
+const PencilNotes = ({ notes = [] }) => {
   // 计算实际包含的数字数量
   const activeNotes = Array.isArray(notes) ? 
     notes : 
@@ -250,42 +250,30 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
   
   return (
     <div style={getContainerStyle()}>
-      {activeNotes.map((number) => {
-        const isHighlighted = highlightedNumber === number;
-        // 技巧指示模式下，与计划填入数字相同的候选数设为绿色背景
-        const isTechniqueNumber = typeof highlightedNumber === 'number' && number === highlightedNumber;
-        
-        return (
-          <div
-            key={number}
-            style={{
-              ...numberPositions[number],
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: fontSize,
-              fontWeight: isHighlighted ? 'bold' : '500',
-              // 技巧数字使用绿色，其他高亮数字使用蓝色
-              color: isTechniqueNumber ? '#ffffff' : (isHighlighted ? '#007bff' : '#4A6FA5'),
-              // 圆形背景
-              backgroundColor: isTechniqueNumber ? '#2ecc71' : (isHighlighted ? '#d1ecf1' : '#f0f0f0'),
-              borderRadius: '50%',
-              width: '60%',
-              height: '60%',
-              margin: '0',
-              padding: '0',
-              lineHeight: '0.82',
-              letterSpacing: '-0.04em',
-              boxSizing: 'border-box',
-              overflow: 'visible',
-              transform: 'scale(1.07)',
-              textAlign: 'center'
-            }}
-          >
-            {number}
-          </div>
-        );
-      })}
+      {activeNotes.map((number) => (
+        <div
+          key={number}
+          style={{
+            ...numberPositions[number],
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: fontSize,
+            fontWeight: '500',
+            color: '#4A6FA5',
+            backgroundColor: 'transparent',
+            margin: '0',
+            padding: '0',
+            lineHeight: '0.82',
+            letterSpacing: '-0.04em',
+            boxSizing: 'border-box',
+            overflow: 'visible',
+            textAlign: 'center'
+          }}
+        >
+          {number}
+        </div>
+      ))}
     </div>
   );
 };
@@ -354,17 +342,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
     if (!selectedCell && highlightedCells && Array.isArray(highlightedCells)) {
       const isHighlighted = highlightedCells.some(cell => cell.row === row && cell.col === col);
       if (isHighlighted) {
-        // 检查是否是技巧指示高亮
-        const isTechniqueIndicator = highlightedCells.some(cell => 
-          cell.row === row && 
-          cell.col === col && 
-          cell.techniqueIndicator
-        );
-        if (isTechniqueIndicator) {
-          classes.push('technique-indicator');
-        } else {
-          classes.push('highlighted');
-        }
+        classes.push('highlighted');
       }
     }
     
@@ -418,17 +396,11 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
           
           // 计算是否需要高亮标注数字
           let highlightedNumber = null;
-          
-          // 检查是否有高亮的数字（来自点击数字按钮）
-          if (!selectedCell && highlightedCells && Array.isArray(highlightedCells) && highlightedCells.length > 0) {
-            // 使用第一个高亮单元格的数字作为要高亮的候选数
-            highlightedNumber = highlightedCells[0].number;
-          } 
           // 严格条件检查：
           // 1. 确保选中单元格存在且有有效坐标
           // 2. 确保选中单元格有实际数字（非0）
           // 3. 确保数字有效（非error）
-          else if (selectedCell && 
+          if (selectedCell && 
               selectedCell.row !== undefined && 
               selectedCell.col !== undefined && 
               displayBoard[selectedCell.row] && 
@@ -461,7 +433,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
                 {value && value !== 0 && value !== 'error' ? (
                   value
                 ) : hasNotes ? (
-                  <PencilNotes notes={cellNotes} highlightedNumber={highlightedNumber} />
+                  <PencilNotes notes={cellNotes} />
                 ) : (
                   ''
                 )}

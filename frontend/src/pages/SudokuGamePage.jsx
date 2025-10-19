@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SudokuBoard from '../components/SudokuBoard';
 import ControlPanel from '../components/ControlPanel';
 import NavigationBlock from '../components/NavigationBlock';
 import DifficultySelectModal from '../components/DifficultySelectModal';
+import TechniqueOverlay from '../components/TechniqueOverlay';
 import { useSudoku } from '../context/SudokuContext';
+import { toast } from 'react-toastify';
 import { useLoading } from '../context/LoadingContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faPen } from '@fortawesome/free-solid-svg-icons';
@@ -25,6 +27,7 @@ const SudokuGamePage = () => {
   const isTimerActive = sudokuContext?.isTimerActive ?? true;
   const isPencilMode = sudokuContext?.isPencilMode ?? false;
   const setSelectedCell = sudokuContext?.setSelectedCell || (() => {});
+  const setHighlightedCells = sudokuContext?.setHighlightedCells || (() => {});
   const setDifficulty = sudokuContext?.setDifficulty || (() => {});
   const setBoard = sudokuContext?.setBoard || (() => {});
   const setSolution = sudokuContext?.setSolution || (() => {});
@@ -32,11 +35,14 @@ const SudokuGamePage = () => {
   const togglePencilMode = sudokuContext?.togglePencilMode || (() => {});
   const toggleTimer = sudokuContext?.toggleTimer || (() => {});
   const getHint = sudokuContext?.getHint || (() => {});
+  const identifyTechniques = sudokuContext?.identifyTechniques || (() => []);
   const openSettings = sudokuContext?.openSettings || (() => {});
   const fillCell = sudokuContext?.fillCell || (() => {});
   const fillAllCandidates = sudokuContext?.fillAllCandidates || (() => {});
   const undo = sudokuContext?.undo || (() => {}); // 添加undo函数引用
   const solution = sudokuContext?.solution || Array(9).fill().map(() => Array(9).fill(0)); // 获取解决方案用于计算剩余数字
+  const highlightedCells = sudokuContext?.highlightedCells || [];
+  const pencilNotes = sudokuContext?.pencilNotes || [];
   
   // 计算每个数字的剩余未填入数量
   const calculateRemainingNumbers = () => {
@@ -407,11 +413,39 @@ const SudokuGamePage = () => {
   };
 
   // 处理获取提示
-  const handleGetHint = () => {
+  const handleGetHint = useCallback(async () => {
     if (getHint) {
-      getHint();
+      try {
+        const hint = await getHint();
+        if (hint && hint.row !== undefined && hint.col !== undefined && hint.value !== undefined) {
+          // 高亮提示的单元格
+          setHighlightedCells([[hint.row, hint.col]]);
+          toast.info(`提示：在(${hint.row + 1},${hint.col + 1})填入${hint.value}`, {
+            position: 'top-right',
+            autoClose: 2000
+          });
+        }
+      } catch (error) {
+        console.error('获取提示失败:', error);
+      }
     }
-  };
+  }, [getHint, setHighlightedCells]);
+  
+  // 技巧提示 - 识别并显示可用技巧
+  const handleShowTechniques = useCallback(() => {
+    const techniques = identifyTechniques();
+    if (techniques.length > 0) {
+      toast.info(`找到${techniques.length}个可用技巧，可在技巧标签页中查看详情`, {
+        position: 'top-right',
+        autoClose: 2000
+      });
+    } else {
+      toast.info('当前棋盘没有找到可用技巧，请尝试其他解法或获取提示', {
+        position: 'top-right',
+        autoClose: 2000
+      });
+    }
+  }, [identifyTechniques]);
 
   // 处理候选数按钮点击
   const handleToggleNotes = () => {
@@ -464,6 +498,7 @@ const SudokuGamePage = () => {
                 onNewGame={handleNewGame}
                 onPauseTimer={handlePauseTimer}
                 onGetHint={handleGetHint}
+                onShowTechniques={handleShowTechniques}
                 onToggleNotes={handleToggleNotes}
                 onSettings={handleSettings}
                 isNotesMode={isPencilMode}
@@ -523,6 +558,7 @@ const SudokuGamePage = () => {
                   onNewGame={handleNewGame}
                   onPauseTimer={handlePauseTimer}
                   onGetHint={handleGetHint}
+                  onShowTechniques={handleShowTechniques}
                   onToggleNotes={handleToggleNotes}
                   onSettings={handleSettings}
                   isNotesMode={isPencilMode}
@@ -547,16 +583,22 @@ const SudokuGamePage = () => {
             {/* 底部区域：数独棋盘和操作区块 */}
             <div className="bottom-row">
               {/* 数独棋盘 - 左侧，作为尺寸基准 */}
-              <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()}>
+              <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
                 <SudokuBoard
                   board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
                   originalPuzzle={originalPuzzle}
                   selectedCell={selectedCell}
-                  highlightedCells={sudokuContext?.highlightedCells || []}
+                  highlightedCells={highlightedCells.filter(cell => !cell.techniqueIndicator)}
                   incorrectCells={sudokuContext?.incorrectCells || new Set()}
                   onCellClick={handleCellClick}
                   isPencilMode={isPencilMode}
-                  pencilNotes={sudokuContext?.pencilNotes || []}
+                  pencilNotes={pencilNotes}
+                />
+                {/* 外挂式技巧高亮层 */}
+                <TechniqueOverlay 
+                  highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
+                  boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                  pencilNotes={pencilNotes}
                 />
               </div>
               

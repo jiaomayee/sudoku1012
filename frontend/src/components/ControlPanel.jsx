@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 // 移除styled-components导入
 import { useTheme } from '../context/ThemeContext';
+import { useSudoku } from '../context/SudokuContext';
 
 // 清理所有残留的CSS代码
 
@@ -23,57 +24,96 @@ const ControlPanel = ({
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
   const [selectedTechnique, setSelectedTechnique] = useState(null);
   
-  // 模拟可用技巧数据
-  const availableTechniques = [
-    {
-      id: 'naked_single',
-      name: '唯一数法',
-      description: '某个单元格只有一个可能的数字可填'
-    },
-    {
-      id: 'hidden_single',
-      name: '隐性唯一数法',
-      description: '某一行/列/宫格中某个数字只能填在一个单元格'
-    },
-    {
-      id: 'naked_pair',
-      name: '数对法',
-      description: '两个单元格中只有两个可能的数字'
-    },
-    {
-      id: 'hidden_pair',
-      name: '隐性数对法',
-      description: '某一行/列/宫格中两个数字只能填在两个单元格'
-    }
-  ];
+  // 从上下文获取技巧和应用技巧的方法
+  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard } = useSudoku();
   
-  // 模拟技巧解题步骤
-  const techniqueSteps = {
-    naked_single: [
-      '在宫格(1,2)中，检查所有可能的数字',
-      '发现该单元格只能填入数字5',
-      '确认行、列、宫格中没有其他5'
-    ],
-    hidden_single: [
-      '查看第一行中数字7的可能位置',
-      '发现数字7只能填在单元格(1,5)',
-      '即使该单元格还有其他可能数字，但数字7只能填在这里'
-    ],
-    naked_pair: [
-      '在第二行中，单元格(2,3)和(2,7)中都只有数字3和8',
-      '这两个单元格形成数对，可以排除该行其他单元格中的3和8',
-      '在该行的其他单元格中删除候选数3和8'
-    ],
-    hidden_pair: [
-      '在第三宫格中，数字4和6只能出现在两个单元格中',
-      '这两个单元格形成隐性数对',
-      '可以删除这两个单元格中的其他候选数'
-    ]
+  // 保存找到的技巧
+  const [availableTechniques, setAvailableTechniques] = useState([]);
+  
+  // 保存选中技巧的详细步骤
+  const [techniqueSteps, setTechniqueSteps] = useState([]);
+  
+  // 监听游戏开始状态变化，确保新建游戏时显示键盘标签页
+  useEffect(() => {
+    // 当游戏状态变化时，重置为键盘标签页
+    setActiveTab('keyboard');
+    // 清除选中的技巧和步骤
+    setSelectedTechnique(null);
+    setTechniqueSteps([]);
+    // 清空可用技巧列表
+    setAvailableTechniques([]);
+  }, [gameStarted, currentBoard]); // 当游戏重新开始或棋盘变化时触发
+  
+  // 查找技巧的函数
+  const findTechniques = useCallback(() => {
+    if (identifyTechniques && currentBoard) {
+      try {
+        const techniques = identifyTechniques();
+        setAvailableTechniques(techniques || []);
+      } catch (error) {
+        console.error('查找技巧失败:', error);
+        setAvailableTechniques([]);
+      }
+    } else {
+      setAvailableTechniques([]);
+    }
+  }, [identifyTechniques, currentBoard]);
+  
+  // 当技巧标签页激活时，查找可用技巧
+  useEffect(() => {
+    if (activeTab === 'techniques' && gameStarted && currentBoard) {
+      findTechniques();
+    }
+  }, [activeTab, findTechniques, gameStarted, currentBoard]);
+  
+  // 当游戏状态变化时，重置技巧数据
+  useEffect(() => {
+    setAvailableTechniques([]);
+  }, [gameStarted, currentBoard]); // 游戏重新开始时清空技巧列表
+
+  // 处理技巧选择
+  const handleTechniqueSelect = (technique) => {
+    setSelectedTechnique(technique);
+    
+    // 根据选中的技巧类型生成解题步骤
+    const steps = [];
+    const row = technique.row + 1;
+    const col = technique.col + 1;
+    const position = `R${row}C${col}`;
+    
+    if (technique.type === 'nakedSingle') {
+      steps.push(
+        { step: 1, description: `查看单元格(${row},${col})`, highlight: position },
+        { step: 2, description: '检查其所在行、列和宫已存在的数字', highlight: `R${row}, C${col}, B${Math.floor((row - 1) / 3) * 3 + Math.floor((col - 1) / 3) + 1}` },
+        { step: 3, description: `发现该单元格只剩下数字${technique.value}可以填入`, highlight: position },
+        { step: 4, description: `使用唯一数法填入数字${technique.value}`, highlight: position }
+      );
+    } else {
+      // 隐性唯一数法步骤
+      const regionType = technique.type.includes('Row') ? '行' : (technique.type.includes('Col') ? '列' : '宫');
+      const regionNum = technique.type.includes('Row') ? row : (technique.type.includes('Col') ? col : Math.floor((row - 1) / 3) * 3 + Math.floor((col - 1) / 3) + 1);
+      
+      steps.push(
+        { step: 1, description: `检查数字${technique.value}在${regionType}${regionNum}中的可能位置`, highlight: '' },
+        { step: 2, description: `发现在${regionType}${regionNum}中，数字${technique.value}只能填入单元格(${row},${col})`, highlight: position },
+        { step: 3, description: `使用隐性唯一数法填入数字${technique.value}`, highlight: position }
+      );
+    }
+    
+    setTechniqueSteps(steps);
+    // 切换到解题步骤标签页
+    setActiveTab('solution');
   };
 
-  const handleTechniqueSelect = (techniqueId) => {
-    setSelectedTechnique(techniqueId);
-    setActiveTab('solution');
+  // 应用技巧
+  const handleApplyTechnique = () => {
+    if (selectedTechnique) {
+      const success = applyTechniqueToBoard(selectedTechnique);
+      if (success) {
+        // 应用成功后，重新查找可用技巧
+        findTechniques();
+      }
+    }
   };
 
   return (
@@ -776,72 +816,143 @@ const ControlPanel = ({
           
           {activeTab === 'techniques' && (
             <div style={{ overflowY: 'auto', padding: '8px' }}>
-              <h4 style={{ margin: '0 0 12px 0', color: '#34495e', fontSize: '16px', fontWeight: '600' }}>解题技巧</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {availableTechniques.map(technique => (
-                  <div 
-                    key={technique.id}
-                    onClick={() => handleTechniqueSelect(technique.id)}
-                    style={{
-                      padding: '12px',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '8px',
-                      border: '1px solid #e9ecef',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      ':hover': {
-                        backgroundColor: '#e9ecef',
-                        borderColor: '#3498db'
-                      }
-                    }}
-                  >
-                    <div style={{ fontWeight: '600', color: '#34495e', marginBottom: '4px' }}>{technique.name}</div>
-                    <div style={{ fontSize: '14px', color: '#7f8c8d' }}>{technique.description}</div>
-                  </div>
-                ))}
-              </div>
+              <h4 style={{ margin: '0 0 12px 0', color: '#34495e', fontSize: '16px', fontWeight: '600' }}>可用技巧</h4>
+              {availableTechniques.length === 0 ? (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '20px', 
+                  color: '#7f8c8d',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  当前棋盘没有找到可用技巧
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                  {availableTechniques.map((technique, index) => {
+                    const row = technique.row + 1;
+                    const col = technique.col + 1;
+                    return (
+                      <div 
+                        key={index}
+                        onClick={() => handleTechniqueSelect(technique)}
+                        style={{
+                          padding: '12px',
+                          backgroundColor: '#f8f9fa',
+                          borderRadius: '8px',
+                          border: '1px solid #e9ecef',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#e9ecef';
+                          e.currentTarget.style.borderColor = '#3498db';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = '#f8f9fa';
+                          e.currentTarget.style.borderColor = '#e9ecef';
+                        }}
+                      >
+                        <div style={{ fontWeight: '600', color: '#34495e', marginBottom: '4px' }}>{technique.description}</div>
+                        <div style={{ fontSize: '14px', color: '#7f8c8d' }}>位置: ({row},{col})</div>
+                        <div style={{ fontSize: '14px', color: '#7f8c8d' }}>值: {technique.value}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              <button 
+                onClick={findTechniques}
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  backgroundColor: '#3498db',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+              >
+                刷新技巧列表
+              </button>
             </div>
           )}
           
-          {activeTab === 'solution' && selectedTechnique && (
+          {activeTab === 'solution' && (
             <div style={{ overflowY: 'auto', padding: '8px' }}>
-              <h4 style={{ margin: '0 0 12px 0', color: '#34495e', fontSize: '16px', fontWeight: '600' }}>
-                {availableTechniques.find(t => t.id === selectedTechnique)?.name} 解题步骤
-              </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {techniqueSteps[selectedTechnique].map((step, index) => (
-                  <div 
-                    key={index}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <h4 style={{ margin: 0, color: '#34495e', fontSize: '16px', fontWeight: '600' }}>
+                  解题步骤
+                </h4>
+                {selectedTechnique && (
+                  <button 
+                    onClick={handleApplyTechnique}
                     style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '12px',
-                      padding: '12px',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '8px',
-                      border: '1px solid #e9ecef'
+                      width: '120px',
+                      height: '36px',
+                      backgroundColor: '#2ecc71',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '600'
                     }}
                   >
-                    <div style={{
-                      minWidth: '24px',
-                      height: '24px',
-                      borderRadius: '50%',
-                      backgroundColor: '#3498db',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '14px',
-                      fontWeight: 'bold'
-                    }}>
-                      {index + 1}
-                    </div>
-                    <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5' }}>
-                      {step}
-                    </div>
-                  </div>
-                ))}
+                    应用技巧
+                  </button>
+                )}
               </div>
+              {selectedTechnique ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
+                  {techniqueSteps.map((step) => (
+                    <div 
+                      key={step.step}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
+                        padding: '12px',
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: '8px',
+                        border: '1px solid #e9ecef'
+                      }}
+                    >
+                      <div style={{
+                        minWidth: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        backgroundColor: '#3498db',
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                      }}>
+                        {step.step}
+                      </div>
+                      <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5' }}>
+                        {step.description}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '20px', 
+                  color: '#7f8c8d',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  border: '1px solid #e9ecef'
+                }}>
+                  请先从技巧列表中选择一个技巧
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -151,6 +151,44 @@ const SudokuGamePage = () => {
     return difficultyNames[difficulty] || difficulty;
   };
   
+  // 测试技巧指示功能 - 生成模拟的技巧机会
+  const handleTestTechnique = () => {
+    // 取消选中任何单元格
+    setSelectedCell(null);
+    
+    // 随机选择一个空单元格作为技巧目标
+    const emptyCells = [];
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        // 找到一个空单元格
+        if (currentBoard[row][col] === 0 && 
+            (!originalPuzzle || originalPuzzle[row][col] === 0)) {
+          emptyCells.push({ row, col });
+        }
+      }
+    }
+    
+    if (emptyCells.length > 0) {
+      // 随机选择一个空单元格
+      const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      
+      // 获取该单元格在解决方案中的正确数字
+      const correctNumber = solution[randomCell.row]?.[randomCell.col] || 
+                           (Math.floor(Math.random() * 9) + 1); // 如果没有解决方案，随机生成一个数字
+      
+      // 创建技巧高亮单元格对象
+      const techniqueCell = {
+        row: randomCell.row,
+        col: randomCell.col,
+        techniqueIndicator: true,
+        notes: [correctNumber] // 高亮候选数
+      };
+      
+      // 设置高亮单元格
+      setHighlightedCells([techniqueCell]);
+    }
+  };
+  
   // 处理数字选择
   const handleNumberSelect = (number) => {
     try {
@@ -622,6 +660,7 @@ const SudokuGamePage = () => {
                   isPencilMode={isPencilMode}
                   onTogglePencilMode={handleTogglePencilMode}
                   remainingNumbers={remainingNumbers} // 添加剩余数字数量
+                  onTestTechnique={handleTestTechnique} // 添加测试技巧指示功能
                 />
               </div>
             </div>

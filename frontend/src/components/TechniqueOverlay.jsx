@@ -71,7 +71,7 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
   );
 };
 
-// 完全隔离的技巧高亮覆盖层组件 - 重写为纯透明覆盖模式，避免与原系统交互
+// 完全隔离的技巧高亮覆盖层组件 - 实现基础技巧指示功能
 const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
   // 严格检查highlightedCells，确保它是有效的数组
   if (!highlightedCells || !Array.isArray(highlightedCells)) {
@@ -79,7 +79,6 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
   }
 
   // 极其严格的过滤逻辑，只处理明确的技巧高亮单元格
-  // 避免影响原系统的任何正常功能
   const techniqueCells = highlightedCells.filter(cell => 
     cell && 
     cell.techniqueIndicator === true && // 必须显式标记为技巧单元格
@@ -112,34 +111,38 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
         background: 'transparent' // 确保背景完全透明
       }}
     >
-      {/* 只渲染需要高亮的候选数，完全移除背景高亮，避免与原系统same-note样式冲突 */}
+      {/* 渲染技巧高亮单元格 - 为每个技巧单元格添加黄色背景高亮 */}
       {techniqueCells.map((cell) => {
         // 检查是否有候选数需要显示
         const hasNotes = cell.notes && Array.isArray(cell.notes) && cell.notes.length > 0;
         
-        // 只有当有候选数需要显示时才渲染元素
-        if (hasNotes) {
-          return (
-            <div
-              key={`tech-${cell.row}-${cell.col}`}
-              style={{
-                position: 'absolute',
-                left: `${cell.col * cellWidth}px`,
-                top: `${cell.row * cellWidth}px`,
-                width: `${cellWidth}px`,
-                height: `${cellWidth}px`,
-                pointerEvents: 'none',
-                zIndex: 30
-              }}
-            >
+        return (
+          <div
+            key={`tech-${cell.row}-${cell.col}`}
+            style={{
+              position: 'absolute',
+              left: `${cell.col * cellWidth}px`,
+              top: `${cell.row * cellWidth}px`,
+              width: `${cellWidth}px`,
+              height: `${cellWidth}px`,
+              pointerEvents: 'none',
+              zIndex: 20,
+              // 为技巧指示单元格添加黄色背景
+              backgroundColor: '#ffeaa7', // 黄色背景
+              border: '2px solid #f39c12', // 橙色边框增强视觉效果
+              boxSizing: 'border-box',
+              borderRadius: '4px'
+            }}
+          >
+            {/* 如果有候选数需要显示，则渲染技巧候选数 */}
+            {hasNotes && (
               <TechniquePencilNotes 
                 notes={cell.notes} 
                 cellWidth={cellWidth}
               />
-            </div>
-          );
-        }
-        return null; // 没有候选数时不渲染任何内容
+            )}
+          </div>
+        );
       })}
     </div>
   );

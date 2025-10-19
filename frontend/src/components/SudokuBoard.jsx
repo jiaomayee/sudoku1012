@@ -252,6 +252,9 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
     <div style={getContainerStyle()}>
       {activeNotes.map((number) => {
         const isHighlighted = highlightedNumber === number;
+        // 技巧指示模式下，与计划填入数字相同的候选数设为绿色背景
+        const isTechniqueNumber = typeof highlightedNumber === 'number' && number === highlightedNumber;
+        
         return (
           <div
             key={number}
@@ -262,8 +265,13 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               justifyContent: 'center',
               fontSize: fontSize,
               fontWeight: isHighlighted ? 'bold' : '500',
-              color: isHighlighted ? '#007bff' : '#4A6FA5',
-              backgroundColor: isHighlighted ? '#d1ecf1' : 'transparent',
+              // 技巧数字使用绿色，其他高亮数字使用蓝色
+              color: isTechniqueNumber ? '#ffffff' : (isHighlighted ? '#007bff' : '#4A6FA5'),
+              // 圆形背景
+              backgroundColor: isTechniqueNumber ? '#2ecc71' : (isHighlighted ? '#d1ecf1' : '#f0f0f0'),
+              borderRadius: '50%',
+              width: '60%',
+              height: '60%',
               margin: '0',
               padding: '0',
               lineHeight: '0.82',
@@ -271,9 +279,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
               boxSizing: 'border-box',
               overflow: 'visible',
               transform: 'scale(1.07)',
-              textAlign: 'center',
-              width: '100%',
-              height: '100%'
+              textAlign: 'center'
             }}
           >
             {number}

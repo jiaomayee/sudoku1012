@@ -25,7 +25,7 @@ const ControlPanel = ({
   const [selectedTechnique, setSelectedTechnique] = useState(null);
   
   // 从上下文获取技巧和应用技巧的方法
-  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells } = useSudoku();
+  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells, setSelectedCell } = useSudoku();
   
   // 保存找到的技巧
   const [availableTechniques, setAvailableTechniques] = useState([]);
@@ -111,6 +111,7 @@ const ControlPanel = ({
       setHighlightedCells([{
         row: technique.row,
         col: technique.col,
+        number: technique.value, // 添加number属性，用于高亮相同数字的候选数
         techniqueIndicator: true
       }]);
     }
@@ -127,6 +128,10 @@ const ControlPanel = ({
         // 应用成功后，清除高亮
         if (setHighlightedCells) {
           setHighlightedCells([]);
+        }
+        // 取消单元格选中状态
+        if (setSelectedCell) {
+          setSelectedCell(null);
         }
         // 重新查找可用技巧
         findTechniques();

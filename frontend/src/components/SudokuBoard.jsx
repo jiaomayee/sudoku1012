@@ -192,88 +192,118 @@ const Cell = styled.div`
   }
 `;
 
-// 铅笔模式下的数字标注组件
+// 原始的铅笔模式数字标注组件 - 恢复高亮功能
 const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
-  // 计算实际包含的数字数量
-  const activeNotes = Array.isArray(notes) ? 
-    notes : 
-    Object.keys(notes).filter(num => notes[num]).map(Number);
+  // 确保notes是数组且不为null或undefined
+  const activeNotes = Array.isArray(notes) ? notes : [];
   
-  // 使用固定的网格布局，确保所有单元格中的候选数位置保持一致
-  // 无论候选数有多少，都使用相同的网格结构
-  const getContainerStyle = () => {
-    return {
-      display: 'grid',
-      width: '100%',
-      height: '100%',
-      padding: '0px',
-      boxSizing: 'border-box',
-      // 固定的3x3网格，确保所有候选数位置一致
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gridTemplateRows: 'repeat(3, 1fr)',
-      gridGap: '0px'
-    };
+  // 容器样式 - 使用grid布局实现9宫格
+  const containerStyle = {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr 1fr',
+    gridTemplateRows: '1fr 1fr 1fr',
+    width: '100%',
+    height: '100%',
+    boxSizing: 'border-box'
   };
   
-  // 为每个数字创建固定的位置映射
-  const numberPositions = {
-    1: { gridRow: 1, gridColumn: 1 },
-    2: { gridRow: 1, gridColumn: 2 },
-    3: { gridRow: 1, gridColumn: 3 },
-    4: { gridRow: 2, gridColumn: 1 },
-    5: { gridRow: 2, gridColumn: 2 },
-    6: { gridRow: 2, gridColumn: 3 },
-    7: { gridRow: 3, gridColumn: 1 },
-    8: { gridRow: 3, gridColumn: 2 },
-    9: { gridRow: 3, gridColumn: 3 }
+  // 每个数字位置的基础样式
+  const baseItemStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // 动态计算字体大小，使用相对单位
+    fontSize: 'calc(var(--board-width) * 0.025)',
+    fontWeight: '500',
+    color: '#4A6FA5',
+    // 确保单元格内有适当的内边距
+    padding: '1px'
   };
   
-  // 为所有情况使用统一的字体大小，但根据屏幕方向响应式调整
-  const getFontSize = () => {
-    // 增加默认字体大小
-    let size = '0.92rem'; // 略微增大默认字体
-    
-    // 竖屏模式下略微增大字体大小
-    if (window.innerWidth <= 991) {
-      // 根据屏幕宽度进一步调整
-      if (window.innerWidth <= 576) {
-        size = '0.82rem'; // 小屏手机继续微调
-      } else {
-        size = '0.88rem'; // 一般竖屏设备继续微调
-      }
-    }
-    
-    return size;
+  // 高亮候选数的样式 - 与数字按钮颜色保持一致
+  const highlightedItemStyle = {
+    color: '#ffffff',
+    backgroundColor: '#3498db', // 与按钮数字选中颜色相同
+    borderRadius: '50%',
+    fontWeight: 'bold',
+    width: '80%',
+    height: '80%'
   };
-  
-  const fontSize = getFontSize();
   
   return (
-    <div style={getContainerStyle()}>
-      {activeNotes.map((number) => (
-        <div
-          key={number}
-          style={{
-            ...numberPositions[number],
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: fontSize,
-            fontWeight: '500',
-            color: highlightedNumber === number ? '#000000' : '#4A6FA5',
-            backgroundColor: highlightedNumber === number ? '#d1ecf1' : 'transparent',
-            margin: '0',
-            padding: '0',
-            lineHeight: '0.82',
-            letterSpacing: '-0.04em',
-            boxSizing: 'border-box',
-            overflow: 'visible',
-            textAlign: 'center'
-          }}
-        >
-          {number}
-        </div>
-      ))}
+    <div style={containerStyle}>
+      {/* 只渲染活跃的候选数 */}
+      {activeNotes.map((number) => {
+        // 计算每个数字在网格中的位置
+        const col = ((number - 1) % 3);
+        const row = Math.floor((number - 1) / 3);
+        
+        // 判断是否需要高亮此候选数
+        const isHighlighted = highlightedNumber && number === highlightedNumber;
+        
+        return (
+          <div
+            key={number}
+            style={{
+              ...baseItemStyle,
+              gridColumn: col + 1,
+              gridRow: row + 1,
+              // 如果是高亮数字，应用高亮样式
+              ...(isHighlighted && highlightedItemStyle)
+            }}
+          >
+            {number}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// 独立的技巧指示层组件 - 使用DOM叠加方式实现，完全独立于原系统
+const HintsLayer = ({ highlightedNumber = null }) => {
+  // 如果没有需要高亮的数字，不渲染任何内容
+  if (!highlightedNumber || highlightedNumber === 0 || highlightedNumber === 'error') {
+    return null;
+  }
+  
+  // 容器样式 - 使用绝对定位覆盖在单元格上
+  const containerStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none', // 确保不影响原有交互
+    zIndex: 10
+  };
+  
+  // 高亮圆圈样式 - 更合适的尺寸和样式
+  const hintStyle = {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.9rem',
+    fontWeight: 'bold',
+    color: '#ffffff',
+    backgroundColor: '#e74c3c',
+    borderRadius: '50%',
+    width: '25%',
+    height: '25%',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
+    border: '1px solid #ffffff',
+    zIndex: 100
+  };
+  
+  return (
+    <div style={containerStyle}>
+      <div style={hintStyle}>
+        {highlightedNumber}
+      </div>
     </div>
   );
 };
@@ -360,14 +390,13 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
         classes.push('same-number');
       }
       
-      // 移除这段代码，因为我们现在直接在PencilNotes组件中高亮标注数字本身，而不是整个单元格
       // 高亮具有相同标注数字的单元格
-      // if (currentCellNotes.length > 0 && selectedCellNotes.length > 0) {
-      //   const hasCommonNote = currentCellNotes.some(note => selectedCellNotes.includes(note));
-      //   if (hasCommonNote) {
-      //     classes.push('same-note');
-      //   }
-      // }
+      if (currentCellNotes.length > 0 && selectedCellNotes.length > 0) {
+        const hasCommonNote = currentCellNotes.some(note => selectedCellNotes.includes(note));
+        if (hasCommonNote) {
+          classes.push('same-note');
+        }
+      }
       
       // 高亮同行、同列、同宫的单元格
       if (isSameRegion(row, col, selectedCell.row, selectedCell.col)) {
@@ -394,10 +423,10 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
           const cellNotes = displayPencilNotes[cellKey] || [];
           const hasNotes = cellNotes.length > 0;
           
-          // 计算是否需要高亮标注数字
+          // 计算是否需要高亮数字（单元格数字和候选数）
           let highlightedNumber = null;
           
-          // 主要逻辑：检查选中单元格的数字是否应该高亮
+          // 逻辑1：选中预填入和用户填入正确数字的单元格时，相同数字的单元格和相同数字的候选数高亮
           if (selectedCell && 
               selectedCell.row !== undefined && 
               selectedCell.col !== undefined && 
@@ -406,18 +435,15 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
               
             const selectedCellValue = displayBoard[selectedCell.row][selectedCell.col];
             
-            // 放宽条件：只要有实际数字（非0）且非error，就触发高亮
-            // 这包括预填数字和用户填入的正确数字
+            // 如果选中单元格有有效数字
             if (selectedCellValue !== 0 && selectedCellValue !== 'error') {
               highlightedNumber = selectedCellValue;
             }
           }
           
-          // 额外检查：如果没有选中单元格，但通过数字按钮触发了高亮，
-          // highlightedCells数组中可能包含了需要高亮的数字信息
+          // 逻辑2：没有单元格被选中时，点击数字按钮，与其相同的数字和候选数高亮
           if (!highlightedNumber && highlightedCells && Array.isArray(highlightedCells) && highlightedCells.length > 0) {
             // 检查highlightedCells数组中是否包含数字信息
-            // 有些实现中，highlightedCells可能包含一个number属性来指示要高亮的数字
             const firstHighlighted = highlightedCells[0];
             if (firstHighlighted && firstHighlighted.number && firstHighlighted.number !== 0 && firstHighlighted.number !== 'error') {
               highlightedNumber = firstHighlighted.number;
@@ -436,6 +462,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
                 {value && value !== 0 && value !== 'error' ? (
                   value
                 ) : hasNotes ? (
+                  // 原有候选数系统 - 传递highlightedNumber以支持候选数高亮
                   <PencilNotes notes={cellNotes} highlightedNumber={highlightedNumber} />
                 ) : (
                   ''

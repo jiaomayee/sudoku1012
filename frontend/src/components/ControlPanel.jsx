@@ -541,7 +541,7 @@ const ControlPanel = ({
                           position: 'relative',
                           backgroundColor: selectedNumber === number || isPencilMode ? '#3498db' : '#ffffff',
                           color: selectedNumber === number || isPencilMode ? 'white' : '#3498db',
-                          border: isDisabled ? '1px solid #e0e0e0' : '1px solid #3498db',
+                          border: 'none',
                             
                           // 核心布局属性
                           display: 'flex',

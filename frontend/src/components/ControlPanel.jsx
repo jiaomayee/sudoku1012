@@ -893,7 +893,7 @@ const ControlPanel = ({
                     style={{
                       width: '120px',
                       height: '36px',
-                      backgroundColor: '#2ecc71',
+                      backgroundColor: '#3498db',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',

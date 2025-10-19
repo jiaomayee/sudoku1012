@@ -5,8 +5,8 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
   // 确保notes是数组且不为null或undefined
   const activeNotes = Array.isArray(notes) ? notes : [];
   
-  // 计算合适的字体大小
-  const fontSize = `${Math.max(10, cellWidth * 0.15)}px`;
+  // 计算更大的字体大小以提高可识别性
+  const fontSize = `${Math.max(12, cellWidth * 0.18)}px`;
   
   // 与原系统候选数位置精确对齐的映射
   const getNotePosition = (number) => {
@@ -57,8 +57,9 @@ const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
               color: '#ffffff',
               border: '1px solid #ffffff',
               boxShadow: 'none', // 移除阴影以避免渐变效果
-              width: `${cellWidth * 0.22}px`,
-              height: `${cellWidth * 0.22}px`,
+              width: `${cellWidth * 0.28}px`,
+              height: `${cellWidth * 0.28}px`,
+              lineHeight: `${cellWidth * 0.28}px`, // 确保文本垂直居中
               opacity: 1,
               pointerEvents: 'none' // 确保不干扰交互
             }}

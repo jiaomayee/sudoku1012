@@ -46,7 +46,7 @@ const LanguageButton = styled.button`
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   
   &:hover {
     background-color: ${props => props.theme?.primary ? `${props.theme.primary}11` : '#4a6cf711'};
@@ -76,6 +76,9 @@ const LanguageOption = styled.button`
   font-size: 12px;
   color: ${props => props.theme?.text || '#333333'};
   transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   
   &:hover {
     background-color: ${props => props.theme?.background || '#f5f5f5'};
@@ -89,7 +92,13 @@ const LanguageOption = styled.button`
 `;
 
 const LanguageIcon = styled.span`
-  font-size: 10px;
+  font-size: 14px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 `;
 
 const Navbar = () => {

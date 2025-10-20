@@ -159,7 +159,7 @@ const Navbar = () => {
     <Nav>
       <NavContainer>
         <Logo to="/">
-          <LogoIcon src="/sudoku-logo.svg" alt="Sudoku Logo" />
+          <LogoIcon src="/logo-main.svg" alt="Sudoku Logo" />
           SudokuTech
         </Logo>
         <LanguageSelector className="language-selector">

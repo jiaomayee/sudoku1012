@@ -36,10 +36,10 @@ const LanguageSelector = styled.div`
 
 const LanguageButton = styled.button`
   background-color: ${props => props.theme?.surface || '#ffffff'};
-  border: 1px solid ${props => props.theme?.primary || '#4a6cf7'};
+  border: none;
   color: ${props => props.theme?.text || '#333333'};
   padding: 8px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
@@ -47,10 +47,17 @@ const LanguageButton = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
   &:hover {
-    background-color: ${props => props.theme?.primary ? `${props.theme.primary}11` : '#4a6cf711'};
-    border-color: ${props => props.theme?.primary || '#4a6cf7'};
+    background-color: ${props => props.theme?.surfaceHover || '#f8f9fa'};
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 `;
 

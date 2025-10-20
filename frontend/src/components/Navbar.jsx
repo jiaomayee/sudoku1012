@@ -93,15 +93,12 @@ const LanguageOption = styled.button`
 `;
 
 const LanguageIcon = styled.span`
-  font-size: 18px;
+  font-size: 20px;
   width: 20px;
   height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
-  background-color: white;
-  border-radius: 2px;
 `;
 
 const Navbar = () => {
@@ -144,28 +141,26 @@ const Navbar = () => {
           SudokuTech
         </Logo>
         <LanguageSelector className="language-selector">
-          <LanguageButton onClick={toggleDropdown}>
-            <LanguageIcon>{selectedLanguage === 'zh' ? '🇨🇳' : '🇺🇸'}</LanguageIcon>
-            {selectedLanguage === 'zh' ? '中文' : 'English'}
-            <span>{isDropdownOpen ? '▲' : '▼'}</span>
-          </LanguageButton>
-          
-          {isDropdownOpen && (
-            <LanguageDropdown>
-              <LanguageOption 
-                className={selectedLanguage === 'zh' ? 'selected' : ''}
-                onClick={() => handleLanguageSelect('zh')}
-              >
-                <LanguageIcon>🇨🇳</LanguageIcon> 中文
-              </LanguageOption>
-              <LanguageOption 
-                className={selectedLanguage === 'en' ? 'selected' : ''}
-                onClick={() => handleLanguageSelect('en')}
-              >
-                <LanguageIcon>🇺🇸</LanguageIcon> English
-              </LanguageOption>
-            </LanguageDropdown>
-          )}
+            <LanguageButton onClick={toggleDropdown}>
+              🇨🇳 中文 {isDropdownOpen ? '▲' : '▼'}
+            </LanguageButton>
+            
+            {isDropdownOpen && (
+              <LanguageDropdown>
+                <LanguageOption 
+                  className={selectedLanguage === 'zh' ? 'selected' : ''}
+                  onClick={() => handleLanguageSelect('zh')}
+                >
+                  🇨🇳 中文
+                </LanguageOption>
+                <LanguageOption 
+                  className={selectedLanguage === 'en' ? 'selected' : ''}
+                  onClick={() => handleLanguageSelect('en')}
+                >
+                  🇺🇸 English
+                </LanguageOption>
+              </LanguageDropdown>
+            )}
         </LanguageSelector>
       </NavContainer>
     </Nav>

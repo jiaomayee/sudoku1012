@@ -228,9 +228,9 @@ html, body {
       margin: 0;
     }
     
-    /* 竖屏模式下隐藏顶部菜单栏 */
+    /* 竖屏模式下显示顶部菜单栏 */
     nav {
-      display: none;
+      display: block;
     }
     
     .display-block {

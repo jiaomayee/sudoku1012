@@ -6,9 +6,6 @@ import { useTheme } from '../context/ThemeContext';
 const Nav = styled.nav`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
   margin: 0;
   padding: 0;
 `;
@@ -47,8 +44,8 @@ const LanguageButton = styled.button`
   background-color: ${props => props.theme?.surface || '#ffffff'};
   border: none;
   color: ${props => props.theme?.text || '#333333'};
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
@@ -57,6 +54,7 @@ const LanguageButton = styled.button`
   align-items: center;
   gap: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-height: 36px;
   
   &:hover {
     background-color: ${props => props.theme?.surfaceHover || '#f8f9fa'};
@@ -129,6 +127,8 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('zh'); // zh or en
 
+  // 移除导航栏滚动隐藏功能，使其与主界面一体
+
   // 点击外部关闭下拉菜单
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -164,7 +164,7 @@ const Navbar = () => {
         </Logo>
         <LanguageSelector className="language-selector">
             <LanguageButton onClick={toggleDropdown}>
-              <FlagContainer>CN</FlagContainer> 中文 {isDropdownOpen ? '▲' : '▼'}
+              中文
             </LanguageButton>
             
             {isDropdownOpen && (
@@ -173,13 +173,13 @@ const Navbar = () => {
                   className={selectedLanguage === 'zh' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('zh')}
                 >
-                  <FlagContainer>CN</FlagContainer> 中文
+                  中文
                 </LanguageOption>
                 <LanguageOption 
                   className={selectedLanguage === 'en' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('en')}
                 >
-                  <FlagContainer>US</FlagContainer> English
+                  English
                 </LanguageOption>
               </LanguageDropdown>
             )}

@@ -243,7 +243,7 @@ const Navbar = () => {
     <Nav>
       <NavContainer>
         <Logo to="/home">
-          数独学习
+          SudokuTech
         </Logo>
         {!isPortrait && (
           <>

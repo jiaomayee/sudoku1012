@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '../context/ThemeContext';
-import { useSudoku } from '../context/SudokuContext';
 
 const Nav = styled.nav`
   background-color: ${props => props.theme?.surface || '#ffffff'};
@@ -14,9 +11,6 @@ const Nav = styled.nav`
   z-index: 100;
   margin: 0;
   padding: 0;
-  @media (max-width: 640px) {
-    padding: 0 15px;
-  }
 `;
 
 const NavContainer = styled.div`
@@ -25,11 +19,7 @@ const NavContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  @media (max-width: 640px) {
-    flex-direction: column;
-    padding: 8px 15px;
-  }
+  padding: 12px 20px;
 `;
 
 const Logo = styled(Link)`
@@ -37,79 +27,6 @@ const Logo = styled(Link)`
   font-size: 20px;
   font-weight: bold;
   text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  @media (max-width: 640px) {
-    margin-bottom: 8px;
-    font-size: 18px;
-  }
-`;
-
-const NavLinks = styled.div`
-  display: flex;
-  gap: 20px;
-  @media (max-width: 640px) {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-  }
-`;
-
-const SettingsButton = styled(Link)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: ${props => props.theme?.surface || '#ffffff'};
-  color: ${props => props.theme?.text || '#333333'};
-  border: 2px solid ${props => props.theme?.border || '#e0e0e0'};
-  transition: all 0.3s ease;
-  text-decoration: none;
-  
-  &:hover {
-    background-color: ${props => props.theme?.primary || '#4a6cf7'};
-    color: white;
-    border-color: ${props => props.theme?.primary || '#4a6cf7'};
-    transform: scale(1.1);
-  }
-`;
-
-const NavLink = styled(Link)`
-  color: ${props => props.theme?.text || '#333333'};
-  text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: ${props => props.theme?.background || '#f5f5f5'};
-    color: ${props => props.theme?.primary || '#4a6cf7'};
-  }
-  
-  &.active {
-    background-color: ${props => props.theme?.primary || '#4a6cf7'};
-    color: white;
-  }
-`;
-
-const RightSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const GameStatus = styled.div`
-  color: ${props => props.theme?.textSecondary || '#666666'};
-  font-size: 12px;
-  margin: 0;
-  padding: 0;
-  @media (max-width: 640px) {
-    display: none;
-  }
 `;
 
 // 语言切换相关样式
@@ -177,23 +94,10 @@ const LanguageIcon = styled.span`
 
 const Navbar = () => {
   const { theme } = useTheme();
-  const { gameStarted, gameCompleted } = useSudoku();
-  const location = useLocation();
-  const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
   
   // 语言切换状态
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('zh'); // zh or en
-
-  // 监听屏幕方向变化
-  useEffect(() => {
-    const handleResize = () => {
-      setIsPortrait(window.innerHeight > window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // 点击外部关闭下拉菜单
   useEffect(() => {
@@ -208,24 +112,6 @@ const Navbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  // 获取当前活跃的导航项
-  const getActiveNavItem = () => {
-    const path = location.pathname;
-    if (path === '/') return 'game';
-    if (path === '/home') return 'home';
-    if (path.includes('/game')) return 'game';
-    if (path.includes('/techniques')) return 'techniques';
-    if (path.includes('/progress')) return 'progress';
-    if (path.includes('/stats')) return 'stats';
-    return '';
-  };
-
-  // 格式化游戏状态文本
-  const getGameStatusText = () => {
-    if (!gameStarted) return '';
-    return gameCompleted ? '游戏已完成' : '游戏进行中';
-  };
 
   // 语言切换处理
   const toggleDropdown = () => {
@@ -242,75 +128,33 @@ const Navbar = () => {
   return (
     <Nav>
       <NavContainer>
-        <Logo to="/home">
+        <Logo to="/">
           SudokuTech
         </Logo>
-        {!isPortrait && (
-          <>
-            <NavLinks>
-              <NavLink 
-                to="/home" 
-                className={getActiveNavItem() === 'home' ? 'active' : ''}
+        <LanguageSelector className="language-selector">
+          <LanguageButton onClick={toggleDropdown}>
+            <LanguageIcon>{selectedLanguage === 'zh' ? '🇨🇳' : '🇺🇸'}</LanguageIcon>
+            {selectedLanguage === 'zh' ? '中文' : 'English'}
+            <span>{isDropdownOpen ? '▲' : '▼'}</span>
+          </LanguageButton>
+          
+          {isDropdownOpen && (
+            <LanguageDropdown>
+              <LanguageOption 
+                className={selectedLanguage === 'zh' ? 'selected' : ''}
+                onClick={() => handleLanguageSelect('zh')}
               >
-                首页
-              </NavLink>
-              <NavLink 
-                to="/game" 
-                className={getActiveNavItem() === 'game' ? 'active' : ''}
+                <LanguageIcon>🇨🇳</LanguageIcon> 中文
+              </LanguageOption>
+              <LanguageOption 
+                className={selectedLanguage === 'en' ? 'selected' : ''}
+                onClick={() => handleLanguageSelect('en')}
               >
-                开始游戏
-              </NavLink>
-              <NavLink 
-                to="/techniques" 
-                className={getActiveNavItem() === 'techniques' ? 'active' : ''}
-              >
-                技巧学习
-              </NavLink>
-              <NavLink 
-                to="/progress" 
-                className={getActiveNavItem() === 'progress' ? 'active' : ''}
-              >
-                游戏进度
-              </NavLink>
-              <NavLink 
-                to="/stats" 
-                className={getActiveNavItem() === 'stats' ? 'active' : ''}
-              >
-                统计信息
-              </NavLink>
-            </NavLinks>
-            <RightSection>
-              {gameStarted && <GameStatus>{getGameStatusText()}</GameStatus>}
-              <SettingsButton to="/settings" theme={theme} title="设置">
-                <FontAwesomeIcon icon={faCog} size="lg" />
-              </SettingsButton>
-              <LanguageSelector className="language-selector">
-                <LanguageButton onClick={toggleDropdown}>
-                  <LanguageIcon>{selectedLanguage === 'zh' ? '🇨🇳' : '🇺🇸'}</LanguageIcon>
-                  {selectedLanguage === 'zh' ? '中文' : 'English'}
-                  <span>{isDropdownOpen ? '▲' : '▼'}</span>
-                </LanguageButton>
-                
-                {isDropdownOpen && (
-                  <LanguageDropdown>
-                    <LanguageOption 
-                      className={selectedLanguage === 'zh' ? 'selected' : ''}
-                      onClick={() => handleLanguageSelect('zh')}
-                    >
-                      <LanguageIcon>🇨🇳</LanguageIcon> 中文
-                    </LanguageOption>
-                    <LanguageOption 
-                      className={selectedLanguage === 'en' ? 'selected' : ''}
-                      onClick={() => handleLanguageSelect('en')}
-                    >
-                      <LanguageIcon>🇺🇸</LanguageIcon> English
-                    </LanguageOption>
-                  </LanguageDropdown>
-                )}
-              </LanguageSelector>
-            </RightSection>
-          </>
-        )}
+                <LanguageIcon>🇺🇸</LanguageIcon> English
+              </LanguageOption>
+            </LanguageDropdown>
+          )}
+        </LanguageSelector>
       </NavContainer>
     </Nav>
   );

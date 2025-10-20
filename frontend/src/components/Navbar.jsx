@@ -35,21 +35,22 @@ const LanguageSelector = styled.div`
 `;
 
 const LanguageButton = styled.button`
-  background-color: transparent;
+  background-color: ${props => props.theme?.surface || '#ffffff'};
   border: 1px solid ${props => props.theme?.primary || '#4a6cf7'};
-  color: ${props => props.theme?.primary || '#4a6cf7'};
-  padding: 6px 12px;
+  color: ${props => props.theme?.text || '#333333'};
+  padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   
   &:hover {
     background-color: ${props => props.theme?.primary ? `${props.theme.primary}11` : '#4a6cf711'};
+    border-color: ${props => props.theme?.primary || '#4a6cf7'};
   }
 `;
 
@@ -69,16 +70,16 @@ const LanguageDropdown = styled.div`
 const LanguageOption = styled.button`
   background-color: transparent;
   border: none;
-  width: 100px;
-  padding: 8px 12px;
+  width: 110px;
+  padding: 10px 12px;
   text-align: left;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   color: ${props => props.theme?.text || '#333333'};
   transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   
   &:hover {
     background-color: ${props => props.theme?.background || '#f5f5f5'};
@@ -92,13 +93,15 @@ const LanguageOption = styled.button`
 `;
 
 const LanguageIcon = styled.span`
-  font-size: 14px;
-  width: 16px;
-  height: 16px;
+  font-size: 18px;
+  width: 20px;
+  height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  background-color: white;
+  border-radius: 2px;
 `;
 
 const Navbar = () => {

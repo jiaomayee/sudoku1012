@@ -27,6 +27,15 @@ const Logo = styled(Link)`
   font-size: 20px;
   font-weight: bold;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const LogoIcon = styled.img`
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 `;
 
 // 语言切换相关样式
@@ -150,6 +159,7 @@ const Navbar = () => {
     <Nav>
       <NavContainer>
         <Logo to="/">
+          <LogoIcon src="/sudoku-logo.svg" alt="Sudoku Logo" />
           SudokuTech
         </Logo>
         <LanguageSelector className="language-selector">

@@ -92,13 +92,50 @@ const LanguageOption = styled.button`
   }
 `;
 
-const LanguageIcon = styled.span`
-  font-size: 20px;
+const ChinaFlag = styled.span`
   width: 20px;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  height: 14px;
+  background-color: #de2910;
+  position: relative;
+  display: inline-block;
+  margin-right: 6px;
+  border: 1px solid #ccc;
+  &::before {
+    content: '★';
+    color: yellow;
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    font-size: 10px;
+  }
+`;
+
+const UsaFlag = styled.span`
+  width: 20px;
+  height: 14px;
+  background-color: #3c3b6e;
+  position: relative;
+  display: inline-block;
+  margin-right: 6px;
+  border: 1px solid #ccc;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 14px;
+    background-color: #3c3b6e;
+  }
+  &::after {
+    content: '★';
+    color: white;
+    position: absolute;
+    top: 2px;
+    left: 1px;
+    font-size: 6px;
+    opacity: 0.7;
+  }
 `;
 
 const Navbar = () => {
@@ -142,7 +179,7 @@ const Navbar = () => {
         </Logo>
         <LanguageSelector className="language-selector">
             <LanguageButton onClick={toggleDropdown}>
-              🇨🇳 中文 {isDropdownOpen ? '▲' : '▼'}
+              <ChinaFlag /> 中文 {isDropdownOpen ? '▲' : '▼'}
             </LanguageButton>
             
             {isDropdownOpen && (
@@ -151,13 +188,13 @@ const Navbar = () => {
                   className={selectedLanguage === 'zh' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('zh')}
                 >
-                  🇨🇳 中文
+                  <ChinaFlag /> 中文
                 </LanguageOption>
                 <LanguageOption 
                   className={selectedLanguage === 'en' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('en')}
                 >
-                  🇺🇸 English
+                  <UsaFlag /> English
                 </LanguageOption>
               </LanguageDropdown>
             )}

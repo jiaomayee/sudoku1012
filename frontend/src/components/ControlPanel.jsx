@@ -266,7 +266,7 @@ const ControlPanel = ({
           }}>
           {activeTab === 'keyboard' && (
             <>
-              {window.innerWidth <= 576 ? (
+              {window.innerWidth <= 768 ? (
                 // 竖屏布局：数字1-6一行，数字7-9和操作按钮一行
                 <>
                   {/* 第一行：数字按钮 1-6 */}

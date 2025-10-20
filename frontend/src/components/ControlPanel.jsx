@@ -151,7 +151,7 @@ const ControlPanel = ({
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.12)',
       display: 'flex',
       flexDirection: 'column',
-      width: window.innerWidth <= 576 ? '100%' : 'calc(var(--board-width) * 2 / 3)',
+      // 移除硬编码宽度，让CSS媒体查询控制宽度，确保竖屏模式下与棋盘等宽
       fontFamily: 'Arial, Microsoft YaHei, sans-serif',
       margin: 0,
       boxSizing: 'border-box',

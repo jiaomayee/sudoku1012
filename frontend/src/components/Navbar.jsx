@@ -154,7 +154,7 @@ const Navbar = () => {
         </Logo>
         <LanguageSelector className="language-selector">
             <LanguageButton onClick={toggleDropdown}>
-              <FlagContainer>CN</FlagContainer> 中文 {isDropdownOpen ? '▲' : '▼'}
+              <FlagContainer>CN</FlagContainer> 中文 {isDropdownOpen ? '⌄' : '⌃'}
             </LanguageButton>
             
             {isDropdownOpen && (

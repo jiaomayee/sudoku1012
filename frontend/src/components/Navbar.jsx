@@ -92,50 +92,18 @@ const LanguageOption = styled.button`
   }
 `;
 
-const ChinaFlag = styled.span`
+const FlagContainer = styled.span`
   width: 20px;
   height: 14px;
-  background-color: #de2910;
-  position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #f0f0f0;
   border: 1px solid #ccc;
-  &::before {
-    content: '★';
-    color: yellow;
-    position: absolute;
-    top: 2px;
-    left: 3px;
-    font-size: 10px;
-  }
-`;
-
-const UsaFlag = styled.span`
-  width: 20px;
-  height: 14px;
-  background-color: #3c3b6e;
-  position: relative;
-  display: inline-block;
-  margin-right: 6px;
-  border: 1px solid #ccc;
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 10px;
-    height: 14px;
-    background-color: #3c3b6e;
-  }
-  &::after {
-    content: '★';
-    color: white;
-    position: absolute;
-    top: 2px;
-    left: 1px;
-    font-size: 6px;
-    opacity: 0.7;
-  }
+  border-radius: 2px;
 `;
 
 const Navbar = () => {
@@ -179,7 +147,7 @@ const Navbar = () => {
         </Logo>
         <LanguageSelector className="language-selector">
             <LanguageButton onClick={toggleDropdown}>
-              <ChinaFlag /> 中文 {isDropdownOpen ? '▲' : '▼'}
+              <FlagContainer>CN</FlagContainer> 中文 {isDropdownOpen ? '▲' : '▼'}
             </LanguageButton>
             
             {isDropdownOpen && (
@@ -188,13 +156,13 @@ const Navbar = () => {
                   className={selectedLanguage === 'zh' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('zh')}
                 >
-                  <ChinaFlag /> 中文
+                  <FlagContainer>CN</FlagContainer> 中文
                 </LanguageOption>
                 <LanguageOption 
                   className={selectedLanguage === 'en' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('en')}
                 >
-                  <UsaFlag /> English
+                  <FlagContainer>US</FlagContainer> English
                 </LanguageOption>
               </LanguageDropdown>
             )}

@@ -33,6 +33,7 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
+    "deploy:branch": "gh-pages -d dist --branch gh-pages",
     "deploy:cloudbase": "npm run build && cloudbase hosting:deploy dist --preview"
   },
   "eslintConfig": {

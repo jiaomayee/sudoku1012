@@ -44,7 +44,7 @@ function App({ children }) {
   const { isLoading } = useLoading();
 
   return (
-    <AppContainer>
+    <AppContainer theme={theme}>
       <Navbar />
       <MainContent>
         {children}

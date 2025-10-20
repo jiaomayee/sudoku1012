@@ -1323,26 +1323,26 @@ export const SudokuContextProvider = ({ children }) => {
   const value = {
       // 状态
       currentPuzzle,
-      currentBoard, // 确保ControlPanel组件可以访问
-      originalPuzzle, // 导出原始谜题，用于区分预填数字
-      solution,
+      currentBoard: currentBoard || Array(9).fill().map(() => Array(9).fill(0)), // 确保始终有有效数据
+      originalPuzzle,
+      solution: solution || Array(9).fill().map(() => Array(9).fill(0)), // 确保始终有有效数据
       difficulty,
-      gameStarted, // 确保ControlPanel组件可以访问
+      gameStarted,
       gameCompleted,
       timeElapsed,
-      timerActive: timerActive,
+      timerActive,
       isTimerActive: timerActive,
       selectedCell,
-      candidates, // 导出候选数数据
+      candidates,
       highlightedCells,
-      activeTechniques, // 导出活跃技巧
+      activeTechniques,
       lockedCells,
       history,
       historyIndex,
-      errorCount: cumulativeErrorCount, // 使用累计错误次数
+      errorCount: cumulativeErrorCount,
       incorrectCells,
-      isPencilMode, // 添加铅笔模式状态
-      pencilNotes, // 添加铅笔标注数据
+      isPencilMode,
+        pencilNotes,
       
       // 方法
       setDifficulty,

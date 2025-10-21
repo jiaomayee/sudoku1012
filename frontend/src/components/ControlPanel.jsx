@@ -888,8 +888,7 @@ const ControlPanel = ({
           )}
           
           {activeTab === 'techniques' && (
-            <div style={{ overflowY: 'auto', padding: '8px' }}>
-              <h4 style={{ margin: '0 0 12px 0', color: '#34495e', fontSize: '16px', fontWeight: '600' }}>可用技巧</h4>
+            <div style={{ overflowY: 'auto', padding: '4px 8px 8px 8px' }}>
               {availableTechniques.length === 0 ? (
                 <div style={{ 
                   textAlign: 'center', 

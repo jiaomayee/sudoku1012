@@ -866,6 +866,37 @@ const ControlPanel = ({
                   {availableTechniques.map((technique, index) => {
                     const row = technique.row + 1;
                     const col = technique.col + 1;
+                    
+                    // 根据技巧类型确定一级分类和二级类型
+                    let primaryType = '';
+                    let secondaryType = '';
+                    
+                    if (technique.type === 'nakedSingle' || technique.type === 'naked_single') {
+                      primaryType = '唯一数法';
+                      // 唯一数法是一级分类，这里可以根据需要添加二级类型
+                    } else if (technique.type.includes('hidden_single') || technique.type.includes('hiddenSingle')) {
+                      primaryType = '隐性唯一数法';
+                      if (technique.type.includes('row') || technique.type.includes('Row')) {
+                        secondaryType = '行';
+                      } else if (technique.type.includes('col') || technique.type.includes('Col')) {
+                        secondaryType = '列';
+                      } else if (technique.type.includes('box') || technique.type.includes('Box')) {
+                        secondaryType = '宫';
+                      }
+                    } else if (technique.type === 'nakedPairs' || technique.type === 'naked_pairs') {
+                      primaryType = '数对';
+                      // 根据需要添加二级类型
+                    } else if (technique.type === 'hiddenPairs' || technique.type === 'hidden_pairs') {
+                      primaryType = '隐性数对';
+                      // 根据需要添加二级类型
+                    } else {
+                      // 如果是未知类型，使用原始描述
+                      primaryType = technique.description || '未知技巧';
+                    }
+                    
+                    // 组合显示文本
+                    const displayType = secondaryType ? `${primaryType}（${secondaryType}）` : primaryType;
+                    
                     return (
                       <div 
                         key={index}
@@ -887,7 +918,7 @@ const ControlPanel = ({
                           e.currentTarget.style.borderColor = '#e9ecef';
                         }}
                       >
-                        <div style={{ fontWeight: '600', color: '#34495e', marginBottom: '4px' }}>{technique.description}</div>
+                        <div style={{ fontWeight: '600', color: '#34495e', marginBottom: '4px' }}>{displayType}</div>
                         <div style={{ fontSize: '14px', color: '#7f8c8d' }}>位置: ({row},{col})</div>
                         <div style={{ fontSize: '14px', color: '#7f8c8d' }}>值: {technique.value}</div>
                       </div>

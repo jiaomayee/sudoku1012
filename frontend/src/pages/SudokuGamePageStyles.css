@@ -242,7 +242,7 @@ html, body {
     padding: 0;
     margin: 0 0 4px 0;
     position: relative;
-    /* 第3条吸附线 - 在显示区块下方 */
+    /* 吸附线 - 在显示区块下方 */
     scroll-snap-align: start;
     scroll-snap-margin-top: 10px;
   }
@@ -264,9 +264,6 @@ html, body {
   nav {
     display: block;
     padding: 4px 0; /* 减少上下内边距以降低高度 */
-    /* 第1条吸附线 - 在页面最顶部，确保顶部菜单栏完整显示 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 5px;
   }
   
 
@@ -336,7 +333,7 @@ html, body {
     overflow: hidden;
     box-sizing: border-box;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    /* 第4条吸附线 - 在导航区块下方，作为主要内容区域 */
+    /* 吸附线 - 在导航区块下方，作为主要内容区域 */
     scroll-snap-align: start;
     scroll-snap-margin-top: 10px;
   }
@@ -346,9 +343,6 @@ html, body {
     width: 100%; /* 与棋盘宽度一致 */
     max-width: var(--board-width); /* 最大宽度不超过棋盘宽度 */
     margin: 0 auto; /* 居中显示 */
-    /* 第5条吸附线 - 在棋盘区块下方，作为操作区域 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
   }
   
   .control-panel {
@@ -376,9 +370,6 @@ html, body {
     width: 100%; /* 完全充满父容器 */
     border-radius: var(--border-radius);
     position: relative;
-    /* 第2条吸附线 - 在顶部菜单栏下方 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
   }
   
   /* 添加微妙的视觉指示 */

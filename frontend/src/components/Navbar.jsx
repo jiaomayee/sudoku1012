@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 
 const Nav = styled.nav`
-  background-color: ${props => props.theme?.surface || '#ffffff'};
+  background-color: #2196F3;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 0;
   padding: 0;
@@ -20,7 +20,7 @@ const NavContainer = styled.div`
 `;
 
 const Logo = styled(Link)`
-  color: ${props => props.theme?.primary || '#4a6cf7'};
+  color: white;
   font-size: 20px;
   font-weight: bold;
   text-decoration: none;

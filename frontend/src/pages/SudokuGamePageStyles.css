@@ -169,7 +169,7 @@ html, body {
     :root {
       --board-width: calc(100vw - 16px); /* 最大化利用屏幕宽度，保留8px边距 */
       --control-panel-width: calc(100vw - 16px); /* 操作面板与棋盘宽度一致 */
-      --block-gap: 16px; /* 区块间距 */
+      --block-gap: 8px; /* 进一步增加区块间距，确保区块之间有明显分隔 */
     }
     
     /* 允许页面正常滚动 */
@@ -193,32 +193,41 @@ html, body {
     }
     
     .main-content {
-      margin-top: var(--block-gap);
-      gap: var(--block-gap); /* 使用CSS变量控制间距 */
+      margin-top: 4px; /* 适当增加顶部间距 */
+      gap: 4px; /* 适当增加间距 */
       display: flex;
       flex-direction: column;
       width: 100%;
       overflow-y: visible;
-      padding: 0 8px var(--block-gap) 8px; /* 减少水平内边距 */
+      padding: 0 8px 6px 8px; /* 适当增加内边距 */
     }
+    
+    /* 竖屏模式下的布局 - 强制上下布局并设置合适间距 */
+      .is-portrait .main-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 6px !important; /* 增加区块间距，使布局更清晰 */
+        padding: 8px;
+        --block-gap: 6px !important;
+      }
     
     .top-row {
-      flex-direction: column;
-      align-items: stretch; /* 让子元素完全填充宽度 */
-      gap: var(--block-gap); /* 使用与其他区块相同的间距 */
-      margin: 0;
-      padding: 0;
-      width: 100%;
-    }
-    
-    .bottom-row {
-      flex-direction: column;
-      align-items: stretch; /* 让子元素完全填充宽度 */
-      gap: var(--block-gap); /* 使用CSS变量控制间距 */
-      margin: 0;
-      padding: 0;
-      width: 100%;
-    }
+       flex-direction: column;
+       align-items: stretch; /* 让子元素完全填充宽度 */
+       gap: 4px; /* 适当增加间距 */
+       margin: 0;
+       padding: 0;
+       width: 100%;
+     }
+     
+     .bottom-row {
+       flex-direction: column;
+       align-items: stretch; /* 让子元素完全填充宽度 */
+       gap: 4px; /* 适当增加间距 */
+       margin: 0;
+       padding: 0;
+       width: 100%;
+     }
   
   .nav-block {
       width: 100%;
@@ -234,17 +243,17 @@ html, body {
     }
     
     .display-block {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      margin: 0;
-      padding: 0;
-    }
+       width: 100%;
+       max-width: 100%;
+       height: auto;
+       margin: 0 !important; /* 移除负边距 */
+       padding: 0;
+     }
   
   .board-container {
       width: 100%; /* 完全充满父容器 */
       height: var(--board-width); /* 保持正方形比例 */
-      margin: 0 !important;
+      margin: 0 !important; /* 移除负边距 */
       padding: 0 !important;
       border-radius: 8px;
       overflow: hidden;
@@ -272,12 +281,12 @@ html, body {
     /* 显示区块样式修改 */
     .display-block {
       background-color: #ffffff;
-      padding: 10px 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 8px 15px; /* 适当增加内边距 */
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* 适当增加阴影 */
       height: auto;
-      min-height: 60px;
-      gap: 15px; /* 增加内部间距以提高可读性 */
-      margin: 0;
+      min-height: 52px; /* 适当增加最小高度 */
+      gap: 12px; /* 适当增加内部间距 */
+      margin: 0 !important; /* 移除负边距 */
       display: flex;
       flex-wrap: nowrap;
       justify-content: space-around;

@@ -242,30 +242,14 @@ html, body {
     padding: 0;
     margin: 0;
     position: relative;
-    /* 确保导航区块本身就是一个吸附点 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
+    /* 移除导航区块的吸附设置，避免与其他吸附点冲突 */
   }
   
-  /* 添加微妙的视觉指示 */
-  .nav-block::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background-color: rgba(0, 0, 0, 0.1);
-  }
+  /* 移除伪元素，避免影响间距 */
   
-  /* 为导航区块下方创建专用吸附点容器 - 确保棋盘区块的吸附位置正确 */
+  /* 移除第三条吸附线相关配置 */
   .nav-block-snap-point {
-    height: 1px;
-    width: 100%;
-    /* 移除吸附设置，避免与导航区块的吸附点冲突 */
-    margin: 4px 0; /* 控制导航区块和棋盘区块之间的间距 */
-    display: block;
-    position: relative;
+    display: none; /* 完全隐藏第三条吸附线 */
   }
   
 

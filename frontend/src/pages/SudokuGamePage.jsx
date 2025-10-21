@@ -525,8 +525,6 @@ const SudokuGamePage = () => {
                 gameCompleted={sudokuContext?.gameCompleted || false}
               />
             </div>
-            {/* 导航区块下方的专用吸附点容器 - 确保精确定位 */}
-            <div className="nav-block-snap-point"></div>
             
             {/* 数独棋盘 */}
             <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>

@@ -173,22 +173,22 @@ html, body {
     height: 100%;
   }
   
-  /* 实现优化的滚动吸附功能 */
+  /* 实现优化的滚动吸附功能 - 确保吸附线正常工作 */
   html {
     height: 100%;
     overflow-x: hidden;
   }
   
   body {
-    height: 100%;
+    height: 100vh; /* 固定高度，确保能滚动 */
     margin: 0;
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    /* 使用平衡的吸附模式，既提供吸附体验又不过度限制 */
-    scroll-snap-type: y proximity;
+    /* 父容器定义滚动规则 - 强制吸附模式确保功能正常 */
+    scroll-snap-type: y mandatory;
     -webkit-overflow-scrolling: touch;
-    min-height: 100vh;
+    position: relative;
   }
   
   .sudoku-game-container {
@@ -239,18 +239,17 @@ html, body {
     width: 100%;
   }
 
-  /* 导航区块 - 添加吸附点但不阻止滚动 */
+  /* 导航区块 - 顶部添加吸附线 */
   .nav-block {
     width: 100%;
-    max-width: 100%;
     height: auto;
-    max-height: 56px; /* 设置最大高度限制 */
+    min-height: 60px; /* 增加最小高度，确保完整显示 */
     padding: 0;
     margin: 0 0 4px 0;
     position: relative;
-    /* 仅在接近时吸附，不强制 */
+    /* 在顶部设置第一条吸附线，确保菜单栏完整显示 */
     scroll-snap-align: start;
-    scroll-snap-margin-top: 5px;
+    scroll-snap-margin-top: 10px;
   }
   
   /* 添加微妙的视觉指示 */
@@ -270,8 +269,7 @@ html, body {
   nav {
     display: block;
     padding: 4px 0; /* 减少上下内边距以降低高度 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 5px;
+    /* nav已在.nav-block内，不需要单独设置吸附 */
   }
   
 
@@ -331,6 +329,7 @@ html, body {
   
 
 
+  /* 棋盘容器 - 作为主要吸附点 */
   .board-container {
     width: 100%; /* 完全充满父容器 */
     height: var(--board-width); /* 保持正方形比例 */
@@ -340,7 +339,7 @@ html, body {
     overflow: hidden;
     box-sizing: border-box;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    /* 添加棋盘区域的吸附点 */
+    /* 第一条吸附线 - 顶部吸附 */
     scroll-snap-align: start;
     scroll-snap-margin-top: 10px;
   }
@@ -362,7 +361,7 @@ html, body {
     align-self: auto; /* 移除居中设置 */
   }
   
-  /* 显示区块样式修改 - 添加适中的吸附点 */
+  /* 显示区块 - 作为第二吸附点 */
   .display-block {
     background-color: #ffffff;
     padding: 8px 15px; /* 适当增加内边距 */
@@ -377,9 +376,9 @@ html, body {
     width: 100%; /* 完全充满父容器 */
     border-radius: var(--border-radius);
     position: relative;
-    /* 添加显示区块的吸附点 */
+    /* 第二条吸附线 - 顶部吸附 */
     scroll-snap-align: start;
-    scroll-snap-margin-top: 5px;
+    scroll-snap-margin-top: 10px;
   }
   
   /* 添加微妙的视觉指示 */

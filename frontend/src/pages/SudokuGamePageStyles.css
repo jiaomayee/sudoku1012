@@ -2,7 +2,7 @@
   /* 定义CSS变量，便于统一管理和响应式调整 */
   --board-width: min(60vh, 60vw, 600px); /* 大屏幕上使用视口较小值，最大600px */
   --control-panel-width: calc(var(--board-width) * 2/3);
-  --block-gap: 30px;
+  --block-gap: 15px;
   --border-radius: 8px;
 }
 
@@ -65,11 +65,7 @@ html, body {
   flex-wrap: wrap;
 }
 
-/* 导航区块样式 - 移除重复的容器样式，避免两层区块效果 */
-.nav-block {
-  width: var(--board-width); /* 与数独棋盘宽度一致 */
-  height: auto;
-}
+/* 导航区块样式 - 仅保留基本注释，具体样式在响应式部分定义 */
 
 /* 显示区块样式 - 仅保留错误次数、难度和计时器 */
 .display-block {
@@ -165,170 +161,192 @@ html, body {
 }
 
 /* 竖屏模式下的响应式布局 */
-  @media (max-width: 991px) {
-    :root {
-      --board-width: calc(100vw - 16px); /* 最大化利用屏幕宽度，保留8px边距 */
-      --control-panel-width: calc(100vw - 16px); /* 操作面板与棋盘宽度一致 */
-      --block-gap: 8px; /* 进一步增加区块间距，确保区块之间有明显分隔 */
-    }
-    
-    /* 允许页面正常滚动 */
-    html, body {
-      position: static;
-      width: 100%;
-      height: auto;
-      overflow-x: hidden;
-      overflow-y: auto;
-    }
-    
-    /* 启用滚动吸附的容器 */
-    .sudoku-game-container {
-      scroll-snap-type: y mandatory; /* 启用垂直滚动吸附 */
-      height: 100vh;
-      overflow-y: auto;
-    }
-    
-    .sudoku-game-container {
-      max-width: none; /* 移除最大宽度限制 */
-      padding: 0 !important; /* 强制移除内边距 */
-      margin: 0 !important; /* 完全填充 */
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      width: 100%; /* 使用100%宽度 */
-      box-sizing: border-box;
-    }
-    
-    .main-content {
-      margin-top: 4px; /* 适当增加顶部间距 */
-      gap: 4px; /* 适当增加间距 */
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      overflow-y: visible;
-      padding: 0 8px 6px 8px; /* 适当增加内边距 */
-    }
-    
-    /* 竖屏模式下的布局 - 强制上下布局并设置合适间距 */
-      .is-portrait .main-content {
-        flex-direction: column;
-        align-items: center;
-        gap: 6px !important; /* 增加区块间距，使布局更清晰 */
-        padding: 8px;
-        --block-gap: 6px !important;
-      }
-    
-    .top-row {
-       flex-direction: column;
-       align-items: stretch; /* 让子元素完全填充宽度 */
-       gap: 4px; /* 适当增加间距 */
-       margin: 0;
-       padding: 0;
-       width: 100%;
-     }
-     
-     .bottom-row {
-       flex-direction: column;
-       align-items: stretch; /* 让子元素完全填充宽度 */
-       gap: 4px; /* 适当增加间距 */
-       margin: 0;
-       padding: 0;
-       width: 100%;
-     }
+@media (max-width: 991px) {
+  :root {
+    --board-width: calc(100vw - 16px); /* 最大化利用屏幕宽度，保留8px边距 */
+    --control-panel-width: calc(100vw - 16px); /* 操作面板与棋盘宽度一致 */
+    --block-gap: 4px; /* 减小区块间距 */
+  }
   
+  /* 允许页面正常滚动 */
+  html {
+    height: 100%;
+  }
+  
+  /* 实现优化的滚动吸附功能 */
+  html {
+    height: 100%;
+    overflow-x: hidden;
+  }
+  
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* 使用平衡的吸附模式，既提供吸附体验又不过度限制 */
+    scroll-snap-type: y proximity;
+    -webkit-overflow-scrolling: touch;
+    min-height: 100vh;
+  }
+  
+  .sudoku-game-container {
+    max-width: none; /* 移除最大宽度限制 */
+    padding: 0 !important; /* 强制移除内边距 */
+    margin: 0 !important; /* 完全填充 */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* 使用100%宽度 */
+    box-sizing: border-box;
+  }
+  
+  .main-content {
+    margin-top: 4px; /* 适当增加顶部间距 */
+    gap: var(--block-gap); /* 使用变量控制间距 */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: visible;
+    padding: 0 8px 6px 8px; /* 适当增加内边距 */
+  }
+  
+  /* 竖屏模式下的布局 - 强制上下布局并设置合适间距 */
+  .is-portrait .main-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px !important; /* 减小区块间距 */
+    padding: 8px;
+    --block-gap: 4px !important;
+  }
+  
+  .top-row {
+    flex-direction: column;
+    align-items: stretch; /* 让子元素完全填充宽度 */
+    gap: 4px; /* 适当增加间距 */
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .bottom-row {
+    flex-direction: column;
+    align-items: stretch; /* 让子元素完全填充宽度 */
+    gap: 4px; /* 适当增加间距 */
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* 导航区块 - 添加吸附点但不阻止滚动 */
   .nav-block {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      max-height: 56px; /* 设置最大高度限制 */
-      padding: 0;
-      margin: 0;
-      scroll-snap-align: end; /* 在导航栏区块底部设置滚动吸附 */
-      scroll-margin-top: 8px;
-    }
-    
-    /* 竖屏模式下显示顶部菜单栏 */
-    nav {
-      display: block;
-      padding: 4px 0; /* 减少上下内边距以降低高度 */
-      scroll-snap-align: end; /* 在顶部菜单栏底部设置滚动吸附 */
-      scroll-margin-top: 8px;
-    }
-    
-    /* 上滑提示符号 - 仅在竖屏模式显示 */
-    .scroll-hint {
-      position: relative;
-      width: 100%;
-      height: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 0;
-      pointer-events: none;
-      animation: fadeOutAndRemove 3s forwards;
-    }
-    
-    .scroll-hint::before {
-      content: '⌃';
-      font-size: 24px;
-      color: #666;
-      animation: bounce 2s infinite;
-      opacity: 0.7;
-    }
-    
-    /* 提示符号的淡出并移除空间动画 */
-    @keyframes fadeOutAndRemove {
-      0% {
-        opacity: 1;
-        height: 20px;
-      }
-      70% {
-        opacity: 1;
-        height: 20px;
-      }
-      100% {
-        opacity: 0;
-        height: 0;
-        margin: 0;
-        padding: 0;
-        visibility: hidden;
-      }
-    }
-    
-    /* 提示符号的弹跳动画 */
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-      }
-      40% {
-        transform: translateY(-8px);
-      }
-      60% {
-        transform: translateY(-4px);
-      }
-    }
-    
-    .display-block {
-       width: 100%;
-       max-width: 100%;
-       height: auto;
-       margin: 0 !important; /* 移除负边距 */
-       padding: 0;
-     }
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 56px; /* 设置最大高度限制 */
+    padding: 0;
+    margin: 0 0 4px 0;
+    position: relative;
+    /* 仅在接近时吸附，不强制 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 5px;
+  }
   
-  .board-container {
-      width: 100%; /* 完全充满父容器 */
-      height: var(--board-width); /* 保持正方形比例 */
-      margin: 0 !important; /* 移除负边距 */
-      padding: 0 !important;
-      border-radius: 8px;
-      overflow: hidden;
-      box-sizing: border-box;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  /* 添加微妙的视觉指示 */
+  .nav-block::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  
+
+  
+  /* 竖屏模式下显示顶部菜单栏 */
+  nav {
+    display: block;
+    padding: 4px 0; /* 减少上下内边距以降低高度 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 5px;
+  }
+  
+
+  
+  /* 上滑提示功能已停用 - 专注于滚动吸附功能实现 */
+  /*
+  .scroll-hint {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0;
+    pointer-events: none;
+    animation: fadeOutAndRemove 3s forwards;
+  }
+  
+  .scroll-hint::before {
+    content: '⌃';
+    font-size: 24px;
+    color: #666;
+    animation: bounce 2s infinite;
+    opacity: 0.7;
+  }
+  
+  @keyframes fadeOutAndRemove {
+    0% {
+      opacity: 1;
+      height: 20px;
     }
-    
-    /* 操作面板在竖屏模式下自适应高度 */
-    .controls-container {
+    70% {
+      opacity: 1;
+      height: 20px;
+    }
+    100% {
+      opacity: 0;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      visibility: hidden;
+    }
+  }
+  
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-8px);
+    }
+    60% {
+      transform: translateY(-4px);
+    }
+  }
+  */
+  
+
+
+  .board-container {
+    width: 100%; /* 完全充满父容器 */
+    height: var(--board-width); /* 保持正方形比例 */
+    margin: 0 !important; /* 移除负边距 */
+    padding: 0 !important;
+    border-radius: 8px;
+    overflow: hidden;
+    box-sizing: border-box;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    /* 添加棋盘区域的吸附点 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 10px;
+  }
+  
+  /* 操作面板在竖屏模式下自适应高度 */
+  .controls-container {
     width: 100%; /* 与棋盘宽度一致 */
     max-width: var(--board-width); /* 最大宽度不超过棋盘宽度 */
     margin: 0 auto; /* 居中显示 */
@@ -343,25 +361,37 @@ html, body {
     border-radius: var(--border-radius);
     align-self: auto; /* 移除居中设置 */
   }
-    
-    /* 显示区块样式修改 */
-    .display-block {
-      background-color: #ffffff;
-      padding: 8px 15px; /* 适当增加内边距 */
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* 适当增加阴影 */
-      height: auto;
-      min-height: 52px; /* 适当增加最小高度 */
-      gap: 12px; /* 适当增加内部间距 */
-      margin: 0 !important; /* 移除负边距 */
-      display: flex;
-      flex-wrap: nowrap;
-      justify-content: space-around;
-      width: 100%; /* 完全充满父容器 */
-      border-radius: var(--border-radius);
-      align-self: auto; /* 移除居中设置 */
-      scroll-snap-align: end; /* 在显示区块底部设置滚动吸附 */
-      scroll-margin-top: 8px;
-    }
+  
+  /* 显示区块样式修改 - 添加适中的吸附点 */
+  .display-block {
+    background-color: #ffffff;
+    padding: 8px 15px; /* 适当增加内边距 */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* 适当增加阴影 */
+    height: auto;
+    min-height: 52px; /* 适当增加最小高度 */
+    gap: 12px; /* 适当增加内部间距 */
+    margin: 0 !important; /* 移除负边距 */
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    width: 100%; /* 完全充满父容器 */
+    border-radius: var(--border-radius);
+    position: relative;
+    /* 添加显示区块的吸附点 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 5px;
+  }
+  
+  /* 添加微妙的视觉指示 */
+  .display-block::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
 
   .display-block div {
     font-size: 16px;
@@ -390,7 +420,7 @@ html, body {
 @media (max-width: 480px) {
   :root {
     --board-width: calc(100vw - 12px); /* 最大化利用屏幕宽度，保留6px边距 */
-    --block-gap: 12px; /* 保留适当间距 */
+    --block-gap: 6px; /* 减小间距 */
   }
   
   .sudoku-game-container {
@@ -411,26 +441,26 @@ html, body {
 }
 
 /* 横屏模式（大屏幕始终使用） */
-  @media (min-width: 992px) {
-    /* 确保主内容区域使用两行两列布局 */
-    .main-content {
-      flex-direction: column;
-      gap: var(--block-gap);
-      width: 100%;
-      margin-top: 20px;
-      align-items: center;
-    }
-    
-    .top-row,
-    .bottom-row {
-      display: flex;
-      flex-direction: row;
-      gap: var(--block-gap);
-      width: 100%;
-      justify-content: center;
-      align-items: flex-start;
-    }
+@media (min-width: 992px) {
+  /* 确保主内容区域使用两行两列布局 */
+  .main-content {
+    flex-direction: column;
+    gap: var(--block-gap);
+    width: 100%;
+    margin-top: 20px;
+    align-items: center;
+  }
   
+  .top-row,
+  .bottom-row {
+    display: flex;
+    flex-direction: row;
+    gap: var(--block-gap);
+    width: 100%;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
   .nav-block {
     width: var(--board-width);
     height: auto; /* 保持自动高度 */

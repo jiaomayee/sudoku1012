@@ -242,12 +242,9 @@ html, body {
     padding: 0;
     margin: 0 0 4px 0;
     position: relative;
-    /* 第三条吸附线 - 设置在导航区块下方，使用更明显的吸附效果 */
-    scroll-snap-align: end;
-    scroll-snap-margin-bottom: 20px;
   }
   
-  /* 添加微妙的视觉指示 */
+  /* 添加微妙的视觉指示并集成吸附线功能 */
   .nav-block::after {
     content: '';
     position: absolute;
@@ -256,6 +253,23 @@ html, body {
     right: 0;
     height: 1px;
     background-color: rgba(0, 0, 0, 0.1);
+    /* 第三条吸附线 - 精确定位在导航区块下方 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 20px;
+  }
+  
+  /* 为导航区块下方创建专用吸附点容器 */
+  .nav-block-snap-point {
+    height: 1px;
+    width: 100%;
+    /* 第三条吸附线 - 独立的吸附点，确保精确定位 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 20px;
+    margin-bottom: 10px;
+    display: block;
+    position: relative;
+    /* 增加可见性以便调试 */
+    background-color: transparent;
   }
   
 

@@ -379,32 +379,88 @@ export const calculateAllCandidates = (board) => {
 
 // 应用基本的数独技巧并获取提示
 export const getHint = (board) => {
-  const candidates = calculateAllCandidates(board);
+  // 检查单元格是否为空且位置有效
+  const isEmptyCell = (row, col) => {
+    return row >= 0 && row < 9 && col >= 0 && col < 9 && board[row][col] === 0;
+  };
   
-  // 1. 寻找唯一候选数（Naked Single）
+  // 检查在指定位置放置数字是否有效
+  const isValidMove = (row, col, num) => {
+    // 检查同一行
+    for (let c = 0; c < 9; c++) {
+      if (board[row][c] === num) {
+        return false;
+      }
+    }
+    
+    // 检查同一列
+    for (let r = 0; r < 9; r++) {
+      if (board[r][col] === num) {
+        return false;
+      }
+    }
+    
+    // 检查同一3x3宫
+    const boxRow = Math.floor(row / 3) * 3;
+    const boxCol = Math.floor(col / 3) * 3;
+    for (let r = boxRow; r < boxRow + 3; r++) {
+      for (let c = boxCol; c < boxCol + 3; c++) {
+        if (board[r][c] === num) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  };
+  
+  // 1. 寻找唯一数法（Naked Single）- 直接计算可能的数字，不依赖候选数
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
-      if (board[row][col] === 0 && candidates[row][col].length === 1) {
-        return {
-          row,
-          col,
-          value: candidates[row][col][0],
-          technique: 'nakedSingle',
-          description: '唯一候选数：该单元格只有一个可能的数字'
-        };
+      if (isEmptyCell(row, col)) {
+        const possibleNumbers = [];
+        
+        // 找出所有可能的数字
+        for (let num = 1; num <= 9; num++) {
+          if (isValidMove(row, col, num)) {
+            possibleNumbers.push(num);
+          }
+        }
+        
+        // 如果只有一个可能的数字，就是唯一数
+        if (possibleNumbers.length === 1) {
+          return {
+            row,
+            col,
+            value: possibleNumbers[0],
+            technique: 'nakedSingle',
+            description: '唯一数法：该单元格只有一个可能的数字'
+          };
+        }
       }
     }
   }
   
-  // 2. 寻找隐性唯一（Hidden Single）
+  // 2. 寻找隐性唯一数法（Hidden Single）
   // 检查每一行
   for (let row = 0; row < 9; row++) {
     for (let num = 1; num <= 9; num++) {
+      // 检查数字是否已经在该行存在
+      let exists = false;
+      for (let c = 0; c < 9; c++) {
+        if (board[row][c] === num) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists) continue;
+      
       let count = 0;
       let lastCol = -1;
       
+      // 找出该行中可以放置该数字的空单元格
       for (let col = 0; col < 9; col++) {
-        if (board[row][col] === 0 && candidates[row][col].includes(num)) {
+        if (isEmptyCell(row, col) && isValidMove(row, col, num)) {
           count++;
           lastCol = col;
         }
@@ -416,7 +472,7 @@ export const getHint = (board) => {
           col: lastCol,
           value: num,
           technique: 'hiddenSingle',
-          description: '隐性唯一：该数字在这一行只能放在这个位置'
+          description: '隐性唯一数法：该数字在这一行只能放在这个位置'
         };
       }
     }
@@ -425,11 +481,22 @@ export const getHint = (board) => {
   // 检查每一列
   for (let col = 0; col < 9; col++) {
     for (let num = 1; num <= 9; num++) {
+      // 检查数字是否已经在该列存在
+      let exists = false;
+      for (let r = 0; r < 9; r++) {
+        if (board[r][col] === num) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists) continue;
+      
       let count = 0;
       let lastRow = -1;
       
+      // 找出该列中可以放置该数字的空单元格
       for (let row = 0; row < 9; row++) {
-        if (board[row][col] === 0 && candidates[row][col].includes(num)) {
+        if (isEmptyCell(row, col) && isValidMove(row, col, num)) {
           count++;
           lastRow = row;
         }
@@ -441,25 +508,41 @@ export const getHint = (board) => {
           col,
           value: num,
           technique: 'hiddenSingle',
-          description: '隐性唯一：该数字在这一列只能放在这个位置'
+          description: '隐性唯一数法：该数字在这一列只能放在这个位置'
         };
       }
     }
   }
   
-  // 检查每个3x3宫格
+  // 检查每一个3x3宫
   for (let boxRow = 0; boxRow < 3; boxRow++) {
     for (let boxCol = 0; boxCol < 3; boxCol++) {
       for (let num = 1; num <= 9; num++) {
+        // 检查数字是否已经在该宫存在
+        let exists = false;
+        for (let rOffset = 0; rOffset < 3; rOffset++) {
+          for (let cOffset = 0; cOffset < 3; cOffset++) {
+            const row = boxRow * 3 + rOffset;
+            const col = boxCol * 3 + cOffset;
+            if (board[row][col] === num) {
+              exists = true;
+              break;
+            }
+          }
+          if (exists) break;
+        }
+        if (exists) continue;
+        
         let count = 0;
         let lastRow = -1;
         let lastCol = -1;
         
-        for (let r = 0; r < 3; r++) {
-          for (let c = 0; c < 3; c++) {
-            const row = boxRow * 3 + r;
-            const col = boxCol * 3 + c;
-            if (board[row][col] === 0 && candidates[row][col].includes(num)) {
+        // 找出该宫中可以放置该数字的空单元格
+        for (let rOffset = 0; rOffset < 3; rOffset++) {
+          for (let cOffset = 0; cOffset < 3; cOffset++) {
+            const row = boxRow * 3 + rOffset;
+            const col = boxCol * 3 + cOffset;
+            if (isEmptyCell(row, col) && isValidMove(row, col, num)) {
               count++;
               lastRow = row;
               lastCol = col;
@@ -473,7 +556,7 @@ export const getHint = (board) => {
             col: lastCol,
             value: num,
             technique: 'hiddenSingle',
-            description: '隐性唯一：该数字在这个宫格只能放在这个位置'
+            description: '隐性唯一数法：该数字在这一宫只能放在这个位置'
           };
         }
       }
@@ -484,14 +567,17 @@ export const getHint = (board) => {
   const empty = findEmptyCell(board);
   if (empty) {
     const [row, col] = empty;
-    if (candidates[row][col].length > 0) {
-      return {
-        row,
-        col,
-        value: candidates[row][col][0],
-        technique: 'random',
-        description: '提示：这是一个可能的数字'
-      };
+    // 找出第一个可能的数字
+    for (let num = 1; num <= 9; num++) {
+      if (isValidMove(row, col, num)) {
+        return {
+          row,
+          col,
+          value: num,
+          technique: 'random',
+          description: '提示：这是一个可能的数字'
+        };
+      }
     }
   }
   
@@ -501,21 +587,78 @@ export const getHint = (board) => {
 // 识别数独中的技巧
 export const detectTechniques = (board) => {
   const techniques = [];
-  const candidates = calculateAllCandidates(board);
   
-  // 1. 检查唯一候选数
+  // 检查单元格是否为空且位置有效
+  const isEmptyCell = (row, col) => {
+    return row >= 0 && row < 9 && col >= 0 && col < 9 && board[row][col] === 0;
+  };
+  
+  // 检查在指定位置放置数字是否有效
+  const isValidMove = (row, col, num) => {
+    // 检查同一行
+    for (let c = 0; c < 9; c++) {
+      if (board[row][c] === num) {
+        return false;
+      }
+    }
+    
+    // 检查同一列
+    for (let r = 0; r < 9; r++) {
+      if (board[r][col] === num) {
+        return false;
+      }
+    }
+    
+    // 检查同一3x3宫
+    const boxRow = Math.floor(row / 3) * 3;
+    const boxCol = Math.floor(col / 3) * 3;
+    for (let r = boxRow; r < boxRow + 3; r++) {
+      for (let c = boxCol; c < boxCol + 3; c++) {
+        if (board[r][c] === num) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  };
+  
+  // 1. 检查唯一数法 - 直接计算可能的数字，不依赖候选数
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
-      if (board[row][col] === 0 && candidates[row][col].length === 1) {
-        techniques.push({
-          type: 'nakedSingle',
-          cells: [{ row, col }],
-          value: candidates[row][col][0],
-          description: `在(${row+1}, ${col+1})位置发现唯一候选数: ${candidates[row][col][0]}`
-        });
+      if (isEmptyCell(row, col)) {
+        const possibleNumbers = [];
+        
+        // 找出所有可能的数字
+        for (let num = 1; num <= 9; num++) {
+          if (isValidMove(row, col, num)) {
+            possibleNumbers.push(num);
+          }
+        }
+        
+        // 如果只有一个可能的数字，就是唯一数
+        if (possibleNumbers.length === 1) {
+          techniques.push({
+            type: 'nakedSingle',
+            cells: [{ row, col }],
+            value: possibleNumbers[0],
+            description: `在(${row+1}, ${col+1})位置发现唯一数: ${possibleNumbers[0]}`
+          });
+        }
       }
     }
   }
+  
+  // 对于需要候选数的技巧（如数对），我们可以为特定单元格计算候选数
+  const getCellCandidates = (row, col) => {
+    const candidates = [];
+    for (let num = 1; num <= 9; num++) {
+      if (isValidMove(row, col, num)) {
+        candidates.push(num);
+      }
+    }
+    return candidates;
+  };
   
   // 2. 检查数对（Naked Pairs）
   // 行中的数对
@@ -523,12 +666,15 @@ export const detectTechniques = (board) => {
     const pairs = new Map();
     
     for (let col = 0; col < 9; col++) {
-      if (board[row][col] === 0 && candidates[row][col].length === 2) {
-        const pairKey = candidates[row][col].sort().join(',');
-        if (!pairs.has(pairKey)) {
-          pairs.set(pairKey, []);
+      if (isEmptyCell(row, col)) {
+        const cellCandidates = getCellCandidates(row, col);
+        if (cellCandidates.length === 2) {
+          const pairKey = cellCandidates.sort().join(',');
+          if (!pairs.has(pairKey)) {
+            pairs.set(pairKey, []);
+          }
+          pairs.get(pairKey).push({ row, col });
         }
-        pairs.get(pairKey).push({ row, col });
       }
     }
     

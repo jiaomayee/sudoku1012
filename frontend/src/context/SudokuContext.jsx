@@ -1167,15 +1167,15 @@ export const SudokuContextProvider = ({ children }) => {
   // 识别可应用的技巧
   const identifyTechniques = useCallback(() => {
     try {
-      // 使用本地实现的技巧识别功能
-      const techniques = identifyAllTechniques(currentBoard, pencilNotes);
+      // 使用本地实现的技巧识别功能，现在不需要传入pencilNotes
+      const techniques = identifyAllTechniques(currentBoard);
       setActiveTechniques(techniques);
       return techniques;
     } catch (error) {
       console.error('识别技巧失败:', error);
       return [];
     }
-  }, [currentBoard, pencilNotes]);
+  }, [currentBoard]);
   
   // 应用技巧
   const applyTechniqueToBoard = useCallback((technique) => {

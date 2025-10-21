@@ -1,12 +1,11 @@
 // 数独技巧实现：唯一数法和隐性唯一数法
 
 /**
- * 唯一数法 (Naked Single)：查找只有一个候选数的单元格
+ * 唯一数法 (Naked Single)：查找只有一个可能数字的单元格
  * @param {Array<Array<number>>} board - 当前数独棋盘
- * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
  * @returns {Array} - 找到的唯一数法机会数组
  */
-export const findNakedSingles = (board, pencilNotes) => {
+export const findNakedSingles = (board) => {
   const opportunities = [];
   
   // 遍历所有单元格
@@ -15,20 +14,24 @@ export const findNakedSingles = (board, pencilNotes) => {
       // 跳过已填入数字的单元格
       if (board[row][col] !== 0) continue;
       
-      const cellKey = `${row}-${col}`;
-      // 获取该单元格的候选数
-      const candidates = pencilNotes[cellKey] || [];
+      // 直接计算可能的数字，不依赖候选数
+      const possibleNumbers = [];
+      for (let num = 1; num <= 9; num++) {
+        if (isValidMove(board, row, col, num)) {
+          possibleNumbers.push(num);
+        }
+      }
       
-      // 如果只有一个候选数，找到唯一数法机会
-      if (candidates.length === 1) {
+      // 如果只有一个可能的数字，找到唯一数法机会
+      if (possibleNumbers.length === 1) {
         opportunities.push({
           type: 'nakedSingle',
           description: '唯一数法',
           row,
           col,
-          value: candidates[0],
+          value: possibleNumbers[0],
           cells: [[row, col]],
-          message: `单元格(${row+1},${col+1})只有数字${candidates[0]}可以填入`
+          message: `单元格(${row+1},${col+1})只有数字${possibleNumbers[0]}可以填入`
         });
       }
     }
@@ -40,27 +43,46 @@ export const findNakedSingles = (board, pencilNotes) => {
 /**
  * 隐性唯一数法 (Hidden Single)：查找在特定区域中只有一个位置可以填入特定数字的情况
  * @param {Array<Array<number>>} board - 当前数独棋盘
- * @returns {Array} - 找到的隐性唯一数法机会数组
+ * @returns {Array} - 找到的隐性唯一数法机会数组（避免同一单元格重复）
  */
 export const findHiddenSingles = (board) => {
   const opportunities = [];
+  const processedCells = new Set(); // 用于跟踪已处理的单元格
   
   // 检查每一行
   for (let row = 0; row < 9; row++) {
     const result = findHiddenSinglesInRow(board, row);
-    opportunities.push(...result);
+    for (const item of result) {
+      const cellKey = `${item.row}-${item.col}`;
+      if (!processedCells.has(cellKey) && board[item.row][item.col] === 0) {
+        processedCells.add(cellKey);
+        opportunities.push(item);
+      }
+    }
   }
   
   // 检查每一列
   for (let col = 0; col < 9; col++) {
     const result = findHiddenSinglesInCol(board, col);
-    opportunities.push(...result);
+    for (const item of result) {
+      const cellKey = `${item.row}-${item.col}`;
+      if (!processedCells.has(cellKey) && board[item.row][item.col] === 0) {
+        processedCells.add(cellKey);
+        opportunities.push(item);
+      }
+    }
   }
   
   // 检查每一个3x3宫
   for (let box = 0; box < 9; box++) {
     const result = findHiddenSinglesInBox(board, box);
-    opportunities.push(...result);
+    for (const item of result) {
+      const cellKey = `${item.row}-${item.col}`;
+      if (!processedCells.has(cellKey) && board[item.row][item.col] === 0) {
+        processedCells.add(cellKey);
+        opportunities.push(item);
+      }
+    }
   }
   
   return opportunities;
@@ -258,32 +280,12 @@ const isValidMove = (board, row, col, num) => {
 /**
  * 识别所有可用的技巧
  * @param {Array<Array<number>>} board - 当前数独棋盘
- * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
+ * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}（不再使用）
  * @returns {Array} - 所有可用的技巧机会
  */
 export const identifyAllTechniques = (board, pencilNotes = {}) => {
-  // 首先计算所有单元格的候选数（如果没有提供）
-  const updatedPencilNotes = pencilNotes;
-  if (Object.keys(pencilNotes).length === 0) {
-    for (let row = 0; row < 9; row++) {
-      for (let col = 0; col < 9; col++) {
-        if (board[row][col] === 0) {
-          const candidates = [];
-          for (let num = 1; num <= 9; num++) {
-            if (isValidMove(board, row, col, num)) {
-              candidates.push(num);
-            }
-          }
-          if (candidates.length > 0) {
-            updatedPencilNotes[`${row}-${col}`] = candidates;
-          }
-        }
-      }
-    }
-  }
-  
-  // 查找唯一数法机会
-  const nakedSingles = findNakedSingles(board, updatedPencilNotes);
+  // 查找唯一数法机会（不再依赖候选数）
+  const nakedSingles = findNakedSingles(board);
   
   // 查找隐性唯一数法机会
   const hiddenSingles = findHiddenSingles(board);

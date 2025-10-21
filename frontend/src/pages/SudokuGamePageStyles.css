@@ -242,9 +242,9 @@ html, body {
     padding: 0;
     margin: 0 0 4px 0;
     position: relative;
-    /* 第三条吸附线 - 设置在导航区块下方 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
+    /* 第三条吸附线 - 设置在导航区块下方，使用更明显的吸附效果 */
+    scroll-snap-align: end;
+    scroll-snap-margin-bottom: 20px;
   }
   
   /* 添加微妙的视觉指示 */

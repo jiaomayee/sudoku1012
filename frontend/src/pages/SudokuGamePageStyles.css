@@ -175,13 +175,14 @@ html, body {
   }
   
   body {
-    height: 100vh; /* 固定高度，确保能滚动 */
+    height: auto; /* 使用自适应高度，允许内容完全显示 */
+    min-height: 100vh;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    /* 父容器定义滚动规则 - 强制吸附模式确保功能正常 */
-    scroll-snap-type: y mandatory;
+    /* 使用宽松的吸附模式，避免阻止滚动 */
+    scroll-snap-type: y proximity;
     -webkit-overflow-scrolling: touch;
     position: relative;
   }
@@ -259,9 +260,9 @@ html, body {
     display: block;
     padding: 4px 0; /* 减少上下内边距以降低高度 */
     margin-bottom: 4px; /* 调整底部间距 */
-    /* 第一条吸附线 - 设置在顶部菜单栏的上方 */
+    /* 保留顶部菜单栏的吸附设置，但使用更宽松的设置 */
     scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
+    scroll-snap-margin-top: 5px;
   }
   
 
@@ -368,9 +369,7 @@ html, body {
     width: 100%; /* 完全充满父容器 */
     border-radius: var(--border-radius);
     position: relative;
-    /* 第二条吸附线 - 设置在显示区块上方 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
+    /* 移除显示区块的吸附设置，避免阻止向上滚动 */
   }
   
   /* 添加微妙的视觉指示 */

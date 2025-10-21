@@ -172,13 +172,20 @@ html, body {
       --block-gap: 8px; /* 进一步增加区块间距，确保区块之间有明显分隔 */
     }
     
-    /* 允许页面正常滚动 */
+    /* 允许页面正常滚动并启用滚动吸附 */
     html, body {
       position: static;
       width: 100%;
       height: auto;
       overflow-x: hidden;
       overflow-y: auto;
+      scroll-snap-type: y mandatory; /* 启用垂直滚动吸附 */
+    }
+    
+    /* 滚动吸附元素 */
+    nav, .display-block, .nav-block {
+      scroll-snap-align: end; /* 在元素底部对齐 */
+      scroll-margin-top: 8px; /* 吸附时上方留出边距 */
     }
     
     .sudoku-game-container {
@@ -236,12 +243,16 @@ html, body {
       max-height: 56px; /* 设置最大高度限制 */
       padding: 0;
       margin: 0;
+      scroll-snap-align: end; /* 在导航栏区块底部设置滚动吸附 */
+      scroll-margin-top: 8px;
     }
     
     /* 竖屏模式下显示顶部菜单栏 */
     nav {
       display: block;
       padding: 4px 0; /* 减少上下内边距以降低高度 */
+      scroll-snap-align: end; /* 在顶部菜单栏底部设置滚动吸附 */
+      scroll-margin-top: 8px;
     }
     
     /* 上滑提示符号 - 仅在竖屏模式显示 */
@@ -348,6 +359,8 @@ html, body {
       width: 100%; /* 完全充满父容器 */
       border-radius: var(--border-radius);
       align-self: auto; /* 移除居中设置 */
+      scroll-snap-align: end; /* 在显示区块底部设置滚动吸附 */
+      scroll-margin-top: 8px;
     }
 
   .display-block div {

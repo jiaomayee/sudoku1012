@@ -175,13 +175,14 @@ html, body {
   }
   
   body {
-    height: 100vh; /* 使用固定高度确保吸附效果 */
+    height: auto; /* 使用自适应高度，允许内容完全显示 */
+    min-height: 100vh;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    /* 使用强制吸附模式确保滚动吸附正常工作 */
-    scroll-snap-type: y mandatory;
+    /* 使用宽松的吸附模式，允许用户正常滚动查看所有内容 */
+    scroll-snap-type: y proximity;
     -webkit-overflow-scrolling: touch;
     position: relative;
   }

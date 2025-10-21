@@ -1167,15 +1167,15 @@ export const SudokuContextProvider = ({ children }) => {
   // 识别可应用的技巧
   const identifyTechniques = useCallback(() => {
     try {
-      // 使用本地实现的技巧识别功能，现在不需要传入pencilNotes
-      const techniques = identifyAllTechniques(currentBoard);
+      // 传入currentBoard和pencilNotes参数，确保所有技巧都能正常工作
+      const techniques = identifyAllTechniques(currentBoard, pencilNotes);
       setActiveTechniques(techniques);
       return techniques;
     } catch (error) {
       console.error('识别技巧失败:', error);
       return [];
     }
-  }, [currentBoard]);
+  }, [currentBoard, pencilNotes]);
   
   // 应用技巧
   const applyTechniqueToBoard = useCallback((technique) => {
@@ -1185,36 +1185,111 @@ export const SudokuContextProvider = ({ children }) => {
       
       // 如果应用成功，更新棋盘
       if (result && result.board) {
-        const { row, col, value } = result.operation;
+        // 获取操作信息
+        const operation = result.operation;
         
-        // 保存当前的铅笔模式状态
-        const currentPencilMode = isPencilMode;
-        
-        // 临时关闭铅笔模式，确保技巧应用始终填入正确数字
-        if (currentPencilMode) {
-          setIsPencilMode(false);
+        // 检查是否是单一数字填入操作
+        if (operation && operation.type === 'fill' && 
+            typeof operation.row === 'number' && 
+            typeof operation.col === 'number' && 
+            typeof operation.value === 'number') {
+          
+          const { row, col, value } = operation;
+          
+          // 保存当前的铅笔模式状态
+          const currentPencilMode = isPencilMode;
+          
+          // 临时关闭铅笔模式，确保技巧应用始终填入正确数字
+          if (currentPencilMode) {
+            setIsPencilMode(false);
+          }
+          
+          // 使用现有的fillCell方法来更新棋盘，这样可以确保历史记录和锁定单元格等状态被正确维护
+          fillCell(row, col, value);
+          
+          // 恢复原始铅笔模式状态
+          if (currentPencilMode) {
+            setIsPencilMode(true);
+          }
+          
+          return true;
         }
         
-        // 使用现有的fillCell方法来更新棋盘，这样可以确保历史记录和锁定单元格等状态被正确维护
-        fillCell(row, col, value);
-        
-        // 恢复原始铅笔模式状态
-        if (currentPencilMode) {
-          setIsPencilMode(true);
+        // 对于需要移除候选数的操作（数对、三链数等）
+        if (operation && operation.type === 'removeCandidates' && 
+            Array.isArray(operation.cells)) {
+          
+          // 创建新的候选数对象，避免直接修改状态
+          const updatedCandidates = { ...candidates };
+          
+          // 遍历所有需要移除候选数的单元格
+          operation.cells.forEach(cell => {
+            if (typeof cell.row === 'number' && 
+                typeof cell.col === 'number' && 
+                Array.isArray(cell.valuesToRemove)) {
+              
+              const cellKey = `${cell.row}-${cell.col}`;
+              // 获取当前单元格的候选数
+              const currentCellCandidates = candidates[cellKey] || [];
+              
+              // 过滤掉需要移除的候选数
+              const newCandidates = currentCellCandidates.filter(candidate => 
+                !cell.valuesToRemove.includes(candidate)
+              );
+              
+              // 更新候选数对象
+              updatedCandidates[cellKey] = newCandidates;
+            }
+          });
+          
+          // 更新候选数状态
+          setCandidates(updatedCandidates);
+          
+          console.log('成功移除候选数:', technique.type);
+          
+          // 显示成功提示
+          toast.success('候选数已成功移除', {
+            position: 'top-right',
+            autoClose: 2000
+          });
+          
+          return true;
         }
         
-        return true;
+        // 对于高亮类型的操作，保持支持但提供更好的反馈
+        if (operation && operation.type === 'highlight') {
+          // 数对技巧等可能需要用户手动操作，但我们仍然返回true表示成功
+          console.log('技巧应用成功（高亮提示）:', technique.type);
+          
+          // 如果是数对类型，提供特定的提示
+          if (technique.type && (technique.type.includes('Pair') || technique.type.includes('pair'))) {
+            toast.success('数对技巧已识别，建议手动移除相关候选数', {
+              position: 'top-right',
+              autoClose: 3000
+            });
+          }
+          
+          return true;
+        }
+        
+        // 如果操作类型未知或缺少必要参数
+        console.warn('无法应用技巧：操作信息不完整或类型不支持', operation);
+        toast.info('此技巧主要用于提示，暂不支持自动应用', { 
+          position: 'top-right',
+          autoClose: 2000
+        });
+        return false;
       }
       return false;
     } catch (error) {
       console.error('应用技巧失败:', error);
-      toast.error('应用技巧失败，请重试', {
+      toast.error('应用技巧失败，请重试', { 
         position: 'top-right',
         autoClose: 2000
       });
       return false;
     }
-  }, [fillCell, currentBoard, isPencilMode]);
+  }, [fillCell, currentBoard, isPencilMode, candidates, setCandidates]);
 
   // 切换计时器活跃状态
   const toggleTimer = () => {

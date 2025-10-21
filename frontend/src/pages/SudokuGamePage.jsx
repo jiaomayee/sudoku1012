@@ -564,7 +564,8 @@ const SudokuGamePage = () => {
                 onUndo={undo} // 添加onUndo属性
                 selectedNumber={selectedCell?.value || null}
                 isPencilMode={isPencilMode}
-                onTogglePencilMode={handleTogglePencilMode}
+                togglePencilMode={handleTogglePencilMode}
+                fillAllCandidates={fillAllCandidates}
                 remainingNumbers={remainingNumbers} // 添加剩余数字数量
               />
             </div>
@@ -632,7 +633,8 @@ const SudokuGamePage = () => {
                   onUndo={undo} // 添加onUndo属性
                   selectedNumber={selectedCell?.value || null}
                   isPencilMode={isPencilMode}
-                  onTogglePencilMode={handleTogglePencilMode}
+                  togglePencilMode={handleTogglePencilMode}
+                  fillAllCandidates={fillAllCandidates}
                   remainingNumbers={remainingNumbers} // 添加剩余数字数量
                 />
               </div>

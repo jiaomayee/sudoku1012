@@ -242,7 +242,7 @@ html, body {
     padding: 0;
     margin: 0 0 4px 0;
     position: relative;
-    /* 吸附线 - 在显示区块下方 */
+    /* 第三条吸附线 - 设置在导航区块下方 */
     scroll-snap-align: start;
     scroll-snap-margin-top: 10px;
   }
@@ -264,6 +264,9 @@ html, body {
   nav {
     display: block;
     padding: 4px 0; /* 减少上下内边距以降低高度 */
+    /* 第一条吸附线 - 设置在顶部菜单栏的上方 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 10px;
   }
   
 
@@ -333,9 +336,9 @@ html, body {
     overflow: hidden;
     box-sizing: border-box;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    /* 吸附线 - 在导航区块下方，作为主要内容区域 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
+    /* 移除棋盘容器的吸附点设置，避免冲突 */
+    /* scroll-snap-align: start;
+    scroll-snap-margin-top: 10px; */
   }
   
   /* 操作面板在竖屏模式下自适应高度 */
@@ -370,6 +373,9 @@ html, body {
     width: 100%; /* 完全充满父容器 */
     border-radius: var(--border-radius);
     position: relative;
+    /* 第二条吸附线 - 设置在显示区块上方 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 10px;
   }
   
   /* 添加微妙的视觉指示 */

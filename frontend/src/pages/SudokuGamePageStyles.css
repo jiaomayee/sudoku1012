@@ -240,11 +240,11 @@ html, body {
     height: auto;
     min-height: 60px; /* 确保完整显示 */
     padding: 0;
-    margin: 0 0 4px 0;
+    margin: 0; /* 移除底部margin，避免与snap-point的margin叠加 */
     position: relative;
   }
   
-  /* 添加微妙的视觉指示并集成吸附线功能 */
+  /* 添加微妙的视觉指示 */
   .nav-block::after {
     content: '';
     position: absolute;
@@ -253,9 +253,7 @@ html, body {
     right: 0;
     height: 1px;
     background-color: rgba(0, 0, 0, 0.1);
-    /* 第三条吸附线 - 精确定位在导航区块下方 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 20px;
+    /* 移除伪元素上的吸附设置，避免冲突 */
   }
   
   /* 为导航区块下方创建专用吸附点容器 */
@@ -264,12 +262,10 @@ html, body {
     width: 100%;
     /* 第三条吸附线 - 独立的吸附点，确保精确定位 */
     scroll-snap-align: start;
-    scroll-snap-margin-top: 20px;
-    margin-bottom: 10px;
+    scroll-snap-margin-top: 10px;
+    margin-bottom: 4px; /* 减小间距 */
     display: block;
     position: relative;
-    /* 增加可见性以便调试 */
-    background-color: transparent;
   }
   
 

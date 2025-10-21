@@ -578,8 +578,6 @@ const SudokuGamePage = () => {
                   isTimerActive={isTimerActive}
                 />
               </div>
-              {/* 导航区块下方的专用吸附点容器 - 确保精确定位 */}
-              <div className="nav-block-snap-point"></div>
               
               {/* 显示区块 - 右侧，宽度为棋盘的2/3，精简显示 */}
               <div className="display-block">

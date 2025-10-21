@@ -12,7 +12,7 @@ const DisplayBlockContainer = styled(({theme, ...props}) => <div {...props} />).
   justify-content: center;
   align-items: center;
   gap: 4px;
-  width: 100%; // 继承父容器宽度，确保与操作区块同宽
+  width: 100%; // 继承父容器宽度，确保与控制面板同宽
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   margin: 0;
   box-sizing: border-box;

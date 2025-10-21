@@ -602,7 +602,7 @@ const SudokuGamePage = () => {
               </div>
             </div>
             
-            {/* 底部区域：数独棋盘和操作区块 */}
+            {/* 底部区域：数独棋盘 */}
             <div className="bottom-row">
               {/* 数独棋盘 - 左侧，作为尺寸基准 */}
               <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
@@ -624,7 +624,7 @@ const SudokuGamePage = () => {
                 />
               </div>
               
-              {/* 操作区块 - 右侧，宽度为棋盘的2/3，高度与棋盘一致 */}
+              {/* 右侧控制面板 */}
               <div className="controls-container" onClick={(e) => e.stopPropagation()}>
                 <ControlPanel
                   onNumberSelect={handleNumberSelect}

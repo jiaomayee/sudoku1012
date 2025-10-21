@@ -55,7 +55,7 @@ html, body {
   flex-wrap: wrap;
 }
 
-/* 底部行 - 包含棋盘区块和操作区块 */
+/* 底部行 - 包含棋盘和控制面板 */
 .bottom-row {
   display: flex;
   gap: var(--block-gap);

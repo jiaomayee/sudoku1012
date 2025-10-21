@@ -247,7 +247,7 @@ html, body {
     padding: 0;
     margin: 0 0 4px 0;
     position: relative;
-    /* 在顶部设置第一条吸附线，确保菜单栏完整显示 */
+    /* 第1条吸附线 - 在页面最顶部，确保菜单栏完整显示 */
     scroll-snap-align: start;
     scroll-snap-margin-top: 10px;
   }
@@ -339,7 +339,7 @@ html, body {
     overflow: hidden;
     box-sizing: border-box;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    /* 第一条吸附线 - 顶部吸附 */
+    /* 第2条吸附线 - 在导航区块下方，作为主要内容区域吸附点 */
     scroll-snap-align: start;
     scroll-snap-margin-top: 10px;
   }
@@ -361,7 +361,7 @@ html, body {
     align-self: auto; /* 移除居中设置 */
   }
   
-  /* 显示区块 - 作为第二吸附点 */
+  /* 显示区块 - 作为第三吸附点 */
   .display-block {
     background-color: #ffffff;
     padding: 8px 15px; /* 适当增加内边距 */
@@ -376,7 +376,7 @@ html, body {
     width: 100%; /* 完全充满父容器 */
     border-radius: var(--border-radius);
     position: relative;
-    /* 第二条吸附线 - 顶部吸附 */
+    /* 第3条吸附线 - 在棋盘容器下方，作为底部信息区域吸附点 */
     scroll-snap-align: start;
     scroll-snap-margin-top: 10px;
   }

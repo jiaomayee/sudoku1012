@@ -472,7 +472,7 @@ export const getHint = (board) => {
           col: lastCol,
           value: num,
           technique: 'hiddenSingle',
-          description: '隐性唯一数法：该数字在这一行只能放在这个位置'
+          description: '行摒除法：该数字在这一行只能放在这个位置'
         };
       }
     }
@@ -508,7 +508,7 @@ export const getHint = (board) => {
           col,
           value: num,
           technique: 'hiddenSingle',
-          description: '隐性唯一数法：该数字在这一列只能放在这个位置'
+          description: '列摒除法：该数字在这一列只能放在这个位置'
         };
       }
     }
@@ -556,7 +556,7 @@ export const getHint = (board) => {
             col: lastCol,
             value: num,
             technique: 'hiddenSingle',
-            description: '隐性唯一数法：该数字在这一宫只能放在这个位置'
+            description: '宫摒除法：该数字在这一宫只能放在这个位置'
           };
         }
       }

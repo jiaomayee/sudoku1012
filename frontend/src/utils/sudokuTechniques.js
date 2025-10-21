@@ -122,7 +122,7 @@ const findHiddenSinglesInRow = (board, rowIndex) => {
     if (foundCount === 1) {
       opportunities.push({
         type: 'hiddenSingleRow',
-        description: '行隐性唯一数法',
+        description: '行摒除法',
         row: rowIndex,
         col: possibleCol,
         value: num,
@@ -169,7 +169,7 @@ const findHiddenSinglesInCol = (board, colIndex) => {
     if (foundCount === 1) {
       opportunities.push({
         type: 'hiddenSingleCol',
-        description: '列隐性唯一数法',
+        description: '列摒除法',
         row: possibleRow,
         col: colIndex,
         value: num,
@@ -227,7 +227,7 @@ const findHiddenSinglesInBox = (board, boxIndex) => {
     if (foundCount === 1) {
       opportunities.push({
         type: 'hiddenSingleBox',
-        description: '宫隐性唯一数法',
+        description: '宫摒除法',
         row: possibleRow,
         col: possibleCol,
         value: num,

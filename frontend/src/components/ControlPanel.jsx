@@ -3,6 +3,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku } from '../context/SudokuContext';
 
+// 获取技巧显示名称
+const getTechniqueDisplayType = (primaryType, secondaryType) => {
+  if (primaryType === 'hiddenSingle') {
+    if (secondaryType === '行') return '行摒除法';
+    if (secondaryType === '列') return '列摒除法';
+    if (secondaryType === '宫') return '宫摒除法';
+  }
+  return primaryType;
+};
+
 // 清理所有残留的CSS代码
 
 // 清理所有残留的styled-components定义
@@ -25,7 +35,28 @@ const ControlPanel = ({
   const [selectedTechnique, setSelectedTechnique] = useState(null);
   
   // 从上下文获取技巧和应用技巧的方法
-  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells, setSelectedCell } = useSudoku();
+  const sudokuContext = useSudoku();
+  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells, setSelectedCell, selectedCell } = sudokuContext || {};
+  
+  // 退出技巧模式的函数
+  const exitTechniqueMode = useCallback(() => {
+    // 切换到键盘标签页
+    setActiveTab('keyboard');
+    // 清除高亮
+    if (setHighlightedCells) {
+      setHighlightedCells([]);
+    }
+    // 清除选中的技巧和步骤
+    setSelectedTechnique(null);
+    setTechniqueSteps([]);
+  }, [setHighlightedCells]);
+  
+  // 监听选中单元格的变化，当用户点击单元格时退出技巧模式
+  useEffect(() => {
+    if (selectedCell && activeTab !== 'keyboard') {
+      exitTechniqueMode();
+    }
+  }, [selectedCell, activeTab, exitTechniqueMode]);
   
   // 保存找到的技巧
   const [availableTechniques, setAvailableTechniques] = useState([]);
@@ -93,14 +124,14 @@ const ControlPanel = ({
         { step: 4, description: `使用唯一数法填入数字${technique.value}`, highlight: position }
       );
     } else {
-      // 隐性唯一数法步骤
+      // 摒除法步骤
       const regionType = technique.type.includes('Row') ? '行' : (technique.type.includes('Col') ? '列' : '宫');
       const regionNum = technique.type.includes('Row') ? row : (technique.type.includes('Col') ? col : Math.floor((row - 1) / 3) * 3 + Math.floor((col - 1) / 3) + 1);
       
       steps.push(
         { step: 1, description: `检查数字${technique.value}在${regionType}${regionNum}中的可能位置`, highlight: '' },
         { step: 2, description: `发现在${regionType}${regionNum}中，数字${technique.value}只能填入单元格(${row},${col})`, highlight: position },
-        { step: 3, description: `使用隐性唯一数法填入数字${technique.value}`, highlight: position }
+        { step: 3, description: `使用${regionType}摒除法填入数字${technique.value}`, highlight: position }
       );
     }
     
@@ -196,7 +227,10 @@ const ControlPanel = ({
                 justifyContent: 'center',
                 position: 'relative'
               }}
-              onClick={() => setActiveTab('keyboard')}
+              onClick={() => {
+                // 点击键盘标签页，退出技巧模式
+                exitTechniqueMode();
+              }}
             >
               键盘
             </button>
@@ -221,7 +255,7 @@ const ControlPanel = ({
               }}
               onClick={() => {
                 setActiveTab('techniques');
-                // 取消选中单元格
+                // 取消选中单元格，进入技巧模式
                 if (setSelectedCell) {
                   setSelectedCell(null);
                 }
@@ -248,7 +282,13 @@ const ControlPanel = ({
                 justifyContent: 'center',
                 position: 'relative'
               }}
-              onClick={() => setActiveTab('solution')}
+              onClick={() => {
+                setActiveTab('solution');
+                // 取消选中单元格，进入技巧模式
+                if (setSelectedCell) {
+                  setSelectedCell(null);
+                }
+              }}
             >
               解题
             </button>
@@ -862,7 +902,7 @@ const ControlPanel = ({
                   当前棋盘没有找到可用技巧
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
                   {availableTechniques.map((technique, index) => {
                     const row = technique.row + 1;
                     const col = technique.col + 1;
@@ -875,7 +915,7 @@ const ControlPanel = ({
                       primaryType = '唯一数法';
                       // 唯一数法是一级分类，这里可以根据需要添加二级类型
                     } else if (technique.type.includes('hidden_single') || technique.type.includes('hiddenSingle')) {
-                      primaryType = '隐性唯一数法';
+                      // 先确定secondaryType
                       if (technique.type.includes('row') || technique.type.includes('Row')) {
                         secondaryType = '行';
                       } else if (technique.type.includes('col') || technique.type.includes('Col')) {
@@ -883,6 +923,8 @@ const ControlPanel = ({
                       } else if (technique.type.includes('box') || technique.type.includes('Box')) {
                         secondaryType = '宫';
                       }
+                      // 再调用getTechniqueDisplayType
+                      primaryType = getTechniqueDisplayType('hiddenSingle', secondaryType);
                     } else if (technique.type === 'nakedPairs' || technique.type === 'naked_pairs') {
                       primaryType = '数对';
                       // 根据需要添加二级类型
@@ -894,17 +936,17 @@ const ControlPanel = ({
                       primaryType = technique.description || '未知技巧';
                     }
                     
-                    // 组合显示文本
-                    const displayType = secondaryType ? `${primaryType}（${secondaryType}）` : primaryType;
+                    // 直接使用primaryType作为显示类型，因为已经包含了行/列/宫信息
+                    const displayType = primaryType;
                     
                     return (
                       <div 
                         key={index}
                         onClick={() => handleTechniqueSelect(technique)}
                         style={{
-                          padding: '12px',
+                          padding: '8px 10px',
                           backgroundColor: '#f8f9fa',
-                          borderRadius: '8px',
+                          borderRadius: '6px',
                           border: '1px solid #e9ecef',
                           cursor: 'pointer',
                           transition: 'all 0.2s ease'
@@ -918,9 +960,10 @@ const ControlPanel = ({
                           e.currentTarget.style.borderColor = '#e9ecef';
                         }}
                       >
-                        <div style={{ fontWeight: '600', color: '#34495e', marginBottom: '4px' }}>{displayType}</div>
-                        <div style={{ fontSize: '14px', color: '#7f8c8d' }}>位置: ({row},{col})</div>
-                        <div style={{ fontSize: '14px', color: '#7f8c8d' }}>值: {technique.value}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', color: '#34495e' }}>
+                          <span>{displayType}</span>
+                          <span style={{ fontSize: '14px', color: '#7f8c8d', fontWeight: 'normal' }}>位置: ({row},{col})</span>
+                        </div>
                       </div>
                     );
                   })}

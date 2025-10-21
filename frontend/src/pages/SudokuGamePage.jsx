@@ -130,7 +130,16 @@ const SudokuGamePage = () => {
   
   // 处理单元格选择
   const handleCellClick = (row, col) => {
+    // 设置选中的单元格
     setSelectedCell({ row, col });
+    
+    // 退出技巧模式：清除高亮单元格
+    if (sudokuContext?.setHighlightedCells) {
+      sudokuContext.setHighlightedCells([]);
+    }
+    
+    // 注意：这里只处理了高亮清除，因为切换标签页的逻辑在ControlPanel组件中
+    // ControlPanel组件中的exitTechniqueMode函数会在需要时被调用
   };
   
   // 格式化时间显示
@@ -542,6 +551,8 @@ const SudokuGamePage = () => {
               <TechniqueOverlay 
                 highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
                 boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                boardHeight={boardContainerRef.current?.offsetHeight || 450}
+                isPortrait={isPortrait}
               />
             </div>
             
@@ -609,6 +620,7 @@ const SudokuGamePage = () => {
                 <TechniqueOverlay 
                   highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
                   boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                  isPortrait={isPortrait}
                 />
               </div>
               

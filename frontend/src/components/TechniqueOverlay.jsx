@@ -1,79 +1,7 @@
 import React from 'react';
 
-// 技巧提示用的候选数组件 - 使用精确的DOM叠加方式
-const TechniquePencilNotes = ({ notes = [], cellWidth }) => {
-  // 确保notes是数组且不为null或undefined
-  const activeNotes = Array.isArray(notes) ? notes : [];
-  
-  // 计算更大的字体大小以提高可识别性
-  const fontSize = `${Math.max(12, cellWidth * 0.18)}px`;
-  
-  // 与原系统候选数位置精确对齐的映射
-  const getNotePosition = (number) => {
-    // 3x3网格中每个位置的百分比坐标
-    const positions = {
-      1: { top: '15%', left: '15%' },
-      2: { top: '15%', left: '50%' },
-      3: { top: '15%', left: '85%' },
-      4: { top: '50%', left: '15%' },
-      5: { top: '50%', left: '50%' },
-      6: { top: '50%', left: '85%' },
-      7: { top: '85%', left: '15%' },
-      8: { top: '85%', left: '50%' },
-      9: { top: '85%', left: '85%' }
-    };
-    return positions[number] || { top: '50%', left: '50%' };
-  };
-  
-  return (
-    <div 
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 30 // 确保在最顶层
-      }}
-    >
-      {activeNotes.map((number) => {
-        const pos = getNotePosition(number);
-        
-        return (
-          <div
-            key={number}
-            style={{
-              position: 'absolute',
-              left: pos.left,
-              top: pos.top,
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: '#2ecc71', // 纯色绿色背景
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: fontSize,
-              fontWeight: 'bold',
-              color: '#ffffff',
-              border: '1px solid #ffffff',
-              boxShadow: 'none', // 移除阴影以避免渐变效果
-              width: `${cellWidth * 0.28}px`,
-              height: `${cellWidth * 0.28}px`,
-              lineHeight: `${cellWidth * 0.28}px`, // 确保文本垂直居中
-              opacity: 1,
-              pointerEvents: 'none' // 确保不干扰交互
-            }}
-          >
-            {number}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
 // 完全隔离的技巧高亮覆盖层组件 - 实现基础技巧指示功能
-const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
+const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrait = false }) => {
   // 严格检查highlightedCells，确保它是有效的数组
   if (!highlightedCells || !Array.isArray(highlightedCells)) {
     return null;
@@ -94,8 +22,22 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
     return null;
   }
 
-  // 计算单元格宽度
-  const cellWidth = boardWidth / 9;
+  // 根据屏幕方向使用不同的计算逻辑
+  let cellWidth, cellHeight, fontSize, overlayHeight;
+  
+  if (isPortrait && boardHeight) {
+    // 竖屏模式：使用boardHeight进行计算，修复位置不准确问题
+    cellWidth = boardWidth / 9;
+    cellHeight = boardHeight / 9;
+    fontSize = `${Math.max(16, Math.min(cellWidth, cellHeight) * 0.4)}px`;
+    overlayHeight = boardHeight;
+  } else {
+    // 横屏模式：保持原有逻辑，确保横屏显示正常
+    cellWidth = boardWidth / 9;
+    cellHeight = cellWidth; // 横屏模式下宽度和高度保持一致
+    fontSize = `${Math.max(16, cellWidth * 0.4)}px`;
+    overlayHeight = boardWidth;
+  }
 
   return (
     <div 
@@ -105,42 +47,48 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth }) => {
         top: 0,
         left: 0,
         width: `${boardWidth}px`,
-        height: `${boardWidth}px`,
+        height: `${overlayHeight}px`, // 根据屏幕方向设置高度
         pointerEvents: 'none', // 完全禁用所有事件，不干扰原系统
         zIndex: 15, // 适当的z-index确保可见但不影响原系统
         boxSizing: 'border-box',
         background: 'transparent' // 确保背景完全透明
       }}
     >
-      {/* 渲染技巧高亮单元格 - 为每个技巧单元格添加黄色背景高亮 */}
+      {/* 渲染技巧高亮单元格 - 为每个技巧单元格添加不太明亮的黄色背景和白色粗边框 */}
       {techniqueCells.map((cell) => {
-        // 检查是否有候选数需要显示
-        const hasNotes = cell.notes && Array.isArray(cell.notes) && cell.notes.length > 0;
-        
         return (
           <div
             key={`tech-${cell.row}-${cell.col}`}
             style={{
               position: 'absolute',
               left: `${cell.col * cellWidth}px`,
-              top: `${cell.row * cellWidth}px`,
+              top: `${cell.row * cellHeight}px`, // 根据屏幕方向使用不同的垂直定位
               width: `${cellWidth}px`,
-              height: `${cellWidth}px`,
+              height: `${cellHeight}px`, // 根据屏幕方向使用不同的高度
               pointerEvents: 'none',
               zIndex: 20,
-              // 为技巧指示单元格添加黄色背景
-              backgroundColor: '#ffeaa7', // 黄色背景
-              border: '2px solid #f39c12', // 橙色边框增强视觉效果
+              // 为技巧指示单元格添加不太明亮的黄色背景
+              backgroundColor: '#f9e79f', // 不太明亮的黄色背景
+              border: '3px solid #ffffff', // 粗白色边框
               boxSizing: 'border-box',
-              borderRadius: '4px'
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            {/* 如果有候选数需要显示，则渲染技巧候选数 */}
-            {hasNotes && (
-              <TechniquePencilNotes 
-                notes={cell.notes} 
-                cellWidth={cellWidth}
-              />
+            {/* 显示绿色的预填入数字，字体大小与用户填入数字大小相同 */}
+            {cell.number && (
+              <span
+                style={{
+                  fontSize: fontSize,
+                  fontWeight: 'bold',
+                  color: '#2ecc71', // 绿色
+                  zIndex: 30
+                }}
+              >
+                {cell.number}
+              </span>
             )}
           </div>
         );

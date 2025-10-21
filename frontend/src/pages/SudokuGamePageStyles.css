@@ -240,8 +240,11 @@ html, body {
     height: auto;
     min-height: 60px; /* 确保完整显示 */
     padding: 0;
-    margin: 0; /* 移除底部margin，避免与snap-point的margin叠加 */
+    margin: 0;
     position: relative;
+    /* 确保导航区块本身就是一个吸附点 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 10px;
   }
   
   /* 添加微妙的视觉指示 */
@@ -253,17 +256,14 @@ html, body {
     right: 0;
     height: 1px;
     background-color: rgba(0, 0, 0, 0.1);
-    /* 移除伪元素上的吸附设置，避免冲突 */
   }
   
-  /* 为导航区块下方创建专用吸附点容器 */
+  /* 为导航区块下方创建专用吸附点容器 - 确保棋盘区块的吸附位置正确 */
   .nav-block-snap-point {
     height: 1px;
     width: 100%;
-    /* 第三条吸附线 - 独立的吸附点，确保精确定位 */
-    scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
-    margin-bottom: 4px; /* 减小间距 */
+    /* 移除吸附设置，避免与导航区块的吸附点冲突 */
+    margin: 4px 0; /* 控制导航区块和棋盘区块之间的间距 */
     display: block;
     position: relative;
   }
@@ -274,6 +274,7 @@ html, body {
   nav {
     display: block;
     padding: 4px 0; /* 减少上下内边距以降低高度 */
+    margin-bottom: 4px; /* 调整底部间距 */
     /* 第一条吸附线 - 设置在顶部菜单栏的上方 */
     scroll-snap-align: start;
     scroll-snap-margin-top: 10px;
@@ -376,7 +377,7 @@ html, body {
     height: auto;
     min-height: 52px; /* 适当增加最小高度 */
     gap: 12px; /* 适当增加内部间距 */
-    margin: 0 !important; /* 移除负边距 */
+    margin: 4px 0 !important; /* 调整垂直间距 */
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-around;

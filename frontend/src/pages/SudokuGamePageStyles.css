@@ -172,20 +172,20 @@ html, body {
       --block-gap: 8px; /* 进一步增加区块间距，确保区块之间有明显分隔 */
     }
     
-    /* 允许页面正常滚动并启用滚动吸附 */
+    /* 允许页面正常滚动 */
     html, body {
       position: static;
       width: 100%;
       height: auto;
       overflow-x: hidden;
       overflow-y: auto;
-      scroll-snap-type: y mandatory; /* 启用垂直滚动吸附 */
     }
     
-    /* 滚动吸附元素 */
-    nav, .display-block, .nav-block {
-      scroll-snap-align: end; /* 在元素底部对齐 */
-      scroll-margin-top: 8px; /* 吸附时上方留出边距 */
+    /* 启用滚动吸附的容器 */
+    .sudoku-game-container {
+      scroll-snap-type: y mandatory; /* 启用垂直滚动吸附 */
+      height: 100vh;
+      overflow-y: auto;
     }
     
     .sudoku-game-container {

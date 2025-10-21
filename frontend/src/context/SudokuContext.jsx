@@ -225,6 +225,9 @@ export const SudokuContextProvider = ({ children }) => {
   const startNewGame = async (puzzleId = null, difficultyOverride = null) => {
     console.log('SudokuContext: 开始新游戏', { puzzleId, difficultyOverride });
     try {
+      // 首先设置gameStarted为false，确保所有依赖它的副作用能正确响应重置
+      setGameStarted(false);
+      
       // 更严格地重置所有状态，确保完全清理
       // 首先重置所有可能影响界面显示的状态
       setCurrentBoard(createEmptyBoard()); // 立即设置为空棋盘
@@ -233,6 +236,7 @@ export const SudokuContextProvider = ({ children }) => {
       setCandidates({}); // 重置候选数数据
       setActiveTechniques([]); // 重置活跃技巧
       setHighlightedCells([]); // 重置高亮单元格
+      setSelectedCell(null); // 确保没有选中的单元格
       
       // 然后重置游戏状态相关变量
       setTimerActive(false);
@@ -245,10 +249,13 @@ export const SudokuContextProvider = ({ children }) => {
       setIncorrectCells(new Set()); // 重置错误单元格
       setLockedCells(new Set()); // 重置锁定单元格
       
-      // 确保gameStarted状态为true
+      // 添加短暂延迟，确保状态更新完成后再继续
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // 现在再设置gameStarted为true，表示游戏开始
       setGameStarted(true);
       
-      // 添加短暂延迟，确保状态更新完成后再生成新谜题
+      // 再添加一个短暂延迟，确保gameStarted状态变更生效
       await new Promise(resolve => setTimeout(resolve, 50));
       
       

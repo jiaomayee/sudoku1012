@@ -146,7 +146,7 @@ const Icons = {
   )
 };
 
-const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, onSettings, isNotesMode = false, isTimerActive = true, gameCompleted = false }) => {
+const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques, onToggleNotes, onSettings, isNotesMode = false, isTimerActive = true, gameCompleted = false }) => {
   const { theme } = useTheme();
   const sudokuContext = useSudoku();
   const { startLoading, stopLoading } = useLoading();
@@ -156,6 +156,8 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
   // 处理新建游戏按钮点击
   const handleNewGameClick = () => {
     console.log('NavigationBlock: 打开难度选择模态框');
+    // 立即重置候选数按钮激活状态，避免在生成新游戏前保持激活
+    setIsNotesButtonActive(false);
     // 显示难度选择模态框
     setShowDifficultyModal(true);
   };
@@ -166,6 +168,14 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onToggleNotes, on
     try {
       // 重置候选数按钮激活状态
       setIsNotesButtonActive(false);
+      
+      // 确保技巧提示功能被关闭 - 如果提供了相关方法
+      if (onShowTechniques) {
+        // 这里我们不直接调用onShowTechniques，因为它会触发技巧查找
+        // 而是依赖SudokuContext中的startNewGame来重置技巧相关状态
+        console.log('将在生成新游戏时重置技巧状态');
+      }
+      
       if (startLoading) {
         startLoading('生成新谜题...');
       }

@@ -175,14 +175,13 @@ html, body {
   }
   
   body {
-    height: auto; /* 使用自适应高度，允许内容完全显示 */
-    min-height: 100vh;
+    height: 100vh; /* 使用固定高度确保吸附效果 */
     margin: 0;
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    /* 使用宽松的吸附模式，避免阻止滚动 */
-    scroll-snap-type: y proximity;
+    /* 使用强制吸附模式确保滚动吸附正常工作 */
+    scroll-snap-type: y mandatory;
     -webkit-overflow-scrolling: touch;
     position: relative;
   }
@@ -243,7 +242,8 @@ html, body {
     padding: 0;
     margin: 0;
     position: relative;
-    /* 移除导航区块的吸附设置，避免与其他吸附点冲突 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 10px;
   }
   
   /* 移除伪元素，避免影响间距 */
@@ -369,7 +369,8 @@ html, body {
     width: 100%; /* 完全充满父容器 */
     border-radius: var(--border-radius);
     position: relative;
-    /* 移除显示区块的吸附设置，避免阻止向上滚动 */
+    scroll-snap-align: start;
+    scroll-snap-margin-top: 10px;
   }
   
   /* 添加微妙的视觉指示 */

@@ -96,7 +96,7 @@ import{r as e,a as t,R as r,L as n,u as o,B as a,b as i,d as s}from"./react-vend
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-radius: 2px;
-`;const Yr=()=>{re();const[t,r]=e.useState(!1),[n,o]=e.useState("zh");e.useEffect(()=>{const e=e=>{e.target.closest(".language-selector")||r(!1)};return document.addEventListener("mousedown",e),()=>{document.removeEventListener("mousedown",e)}},[]);const a=e=>{o(e),r(!1),console.log("切换语言为:",e)};return b.jsx(Lr,{children:b.jsxs(Rr,{children:[b.jsxs(Fr,{to:"/",children:[b.jsx(Dr,{src:"/logo-main.svg",alt:"Sudoku Logo"}),"SudokuTech"]}),b.jsxs(_r,{className:"language-selector",children:[b.jsx(Hr,{onClick:()=>{r(!t)},children:"中文"}),t&&b.jsxs(Wr,{children:[b.jsx(Br,{className:"zh"===n?"selected":"",onClick:()=>a("zh"),children:"中文"}),b.jsx(Br,{className:"en"===n?"selected":"",onClick:()=>a("en"),children:"English"})]})]})]})})},Ur=Or.footer`
+`;const Yr=()=>{re();const[t,r]=e.useState(!1),[n,o]=e.useState("zh");e.useEffect(()=>{const e=e=>{e.target.closest(".language-selector")||r(!1)};return document.addEventListener("mousedown",e),()=>{document.removeEventListener("mousedown",e)}},[]);const a=e=>{o(e),r(!1),console.log("切换语言为:",e)};return b.jsx(Lr,{children:b.jsxs(Rr,{children:[b.jsxs(Fr,{to:"/",children:[b.jsx(Dr,{src:"/sudoku-app-logo.svg",alt:"Sudoku Logo"}),"SudokuTech"]}),b.jsxs(_r,{className:"language-selector",children:[b.jsx(Hr,{onClick:()=>{r(!t)},children:"中文"}),t&&b.jsxs(Wr,{children:[b.jsx(Br,{className:"zh"===n?"selected":"",onClick:()=>a("zh"),children:"中文"}),b.jsx(Br,{className:"en"===n?"selected":"",onClick:()=>a("en"),children:"English"})]})]})]})})},Ur=Or.footer`
   background-color: ${e=>e.theme.surface};
   color: ${e=>e.theme.textSecondary};
   padding: 20px 0;

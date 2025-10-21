@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SudokuBoard from '../components/SudokuBoard';
 import ControlPanel from '../components/ControlPanel';
 import NavigationBlock from '../components/NavigationBlock';
+import DisplayBlock from '../components/DisplayBlock';
 import DifficultySelectModal from '../components/DifficultySelectModal';
 import TechniqueOverlay from '../components/TechniqueOverlay';
 import { useSudoku } from '../context/SudokuContext';
@@ -500,6 +501,16 @@ const SudokuGamePage = () => {
         {isPortrait ? (
           // 竖屏模式：垂直排列所有组件
           <>
+            {/* 上滑提示符号 - 仅在竖屏模式显示 */}
+            <div className="scroll-hint"></div>
+            
+            {/* 显示区块 - 使用DisplayBlock组件 */}
+            <DisplayBlock 
+              errorCount={errorCount}
+              difficulty={getDifficultyName()}
+              time={formatTime(timeElapsed)}
+            />
+            
             {/* 导航栏区块 - 包含5个图标按钮 */}
             <div className="nav-block">
               <NavigationBlock
@@ -513,19 +524,6 @@ const SudokuGamePage = () => {
                 isTimerActive={isTimerActive}
                 gameCompleted={sudokuContext?.gameCompleted || false}
               />
-            </div>
-            
-            {/* 显示区块 - 精简显示 */}
-            <div className="display-block">
-              <div>
-                错误：<span className="value error-count" style={{color: '#ff4d4d'}}>{errorCount}</span>
-              </div>
-              <div>
-                {getDifficultyName()}
-              </div>
-              <div>
-                {formatTime(timeElapsed)}
-              </div>
             </div>
             
             {/* 数独棋盘 */}

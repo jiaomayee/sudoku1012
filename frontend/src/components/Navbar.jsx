@@ -17,6 +17,11 @@ const NavContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
+  
+  /* 竖屏显示时减小标题栏高度 */
+  @media (max-width: 768px) and (orientation: portrait) {
+    padding: 8px 16px;
+  }
 `;
 
 const Logo = styled(Link)`
@@ -27,12 +32,24 @@ const Logo = styled(Link)`
   display: flex;
   align-items: center;
   gap: 8px;
+  
+  /* 竖屏显示时减小字体大小 */
+  @media (max-width: 768px) and (orientation: portrait) {
+    font-size: 16px;
+    gap: 6px;
+  }
 `;
 
 const LogoIcon = styled.img`
   width: 28px;
   height: 28px;
   object-fit: contain;
+  
+  /* 竖屏显示时减小图标尺寸 */
+  @media (max-width: 768px) and (orientation: portrait) {
+    width: 22px;
+    height: 22px;
+  }
 `;
 
 // 语言切换相关样式
@@ -55,6 +72,14 @@ const LanguageButton = styled.button`
   gap: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-height: 36px;
+  
+  /* 竖屏显示时减小按钮尺寸 */
+  @media (max-width: 768px) and (orientation: portrait) {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 30px;
+    gap: 6px;
+  }
   
   &:hover {
     background-color: ${props => props.theme?.surfaceHover || '#f8f9fa'};

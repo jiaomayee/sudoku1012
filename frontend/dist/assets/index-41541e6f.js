@@ -10,6 +10,11 @@ import{r as e,a as t,R as r,L as n,u as o,B as a,b as i,d as s}from"./react-vend
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
+  
+  /* 竖屏显示时减小标题栏高度 */
+  @media (max-width: 768px) and (orientation: portrait) {
+    padding: 8px 16px;
+  }
 `,Fr=Or(n)`
   color: white;
   font-size: 20px;
@@ -18,10 +23,22 @@ import{r as e,a as t,R as r,L as n,u as o,B as a,b as i,d as s}from"./react-vend
   display: flex;
   align-items: center;
   gap: 8px;
+  
+  /* 竖屏显示时减小字体大小 */
+  @media (max-width: 768px) and (orientation: portrait) {
+    font-size: 16px;
+    gap: 6px;
+  }
 `,Dr=Or.img`
   width: 28px;
   height: 28px;
   object-fit: contain;
+  
+  /* 竖屏显示时减小图标尺寸 */
+  @media (max-width: 768px) and (orientation: portrait) {
+    width: 22px;
+    height: 22px;
+  }
 `,_r=Or.div`
   position: relative;
 `,Hr=Or.button`
@@ -39,6 +56,14 @@ import{r as e,a as t,R as r,L as n,u as o,B as a,b as i,d as s}from"./react-vend
   gap: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-height: 36px;
+  
+  /* 竖屏显示时减小按钮尺寸 */
+  @media (max-width: 768px) and (orientation: portrait) {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 30px;
+    gap: 6px;
+  }
   
   &:hover {
     background-color: ${e=>{var t;return(null==(t=e.theme)?void 0:t.surfaceHover)||"#f8f9fa"}};

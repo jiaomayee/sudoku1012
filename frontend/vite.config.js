@@ -19,8 +19,8 @@ export default defineConfig({
     host: true, // 允许通过IP访问
     port: 3000,
     proxy: {
-      // 配置API代理
-      '/sudoku': {
+      // 配置API代理，确保只有API路径被代理
+      '^/sudoku/.*': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         rewrite: (path) => path

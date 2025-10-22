@@ -11,12 +11,14 @@ import { toast } from 'react-toastify';
 import { useLoading } from '../context/LoadingContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faPen } from '@fortawesome/free-solid-svg-icons';
+import { useLanguage } from '../context/LanguageContext';
 import './SudokuGamePageStyles.css';
 
 const SudokuGamePage = () => {
   const navigate = useNavigate();
   const { isLoading, startLoading, stopLoading } = useLoading();
   const sudokuContext = useSudoku();
+  const { t } = useLanguage();
   
   // 安全地从sudokuContext中解构值，提供默认值
   const currentBoard = sudokuContext?.currentBoard || Array(9).fill().map(() => Array(9).fill(0));
@@ -516,7 +518,7 @@ const SudokuGamePage = () => {
             {/* 显示区块 - 使用DisplayBlock组件 */}
             <DisplayBlock 
               errorCount={errorCount}
-              difficulty={getDifficultyName()}
+              difficulty={difficulty}
               time={formatTime(timeElapsed)}
             />
             
@@ -592,13 +594,13 @@ const SudokuGamePage = () => {
               {/* 显示区块 - 右侧，宽度为棋盘的2/3，精简显示 */}
               <div className="display-block">
                 <div>
-                  错误：<span className="value error-count" style={{color: '#ff4d4d'}}>{errorCount}</span>
+                  {t('mistake').charAt(0).toUpperCase() + t('mistake').slice(1)}：<span className="value error-count" style={{color: '#ff4d4d'}}>{errorCount}</span>
                 </div>
                 <div>
-                  {getDifficultyName()}
+                  {t(difficulty)}
                 </div>
                 <div>
-                  {formatTime(timeElapsed)}
+                  {t('time')}：{formatTime(timeElapsed)}
                 </div>
               </div>
             </div>
@@ -661,14 +663,14 @@ const SudokuGamePage = () => {
       {/* 铅笔模式提示信息 */}
       {showPencilModeInstructions && (
         <div className="pencil-mode-instructions">
-          {isPencilMode ? '进入铅笔模式，可以添加候选数字' : '退出铅笔模式，返回正常输入'}
+          {isPencilMode ? t('enterPencilMode') : t('exitPencilMode')}
         </div>
       )}
       
       {/* 候选数提示信息 */}
       {showNotesInstructions && (
         <div className="pencil-mode-instructions">
-          已为所有空白格子计算并填充候选数
+          {t('notesCalculated')}
         </div>
       )}
     </div>

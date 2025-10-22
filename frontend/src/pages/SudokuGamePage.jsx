@@ -298,7 +298,7 @@ const SudokuGamePage = () => {
       
       // 显示加载状态
       if (startLoading) {
-        startLoading('生成新谜题...');
+        startLoading(t('generatingNewPuzzle'));
         console.log('显示加载状态');
       }
       
@@ -357,7 +357,7 @@ const SudokuGamePage = () => {
       const initializeGame = async () => {
         try {
           if (startLoading) {
-            startLoading('加载游戏...');
+            startLoading(t('loadingGame'));
           }
           
           // 直接设置棋盘数据，不调用会显示toast提示的函数
@@ -491,11 +491,11 @@ const SudokuGamePage = () => {
   return (
     <div className="sudoku-game-container" ref={gameAreaRef}>
       {/* 游戏暂停蒙板 */}
-      {!isTimerActive && !sudokuContext?.gameCompleted && sudokuContext?.gameStarted && (
+      {!isTimerActive && !sudokuContext?.gameCompleted && sudokuContext?.gameStarted && !sudokuContext?.isLoading && (
         <div className="pause-overlay" onClick={handlePauseTimer}>
           <div className="pause-message">
-            <h2>Game Paused</h2>
-            <p>Click anywhere to resume</p>
+            <h2>{t('gamePaused')}</h2>
+            <p>{t('clickToResume')}</p>
           </div>
         </div>
       )}

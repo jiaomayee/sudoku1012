@@ -506,7 +506,7 @@ const ControlPanel = ({
               return `(${rowNum},${colNum})`;
             }
           }).join(' ')
-        : '相关单元格';
+        : t('relatedCells');
       
       steps.push(
         { step: 1, description: t('findTripleInRegion', { regionType: regionType, regionNum: regionNum }), highlight: '' },

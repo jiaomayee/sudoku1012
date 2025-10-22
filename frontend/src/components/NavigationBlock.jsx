@@ -179,7 +179,7 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
       }
       
       if (startLoading) {
-        startLoading('生成新谜题...');
+        startLoading(t('generatingNewPuzzle'));
       }
 
       // 尝试使用上下文的函数

@@ -1,18 +1,28 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useLanguage } from './LanguageContext';
 
 // 创建加载上下文
 const LoadingContext = createContext();
 
 export const LoadingProvider = ({ children }) => {
+  const { t } = useLanguage();
+  
   // 加载状态
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('加载中...');
+  const [loadingMessage, setLoadingMessage] = useState('');
   const [loadingCount, setLoadingCount] = useState(0);
 
+  // 初始化和语言变化时更新默认加载消息
+  useEffect(() => {
+    if (loadingMessage === '') {
+      setLoadingMessage(t('loading'));
+    }
+  }, [t]);
+
   // 开始加载
-  const startLoading = (message = '加载中...') => {
+  const startLoading = (message) => {
     setLoadingCount(prevCount => prevCount + 1);
-    setLoadingMessage(message);
+    setLoadingMessage(message || t('loading'));
     setIsLoading(true);
   };
 
@@ -32,7 +42,7 @@ export const LoadingProvider = ({ children }) => {
   const resetLoading = () => {
     setLoadingCount(0);
     setIsLoading(false);
-    setLoadingMessage('加载中...');
+    setLoadingMessage(t('loading'));
   };
 
   // 执行带加载状态的异步操作

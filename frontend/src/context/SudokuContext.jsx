@@ -32,6 +32,7 @@ export const SudokuContextProvider = ({ children }) => {
   const [gameCompleted, setGameCompleted] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const [candidates, setCandidates] = useState({});
   const [highlightedCells, setHighlightedCells] = useState([]);
@@ -50,6 +51,7 @@ export const SudokuContextProvider = ({ children }) => {
   // 初始化时自动生成谜题
   useEffect(() => {
     const initPuzzle = async () => {
+      setIsLoading(true);
       console.log('SudokuContext: 初始化自动生成谜题');
       try {
         // 重置所有状态，确保没有残留数据
@@ -118,6 +120,8 @@ export const SudokuContextProvider = ({ children }) => {
       } catch (error) {
         console.error('自动初始化谜题失败:', error);
         console.error('错误详情:', error.message, error.stack);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -1424,6 +1428,7 @@ export const SudokuContextProvider = ({ children }) => {
       timeElapsed,
       timerActive,
       isTimerActive: timerActive,
+      isLoading,
       selectedCell,
       candidates,
       highlightedCells,

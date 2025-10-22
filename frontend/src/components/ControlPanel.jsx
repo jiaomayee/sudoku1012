@@ -969,7 +969,7 @@ const ControlPanel = ({
                       key="pencil"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onTogglePencilMode();
+                        togglePencilMode();
                       }}
                       title={isPencilMode ? "退出铅笔模式" : "进入铅笔模式"}
                       style={{

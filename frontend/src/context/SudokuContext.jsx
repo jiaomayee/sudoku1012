@@ -222,7 +222,7 @@ export const SudokuContextProvider = ({ children }) => {
   }, [userId, currentPuzzle, currentBoard, solution, difficulty, timeElapsed, gameStarted, gameCompleted, errorCount, incorrectCells]);
 
   // 开始新游戏 - 根据难度选择生成方式
-  const startNewGame = async (puzzleId = null, difficultyOverride = null) => {
+  const startNewGame = async (puzzleId = null, difficultyOverride = null, showToast = true) => {
     console.log('SudokuContext: 开始新游戏', { puzzleId, difficultyOverride });
     try {
       // 首先设置gameStarted为false，确保所有依赖它的副作用能正确响应重置
@@ -402,10 +402,14 @@ export const SudokuContextProvider = ({ children }) => {
       }
 
       // 根据难度和题目来源显示不同的提示
-      if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
-        toast.success(isFromJson ? 'Expert puzzle loaded!' : 'Expert puzzle generated!', { position: 'top-right', autoClose: 2000 });
-      } else {
-        toast.success('New puzzle generated!', { position: 'top-right', autoClose: 2000 });
+      if (showToast) {
+        if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
+          toast.success(isFromJson ? 'Expert puzzle loaded!' : 'Expert puzzle generated!', { position: 'top-right', autoClose: 2000 });
+        } else {
+            if (showToast) {
+              toast.success('New puzzle generated!', { position: 'top-right', autoClose: 2000 });
+            }
+          }
       }
       console.log('新游戏设置完成');
       return formattedData;
@@ -448,11 +452,15 @@ export const SudokuContextProvider = ({ children }) => {
         setGameCompleted(false);
         setTimerActive(true);
         
-        toast.success('Backup puzzle used!', { position: 'top-right', autoClose: 2000 });
+        if (showToast) {
+          toast.success('Backup puzzle used!', { position: 'top-right', autoClose: 2000 });
+        }
         return fallbackData;
       } catch (fallbackError) {
         console.error('使用备用谜题也失败:', fallbackError);
-        toast.error('生成谜题失败，请刷新页面重试', { position: 'top-right', autoClose: 2000 });
+        if (showToast) {
+          toast.error('生成谜题失败，请刷新页面重试', { position: 'top-right', autoClose: 2000 });
+        }
       }
       return null;
     }
@@ -464,7 +472,7 @@ export const SudokuContextProvider = ({ children }) => {
   };
 
   // 生成新谜题 - 根据难度选择生成方式
-  const generateNewPuzzle = async (targetDifficulty = difficulty) => {
+  const generateNewPuzzle = async (targetDifficulty = difficulty, showToast = true) => {
     console.log('SudokuContext: 生成新谜题', { targetDifficulty });
     try {
       // 更严格地重置所有状态，确保完全清理
@@ -567,7 +575,9 @@ export const SudokuContextProvider = ({ children }) => {
       return formattedData;
     } catch (error) {
       console.error('生成新谜题失败:', error);
-      toast.error('生成谜题失败，请重试', { position: 'top-right', autoClose: 2000 });
+      if (showToast) {
+        toast.error('生成谜题失败，请重试', { position: 'top-right', autoClose: 2000 });
+      }
       return null;
     }
   };

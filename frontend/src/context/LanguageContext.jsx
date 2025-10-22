@@ -319,7 +319,7 @@ const translations = {
       undoAction: 'Undo',
       clearCell: 'Clear Cell',
       fillCandidates: 'Refresh Candidates',
-      applyTechnique: 'Apply Technique',
+      applyTechnique: 'Apply',
       solutionSteps: 'Solution Steps',
       selectTechniqueFirst: 'Please select a technique from the list first',
       noTechniquesAvailable: 'No techniques available for the current board',

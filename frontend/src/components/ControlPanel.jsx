@@ -1542,19 +1542,19 @@ const ControlPanel = ({
                   <button 
                     onClick={handleApplyTechnique}
                     style={{
-                      width: verticalMode ? '70px' : '80px',
-                      height: verticalMode ? '24px' : '28px',
+                      width: verticalMode ? '70px' : '100px',
+                      height: verticalMode ? '24px' : '36px',
                       backgroundColor: '#3498db',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
                       cursor: 'pointer',
-                      fontSize: verticalMode ? '12px' : '14px',
+                      fontSize: verticalMode ? '12px' : '16px',
                       fontWeight: '600',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: verticalMode ? '0 1px 4px rgba(52, 152, 219, 0.3), 0 1px 2px rgba(0, 0, 0, 0.12)' : '0 2px 6px rgba(52, 152, 219, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12)',
+                      boxShadow: verticalMode ? '0 1px 4px rgba(52, 152, 219, 0.3), 0 1px 2px rgba(0, 0, 0, 0.12)' : '0 4px 8px rgba(52, 152, 219, 0.4), 0 2px 4px rgba(0, 0, 0, 0.15)',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {

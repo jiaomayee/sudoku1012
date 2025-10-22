@@ -148,7 +148,7 @@ const translations = {
       undoAction: '撤销',
       clearCell: '清空单元格',
       fillCandidates: '刷新候选数',
-      applyTechnique: '应用技巧',
+      applyTechnique: '应用',
       solutionSteps: '解题步骤',
       selectTechniqueFirst: '请先从技巧列表中选择一个技巧',
       noTechniquesAvailable: '当前棋盘没有找到可用技巧',

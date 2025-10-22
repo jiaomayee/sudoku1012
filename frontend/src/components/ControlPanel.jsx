@@ -1526,8 +1526,8 @@ const ControlPanel = ({
                   <button 
                     onClick={handleApplyTechnique}
                     style={{
-                      width: '120px',
-                      height: '36px',
+                      width: '80px',
+                      height: '28px',
                       backgroundColor: '#3498db',
                       color: 'white',
                       border: 'none',
@@ -1538,7 +1538,7 @@ const ControlPanel = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 4px 10px rgba(52, 152, 219, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12)',
+                      boxShadow: '0 2px 6px rgba(52, 152, 219, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12)',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {

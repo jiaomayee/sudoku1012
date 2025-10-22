@@ -28,10 +28,6 @@ const translations = {
     notes: '候选数',
     // 难度选择
     selectDifficulty: '选择难度',
-    easy: '简单',
-    medium: '中等',
-    hard: '困难',
-    expert: '专家',
     difficultyDescription: {
       easy: '初学者友好，空格较少',
       medium: '进阶挑战，需要一定技巧',
@@ -190,9 +186,7 @@ const translations = {
       applyTechnique: '应用',
       solutionSteps: '解题步骤',
       selectTechniqueFirst: '请先从技巧列表中选择一个技巧',
-      noTechniquesAvailable: '当前棋盘没有找到可用技巧',
-      enterPencilMode: '进入铅笔模式',
-      exitPencilMode: '退出铅笔模式',
+      noTechniquesAvailable: '没有可用的技巧',
       refreshCandidatesTooltip: '点击刷新候选数并加载所有技巧求解',
       // 新增翻译键
       candidatesTab: '候选数',
@@ -238,10 +232,6 @@ const translations = {
     notes: 'Notes',
     // 难度选择
     selectDifficulty: 'Select Difficulty',
-    easy: 'Easy',
-    medium: 'Medium',
-    hard: 'Hard',
-    expert: 'Expert',
     difficultyDescription: {
       easy: 'Beginner friendly, fewer empty cells',
       medium: 'Moderate challenge, requires some techniques',
@@ -401,8 +391,6 @@ const translations = {
       solutionSteps: 'Solution Steps',
       selectTechniqueFirst: 'Please select a technique from the list first',
       noTechniquesAvailable: 'No techniques available for the current board',
-      enterPencilMode: 'Enter Pencil Mode',
-      exitPencilMode: 'Exit Pencil Mode',
       refreshCandidatesTooltip: 'Click to refresh candidates and load all solving techniques',
       // New translation keys
       candidatesTab: 'Candidates',

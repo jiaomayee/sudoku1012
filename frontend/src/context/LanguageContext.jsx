@@ -351,10 +351,22 @@ const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
   // 从localStorage获取保存的语言或使用浏览器默认语言
-  const [language, setLanguage] = useState(
-    localStorage.getItem('language') || 
-    (navigator.language === 'zh-CN' ? 'zh-CN' : 'en-US')
-  );
+  const [language, setLanguage] = useState(() => {
+    // 优先使用localStorage中保存的语言设置
+    const savedLanguage = localStorage.getItem('language');
+    if (savedLanguage) {
+      return savedLanguage;
+    }
+    
+    // 检测浏览器语言，支持中文相关的语言代码（zh-CN, zh, zh-TW等）
+    const browserLang = navigator.language || navigator.userLanguage;
+    if (browserLang && browserLang.includes('zh')) {
+      return 'zh-CN'; // 所有中文变体都使用简体中文
+    }
+    
+    // 默认使用英文
+    return 'en-US';
+  });
   
   // 获取当前语言的翻译
   const t = (key) => {

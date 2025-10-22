@@ -1549,7 +1549,7 @@ const ControlPanel = ({
                       border: 'none',
                       borderRadius: '4px',
                       cursor: 'pointer',
-                      fontSize: verticalMode ? '10px' : '16px',
+                      fontSize: verticalMode ? '8px' : '16px',
                       fontWeight: '600',
                       display: 'flex',
                       alignItems: 'center',

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 // 移除styled-components导入
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku } from '../context/SudokuContext';
+import { useLanguage } from '../context/LanguageContext';
 
 // 候选数图标组件（从NavigationBlock复制并修改为白色）
 const NotesIcon = () => (
@@ -18,14 +19,15 @@ const NotesIcon = () => (
 );
 
 // 获取技巧显示名称
+// 获取技巧显示名称
 const getTechniqueDisplayType = (primaryType, secondaryType) => {
-  if (primaryType === 'hiddenSingle') {
-    if (secondaryType === '行') return '行摒除法';
-    if (secondaryType === '列') return '列摒除法';
-    if (secondaryType === '宫') return '宫摒除法';
-  }
-  return primaryType;
-};
+    if (primaryType === 'hiddenSingle') {
+      if (secondaryType === t('row')) return t('rowElimination');
+      if (secondaryType === t('col')) return t('columnElimination');
+      if (secondaryType === t('box')) return t('boxElimination');
+    }
+    return primaryType;
+  };
 
 // 清理所有残留的CSS代码
 
@@ -46,6 +48,7 @@ const ControlPanel = ({
   remainingNumbers = {} // 添加剩余数字数量属性，默认为空对象
 }) => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
   const [selectedTechnique, setSelectedTechnique] = useState(null);
   
@@ -131,20 +134,20 @@ const ControlPanel = ({
     const hasSingleCell = typeof technique.row === 'number' && typeof technique.col === 'number';
     const row = hasSingleCell ? technique.row : 0;
     const col = hasSingleCell ? technique.col : 0;
-    const position = hasSingleCell ? `(${row + 1},${col + 1})` : '多单元格';
+    const position = hasSingleCell ? `(${row + 1},${col + 1})` : t('multipleCells');
     const value = technique.value || '';
     
     // 根据技巧类型构建解题步骤
     if (technique.type.includes('NakedSingle') || technique.type.includes('nakedSingle')) {
       steps.push(
-        { step: 1, description: '查找唯一候选数的单元格', highlight: '' },
-        { step: 2, description: `单元格${position}只有唯一候选数${value}`, highlight: position },
-        { step: 3, description: `填入数字${value}`, highlight: position }
+        { step: 1, description: t('findSingleCandidateCell'), highlight: '' },
+        { step: 2, description: t('cellOnlyHasSingleCandidate').replace('{position}', position).replace('{value}', value), highlight: position },
+        { step: 3, description: t('fillNumber').replace('{value}', value), highlight: position }
       );
     } else if (technique.type.includes('HiddenSingle') || technique.type.includes('hiddenSingle')) {
       // 根据技巧类型确定区域类型
-      const regionType = technique.type.includes('Row') ? '行' : 
-                         (technique.type.includes('Col') ? '列' : '宫');
+      const regionType = technique.type.includes('Row') ? t('row') : 
+                         (technique.type.includes('Col') ? t('col') : t('box'));
       
       // 安全地计算区域编号，避免NaN
       let regionNum = 0;
@@ -152,19 +155,19 @@ const ControlPanel = ({
         regionNum = technique.type.includes('Row') ? row + 1 : 
                     (technique.type.includes('Col') ? col + 1 : 
                     Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
-      } else if (technique.row !== undefined && regionType === '行') {
-        // 对于行区域，从technique对象获取行号
-        regionNum = technique.row + 1;
-      } else if (technique.col !== undefined && regionType === '列') {
-        // 对于列区域，从technique对象获取列号
-        regionNum = technique.col + 1;
+      } else if (technique.row !== undefined && regionType === t('row')) {
+         // 对于行区域，从technique对象获取行号
+         regionNum = technique.row + 1;
+       } else if (technique.col !== undefined && regionType === t('col')) {
+         // 对于列区域，从technique对象获取列号
+         regionNum = technique.col + 1;
       } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
         // 如果有cells数组，根据区域类型获取正确的区域号
         const firstCell = technique.cells[0];
         if (Array.isArray(firstCell)) {
           // 数组格式 [row, col]
-          if (regionType === '列' && typeof firstCell[1] === 'number') {
-            // 列区域：获取列号
+          if (regionType === t('col') && typeof firstCell[1] === 'number') {
+             // 列区域：获取列号
             regionNum = firstCell[1] + 1;
           } else if (typeof firstCell[0] === 'number') {
             // 行或宫区域：获取行号
@@ -172,8 +175,8 @@ const ControlPanel = ({
           }
         } else if (firstCell) {
           // 对象格式 {row, col}
-          if (regionType === '列' && firstCell.col !== undefined) {
-            // 列区域：获取列号
+          if (regionType === t('col') && firstCell.col !== undefined) {
+             // 列区域：获取列号
             regionNum = firstCell.col + 1;
           } else if (firstCell.row !== undefined) {
             // 行或宫区域：获取行号
@@ -183,24 +186,24 @@ const ControlPanel = ({
       }
       
       steps.push(
-        { step: 1, description: `检查数字${value}在${regionType}${regionNum}中的可能位置`, highlight: '' },
-        { step: 2, description: `发现在${regionType}${regionNum}中，数字${value}只能填入单元格${position}`, highlight: position },
-        { step: 3, description: `使用${regionType}摒除法填入数字${value}`, highlight: position }
+        { step: 1, description: t('findHiddenSingleInRegion').replace('{regionType}', regionType).replace('{regionNum}', regionNum), highlight: '' },
+        { step: 2, description: t('numberOnlyInPosition').replace('{value}', value).replace('{regionType}', regionType).replace('{regionNum}', regionNum).replace('{position}', position), highlight: position },
+        { step: 3, description: t('fillNumber').replace('{value}', value), highlight: position }
       );
     } else if (technique.type.includes('NakedPairs') || technique.type.includes('nakedPairs') || technique.type.includes('nakedPair')) {
       // 显性数对法解题步骤
-      const regionType = technique.type.includes('Row') ? '行' : 
-                         (technique.type.includes('Col') ? '列' : '宫');
+      const regionType = technique.type.includes('Row') ? t('row') : 
+                         (technique.type.includes('Col') ? t('col') : t('box'));
       
       let regionNum = 0;
       if (hasSingleCell) {
         regionNum = technique.type.includes('Row') ? row + 1 : 
                     (technique.type.includes('Col') ? col + 1 : 
                     Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
-      } else if (technique.row !== undefined && regionType === '行') {
+      } else if (technique.row !== undefined && regionType === t('row')) {
         // 对于行区域，从technique对象获取行号
         regionNum = technique.row + 1;
-      } else if (technique.col !== undefined && regionType === '列') {
+      } else if (technique.col !== undefined && regionType === t('col')) {
         // 对于列区域，从technique对象获取列号
         regionNum = technique.col + 1;
       } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
@@ -208,7 +211,7 @@ const ControlPanel = ({
         const firstCell = technique.cells[0];
         if (Array.isArray(firstCell)) {
           // 数组格式 [row, col]
-          if (regionType === '列' && typeof firstCell[1] === 'number') {
+          if (regionType === t('col') && typeof firstCell[1] === 'number') {
             // 列区域：获取列号
             regionNum = firstCell[1] + 1;
           } else if (typeof firstCell[0] === 'number') {
@@ -217,7 +220,7 @@ const ControlPanel = ({
           }
         } else if (firstCell) {
           // 对象格式 {row, col}
-          if (regionType === '列' && firstCell.col !== undefined) {
+          if (regionType === t('col') && firstCell.col !== undefined) {
             // 列区域：获取列号
             regionNum = firstCell.col + 1;
           } else if (firstCell.row !== undefined) {
@@ -251,7 +254,7 @@ const ControlPanel = ({
       const targetCells = [];
       
       // 根据区域类型确定目标单元格
-      if (regionType === '行' && regionNum > 0) {
+      if (regionType === t('row') && regionNum > 0) {
         // 行区域：同一行中的其他单元格
         for (let col = 0; col < 9; col++) {
           // 检查是否是数对中的单元格
@@ -265,7 +268,7 @@ const ControlPanel = ({
             targetCells.push([regionNum - 1, col]);
           }
         }
-      } else if (regionType === '列' && regionNum > 0) {
+      } else if (regionType === t('col') && regionNum > 0) {
         // 列区域：同一列中的其他单元格
         for (let row = 0; row < 9; row++) {
           // 检查是否是数对中的单元格
@@ -279,7 +282,7 @@ const ControlPanel = ({
             targetCells.push([row, regionNum - 1]);
           }
         }
-      } else if (regionType === '宫' && regionNum > 0) {
+      } else if (regionType === t('box') && regionNum > 0) {
         // 宫区域：同一宫中的其他单元格
         const boxRow = Math.floor((regionNum - 1) / 3) * 3;
         const boxCol = ((regionNum - 1) % 3) * 3;
@@ -316,17 +319,17 @@ const ControlPanel = ({
               return `(${rowNum},${colNum})`;
             }
           }).join(' ')
-        : '相关单元格';
+        : t('multipleCells');
       
       steps.push(
         { step: 1, description: `在${regionType}${regionNum}中查找数对`, highlight: '' },
-        { step: 2, description: `发现数字${pairNumbers}的显性数对，位于单元格${formattedCells}`, highlight: position },
-        { step: 3, description: `这些数字只能出现在这两个单元格中，需要从目标单元格${formattedTargetCells}中删除候选数${pairNumbers}`, highlight: position }
+        { step: 2, description: t('foundNakedPair', { numbers: pairNumbers, cells: formattedCells }), highlight: position },
+    { step: 3, description: t('removeCandidatesFromTargets', { numbers: pairNumbers, targets: formattedTargetCells }), highlight: position }
       );
     } else if (technique.type.includes('HiddenPairs') || technique.type.includes('hiddenPairs') || technique.type.includes('hiddenPair')) {
       // 隐性数对法解题步骤
-      const regionType = technique.type.includes('Row') ? '行' : 
-                         (technique.type.includes('Col') ? '列' : '宫');
+      const regionType = technique.type.includes('Row') ? t('row') : 
+                         (technique.type.includes('Col') ? t('col') : t('box'));
       
       let regionNum = 0;
       if (hasSingleCell) {
@@ -369,14 +372,14 @@ const ControlPanel = ({
         : position;
       
       steps.push(
-        { step: 1, description: `在${regionType}${regionNum}中查找只能出现在两个单元格中的数字对`, highlight: '' },
-        { step: 2, description: `发现数字${pairNumbers}只能出现在单元格${formattedCells}`, highlight: position },
-        { step: 3, description: `目标单元格${formattedCells}中只能填入数字${pairNumbers}，需要移除其他候选数`, highlight: position }
+        { step: 1, description: t('findHiddenPairInRegion', { regionType: regionType, regionNum: regionNum }), highlight: '' },
+        { step: 2, description: t('foundNumbersOnlyInCells', { numbers: pairNumbers, cells: formattedCells }), highlight: position },
+        { step: 3, description: t('removeOtherCandidates', { cells: formattedCells, numbers: pairNumbers }), highlight: position }
       );
     } else if (technique.type.includes('nakedTriple')) {
       // 显性三链数法解题步骤
-      const regionType = technique.type.includes('Row') ? '行' : 
-                         (technique.type.includes('Col') ? '列' : '宫');
+      const regionType = technique.type.includes('Row') ? t('row') : 
+                         (technique.type.includes('Col') ? t('col') : t('box'));
       
       let regionNum = 0;
       if (hasSingleCell) {
@@ -490,14 +493,14 @@ const ControlPanel = ({
         : '相关单元格';
       
       steps.push(
-        { step: 1, description: `在${regionType}${regionNum}中查找三链数`, highlight: '' },
-        { step: 2, description: `发现数字${tripleNumbers}的显性三链数，位于单元格${formattedCells}`, highlight: position },
-        { step: 3, description: `这些数字只能出现在这三个单元格中，需要从目标单元格${formattedTargetCells}中删除候选数${tripleNumbers}`, highlight: position }
+        { step: 1, description: t('findTripleInRegion', { regionType: regionType, regionNum: regionNum }), highlight: '' },
+        { step: 2, description: t('foundNakedTriple', { numbers: tripleNumbers, cells: formattedCells }), highlight: position },
+        { step: 3, description: t('removeCandidatesFromTargets', { numbers: tripleNumbers, targets: formattedTargetCells }), highlight: position }
       );
     } else if (technique.type.includes('hiddenTriple')) {
       // 隐性三链数法解题步骤
-      const regionType = technique.type.includes('Row') ? '行' : 
-                         (technique.type.includes('Col') ? '列' : '宫');
+      const regionType = technique.type.includes('Row') ? t('row') : 
+                         (technique.type.includes('Col') ? t('col') : t('box'));
       
       let regionNum = 0;
       if (hasSingleCell) {
@@ -524,7 +527,7 @@ const ControlPanel = ({
           }
         } else if (firstCell) {
           // 对象格式 {row, col}
-          if (regionType === '列' && firstCell.col !== undefined) {
+          if (regionType === t('col') && firstCell.col !== undefined) {
             // 列区域：获取列号
             regionNum = firstCell.col + 1;
           } else if (firstCell.row !== undefined) {
@@ -555,16 +558,16 @@ const ControlPanel = ({
         : position;
       
       steps.push(
-        { step: 1, description: `在${regionType}${regionNum}中查找只能出现在三个单元格中的数字组`, highlight: '' },
-        { step: 2, description: `发现数字${tripleNumbers}只能出现在单元格${formattedCells}`, highlight: position },
-        { step: 3, description: `目标单元格${formattedCells}中只能填入数字${tripleNumbers}，需要移除其他候选数`, highlight: position }
+        { step: 1, description: t('findHiddenTripleInRegion', { regionType: regionType, regionNum: regionNum }), highlight: '' },
+        { step: 2, description: t('foundNumbersOnlyInCells', { numbers: tripleNumbers, cells: formattedCells }), highlight: position },
+        { step: 3, description: t('removeOtherCandidates', { cells: formattedCells, numbers: tripleNumbers }), highlight: position }
       );
     } else {
-      // 通用解题步骤，确保至少有内容显示
-      steps.push(
-        { step: 1, description: `应用${technique.description || technique.type}技巧`, highlight: '' },
-        { step: 2, description: `相关位置: ${position}`, highlight: position },
-        { step: 3, description: value ? `涉及数字: ${value}` : '分析完成', highlight: position }
+        // 通用解题步骤，确保至少有内容显示
+        steps.push(
+          { step: 1, description: t('applyTechnique', { technique: t(technique.description) || technique.type }), highlight: '' },
+        { step: 2, description: t('relatedPosition', { position: position }), highlight: position },
+        { step: 3, description: value ? t('relatedNumber', { number: value }) : t('analysisCompleted'), highlight: position }
       );
     }
     
@@ -682,7 +685,7 @@ const ControlPanel = ({
                 exitTechniqueMode();
               }}
             >
-              键盘
+              {t('keyboardTab')}
             </button>
             <button 
               style={{
@@ -711,7 +714,7 @@ const ControlPanel = ({
                 }
               }}
             >
-              技巧
+              {t('techniquesTab')}
             </button>
             <button 
               style={{
@@ -740,7 +743,7 @@ const ControlPanel = ({
                 }
               }}
             >
-              解题
+              {t('solutionTab')}
             </button>
         </div>
         
@@ -920,7 +923,7 @@ const ControlPanel = ({
                         e.stopPropagation();
                         onUndo();
                       }}
-                      title="撤回"
+                      title={t('undoAction')}
                       style={{
                         // 基础样式
                         position: 'relative',
@@ -975,7 +978,7 @@ const ControlPanel = ({
                         e.stopPropagation();
                         onClearCell();
                       }}
-                      title="清空单元格"
+                      title={t('clearCell')}
                       style={{
                         // 基础样式
                         position: 'relative',
@@ -1034,7 +1037,7 @@ const ControlPanel = ({
                         e.stopPropagation();
                         togglePencilMode();
                       }}
-                      title={isPencilMode ? "退出铅笔模式" : "进入铅笔模式"}
+                      title={isPencilMode ? t('exitPencilMode') : t('enterPencilMode')}
                       style={{
                         // 基础样式
                         position: 'relative',
@@ -1348,7 +1351,7 @@ const ControlPanel = ({
                   borderRadius: '8px',
                   border: '1px solid #e9ecef'
                 }}>
-                  当前棋盘没有找到可用技巧
+                  {t('noTechniquesAvailable')}
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
@@ -1362,7 +1365,7 @@ const ControlPanel = ({
                       const row = technique.row + 1;
                       const col = technique.col + 1;
                       positionText = `(${row},${col})`;
-                      valueText = technique.value !== undefined ? ` 数字: ${technique.value}` : '';
+                      valueText = technique.value !== undefined ? ` ${t('number')}: ${technique.value}` : '';
                     } 
                     // 处理多单元格技巧（有cells数组）
                     else if (Array.isArray(technique.cells) && technique.cells.length > 0) {
@@ -1373,11 +1376,11 @@ const ControlPanel = ({
                         positionText = `(${row},${col})`;
                       } else {
                         // 显示"多单元格"或具体位置列表
-                        positionText = '多单元格';
+                        positionText = t('multipleCells');
                       }
                       // 显示values数组
                       if (Array.isArray(technique.values) && technique.values.length > 0) {
-                        valueText = ` 数字: [${technique.values.join(',')}]`;
+                        valueText = ` ${t('number')}: [${technique.values.join(',')}]`;
                       }
                     }
                     else {
@@ -1389,62 +1392,68 @@ const ControlPanel = ({
                     let secondaryType = '';
                     
                     if (technique.type === 'nakedSingle' || technique.type === 'naked_single') {
-                      primaryType = '唯一数法';
-                      // 唯一数法是一级分类，这里可以根据需要添加二级类型
+                      primaryType = t(technique.description || 'singleCandidateTechnique');
+                      // 候选数唯一法是一级分类，这里可以根据需要添加二级类型
                     } else if (technique.type.includes('hidden_single') || technique.type.includes('hiddenSingle')) {
                       // 先确定secondaryType
                       if (technique.type.includes('row') || technique.type.includes('Row')) {
-                        secondaryType = '行';
+                        secondaryType = t('row');
                       } else if (technique.type.includes('col') || technique.type.includes('Col')) {
-                        secondaryType = '列';
+                        secondaryType = t('col');
                       } else if (technique.type.includes('box') || technique.type.includes('Box')) {
-                        secondaryType = '宫';
+                        secondaryType = t('box');
                       }
-                      // 再调用getTechniqueDisplayType
-                      primaryType = getTechniqueDisplayType('hiddenSingle', secondaryType);
+                      // 使用翻译文本
+                      if (secondaryType === t('row')) {
+                        primaryType = t('hiddenSingleRow');
+                      } else if (secondaryType === t('col')) {
+                        primaryType = t('hiddenSingleCol');
+                      } else if (secondaryType === t('box')) {
+                        primaryType = t('hiddenSingleBox');
+                      }
                     } else if (technique.type === 'nakedPairs' || technique.type === 'naked_pairs' || technique.type.includes('nakedPair')) {
-                      primaryType = '显性数对法';
+                      primaryType = t('nakedPairs');
                       // 根据类型确定是行/列/宫
                       if (technique.type.includes('Row')) {
-                        secondaryType = '(行)';
+                        secondaryType = t('rowSuffix');
                       } else if (technique.type.includes('Col')) {
-                        secondaryType = '(列)';
+                        secondaryType = t('colSuffix');
                       } else if (technique.type.includes('Box')) {
-                        secondaryType = '(宫)';
+                        secondaryType = t('boxSuffix');
                       }
                     } else if (technique.type === 'hiddenPairs' || technique.type === 'hidden_pairs' || technique.type.includes('hiddenPair')) {
-                      primaryType = '隐性数对法';
+                      primaryType = t('hiddenPairs');
                       // 根据类型确定是行/列/宫
                       if (technique.type.includes('Row')) {
-                        secondaryType = '(行)';
+                        secondaryType = t('rowSuffix');
                       } else if (technique.type.includes('Col')) {
-                        secondaryType = '(列)';
+                        secondaryType = t('colSuffix');
                       } else if (technique.type.includes('Box')) {
-                        secondaryType = '(宫)';
+                        secondaryType = t('boxSuffix');
                       }
                     } else if (technique.type.includes('nakedTriple')) {
-                      primaryType = '显性三链数法';
+                      primaryType = t('nakedTriple');
                       // 根据类型确定是行/列/宫
                       if (technique.type.includes('Row')) {
-                        secondaryType = '(行)';
+                        secondaryType = t('rowSuffix');
                       } else if (technique.type.includes('Col')) {
-                        secondaryType = '(列)';
+                        secondaryType = t('colSuffix');
                       } else if (technique.type.includes('Box')) {
-                        secondaryType = '(宫)';
+                        secondaryType = t('boxSuffix');
                       }
                     } else if (technique.type.includes('hiddenTriple')) {
-                      primaryType = '隐性三链数法';
+                      primaryType = t('hiddenTriple');
                       // 根据类型确定是行/列/宫
                       if (technique.type.includes('Row')) {
-                        secondaryType = '(行)';
+                        secondaryType = t('rowSuffix');
                       } else if (technique.type.includes('Col')) {
-                        secondaryType = '(列)';
+                        secondaryType = t('colSuffix');
                       } else if (technique.type.includes('Box')) {
-                        secondaryType = '(宫)';
+                        secondaryType = t('boxSuffix');
                       }
                     } else {
                       // 如果是未知类型，使用原始描述
-                      primaryType = technique.description || '未知技巧';
+                      primaryType = technique.description || t('unknownTechnique');
                     }
                     
                     // 直接使用primaryType作为显示类型，因为已经包含了行/列/宫信息
@@ -1473,7 +1482,7 @@ const ControlPanel = ({
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', color: '#34495e' }}>
                           <span>{displayType}</span>
-                          <span style={{ fontSize: '14px', color: '#7f8c8d', fontWeight: 'normal' }}>位置: {positionText}{valueText}</span>
+                          <span style={{ fontSize: '14px', color: '#7f8c8d', fontWeight: 'normal' }}>{t('position')}: {positionText}{valueText}</span>
                         </div>
                       </div>
                     );
@@ -1503,11 +1512,11 @@ const ControlPanel = ({
                   fontWeight: '600',
                   transition: 'background-color 0.2s ease'
                 }}
-                title="点击刷新候选数并加载所有技巧求解"
+                title={t('refreshCandidatesTooltip')}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   <NotesIcon />
-                  刷新候选数
+                  {t('fillCandidates')}
                 </div>
               </button>
             </div>
@@ -1517,7 +1526,7 @@ const ControlPanel = ({
             <div style={{ overflowY: 'auto', padding: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <h4 style={{ margin: 0, color: '#34495e', fontSize: '16px', fontWeight: '600' }}>
-                  解题步骤
+                  {t('solutionSteps')}
                 </h4>
                 {selectedTechnique && (
                   <button 
@@ -1549,7 +1558,7 @@ const ControlPanel = ({
                       e.currentTarget.style.transform = 'translateY(0)';
                     }}
                   >
-                    应用技巧
+                    {t('applyTechnique')}
                   </button>
                 )}
               </div>
@@ -1597,7 +1606,7 @@ const ControlPanel = ({
                   borderRadius: '8px',
                   border: '1px solid #e9ecef'
                 }}>
-                  请先从技巧列表中选择一个技巧
+                  {t('selectTechniqueFirst')}
                 </div>
               )}
             </div>

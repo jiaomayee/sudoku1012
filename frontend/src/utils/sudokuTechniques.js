@@ -26,7 +26,7 @@ export const findNakedSingles = (board) => {
       if (possibleNumbers.length === 1) {
         opportunities.push({
           type: 'nakedSingle',
-          description: '唯一数法',
+          description: 'nakedSingle',
           row,
           col,
           value: possibleNumbers[0],
@@ -63,7 +63,7 @@ export const findNotesSingles = (board, pencilNotes = {}) => {
       if (notes.length === 1) {
         opportunities.push({
           type: 'notesSingle',
-          description: '候选数唯一法',
+          description: 'singleCandidateTechnique',
           row,
           col,
           value: notes[0],
@@ -747,9 +747,9 @@ const findHiddenSinglesInRow = (board, rowIndex) => {
     // 如果该数字在该行中只有一个可能的位置，则找到隐性唯一数
     if (foundCount === 1) {
       opportunities.push({
-        type: 'hiddenSingleRow',
-        description: '行摒除法',
-        row: rowIndex,
+          type: 'hiddenSingleRow',
+          description: 'hiddenSingleRow',
+          row: rowIndex,
         col: possibleCol,
         value: num,
         cells: [[rowIndex, possibleCol]],
@@ -794,9 +794,9 @@ const findHiddenSinglesInCol = (board, colIndex) => {
     // 如果该数字在该列中只有一个可能的位置，则找到隐性唯一数
     if (foundCount === 1) {
       opportunities.push({
-        type: 'hiddenSingleCol',
-        description: '列摒除法',
-        row: possibleRow,
+          type: 'hiddenSingleCol',
+          description: 'hiddenSingleCol',
+          row: possibleRow,
         col: colIndex,
         value: num,
         cells: [[possibleRow, colIndex]],
@@ -852,9 +852,9 @@ const findHiddenSinglesInBox = (board, boxIndex) => {
     // 如果该数字在该宫中只有一个可能的位置，则找到隐性唯一数
     if (foundCount === 1) {
       opportunities.push({
-        type: 'hiddenSingleBox',
-        description: '宫摒除法',
-        row: possibleRow,
+          type: 'hiddenSingleBox',
+          description: 'hiddenSingleBox',
+          row: possibleRow,
         col: possibleCol,
         value: num,
         cells: [[possibleRow, possibleCol]],

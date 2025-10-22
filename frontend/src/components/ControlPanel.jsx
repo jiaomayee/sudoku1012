@@ -3,6 +3,20 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku } from '../context/SudokuContext';
 
+// 候选数图标组件（从NavigationBlock复制并修改为白色）
+const NotesIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+    {/* 数独格子背景 */}
+    <rect x="4" y="4" width="16" height="16" rx="2" fill="transparent" stroke="white" strokeWidth="1.5"/>
+    {/* 添加2x2网格分割线 */}
+    <line x1="12" y1="4" x2="12" y2="20" stroke="white" strokeWidth="1" strokeDasharray="1"/>
+    <line x1="4" y1="12" x2="20" y2="12" stroke="white" strokeWidth="1" strokeDasharray="1"/>
+    {/* 显示两个数字：2（左上角）和5（右下角） */}
+    <text x="7" y="10" fontSize="6" fontWeight="bold" fill="white">2</text>
+    <text x="15" y="18" fontSize="6" fontWeight="bold" fill="white">5</text>
+  </svg>
+);
+
 // 获取技巧显示名称
 const getTechniqueDisplayType = (primaryType, secondaryType) => {
   if (primaryType === 'hiddenSingle') {
@@ -138,18 +152,33 @@ const ControlPanel = ({
         regionNum = technique.type.includes('Row') ? row + 1 : 
                     (technique.type.includes('Col') ? col + 1 : 
                     Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
-      } else if (technique.row !== undefined) {
-        // 对于多单元格技巧，尝试从technique对象获取行号
+      } else if (technique.row !== undefined && regionType === '行') {
+        // 对于行区域，从technique对象获取行号
         regionNum = technique.row + 1;
+      } else if (technique.col !== undefined && regionType === '列') {
+        // 对于列区域，从technique对象获取列号
+        regionNum = technique.col + 1;
       } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
-        // 如果有cells数组，从第一个单元格获取行号
+        // 如果有cells数组，根据区域类型获取正确的区域号
         const firstCell = technique.cells[0];
         if (Array.isArray(firstCell)) {
           // 数组格式 [row, col]
-          regionNum = typeof firstCell[0] === 'number' ? firstCell[0] + 1 : regionNum;
-        } else if (firstCell && firstCell.row !== undefined) {
+          if (regionType === '列' && typeof firstCell[1] === 'number') {
+            // 列区域：获取列号
+            regionNum = firstCell[1] + 1;
+          } else if (typeof firstCell[0] === 'number') {
+            // 行或宫区域：获取行号
+            regionNum = firstCell[0] + 1;
+          }
+        } else if (firstCell) {
           // 对象格式 {row, col}
-          regionNum = firstCell.row + 1;
+          if (regionType === '列' && firstCell.col !== undefined) {
+            // 列区域：获取列号
+            regionNum = firstCell.col + 1;
+          } else if (firstCell.row !== undefined) {
+            // 行或宫区域：获取行号
+            regionNum = firstCell.row + 1;
+          }
         }
       }
       
@@ -168,18 +197,33 @@ const ControlPanel = ({
         regionNum = technique.type.includes('Row') ? row + 1 : 
                     (technique.type.includes('Col') ? col + 1 : 
                     Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
-      } else if (technique.row !== undefined) {
-        // 对于多单元格技巧，尝试从technique对象获取行号
+      } else if (technique.row !== undefined && regionType === '行') {
+        // 对于行区域，从technique对象获取行号
         regionNum = technique.row + 1;
+      } else if (technique.col !== undefined && regionType === '列') {
+        // 对于列区域，从technique对象获取列号
+        regionNum = technique.col + 1;
       } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
-        // 如果有cells数组，从第一个单元格获取行号
+        // 如果有cells数组，根据区域类型获取正确的区域号
         const firstCell = technique.cells[0];
         if (Array.isArray(firstCell)) {
           // 数组格式 [row, col]
-          regionNum = typeof firstCell[0] === 'number' ? firstCell[0] + 1 : regionNum;
-        } else if (firstCell && firstCell.row !== undefined) {
+          if (regionType === '列' && typeof firstCell[1] === 'number') {
+            // 列区域：获取列号
+            regionNum = firstCell[1] + 1;
+          } else if (typeof firstCell[0] === 'number') {
+            // 行或宫区域：获取行号
+            regionNum = firstCell[0] + 1;
+          }
+        } else if (firstCell) {
           // 对象格式 {row, col}
-          regionNum = firstCell.row + 1;
+          if (regionType === '列' && firstCell.col !== undefined) {
+            // 列区域：获取列号
+            regionNum = firstCell.col + 1;
+          } else if (firstCell.row !== undefined) {
+            // 行或宫区域：获取行号
+            regionNum = firstCell.row + 1;
+          }
         }
       }
       
@@ -460,14 +504,33 @@ const ControlPanel = ({
         regionNum = technique.type.includes('Row') ? row + 1 : 
                     (technique.type.includes('Col') ? col + 1 : 
                     Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
-      } else if (technique.row !== undefined) {
-        // 对于多单元格技巧，尝试从technique对象获取行号
+      } else if (technique.row !== undefined && regionType === '行') {
+        // 对于行区域，从technique对象获取行号
         regionNum = technique.row + 1;
+      } else if (technique.col !== undefined && regionType === '列') {
+        // 对于列区域，从technique对象获取列号
+        regionNum = technique.col + 1;
       } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
-        // 如果有cells数组，从第一个单元格获取行号
+        // 如果有cells数组，根据区域类型获取正确的区域号
         const firstCell = technique.cells[0];
-        if (firstCell && firstCell.row !== undefined) {
-          regionNum = firstCell.row + 1;
+        if (Array.isArray(firstCell)) {
+          // 数组格式 [row, col]
+          if (regionType === '列' && typeof firstCell[1] === 'number') {
+            // 列区域：获取列号
+            regionNum = firstCell[1] + 1;
+          } else if (typeof firstCell[0] === 'number') {
+            // 行或宫区域：获取行号
+            regionNum = firstCell[0] + 1;
+          }
+        } else if (firstCell) {
+          // 对象格式 {row, col}
+          if (regionType === '列' && firstCell.col !== undefined) {
+            // 列区域：获取列号
+            regionNum = firstCell.col + 1;
+          } else if (firstCell.row !== undefined) {
+            // 行或宫区域：获取行号
+            regionNum = firstCell.row + 1;
+          }
         }
       }
       
@@ -1442,7 +1505,10 @@ const ControlPanel = ({
                 }}
                 title="点击刷新候选数并加载所有技巧求解"
               >
-                中&高技巧开启候选数
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <NotesIcon />
+                  刷新候选数
+                </div>
               </button>
             </div>
           )}

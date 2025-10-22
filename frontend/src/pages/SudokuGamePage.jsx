@@ -491,7 +491,7 @@ const SudokuGamePage = () => {
   return (
     <div className="sudoku-game-container" ref={gameAreaRef}>
       {/* 游戏暂停蒙板 */}
-      {!isTimerActive && !sudokuContext?.gameCompleted && gameStarted && (
+      {!isTimerActive && !sudokuContext?.gameCompleted && sudokuContext?.gameStarted && (
         <div className="pause-overlay" onClick={handlePauseTimer}>
           <div className="pause-message">
             <h2>Game Paused</h2>

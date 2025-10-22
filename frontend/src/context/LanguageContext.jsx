@@ -180,6 +180,8 @@ const translations = {
       hiddenPairTechnique: '隐性数对',
       nakedTripleTechnique: '显性三链数',
       hiddenTripleTechnique: '隐性三链数',
+      pointingPairsTechnique: '指向对',
+      boxLineReductionTechnique: '宫行列排除',
       // 控制面板标签
       keyboardTab: '键盘',
       techniquesTab: '技巧',
@@ -209,6 +211,12 @@ const translations = {
       removeOtherCandidates: '目标单元格{cells}中只能填入数字{numbers}，需要移除其他候选数',
       findTripleInRegion: '在{regionType}{regionNum}中查找三链数',
       foundNakedTriple: '发现数字{numbers}的显性三链数，位于单元格{cells}',
+      // Pointing Pairs
+      findPointingPairsInBox: '在第{boxNum}宫，数字{number}只能出现在第{lineNum}{lineType}',
+      removePointingPairsFromTargets: '从第{lineNum}{lineType}的目标单元格{targets}中移除候选数{number}',
+      // Box-Line Reduction
+      findBoxLineReductionInLine: '在第{lineNum}{lineType}，数字{number}只能出现在第{boxNum}宫',
+      removeBoxLineReductionFromTargets: '从第{boxNum}宫的目标单元格{targets}中移除候选数{number}',
       findHiddenTripleInRegion: '在{regionType}{regionNum}中查找只能出现在三个单元格中的数字组',
   },
   'en-US': {
@@ -412,6 +420,12 @@ const translations = {
       removeOtherCandidates: 'Target cells {cells} can only contain numbers {numbers}, remove other candidates',
       findTripleInRegion: 'Find triple in {regionType} {regionNum}',
       foundNakedTriple: 'Found naked triple of numbers {numbers} in cells {cells}',
+      // Pointing Pairs
+      findPointingPairsInBox: 'In box {boxNum}, number {number} can only appear in {lineType} {lineNum}',
+      removePointingPairsFromTargets: 'Remove candidate {number} from target cells {targets} in {lineType} {lineNum}',
+      // Box-Line Reduction
+      findBoxLineReductionInLine: 'In {lineType} {lineNum}, number {number} can only appear in box {boxNum}',
+      removeBoxLineReductionFromTargets: 'Remove candidate {number} from target cells {targets} in box {boxNum}',
       // Technique type translation keys
       nakedSingleTechnique: 'Naked Single',
       singleCandidateTechnique: 'Single Candidate',
@@ -419,6 +433,8 @@ const translations = {
       hiddenPairTechnique: 'Hidden Pair',
       nakedTripleTechnique: 'Naked Triple',
       hiddenTripleTechnique: 'Hidden Triple',
+      pointingPairsTechnique: 'Pointing Pairs',
+      boxLineReductionTechnique: 'Box-Line Reduction',
       findHiddenTripleInRegion: 'Find number groups that can only appear in three cells in {regionType} {regionNum}'
   }
 };

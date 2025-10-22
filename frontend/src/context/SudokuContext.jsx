@@ -1329,43 +1329,106 @@ export const SudokuContextProvider = ({ children }) => {
   const fillAllCandidates = () => {
     if (!gameStarted || gameCompleted || !currentBoard) return;
     
-    const newPencilNotes = {};
+    // 检查是否存在无候选数的空白单元格
+    let hasEmptyNotesCell = false;
+    let allBlankCellsHaveNotes = true;
     
-    // 保存当前状态到历史记录
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push({ 
-      board: currentBoard, 
-      pencilNotes: { ...pencilNotes },
-      type: 'fill-candidates'
-    });
-    setHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-    
-    // 遍历所有单元格
+    // 先检查每个空白单元格是否都有候选数
     for (let row = 0; row < 9; row++) {
       for (let col = 0; col < 9; col++) {
-        // 跳过预填数字和已有数字的单元格
-        if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== 0 || 
-            currentBoard[row] && currentBoard[row][col] !== 0) {
-          continue;
-        }
+        const isBlankCell = (!originalPuzzle || originalPuzzle[row][col] === 0) && 
+                           (!currentBoard[row] || currentBoard[row][col] === 0);
         
-        // 计算该单元格的候选数
-        const candidates = calculateCellCandidates(row, col);
-        if (candidates.length > 0) {
-          newPencilNotes[`${row}-${col}`] = candidates;
+        if (isBlankCell) {
+          const cellKey = `${row}-${col}`;
+          if (!pencilNotes[cellKey] || pencilNotes[cellKey].length === 0) {
+            hasEmptyNotesCell = true;
+            allBlankCellsHaveNotes = false;
+            break;
+          }
         }
+      }
+      if (hasEmptyNotesCell) break;
+    }
+    
+    // 如果存在无候选数的空白单元格，或者所有空白单元格都有候选数但需要验证
+    if (hasEmptyNotesCell || allBlankCellsHaveNotes) {
+      // 检查是否有候选数缺少正确答案的情况
+      let hasMissingAnswerInNotes = false;
+      
+      if (allBlankCellsHaveNotes && solution) {
+        for (let row = 0; row < 9; row++) {
+          for (let col = 0; col < 9; col++) {
+            const isBlankCell = (!originalPuzzle || originalPuzzle[row][col] === 0) && 
+                               (!currentBoard[row] || currentBoard[row][col] === 0);
+            
+            if (isBlankCell && solution[row] && solution[row][col] !== 0) {
+              const cellKey = `${row}-${col}`;
+              const cellSolution = solution[row][col];
+              
+              // 检查该单元格的候选数是否包含正确答案
+              if (!pencilNotes[cellKey] || !pencilNotes[cellKey].includes(cellSolution)) {
+                hasMissingAnswerInNotes = true;
+                break;
+              }
+            }
+          }
+          if (hasMissingAnswerInNotes) break;
+        }
+      }
+      
+      // 如果发现候选数缺少正确答案，显示错误提示
+      if (hasMissingAnswerInNotes) {
+        toast.error('存在候选数删减错误，数据刷新', {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      }
+      
+      // 无论哪种情况，都重新计算候选数
+      const newPencilNotes = {};
+      
+      // 保存当前状态到历史记录
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push({ 
+        board: currentBoard, 
+        pencilNotes: { ...pencilNotes },
+        type: 'fill-candidates'
+      });
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+      
+      // 遍历所有单元格重新计算候选数
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          // 跳过预填数字和已有数字的单元格
+          if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== 0 || 
+              currentBoard[row] && currentBoard[row][col] !== 0) {
+            continue;
+          }
+          
+          // 计算该单元格的候选数
+          const candidates = calculateCellCandidates(row, col);
+          if (candidates.length > 0) {
+            newPencilNotes[`${row}-${col}`] = candidates;
+          }
+        }
+      }
+      
+      // 更新铅笔标注数据
+      setPencilNotes(newPencilNotes);
+      
+      // 提示用户已填充候选数（如果不是因为错误刷新）
+      if (!hasMissingAnswerInNotes) {
+        toast.info('已为所有空白格子计算并填充候选数！', {
+          position: 'top-right',
+          autoClose: 2000
+        });
       }
     }
     
-    // 更新铅笔标注数据
-    setPencilNotes(newPencilNotes);
-    
-    // 提示用户已填充候选数
-    toast.info('已为所有空白格子计算并填充候选数！', {
-      position: 'top-right',
-      autoClose: 2000
-    });
+    // 如果所有空白单元格都有候选数且没有错误，不执行任何操作
+    // 这是为了保持代码逻辑的完整性
   };
   
   // 计算单个单元格的候选数

@@ -600,7 +600,7 @@ const SudokuGamePage = () => {
                   {t(difficulty)}
                 </div>
                 <div>
-                  {t('time')}：{formatTime(timeElapsed)}
+                  {formatTime(timeElapsed)}
                 </div>
               </div>
             </div>

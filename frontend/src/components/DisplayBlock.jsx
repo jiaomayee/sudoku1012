@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 
@@ -100,16 +101,18 @@ const DisplayBlock = ({
   time
 }) => {
   const { theme } = useTheme();
+  // 获取语言翻译函数
+  const { t } = useLanguage();
 
   return (
     <DisplayBlockContainer>
       {/* 错误次数统计 - 标签为普通文本颜色，数字为红色 */}
       <ErrorCount>
-        错误：<ErrorNumber>{errorCount}</ErrorNumber>
+        {t('error')}: <ErrorNumber>{errorCount}</ErrorNumber>
       </ErrorCount>
       
       {/* 当前难度等级 */}
-      <DifficultyDisplay>{difficulty}</DifficultyDisplay>
+      <DifficultyDisplay>{t(difficulty)}</DifficultyDisplay>
       
       {/* 游戏计时器 */}
       <TimerDisplay>{time}</TimerDisplay>

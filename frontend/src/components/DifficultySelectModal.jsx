@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { DIFFICULTY_LEVELS } from '../context/SudokuContext';
 
 const ModalOverlay = styled.div`
@@ -219,28 +220,32 @@ const ConfirmButton = styled.button`
   }
 `;
 
-const difficultySettings = {
-  [DIFFICULTY_LEVELS.EASY]: {
-    name: '简单',
-    description: '初学者友好，空格较少'
-  },
-  [DIFFICULTY_LEVELS.MEDIUM]: {
-    name: '中等',
-    description: '进阶挑战，需要一定技巧'
-  },
-  [DIFFICULTY_LEVELS.HARD]: {
-    name: '困难',
-    description: '专家级别，逻辑推理'
-  },
-  [DIFFICULTY_LEVELS.EXPERT]: {
-    name: '专家',
-    description: '极高难度，需要高级技巧'
-  }
-};
+// 难度设置将在组件内部使用t函数动态生成
 
 const DifficultySelectModal = ({ isOpen, onClose, onSelectDifficulty, initialDifficulty }) => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const [selectedDifficulty, setSelectedDifficulty] = React.useState(initialDifficulty || DIFFICULTY_LEVELS.MEDIUM);
+  
+  // 动态生成难度设置，使用翻译函数
+  const difficultySettings = {
+    [DIFFICULTY_LEVELS.EASY]: {
+      name: t('easy'),
+      description: t('difficultyDescription.easy')
+    },
+    [DIFFICULTY_LEVELS.MEDIUM]: {
+      name: t('medium'),
+      description: t('difficultyDescription.medium')
+    },
+    [DIFFICULTY_LEVELS.HARD]: {
+      name: t('hard'),
+      description: t('difficultyDescription.hard')
+    },
+    [DIFFICULTY_LEVELS.EXPERT]: {
+      name: t('expert'),
+      description: t('difficultyDescription.expert')
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -261,7 +266,7 @@ const DifficultySelectModal = ({ isOpen, onClose, onSelectDifficulty, initialDif
   return (
     <ModalOverlay onClick={onClose} onKeyDown={handleKeyDown}>
       <ModalContainer theme={theme} onClick={(e) => e.stopPropagation()}>
-        <ModalTitle theme={theme}>选择难度</ModalTitle>
+        <ModalTitle theme={theme}>{t('selectDifficulty')}</ModalTitle>
         
         <DifficultyButtons>
           {Object.entries(DIFFICULTY_LEVELS).map(([key, value]) => {
@@ -282,8 +287,8 @@ const DifficultySelectModal = ({ isOpen, onClose, onSelectDifficulty, initialDif
         </DifficultyButtons>
         
         <ButtonRow>
-          <CancelButton theme={theme} onClick={onClose}>取消</CancelButton>
-          <ConfirmButton theme={theme} onClick={handleConfirm}>开始游戏</ConfirmButton>
+          <CancelButton theme={theme} onClick={onClose}>{t('cancel')}</CancelButton>
+          <ConfirmButton theme={theme} onClick={handleConfirm}>{t('startGame')}</ConfirmButton>
         </ButtonRow>
       </ModalContainer>
     </ModalOverlay>

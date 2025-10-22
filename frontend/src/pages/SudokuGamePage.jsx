@@ -155,12 +155,7 @@ const SudokuGamePage = () => {
   
   // 获取难度名称
   const getDifficultyName = () => {
-    const difficultyNames = {
-      easy: '简单',
-      medium: '中等',
-      hard: '困难'
-    };
-    return difficultyNames[difficulty] || difficulty;
+    return t(difficulty) || difficulty;
   };
   
   // 技巧指示功能由ControlPanel组件通过Context直接实现，使用真实的技巧机会数据

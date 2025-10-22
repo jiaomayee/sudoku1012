@@ -28,14 +28,16 @@ const translations = {
     notes: '候选数',
     // 难度选择
     selectDifficulty: '选择难度',
-    easyDifficulty: '简单',
-    easyDescription: '初学者友好，空格较少',
-    mediumDifficulty: '中等',
-    mediumDescription: '进阶挑战，需要一定技巧',
-    hardDifficulty: '困难',
-    hardDescription: '专家级别，逻辑推理',
-    expertDifficulty: '专家',
-    expertDescription: '极高难度，需要高级技巧',
+    easy: '简单',
+    medium: '中等',
+    hard: '困难',
+    expert: '专家',
+    difficultyDescription: {
+      easy: '初学者友好，空格较少',
+      medium: '进阶挑战，需要一定技巧',
+      hard: '专家级别，逻辑推理',
+      expert: '极高难度，需要高级技巧'
+    },
     cancel: '取消',
     startGame: '开始游戏',
     startNewGame: '开始新游戏',
@@ -229,16 +231,18 @@ const translations = {
     gameCompleted: 'Game Completed',
     hint: 'Hint',
     notes: 'Notes',
-    // Difficulty selection
+    // 难度选择
     selectDifficulty: 'Select Difficulty',
-    easyDifficulty: 'Easy',
-    easyDescription: 'Beginner friendly, fewer empty cells',
-    mediumDifficulty: 'Medium',
-    mediumDescription: 'Moderate challenge, requires some techniques',
-    hardDifficulty: 'Hard',
-    hardDescription: 'Expert level, logical reasoning required',
-    expertDifficulty: 'Expert',
-    expertDescription: 'Extremely difficult, advanced techniques needed',
+    easy: 'Easy',
+    medium: 'Medium',
+    hard: 'Hard',
+    expert: 'Expert',
+    difficultyDescription: {
+      easy: 'Beginner friendly, fewer empty cells',
+      medium: 'Moderate challenge, requires some techniques',
+      hard: 'Expert level, logical reasoning required',
+      expert: 'Extremely difficult, advanced techniques needed'
+    },
     cancel: 'Cancel',
     startGame: 'Start Game',
     startNewGame: 'Start New Game',
@@ -432,9 +436,21 @@ export const LanguageProvider = ({ children }) => {
     return 'en-US';
   });
   
-  // 获取当前语言的翻译
+  // 获取当前语言的翻译，支持嵌套键
   const t = (key) => {
-    return translations[language]?.[key] || key;
+    if (!key) return key;
+    
+    const keys = key.split('.');
+    let value = translations[language];
+    
+    for (const k of keys) {
+      if (!value || typeof value !== 'object') {
+        return key;
+      }
+      value = value[k];
+    }
+    
+    return value !== undefined ? value : key;
   };
   
   // 切换语言

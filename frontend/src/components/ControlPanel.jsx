@@ -1395,22 +1395,16 @@ const ControlPanel = ({
                       primaryType = t(technique.description || 'singleCandidateTechnique');
                       // 候选数唯一法是一级分类，这里可以根据需要添加二级类型
                     } else if (technique.type.includes('hidden_single') || technique.type.includes('hiddenSingle')) {
-                      // 先确定secondaryType
+                      // 直接设置primaryType，不设置secondaryType避免重复
                       if (technique.type.includes('row') || technique.type.includes('Row')) {
-                        secondaryType = t('row');
-                      } else if (technique.type.includes('col') || technique.type.includes('Col')) {
-                        secondaryType = t('col');
-                      } else if (technique.type.includes('box') || technique.type.includes('Box')) {
-                        secondaryType = t('box');
-                      }
-                      // 使用翻译文本
-                      if (secondaryType === t('row')) {
                         primaryType = t('hiddenSingleRow');
-                      } else if (secondaryType === t('col')) {
+                      } else if (technique.type.includes('col') || technique.type.includes('Col')) {
                         primaryType = t('hiddenSingleCol');
-                      } else if (secondaryType === t('box')) {
+                      } else if (technique.type.includes('box') || technique.type.includes('Box')) {
                         primaryType = t('hiddenSingleBox');
                       }
+                      // 清除secondaryType，避免重复显示
+                      secondaryType = '';
                     } else if (technique.type === 'nakedPairs' || technique.type === 'naked_pairs' || technique.type.includes('nakedPair')) {
                       primaryType = t('nakedPairs');
                       // 根据类型确定是行/列/宫

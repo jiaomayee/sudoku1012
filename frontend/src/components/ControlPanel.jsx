@@ -1542,14 +1542,16 @@ const ControlPanel = ({
                   <button 
                     onClick={handleApplyTechnique}
                     style={{
-                      width: verticalMode ? '60px' : '100px',
-                      height: verticalMode ? '20px' : '36px',
+                      width: verticalMode ? '70px' : '100px',
+                      height: verticalMode ? '24px' : '36px',
                       backgroundColor: '#3498db',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
                       cursor: 'pointer',
-                      fontSize: verticalMode ? '8px' : '16px',
+                      fontSize: verticalMode ? '12px' : '16px',
+                      padding: verticalMode ? '2px 4px' : '4px 8px',
+                      whiteSpace: 'nowrap',
                       fontWeight: '600',
                       display: 'flex',
                       alignItems: 'center',

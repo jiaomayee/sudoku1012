@@ -34,11 +34,10 @@ const translations = {
       hard: '专家级别，逻辑推理',
       expert: '极高难度，需要高级技巧'
     },
-    cancel: '取消',
     startGame: '开始游戏',
     startNewGame: '开始新游戏',
     // 进度页面
-    progress: '游戏进度',
+    
     clearAllProgress: '清空所有进度',
     allProgress: '全部进度',
     inProgress: '进行中',
@@ -70,7 +69,6 @@ const translations = {
     customTheme: '自定义主题',
     editTheme: '编辑主题',
     saveChanges: '保存更改',
-    cancel: '取消',
     themeSelection: '主题选择',
     gameSettings: '游戏设置',
     soundEffects: '音效',
@@ -99,15 +97,10 @@ const translations = {
     
     // 其他常用文本
     confirm: '确认',
-    delete: '删除',
-    back: '返回',
     continue: '继续',
     complete: '完成',
     start: '开始',
     pause: '暂停',
-    resume: '继续',
-    newGame: '新游戏',
-    difficulty: '难度',
     time: '时间',
     easy: '简单',
     medium: '中等',
@@ -238,11 +231,10 @@ const translations = {
       hard: 'Expert level, logical reasoning required',
       expert: 'Extremely difficult, advanced techniques needed'
     },
-    cancel: 'Cancel',
     startGame: 'Start Game',
     startNewGame: 'Start New Game',
     // Progress page
-    progress: 'Game Progress',
+    
     clearAllProgress: 'Clear All Progress',
     allProgress: 'All Progress',
     inProgress: 'In Progress',
@@ -274,7 +266,6 @@ const translations = {
     customTheme: 'Custom Theme',
     editTheme: 'Edit Theme',
     saveChanges: 'Save Changes',
-    cancel: 'Cancel',
     themeSelection: 'Theme Selection',
     gameSettings: 'Game Settings',
     soundEffects: 'Sound Effects',
@@ -303,15 +294,10 @@ const translations = {
     
     // Other common text
     confirm: 'Confirm',
-    delete: 'Delete',
-    back: 'Back',
     continue: 'Continue',
     complete: 'Complete',
     start: 'Start',
     pause: 'Pause',
-    resume: 'Resume',
-    newGame: 'New Game',
-    difficulty: 'Difficulty',
     time: 'Time',
     easy: 'Easy',
     medium: 'Medium',

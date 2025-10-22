@@ -47,6 +47,22 @@ const ControlPanel = ({
   isPencilMode,
   remainingNumbers = {} // 添加剩余数字数量属性，默认为空对象
 }) => {
+  // 检测是否为竖屏模式
+  const isVerticalMode = () => {
+    return window.innerWidth < 768 && window.innerHeight > window.innerWidth;
+  };
+  
+  const [verticalMode, setVerticalMode] = useState(isVerticalMode());
+  
+  // 监听窗口大小变化
+  useEffect(() => {
+    const handleResize = () => {
+      setVerticalMode(isVerticalMode());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const { theme } = useTheme();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
@@ -1526,19 +1542,19 @@ const ControlPanel = ({
                   <button 
                     onClick={handleApplyTechnique}
                     style={{
-                      width: '80px',
-                      height: '28px',
+                      width: verticalMode ? '70px' : '80px',
+                      height: verticalMode ? '24px' : '28px',
                       backgroundColor: '#3498db',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
                       cursor: 'pointer',
-                      fontSize: '14px',
+                      fontSize: verticalMode ? '12px' : '14px',
                       fontWeight: '600',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 2px 6px rgba(52, 152, 219, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12)',
+                      boxShadow: verticalMode ? '0 1px 4px rgba(52, 152, 219, 0.3), 0 1px 2px rgba(0, 0, 0, 0.12)' : '0 2px 6px rgba(52, 152, 219, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12)',
                       transition: 'all 0.2s ease'
                     }}
                     onMouseEnter={(e) => {

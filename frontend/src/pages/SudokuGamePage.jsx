@@ -587,7 +587,7 @@ const SudokuGamePage = () => {
               {/* 显示区块 - 右侧，宽度为棋盘的2/3，精简显示 */}
               <div className="display-block">
                 <div>
-                  {t('mistake').charAt(0).toUpperCase() + t('mistake').slice(1)}：<span className="value error-count" style={{color: '#ff4d4d'}}>{errorCount}</span>
+                  {t('error')}：<span className="value error-count" style={{color: '#ff4d4d'}}>{errorCount}</span>
                 </div>
                 <div>
                   {t(difficulty)}

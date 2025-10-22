@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
+import { useTheme } from '../context/ThemeContext';
 import { useSudoku } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
+import { useLanguage } from '../context/LanguageContext';
 import { api } from '../services/api';
 
 const ProgressContainer = styled.div`
@@ -261,6 +262,7 @@ const ProgressPage = () => {
   const { userId } = useUser();
   const { loadSavedGame } = useSudoku();
   const { executeWithLoading } = useLoading();
+  const { t } = useLanguage();
   const [progressItems, setProgressItems] = useState([]);
   const [filter, setFilter] = useState('all'); // 'all', 'completed', 'in-progress'
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -414,10 +416,10 @@ const ProgressPage = () => {
   // 获取难度文本
   const getDifficultyText = (difficulty) => {
     switch (difficulty) {
-      case 'easy': return '简单';
-      case 'medium': return '中等';
-      case 'hard': return '困难';
-      case 'expert': return '专家';
+      case 'easy': return t('easy');
+      case 'medium': return t('medium');
+      case 'hard': return t('hard');
+      case 'expert': return t('expert');
       default: return difficulty;
     }
   };
@@ -430,12 +432,12 @@ const ProgressPage = () => {
   return (
     <ProgressContainer>
       <ProgressHeader>
-        <ProgressTitle>游戏进度</ProgressTitle>
+        <ProgressTitle>{t('progress')}</ProgressTitle>
         {progressItems.length > 0 && (
           <ClearAllButton 
             onClick={() => openConfirmModal('clear-all')}
           >
-            清空所有进度
+            {t('clearAllProgress')}
           </ClearAllButton>
         )}
       </ProgressHeader>
@@ -446,19 +448,19 @@ const ProgressPage = () => {
             active={filter === 'all'} 
             onClick={() => setFilter('all')}
           >
-            全部进度
+            {t('allProgress')}
           </FilterButton>
           <FilterButton 
             active={filter === 'in-progress'} 
             onClick={() => setFilter('in-progress')}
           >
-            进行中
+            {t('inProgress')}
           </FilterButton>
           <FilterButton 
             active={filter === 'completed'} 
             onClick={() => setFilter('completed')}
           >
-            已完成
+            {t('completed')}
           </FilterButton>
         </FilterBar>
       )}
@@ -472,35 +474,35 @@ const ProgressPage = () => {
             >
               <CardHeader>
                 <CardTitle>
-                  数独游戏 #{progress.id}
+                  {t('sudokuGame')} #{progress.id}
                 </CardTitle>
                 <StatusBadge status={progress.status} theme={theme}>
-                  {progress.status === 'completed' ? '已完成' : 
-                   progress.status === 'in-progress' ? '进行中' : '已暂停'}
+                  {progress.status === 'completed' ? t('completed') : 
+                   progress.status === 'in-progress' ? t('inProgress') : t('paused')}
                 </StatusBadge>
               </CardHeader>
 
               <CardDetails>
                 <DetailItem>
-                  <DetailLabel theme={theme}>难度</DetailLabel>
+                  <DetailLabel theme={theme}>{t('difficulty')}</DetailLabel>
                   <DetailValue theme={theme}>
                     {getDifficultyText(progress.difficulty)}
                   </DetailValue>
                 </DetailItem>
                 <DetailItem>
-                  <DetailLabel theme={theme}>开始时间</DetailLabel>
+                  <DetailLabel theme={theme}>{t('startTime')}</DetailLabel>
                   <DetailValue theme={theme}>
                     {formatDate(progress.startTime)}
                   </DetailValue>
                 </DetailItem>
                 <DetailItem>
-                  <DetailLabel theme={theme}>最后更新</DetailLabel>
+                  <DetailLabel theme={theme}>{t('lastUpdated')}</DetailLabel>
                   <DetailValue theme={theme}>
                     {formatDate(progress.lastUpdated)}
                   </DetailValue>
                 </DetailItem>
                 <DetailItem>
-                  <DetailLabel theme={theme}>完成进度</DetailLabel>
+                  <DetailLabel theme={theme}>{t('completionProgress')}</DetailLabel>
                   <DetailValue theme={theme}>
                     {calculateCompletionPercentage(progress.filledCells, progress.totalCells)}%
                   </DetailValue>
@@ -513,14 +515,14 @@ const ProgressPage = () => {
                     type="primary" 
                     onClick={() => handleContinueGame(progress.id)}
                   >
-                    继续游戏
+                    {t('continueGame')}
                   </ActionButton>
                 )}
                 <ActionButton 
                   type="danger" 
                   onClick={() => openConfirmModal(progress.id)}
                 >
-                  删除进度
+                  {t('deleteProgress')}
                 </ActionButton>
               </CardActions>
             </ProgressCard>
@@ -529,14 +531,14 @@ const ProgressPage = () => {
       ) : (
         <EmptyState>
           <EmptyStateIcon>📝</EmptyStateIcon>
-          <EmptyStateTitle>暂无游戏进度</EmptyStateTitle>
+          <EmptyStateTitle>{t('noProgress')}</EmptyStateTitle>
           <EmptyStateDescription>
-              {filter !== 'all' ? '没有符合筛选条件的游戏进度' : '您还没有开始任何数独游戏'}
+              {filter !== 'all' ? t('noFilteredProgress') : t('noStartedGames')}
           </EmptyStateDescription>
           <StartButton 
             onClick={() => window.location.href = '/game'}
           >
-            开始新游戏
+            {t('startNewGame')}
           </StartButton>
         </EmptyState>
       )}
@@ -545,12 +547,12 @@ const ProgressPage = () => {
         <ConfirmationModal>
           <ModalContent>
             <ModalTitle>
-              {confirmAction === 'clear-all' ? '确认清空所有进度' : '确认删除进度'}
+              {confirmAction === 'clear-all' ? t('confirmClearAllProgress') : t('confirmDeleteProgress')}
             </ModalTitle>
             <ModalMessage>
               {confirmAction === 'clear-all' 
-                ? '此操作将删除所有游戏进度，且无法恢复。确定要继续吗？'
-                : '此操作将删除选中的游戏进度，且无法恢复。确定要继续吗？'
+                ? t('clearAllProgressWarning')
+                : t('deleteProgressWarning')
               }
             </ModalMessage>
             <ModalActions>
@@ -558,13 +560,13 @@ const ProgressPage = () => {
                 type="secondary" 
                 onClick={closeConfirmModal}
               >
-                取消
+                {t('cancel')}
               </ActionButton>
               <ActionButton 
                 type="danger" 
                 onClick={executeConfirmAction}
               >
-                确认删除
+                {t('confirmDelete')}
               </ActionButton>
             </ModalActions>
           </ModalContent>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const Nav = styled.nav`
   background-color: #2196F3;
@@ -147,10 +148,10 @@ const FlagContainer = styled.span`
 
 const Navbar = () => {
   const { theme } = useTheme();
+  const { language, changeLanguage } = useLanguage();
   
   // 语言切换状态
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('zh'); // zh or en
 
   // 移除导航栏滚动隐藏功能，使其与主界面一体
 
@@ -173,11 +174,9 @@ const Navbar = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const handleLanguageSelect = (lang) => {
-    setSelectedLanguage(lang);
+  const handleLanguageSelect = (langCode) => {
+    changeLanguage(langCode);
     setIsDropdownOpen(false);
-    // 这里可以添加语言切换的逻辑
-    console.log('切换语言为:', lang);
   };
 
   return (
@@ -189,20 +188,20 @@ const Navbar = () => {
         </Logo>
         <LanguageSelector className="language-selector">
             <LanguageButton onClick={toggleDropdown}>
-              中文
+              {language === 'zh-CN' ? '中文' : 'English'}
             </LanguageButton>
             
             {isDropdownOpen && (
               <LanguageDropdown>
                 <LanguageOption 
-                  className={selectedLanguage === 'zh' ? 'selected' : ''}
-                  onClick={() => handleLanguageSelect('zh')}
+                  className={language === 'zh-CN' ? 'selected' : ''}
+                  onClick={() => handleLanguageSelect('zh-CN')}
                 >
                   中文
                 </LanguageOption>
                 <LanguageOption 
-                  className={selectedLanguage === 'en' ? 'selected' : ''}
-                  onClick={() => handleLanguageSelect('en')}
+                  className={language === 'en-US' ? 'selected' : ''}
+                  onClick={() => handleLanguageSelect('en-US')}
                 >
                   English
                 </LanguageOption>

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -261,6 +262,7 @@ const ToggleSwitch = styled.label`
 
 const SettingsModal = ({ isOpen, onClose }) => {
   const { theme, themeMode, toggleTheme, availableThemes } = useTheme();
+  const { t } = useLanguage();
   
   if (!isOpen) return null;
   
@@ -268,12 +270,12 @@ const SettingsModal = ({ isOpen, onClose }) => {
     <ModalOverlay onClick={onClose}>
       <ModalContainer theme={theme} onClick={e => e.stopPropagation()}>
         <ModalHeader theme={theme}>
-          <ModalTitle>设置</ModalTitle>
+          <ModalTitle>{t('settingsPageTitle')}</ModalTitle>
           <CloseButton theme={theme} onClick={onClose}>&times;</CloseButton>
         </ModalHeader>
         
         <SettingsSection theme={theme}>
-          <h3>主题选择</h3>
+          <h3>{t('themeSelection')}</h3>
           {availableThemes && availableThemes.map((availableTheme) => (
             <ThemeOption
               key={availableTheme.id}
@@ -288,23 +290,23 @@ const SettingsModal = ({ isOpen, onClose }) => {
         </SettingsSection>
         
         <SettingsSection theme={theme}>
-          <h3>游戏设置</h3>
+          <h3>{t('gameSettings')}</h3>
           <SettingItem theme={theme}>
-            <SettingLabel>音效</SettingLabel>
+            <SettingLabel>{t('soundEffects')}</SettingLabel>
             <ToggleSwitch theme={theme} checked={false}>
               <input type="checkbox" />
               <span></span>
             </ToggleSwitch>
           </SettingItem>
           <SettingItem theme={theme}>
-            <SettingLabel>自动检查</SettingLabel>
+            <SettingLabel>{t('autoCheck')}</SettingLabel>
             <ToggleSwitch theme={theme} checked={true}>
               <input type="checkbox" defaultChecked />
               <span></span>
             </ToggleSwitch>
           </SettingItem>
           <SettingItem theme={theme}>
-            <SettingLabel>显示提示</SettingLabel>
+            <SettingLabel>{t('showHints')}</SettingLabel>
             <ToggleSwitch theme={theme} checked={true}>
               <input type="checkbox" defaultChecked />
               <span></span>

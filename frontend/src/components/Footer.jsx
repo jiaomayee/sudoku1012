@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const FooterContainer = styled.footer`
   background-color: ${props => props.theme.surface};
@@ -56,22 +57,23 @@ const Version = styled.div`
 
 const Footer = () => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
 
   return (
     <FooterContainer theme={theme}>
       <FooterContent theme={theme}>
         <FooterLinks theme={theme}>
-          <Link href="#" theme={theme}>关于我们</Link>
-          <Link href="#" theme={theme}>使用帮助</Link>
-          <Link href="#" theme={theme}>数独规则</Link>
-          <Link href="#" theme={theme}>联系我们</Link>
+          <Link href="#" theme={theme}>{t('aboutUs')}</Link>
+          <Link href="#" theme={theme}>{t('help')}</Link>
+          <Link href="#" theme={theme}>{t('sudokuRules')}</Link>
+          <Link href="#" theme={theme}>{t('contactUs')}</Link>
         </FooterLinks>
         <Copyright theme={theme}>
-          © {currentYear} 数独学习应用 版权所有
+          © {currentYear} {t('appName')} {t('copyright')}
         </Copyright>
         <Version theme={theme}>
-          版本 1.0.0
+          {t('version')} 1.0.0
         </Version>
       </FooterContent>
     </FooterContainer>

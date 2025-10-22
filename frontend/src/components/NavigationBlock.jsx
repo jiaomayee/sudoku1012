@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
+import { useLanguage } from '../context/LanguageContext';
 import DifficultySelectModal from './DifficultySelectModal';
 const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   background-color: ${props => props.theme?.background || '#f8f9fa'};
@@ -148,6 +149,7 @@ const Icons = {
 
 const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques, onToggleNotes, onSettings, isNotesMode = false, isTimerActive = true, gameCompleted = false }) => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const sudokuContext = useSudoku();
   const { startLoading, stopLoading } = useLoading();
   const [showDifficultyModal, setShowDifficultyModal] = useState(false); // 控制难度选择模态框显示
@@ -206,19 +208,19 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
       <NavBlockContainer>
         <ButtonGrid>
           {/* 新建游戏按钮 - 打开难度选择模态框 */}
-          <NavButton onClick={handleNewGameClick} title="新建游戏">
+          <NavButton onClick={handleNewGameClick} title={t('newGame')}>
             <ButtonIcon><Icons.NewGame /></ButtonIcon>
           </NavButton>
           
           {/* 暂停计时按钮 */}
-          <NavButton onClick={!gameCompleted ? onPauseTimer : undefined} disabled={gameCompleted} title={gameCompleted ? '游戏已完成' : (isTimerActive ? '暂停计时' : '继续')}>
+          <NavButton onClick={!gameCompleted ? onPauseTimer : undefined} disabled={gameCompleted} title={gameCompleted ? t('gameCompleted') : (isTimerActive ? t('pauseTimer') : t('resume'))}>
             <ButtonIcon>
               {gameCompleted || isTimerActive ? <Icons.Pause /> : <Icons.Play />}
             </ButtonIcon>
           </NavButton>
           
           {/* 技巧提示按钮 */}
-          <NavButton onClick={onGetHint} title="技巧提示">
+          <NavButton onClick={onGetHint} title={t('hint')}>
             <ButtonIcon><Icons.Hint /></ButtonIcon>
           </NavButton>
           
@@ -228,14 +230,14 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
                 onToggleNotes();
                 setIsNotesButtonActive(true); // 点击时设置为激活状态
               }} 
-              title="候选数" 
+              title={t('notes')} 
               isActive={isNotesButtonActive}
             >
               <ButtonIcon><Icons.Notes /></ButtonIcon>
             </NavButton>
           
           {/* 设置按钮 */}
-          <NavButton onClick={onSettings} title="设置">
+          <NavButton onClick={onSettings} title={t('settings')}>
             <ButtonIcon><Icons.Settings /></ButtonIcon>
           </NavButton>
         </ButtonGrid>

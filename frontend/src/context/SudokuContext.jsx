@@ -403,9 +403,9 @@ export const SudokuContextProvider = ({ children }) => {
 
       // 根据难度和题目来源显示不同的提示
       if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
-        toast.success(isFromJson ? '已加载专家题库题目！' : '已生成专家难度题目！', { position: 'top-right', autoClose: 2000 });
+        toast.success(isFromJson ? 'Expert puzzle loaded!' : 'Expert puzzle generated!', { position: 'top-right', autoClose: 2000 });
       } else {
-        toast.success('已生成新谜题！', { position: 'top-right', autoClose: 2000 });
+        toast.success('New puzzle generated!', { position: 'top-right', autoClose: 2000 });
       }
       console.log('新游戏设置完成');
       return formattedData;
@@ -448,7 +448,7 @@ export const SudokuContextProvider = ({ children }) => {
         setGameCompleted(false);
         setTimerActive(true);
         
-        toast.success('已使用备用谜题！', { position: 'top-right', autoClose: 2000 });
+        toast.success('Backup puzzle used!', { position: 'top-right', autoClose: 2000 });
         return fallbackData;
       } catch (fallbackError) {
         console.error('使用备用谜题也失败:', fallbackError);
@@ -562,7 +562,7 @@ export const SudokuContextProvider = ({ children }) => {
         updateUserStats({ puzzlesStarted: 1 });
       }
 
-      toast.success('已生成新谜题！', { position: 'top-right', autoClose: 2000 });
+      toast.success('New puzzle generated!', { position: 'top-right', autoClose: 2000 });
       console.log('新谜题设置完成');
       return formattedData;
     } catch (error) {

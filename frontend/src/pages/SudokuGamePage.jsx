@@ -496,8 +496,8 @@ const SudokuGamePage = () => {
       {!isTimerActive && !sudokuContext?.gameCompleted && (
         <div className="pause-overlay" onClick={handlePauseTimer}>
           <div className="pause-message">
-            <h2>游戏已暂停</h2>
-            <p>点击任意位置继续游戏</p>
+            <h2>Game Paused</h2>
+            <p>Click anywhere to resume</p>
           </div>
         </div>
       )}

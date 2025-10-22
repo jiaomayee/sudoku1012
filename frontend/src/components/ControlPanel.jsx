@@ -26,7 +26,24 @@ const getTechniqueDisplayType = (primaryType, secondaryType) => {
       if (secondaryType === t('col')) return t('columnElimination');
       if (secondaryType === t('box')) return t('boxElimination');
     }
-    return primaryType;
+    // 确保返回的是翻译后的技巧名称
+    const techniqueNames = {
+      'nakedSingle': t('nakedSingleTechnique'),
+      'notesSingle': t('singleCandidateTechnique'),
+      'nakedPairRow': t('nakedPairTechnique'),
+      'nakedPairCol': t('nakedPairTechnique'),
+      'nakedPairBox': t('nakedPairTechnique'),
+      'hiddenPairRow': t('hiddenPairTechnique'),
+      'hiddenPairCol': t('hiddenPairTechnique'),
+      'hiddenPairBox': t('hiddenPairTechnique'),
+      'nakedTripleRow': t('nakedTripleTechnique'),
+      'nakedTripleCol': t('nakedTripleTechnique'),
+      'nakedTripleBox': t('nakedTripleTechnique'),
+      'hiddenTripleRow': t('hiddenTripleTechnique'),
+      'hiddenTripleCol': t('hiddenTripleTechnique'),
+      'hiddenTripleBox': t('hiddenTripleTechnique')
+    };
+    return techniqueNames[primaryType] || primaryType;
   };
 
 // 清理所有残留的CSS代码
@@ -154,13 +171,13 @@ const ControlPanel = ({
     const value = technique.value || '';
     
     // 根据技巧类型构建解题步骤
-    if (technique.type.includes('NakedSingle') || technique.type.includes('nakedSingle')) {
+    if (technique.type === 'nakedSingle') {
       steps.push(
         { step: 1, description: t('findSingleCandidateCell'), highlight: '' },
         { step: 2, description: t('cellOnlyHasSingleCandidate').replace('{position}', position).replace('{value}', value), highlight: position },
         { step: 3, description: t('fillNumber').replace('{value}', value), highlight: position }
       );
-    } else if (technique.type.includes('HiddenSingle') || technique.type.includes('hiddenSingle')) {
+    } else if (technique.type.includes('hiddenSingle')) {
       // 根据技巧类型确定区域类型
       const regionType = technique.type.includes('Row') ? t('row') : 
                          (technique.type.includes('Col') ? t('col') : t('box'));

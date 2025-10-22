@@ -181,7 +181,7 @@ const TechniqueLearningPage = () => {
   const techniques = [
     {
       id: 'nakedSingles',
-      name: '唯一候选数 (Naked Single)',
+      name: '唯一候选数',
       description: '最简单的数独技巧，当一个格子只有一个可能的数字时填入该数字。',
       details: {
         description: '唯一候选数是最基础的数独解题技巧。当一个空格子所在的行、列和3x3宫格中已经包含了除一个数字外的所有其他数字时，这个空格子只能填入剩下的那个数字。',
@@ -197,7 +197,7 @@ const TechniqueLearningPage = () => {
     },
     {
       id: 'hiddenSingles',
-      name: '隐性唯一 (Hidden Single)',
+      name: '隐性唯一',
       description: '当一个数字只能出现在某一行、列或宫格的某个特定格子时，填入该数字。',
       details: {
         description: '隐性唯一技巧比唯一候选数稍微复杂一些。当一个数字在某一行、列或3x3宫格中只能出现在一个特定的空格子时，即使该格子可能有其他候选数，但这个数字必须填入该格子。',

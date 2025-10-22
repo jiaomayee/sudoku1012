@@ -173,6 +173,13 @@ const translations = {
       hiddenPairBox: '宫隐性数对',
       nakedTriple: '显性三链数法',
       hiddenTriple: '隐性三链数法',
+      // 技巧类型翻译键
+      nakedSingleTechnique: '唯一候选数',
+      singleCandidateTechnique: '候选数唯一',
+      nakedPairTechnique: '显性数对',
+      hiddenPairTechnique: '隐性数对',
+      nakedTripleTechnique: '显性三链数',
+      hiddenTripleTechnique: '隐性三链数',
       // 控制面板标签
       keyboardTab: '键盘',
       techniquesTab: '技巧',
@@ -405,6 +412,13 @@ const translations = {
       removeOtherCandidates: 'Target cells {cells} can only contain numbers {numbers}, remove other candidates',
       findTripleInRegion: 'Find triple in {regionType} {regionNum}',
       foundNakedTriple: 'Found naked triple of numbers {numbers} in cells {cells}',
+      // Technique type translation keys
+      nakedSingleTechnique: 'Naked Single',
+      singleCandidateTechnique: 'Single Candidate',
+      nakedPairTechnique: 'Naked Pair',
+      hiddenPairTechnique: 'Hidden Pair',
+      nakedTripleTechnique: 'Naked Triple',
+      hiddenTripleTechnique: 'Hidden Triple',
       findHiddenTripleInRegion: 'Find number groups that can only appear in three cells in {regionType} {regionNum}'
   }
 };

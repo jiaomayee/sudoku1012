@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
+import { toast } from 'react-toastify';
 
 const LearningContainer = styled.div`
   display: flex;
@@ -283,8 +284,12 @@ const TechniqueLearningPage = () => {
   const handlePracticeTechnique = (techniqueId) => {
     incrementTechniquePractice(techniqueId);
     // 跳转到游戏页面或特定的练习模式
-    // 这里简化为提示消息
-    alert(`开始练习${techniques.find(t => t.id === techniqueId)?.name}技巧！`);
+    // 使用翻译系统的toast提示
+    const techniqueName = techniques.find(t => t.id === techniqueId)?.name;
+    toast.info(t('startPractice', { techniqueName }), {
+      position: 'top-right',
+      autoClose: 2000
+    });
   };
 
   // 计算技巧掌握程度

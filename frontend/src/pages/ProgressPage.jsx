@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useSudoku } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
+import { toast } from 'react-toastify';
 import { api } from '../services/api';
 
 const ProgressContainer = styled.div`
@@ -353,7 +354,10 @@ const ProgressPage = () => {
       }, '加载游戏中...');
     } catch (error) {
       console.error('加载游戏失败:', error);
-      alert('加载游戏失败，请稍后重试');
+      toast.error(t('loadGameFailed'), {
+        position: 'top-right',
+        autoClose: 2000
+      });
     }
   };
 
@@ -367,7 +371,10 @@ const ProgressPage = () => {
       }, '删除进度中...');
     } catch (error) {
       console.error('删除进度失败:', error);
-      alert('删除进度失败，请稍后重试');
+      toast.error(t('deleteProgressFailed'), {
+        position: 'top-right',
+        autoClose: 2000
+      });
     }
   };
 
@@ -381,7 +388,10 @@ const ProgressPage = () => {
       }, '清空进度中...');
     } catch (error) {
       console.error('清空进度失败:', error);
-      alert('清空进度失败，请稍后重试');
+      toast.error(t('clearProgressFailed'), {
+        position: 'top-right',
+        autoClose: 2000
+      });
     }
   };
 

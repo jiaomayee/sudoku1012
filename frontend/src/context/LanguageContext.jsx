@@ -117,6 +117,11 @@ const translations = {
     medium: '中等',
     hard: '困难',
     expert: '专家',
+    // 错误提示
+    loadGameFailed: '加载游戏失败，请稍后重试',
+    deleteProgressFailed: '删除进度失败，请稍后重试',
+    clearProgressFailed: '清空进度失败，请稍后重试',
+    startPractice: '开始练习{techniqueName}技巧！',
     // Footer
     aboutUs: '关于我们',
     help: '使用帮助',
@@ -306,7 +311,7 @@ const translations = {
     exportTheme: 'Export Theme',
     importTheme: 'Import Theme',
     
-    // 其他常用文本
+    // Other common text
     confirm: 'Confirm',
     delete: 'Delete',
     back: 'Back',
@@ -322,6 +327,11 @@ const translations = {
     medium: 'Medium',
     hard: 'Hard',
     expert: 'Expert',
+    // Error messages
+    loadGameFailed: 'Failed to load game, please try again later',
+    deleteProgressFailed: 'Failed to delete progress, please try again later',
+    clearProgressFailed: 'Failed to clear progress, please try again later',
+    startPractice: 'Start practicing {techniqueName}!',
     // Footer
     aboutUs: 'About Us',
     help: 'Help',
@@ -436,10 +446,11 @@ export const LanguageProvider = ({ children }) => {
     return 'en-US';
   });
   
-  // 获取当前语言的翻译，支持嵌套键
-  const t = (key) => {
+  // 获取当前语言的翻译，支持嵌套键和变量替换
+  const t = (key, variables = {}) => {
     if (!key) return key;
     
+    // 获取翻译字符串
     const keys = key.split('.');
     let value = translations[language];
     
@@ -450,7 +461,16 @@ export const LanguageProvider = ({ children }) => {
       value = value[k];
     }
     
-    return value !== undefined ? value : key;
+    if (value === undefined) return key;
+    
+    // 执行变量替换
+    if (typeof value === 'string' && Object.keys(variables).length > 0) {
+      return value.replace(/\{([^}]+)\}/g, (match, variableName) => {
+        return variables[variableName] !== undefined ? variables[variableName] : match;
+      });
+    }
+    
+    return value;
   };
   
   // 切换语言

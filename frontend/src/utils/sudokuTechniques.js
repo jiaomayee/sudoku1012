@@ -913,18 +913,38 @@ export const identifyAllTechniques = (board, pencilNotes = {}) => {
   // 查找所有可用技巧机会
   const nakedSingles = findNakedSingles(board);
   const hiddenSingles = findHiddenSingles(board);
-  const notesSingles = findNotesSingles(board, pencilNotes);
   const nakedPairs = findNakedPairs(board, pencilNotes);
   const hiddenPairs = findHiddenPairs(board, pencilNotes);
   const nakedTriples = findNakedTriples(board, pencilNotes);
   const hiddenTriples = findHiddenTriples(board, pencilNotes);
+  
+  // 创建已识别单元格的集合，避免重复识别
+  const identifiedCells = new Set();
+  
+  // 添加已识别的单元格到集合中
+  const addToIdentified = (techniques) => {
+    techniques.forEach(technique => {
+      technique.cells.forEach(([row, col]) => {
+        identifiedCells.add(`${row}-${col}`);
+      });
+    });
+  };
+  
+  // 先添加基础技巧识别的单元格
+  addToIdentified(nakedSingles);
+  addToIdentified(hiddenSingles);
+  
+  // 过滤候选数唯一法，只保留未被基础技巧识别的单元格
+  const notesSingles = findNotesSingles(board, pencilNotes).filter(technique => {
+    return !technique.cells.some(([row, col]) => identifiedCells.has(`${row}-${col}`));
+  });
   
   // 按技巧难度顺序合并所有技巧机会
   return [
     // 基础技巧（第一优先级）
     ...nakedSingles,
     ...hiddenSingles,
-    // 候选数基础技巧（第二优先级）
+    // 候选数基础技巧（第二优先级）- 只包含未被基础技巧识别的单元格
     ...notesSingles,
     // 中级技巧（第三优先级）
     ...nakedPairs,

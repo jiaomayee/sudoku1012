@@ -665,6 +665,28 @@ const ControlPanel = ({
         { step: 1, description: t('findPointingPairsInBox', { boxNum: boxNum, number: technique.number, lineType: regionType, lineNum: lineNum }), highlight: '' },
         { step: 2, description: t('removePointingPairsFromTargets', { number: technique.number, targets: formattedTargetCells, lineType: regionType, lineNum: lineNum }), highlight: position }
       );
+    } else if (technique.type.includes('boxLineReduction')) {
+      // 宫行列排除法解题步骤
+      const regionType = technique.type.includes('Row') ? t('row') : t('col');
+      
+      // 获取宫号和行/列号
+      const boxNum = (technique.boxRow * 3 + technique.boxCol + 1);
+      const lineNum = (regionType === t('row') ? technique.row : technique.col) + 1;
+      
+      // 格式化源单元格位置显示
+      const formattedSourceCells = technique.sourceCells && Array.isArray(technique.sourceCells) 
+        ? technique.sourceCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化目标单元格位置显示
+      const formattedTargetCells = technique.targetCells && Array.isArray(technique.targetCells) 
+        ? technique.targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('findBoxLineReductionInLine', { lineType: regionType, lineNum: lineNum, number: technique.number, boxNum: boxNum }), highlight: '' },
+        { step: 2, description: t('removeBoxLineReductionFromTargets', { number: technique.number, targets: formattedTargetCells, boxNum: boxNum }), highlight: position }
+      );
     } else {
         // 通用解题步骤，确保至少有内容显示
         steps.push(

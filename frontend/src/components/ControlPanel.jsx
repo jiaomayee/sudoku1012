@@ -1533,6 +1533,45 @@ const ControlPanel = ({
                         valueText = ` ${t('number')}: ${technique.number}`;
                       }
                     }
+                    // 处理宫行列排除法技巧（有sourceCells数组）
+                    else if (technique.type.includes('boxLineReduction') && Array.isArray(technique.sourceCells) && technique.sourceCells.length > 0) {
+                      // 显示源单元格位置
+                      if (technique.sourceCells.length > 0) {
+                        const firstCell = technique.sourceCells[0];
+                        if (Array.isArray(firstCell) && firstCell.length >= 2) {
+                          const row = firstCell[0] + 1;
+                          const col = firstCell[1] + 1;
+                          positionText = `(${row},${col})`;
+                        } else if (firstCell && typeof firstCell === 'object') {
+                          const row = (firstCell.row !== undefined ? firstCell.row : firstCell[0]) + 1;
+                          const col = (firstCell.col !== undefined ? firstCell.col : firstCell[1]) + 1;
+                          positionText = `(${row},${col})`;
+                        } else {
+                          positionText = t('multipleCells');
+                        }
+                      } else {
+                        positionText = t('multipleCells');
+                      }
+                      // 显示数字
+                      if (technique.number !== undefined) {
+                        valueText = ` ${t('number')}: ${technique.number}`;
+                      }
+                    }
+                    // 调试：处理其他宫行列排除法技巧的情况
+                    else if (technique.type.includes('boxLineReduction')) {
+                      // 如果是宫行列排除法但没有sourceCells，尝试其他方式获取位置信息
+                      if (technique.boxRow !== undefined && technique.boxCol !== undefined) {
+                        // 显示宫格信息
+                        const boxNum = technique.boxRow * 3 + technique.boxCol + 1;
+                        positionText = `${t('box')} ${boxNum}`;
+                      } else {
+                        positionText = t('multipleCells');
+                      }
+                      // 显示数字
+                      if (technique.number !== undefined) {
+                        valueText = ` ${t('number')}: ${technique.number}`;
+                      }
+                    }
                     else {
                       positionText = '(未知位置)';
                     }

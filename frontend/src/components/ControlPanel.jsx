@@ -85,6 +85,7 @@ const ControlPanel = ({
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
   const [selectedTechnique, setSelectedTechnique] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0); // 添加分页状态
   
   // 从上下文获取技巧和应用技巧的方法
   const sudokuContext = useSudoku();
@@ -125,6 +126,8 @@ const ControlPanel = ({
     setTechniqueSteps([]);
     // 清空可用技巧列表
     setAvailableTechniques([]);
+    // 重置分页
+    setCurrentPage(0);
     // 清除高亮
     if (setHighlightedCells) {
       setHighlightedCells([]);
@@ -1745,81 +1748,245 @@ const ControlPanel = ({
           
           {activeTab === 'solution' && (
             <div style={{ overflowY: 'auto', padding: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <h4 style={{ margin: 0, color: '#34495e', fontSize: '16px', fontWeight: '600' }}>
-                  {t('solutionSteps')}
-                </h4>
-                {selectedTechnique && (
-                  <button 
-                    onClick={handleApplyTechnique}
-                    style={{
-                      width: verticalMode ? '70px' : '100px',
-                      height: verticalMode ? '24px' : '36px',
-                      backgroundColor: '#3498db',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: verticalMode ? '12px' : '16px',
-                      padding: verticalMode ? '2px 4px' : '4px 8px',
-                      whiteSpace: 'nowrap',
-                      fontWeight: '600',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: verticalMode ? '0 1px 2px rgba(52, 152, 219, 0.3), 0 1px 1px rgba(0, 0, 0, 0.1)' : '0 4px 8px rgba(52, 152, 219, 0.4), 0 2px 4px rgba(0, 0, 0, 0.15)',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#2980b9';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#3498db';
-                      e.currentTarget.style.boxShadow = '0 4px 10px rgba(52, 152, 219, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12)';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
-                  >
-                    {t('applyTechnique')}
-                  </button>
-                )}
-              </div>
               {selectedTechnique ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
-                  {techniqueSteps.map((step) => (
-                    <div 
-                      key={step.step}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '12px',
-                        padding: '12px',
-                        backgroundColor: '#f8f9fa',
-                        borderRadius: '8px',
-                        border: '1px solid #e9ecef'
-                      }}
-                    >
-                      <div style={{
-                        minWidth: '24px',
-                        height: '24px',
-                        borderRadius: '50%',
-                        backgroundColor: '#3498db',
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                      }}>
-                        {step.step}
-                      </div>
-                      <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5' }}>
-                        {step.description}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <>
+                  {/* 分页显示解题步骤 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '12px' }}>
+                    {(() => {
+                      // 根据步骤数量确定分页策略
+                      const totalSteps = techniqueSteps.length;
+                      let stepsToShow = [];
+                      let showNextButton = false;
+                      let showApplyButton = false;
+                      
+                      if (totalSteps === 2) {
+                        // 2步：每页显示1步
+                        if (currentPage === 0) {
+                          stepsToShow = [techniqueSteps[0]];
+                          showNextButton = true;
+                        } else {
+                          stepsToShow = [techniqueSteps[1]];
+                          showApplyButton = true;
+                        }
+                      } else if (totalSteps === 3) {
+                        // 3步：第一页显示2步，第二页显示1步
+                        if (currentPage === 0) {
+                          stepsToShow = [techniqueSteps[0], techniqueSteps[1]];
+                          showNextButton = true;
+                        } else {
+                          stepsToShow = [techniqueSteps[2]];
+                          showApplyButton = true;
+                        }
+                      } else if (totalSteps >= 4) {
+                        // 4步或更多：每页显示2步
+                        const startIndex = currentPage * 2;
+                        const endIndex = Math.min(startIndex + 2, totalSteps);
+                        stepsToShow = techniqueSteps.slice(startIndex, endIndex);
+                        
+                        if (endIndex < totalSteps) {
+                          showNextButton = true;
+                        } else {
+                          showApplyButton = true;
+                        }
+                      } else {
+                        // 1步或更少
+                        stepsToShow = techniqueSteps;
+                        showApplyButton = true;
+                      }
+                      
+                      return (
+                        <>
+                          {stepsToShow.map((step, index) => {
+                            // 如果是第一条记录且需要显示按钮，则调整布局
+                            if (index === 0 && (showNextButton || showApplyButton)) {
+                              return (
+                                <div 
+                                  key={step.step}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '12px',
+                                    padding: '12px',
+                                    backgroundColor: '#f8f9fa',
+                                    borderRadius: '8px',
+                                    border: '1px solid #e9ecef',
+                                    position: 'relative'
+                                  }}
+                                >
+                                  <div style={{
+                                    minWidth: '24px',
+                                    height: '24px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#3498db',
+                                    color: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '14px',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    {step.step}
+                                  </div>
+                                  <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5' }}>
+                                    {/* 缩短第一条记录的描述文字 */}
+                                    {step.description.length > 50 ? `${step.description.substring(0, 50)}...` : step.description}
+                                  </div>
+                                  {/* 按钮与第一条记录同行 */}
+                                  <div style={{ 
+                                    position: 'absolute',
+                                    right: '12px',
+                                    bottom: '12px',
+                                    display: 'flex',
+                                    gap: '8px'
+                                  }}>
+                                    {showNextButton && (
+                                      <button 
+                                        onClick={() => setCurrentPage(currentPage + 1)}
+                                        style={{
+                                          width: '60px',
+                                          height: '28px',
+                                          backgroundColor: '#3498db',
+                                          color: 'white',
+                                          border: 'none',
+                                          borderRadius: '4px',
+                                          cursor: 'pointer',
+                                          fontSize: '12px',
+                                          fontWeight: '600',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          boxShadow: '0 2px 4px rgba(52, 152, 219, 0.4), 0 1px 2px rgba(0, 0, 0, 0.15)',
+                                          transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.backgroundColor = '#2980b9';
+                                          e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+                                          e.currentTarget.style.transform = 'translateY(-1px)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.backgroundColor = '#3498db';
+                                          e.currentTarget.style.boxShadow = '0 2px 6px rgba(52, 152, 219, 0.3), 0 1px 2px rgba(0, 0, 0, 0.12)';
+                                          e.currentTarget.style.transform = 'translateY(0)';
+                                        }}
+                                      >
+                                        下一步
+                                      </button>
+                                    )}
+                                    
+                                    {showApplyButton && (
+                                      <button 
+                                        onClick={handleApplyTechnique}
+                                        style={{
+                                          width: '60px',
+                                          height: '28px',
+                                          backgroundColor: '#2ecc71', // 绿色背景
+                                          color: 'white',
+                                          border: 'none',
+                                          borderRadius: '4px',
+                                          cursor: 'pointer',
+                                          fontSize: '12px',
+                                          fontWeight: '600',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          boxShadow: '0 2px 4px rgba(46, 204, 113, 0.4), 0 1px 2px rgba(0, 0, 0, 0.15)',
+                                          transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.backgroundColor = '#27ae60';
+                                          e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.3)';
+                                          e.currentTarget.style.transform = 'translateY(-1px)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.backgroundColor = '#2ecc71';
+                                          e.currentTarget.style.boxShadow = '0 2px 6px rgba(46, 204, 113, 0.3), 0 1px 2px rgba(0, 0, 0, 0.12)';
+                                          e.currentTarget.style.transform = 'translateY(0)';
+                                        }}
+                                      >
+                                        应用
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            }
+                            
+                            // 其他记录保持原有样式
+                            return (
+                              <div 
+                                key={step.step}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'flex-start',
+                                  gap: '12px',
+                                  padding: '12px',
+                                  backgroundColor: '#f8f9fa',
+                                  borderRadius: '8px',
+                                  border: '1px solid #e9ecef'
+                                }}
+                              >
+                                <div style={{
+                                  minWidth: '24px',
+                                  height: '24px',
+                                  borderRadius: '50%',
+                                  backgroundColor: '#3498db',
+                                  color: 'white',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '14px',
+                                  fontWeight: 'bold'
+                                }}>
+                                  {step.step}
+                                </div>
+                                <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5' }}>
+                                  {step.description}
+                                </div>
+                              </div>
+                            );
+                          })}
+                          
+                          {/* 如果第一条记录没有按钮，则在下方显示按钮 */}
+                          {stepsToShow.length > 0 && !(showNextButton || showApplyButton) && stepsToShow[0] !== stepsToShow[stepsToShow.length - 1] && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+                              <button 
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                style={{
+                                  width: '80px',
+                                  height: '36px',
+                                  backgroundColor: '#3498db',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '14px',
+                                  fontWeight: '600',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  boxShadow: '0 4px 8px rgba(52, 152, 219, 0.4), 0 2px 4px rgba(0, 0, 0, 0.15)',
+                                  transition: 'all 0.2s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.backgroundColor = '#2980b9';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                                  e.currentTarget.style.transform = 'translateY(-1px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.backgroundColor = '#3498db';
+                                  e.currentTarget.style.boxShadow = '0 4px 10px rgba(52, 152, 219, 0.3), 0 1px 3px rgba(0, 0, 0, 0.12)';
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                }}
+                              >
+                                下一步
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                </>
               ) : (
                 <div style={{ 
                   textAlign: 'center', 

@@ -643,6 +643,28 @@ const ControlPanel = ({
         { step: 2, description: t('foundNumbersOnlyInCells', { numbers: tripleNumbers, cells: formattedCells }), highlight: position },
         { step: 3, description: t('removeOtherCandidates', { cells: formattedCells, numbers: tripleNumbers }), highlight: position }
       );
+    } else if (technique.type.includes('pointingPairs')) {
+      // 指向对法解题步骤
+      const regionType = technique.type.includes('Row') ? t('row') : t('col');
+      
+      // 获取宫号和行/列号
+      const boxNum = (technique.boxRow * 3 + technique.boxCol + 1);
+      const lineNum = (regionType === t('row') ? technique.row : technique.col) + 1;
+      
+      // 格式化源单元格位置显示
+      const formattedSourceCells = technique.sourceCells && Array.isArray(technique.sourceCells) 
+        ? technique.sourceCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化目标单元格位置显示
+      const formattedTargetCells = technique.targetCells && Array.isArray(technique.targetCells) 
+        ? technique.targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('findPointingPairsInBox', { boxNum: boxNum, number: technique.number, lineType: regionType, lineNum: lineNum }), highlight: '' },
+        { step: 2, description: t('removePointingPairsFromTargets', { number: technique.number, targets: formattedTargetCells, lineType: regionType, lineNum: lineNum }), highlight: position }
+      );
     } else {
         // 通用解题步骤，确保至少有内容显示
         steps.push(
@@ -1462,6 +1484,45 @@ const ControlPanel = ({
                       // 显示values数组
                       if (Array.isArray(technique.values) && technique.values.length > 0) {
                         valueText = ` ${t('number')}: [${technique.values.join(',')}]`;
+                      }
+                    }
+                    // 处理指向对法技巧（有sourceCells数组）
+                    else if (technique.type.includes('pointingPairs') && Array.isArray(technique.sourceCells) && technique.sourceCells.length > 0) {
+                      // 显示源单元格位置
+                      if (technique.sourceCells.length > 0) {
+                        const firstCell = technique.sourceCells[0];
+                        if (Array.isArray(firstCell) && firstCell.length >= 2) {
+                          const row = firstCell[0] + 1;
+                          const col = firstCell[1] + 1;
+                          positionText = `(${row},${col})`;
+                        } else if (firstCell && typeof firstCell === 'object') {
+                          const row = (firstCell.row !== undefined ? firstCell.row : firstCell[0]) + 1;
+                          const col = (firstCell.col !== undefined ? firstCell.col : firstCell[1]) + 1;
+                          positionText = `(${row},${col})`;
+                        } else {
+                          positionText = t('multipleCells');
+                        }
+                      } else {
+                        positionText = t('multipleCells');
+                      }
+                      // 显示数字
+                      if (technique.number !== undefined) {
+                        valueText = ` ${t('number')}: ${technique.number}`;
+                      }
+                    }
+                    // 调试：处理其他指向对法技巧的情况
+                    else if (technique.type.includes('pointingPairs')) {
+                      // 如果是指向对法但没有sourceCells，尝试其他方式获取位置信息
+                      if (technique.boxRow !== undefined && technique.boxCol !== undefined) {
+                        // 显示宫格信息
+                        const boxNum = technique.boxRow * 3 + technique.boxCol + 1;
+                        positionText = `${t('box')} ${boxNum}`;
+                      } else {
+                        positionText = t('multipleCells');
+                      }
+                      // 显示数字
+                      if (technique.number !== undefined) {
+                        valueText = ` ${t('number')}: ${technique.number}`;
                       }
                     }
                     else {

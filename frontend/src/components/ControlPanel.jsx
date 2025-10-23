@@ -60,6 +60,7 @@ const ControlPanel = ({
   onUndo,
   togglePencilMode,
   fillAllCandidates,
+  calculateTechniques,
   selectedNumber,
   isPencilMode,
   remainingNumbers = {} // 添加剩余数字数量属性，默认为空对象
@@ -1696,14 +1697,29 @@ const ControlPanel = ({
               )}
               <button 
                 onClick={() => {
-                  // 核心功能：刷新候选数
-                  if (fillAllCandidates) {
+                  // 核心功能：刷新候选数 - 负责复杂逻辑，包括候选数填充和技巧机会计算
+                  let shouldFindTechniques = true;
+                  
+                  // 首先检查是否需要重新计算候选数
+                  if (calculateTechniques) {
+                    // calculateTechniques函数在特定条件下会返回false，表示不需要查找技巧
+                    const result = calculateTechniques();
+                    if (result === false) {
+                      shouldFindTechniques = false;
+                    }
+                  }
+                  
+                  // 如果需要，执行候选数填充
+                  if (shouldFindTechniques && fillAllCandidates) {
                     fillAllCandidates();
                   }
-                  // 加载所有技巧求解
-                  findTechniques();
-                  // 切换到技巧标签页，方便用户查看结果
-                  setActiveTab('techniques');
+                  
+                  // 只有在需要时才加载所有技巧求解
+                  if (shouldFindTechniques) {
+                    findTechniques();
+                    // 切换到技巧标签页，方便用户查看结果
+                    setActiveTab('techniques');
+                  }
                 }}
                 style={{
                   width: '100%',

@@ -460,7 +460,7 @@ const SudokuGamePage = () => {
     }
   }, [identifyTechniques, setSelectedCell]);
 
-  // 处理候选数按钮点击
+  // 处理候选数按钮点击 - 只负责生成全部候选数覆盖的单一功能
   const handleToggleNotes = () => {
     if (fillAllCandidates) {
       // 计算并填充所有候选数
@@ -561,6 +561,7 @@ const SudokuGamePage = () => {
                 isPencilMode={isPencilMode}
                 togglePencilMode={handleTogglePencilMode}
                 fillAllCandidates={fillAllCandidates}
+                calculateTechniques={calculateTechniques}
                 remainingNumbers={remainingNumbers} // 添加剩余数字数量
               />
             </div>

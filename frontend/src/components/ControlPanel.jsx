@@ -369,18 +369,39 @@ const ControlPanel = ({
         regionNum = technique.type.includes('Row') ? row + 1 : 
                     (technique.type.includes('Col') ? col + 1 : 
                     Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
-      } else if (technique.row !== undefined) {
-        // 对于多单元格技巧，尝试从technique对象获取行号
+      } else if (technique.row !== undefined && regionType === t('row')) {
+        // 对于行区域，从technique对象获取行号
         regionNum = technique.row + 1;
+      } else if (technique.col !== undefined && regionType === t('col')) {
+        // 对于列区域，从technique对象获取列号
+        regionNum = technique.col + 1;
       } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
-        // 如果有cells数组，从第一个单元格获取行号
+        // 如果有cells数组，根据区域类型获取正确的区域号
         const firstCell = technique.cells[0];
         if (Array.isArray(firstCell)) {
           // 数组格式 [row, col]
-          regionNum = typeof firstCell[0] === 'number' ? firstCell[0] + 1 : regionNum;
-        } else if (firstCell && firstCell.row !== undefined) {
+          if (regionType === t('col') && typeof firstCell[1] === 'number') {
+            // 列区域：获取列号
+            regionNum = firstCell[1] + 1;
+          } else if (regionType === t('box') && typeof firstCell[0] === 'number' && typeof firstCell[1] === 'number') {
+            // 宫区域：根据单元格位置计算宫号
+            regionNum = Math.floor(firstCell[0] / 3) * 3 + Math.floor(firstCell[1] / 3) + 1;
+          } else if (typeof firstCell[0] === 'number') {
+            // 行区域：获取行号
+            regionNum = firstCell[0] + 1;
+          }
+        } else if (firstCell) {
           // 对象格式 {row, col}
-          regionNum = firstCell.row + 1;
+          if (regionType === t('col') && firstCell.col !== undefined) {
+            // 列区域：获取列号
+            regionNum = firstCell.col + 1;
+          } else if (regionType === t('box') && firstCell.row !== undefined && firstCell.col !== undefined) {
+            // 宫区域：根据单元格位置计算宫号
+            regionNum = Math.floor(firstCell.row / 3) * 3 + Math.floor(firstCell.col / 3) + 1;
+          } else if (firstCell.row !== undefined) {
+            // 行区域：获取行号
+            regionNum = firstCell.row + 1;
+          }
         }
       }
       
@@ -419,18 +440,39 @@ const ControlPanel = ({
         regionNum = technique.type.includes('Row') ? row + 1 : 
                     (technique.type.includes('Col') ? col + 1 : 
                     Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
-      } else if (technique.row !== undefined) {
-        // 对于多单元格技巧，尝试从technique对象获取行号
+      } else if (technique.row !== undefined && regionType === t('row')) {
+        // 对于行区域，从technique对象获取行号
         regionNum = technique.row + 1;
+      } else if (technique.col !== undefined && regionType === t('col')) {
+        // 对于列区域，从technique对象获取列号
+        regionNum = technique.col + 1;
       } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
-        // 如果有cells数组，从第一个单元格获取行号
+        // 如果有cells数组，根据区域类型获取正确的区域号
         const firstCell = technique.cells[0];
         if (Array.isArray(firstCell)) {
           // 数组格式 [row, col]
-          regionNum = typeof firstCell[0] === 'number' ? firstCell[0] + 1 : regionNum;
-        } else if (firstCell && firstCell.row !== undefined) {
+          if (regionType === t('col') && typeof firstCell[1] === 'number') {
+            // 列区域：获取列号
+            regionNum = firstCell[1] + 1;
+          } else if (regionType === t('box') && typeof firstCell[0] === 'number' && typeof firstCell[1] === 'number') {
+            // 宫区域：根据单元格位置计算宫号
+            regionNum = Math.floor(firstCell[0] / 3) * 3 + Math.floor(firstCell[1] / 3) + 1;
+          } else if (typeof firstCell[0] === 'number') {
+            // 行区域：获取行号
+            regionNum = firstCell[0] + 1;
+          }
+        } else if (firstCell) {
           // 对象格式 {row, col}
-          regionNum = firstCell.row + 1;
+          if (regionType === t('col') && firstCell.col !== undefined) {
+            // 列区域：获取列号
+            regionNum = firstCell.col + 1;
+          } else if (regionType === t('box') && firstCell.row !== undefined && firstCell.col !== undefined) {
+            // 宫区域：根据单元格位置计算宫号
+            regionNum = Math.floor(firstCell.row / 3) * 3 + Math.floor(firstCell.col / 3) + 1;
+          } else if (firstCell.row !== undefined) {
+            // 行区域：获取行号
+            regionNum = firstCell.row + 1;
+          }
         }
       }
       
@@ -540,10 +582,10 @@ const ControlPanel = ({
         regionNum = technique.type.includes('Row') ? row + 1 : 
                     (technique.type.includes('Col') ? col + 1 : 
                     Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
-      } else if (technique.row !== undefined && regionType === '行') {
+      } else if (technique.row !== undefined && regionType === t('row')) {
         // 对于行区域，从technique对象获取行号
         regionNum = technique.row + 1;
-      } else if (technique.col !== undefined && regionType === '列') {
+      } else if (technique.col !== undefined && regionType === t('col')) {
         // 对于列区域，从technique对象获取列号
         regionNum = technique.col + 1;
       } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
@@ -551,11 +593,14 @@ const ControlPanel = ({
         const firstCell = technique.cells[0];
         if (Array.isArray(firstCell)) {
           // 数组格式 [row, col]
-          if (regionType === '列' && typeof firstCell[1] === 'number') {
+          if (regionType === t('col') && typeof firstCell[1] === 'number') {
             // 列区域：获取列号
             regionNum = firstCell[1] + 1;
+          } else if (regionType === t('box') && typeof firstCell[0] === 'number' && typeof firstCell[1] === 'number') {
+            // 宫区域：根据单元格位置计算宫号
+            regionNum = Math.floor(firstCell[0] / 3) * 3 + Math.floor(firstCell[1] / 3) + 1;
           } else if (typeof firstCell[0] === 'number') {
-            // 行或宫区域：获取行号
+            // 行区域：获取行号
             regionNum = firstCell[0] + 1;
           }
         } else if (firstCell) {
@@ -563,8 +608,11 @@ const ControlPanel = ({
           if (regionType === t('col') && firstCell.col !== undefined) {
             // 列区域：获取列号
             regionNum = firstCell.col + 1;
+          } else if (regionType === t('box') && firstCell.row !== undefined && firstCell.col !== undefined) {
+            // 宫区域：根据单元格位置计算宫号
+            regionNum = Math.floor(firstCell.row / 3) * 3 + Math.floor(firstCell.col / 3) + 1;
           } else if (firstCell.row !== undefined) {
-            // 行或宫区域：获取行号
+            // 行区域：获取行号
             regionNum = firstCell.row + 1;
           }
         }

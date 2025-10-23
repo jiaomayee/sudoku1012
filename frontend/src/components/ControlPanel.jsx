@@ -815,6 +815,10 @@ const ControlPanel = ({
                 if (setSelectedCell) {
                   setSelectedCell(null);
                 }
+                // 如果当前处于铅笔模式，切换到正常模式
+                if (isPencilMode && togglePencilMode) {
+                  togglePencilMode();
+                }
               }}
             >
               {t('techniquesTab')}
@@ -843,6 +847,10 @@ const ControlPanel = ({
                 // 取消选中单元格，进入技巧模式
                 if (setSelectedCell) {
                   setSelectedCell(null);
+                }
+                // 如果当前处于铅笔模式，切换到正常模式
+                if (isPencilMode && togglePencilMode) {
+                  togglePencilMode();
                 }
               }}
             >

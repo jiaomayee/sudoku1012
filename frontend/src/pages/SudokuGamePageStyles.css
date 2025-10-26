@@ -244,17 +244,20 @@ html, body {
     margin: 0;
     position: relative;
     scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
+    scroll-margin-top: 10px; /* 使用标准属性替代scroll-snap-margin-top */
   }
   
-  /* 移除伪元素，避免影响间距 */
-  
-  /* 移除第三条吸附线相关配置 */
-  .nav-block-snap-point {
-    display: none; /* 完全隐藏第三条吸附线 */
+  /* 在导航区块下方添加滚动吸附线 */
+  .nav-block::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #3498db, transparent);
+    scroll-snap-align: start;
   }
-  
-
   
   /* 竖屏模式下显示顶部菜单栏 */
   nav {
@@ -263,10 +266,8 @@ html, body {
     margin-bottom: 4px; /* 调整底部间距 */
     /* 保留顶部菜单栏的吸附设置，但使用更宽松的设置 */
     scroll-snap-align: start;
-    scroll-snap-margin-top: 5px;
+    scroll-margin-top: 5px; /* 使用标准属性替代scroll-snap-margin-top */
   }
-  
-
   
   /* 上滑提示功能已停用 - 专注于滚动吸附功能实现 */
   /*
@@ -320,8 +321,6 @@ html, body {
     }
   }
   */
-  
-
 
   /* 棋盘容器 - 作为棋盘区块 */
   .board-container {
@@ -335,7 +334,7 @@ html, body {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     /* 移除棋盘容器的吸附点设置，避免冲突 */
     /* scroll-snap-align: start;
-    scroll-snap-margin-top: 10px; */
+    scroll-margin-top: 10px; */
   }
   
   /* 操作面板在竖屏模式下自适应高度 */
@@ -371,7 +370,7 @@ html, body {
     border-radius: var(--border-radius);
     position: relative;
     scroll-snap-align: start;
-    scroll-snap-margin-top: 10px;
+    scroll-margin-top: 10px; /* 使用标准属性替代scroll-snap-margin-top */
   }
   
   /* 添加微妙的视觉指示 */

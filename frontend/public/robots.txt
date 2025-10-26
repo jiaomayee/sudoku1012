@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# 允许所有搜索引擎抓取主要内容
+Allow: /api/
+Allow: /images/
+Allow: /styles/
+Allow: /scripts/
+
+# 禁止抓取不必要的页面
+Disallow: /private/
+Disallow: /admin/
+Disallow: /tmp/
+
+# 网站地图
+Sitemap: https://sudoku1012.com/sitemap.xml
+
+# 针对不同搜索引擎的优化
+User-agent: Googlebot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: YandexBot
+Allow: /

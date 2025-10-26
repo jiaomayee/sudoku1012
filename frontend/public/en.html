@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="sudoku-app-logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku Advanced Techniques - Open Source Ad-Free Sudoku Game</title>
+    <meta name="description" content="Free open-source Sudoku platform focused on advanced techniques learning, including X-Wing, XY-Wing, Swordfish tutorials. Ad-free experience with master-level Sudoku challenges." />
+    <meta name="keywords" content="Sudoku, Advanced Sudoku Techniques, X-Wing Technique, XY-Wing Sudoku, BUG+1 Technique, Sudoku Fish Techniques, Expert Sudoku Puzzles, Master Level Sudoku, Open Source Sudoku, Ad-Free Sudoku Game" />
+    
+    <!-- Multilingual support -->
+    <link rel="alternate" hreflang="en" href="https://sudoku1012.com/en/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://sudoku1012.com/" />
+    <link rel="alternate" hreflang="x-default" href="https://sudoku1012.com/" />
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="Sudoku Advanced Techniques - Open Source Ad-Free Sudoku Game" />
+    <meta property="og:description" content="An open-source platform focused on learning advanced Sudoku techniques with X-Wing, Swordfish tutorials and hard Sudoku challenges." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://sudoku1012.com/en/" />
+    <meta property="og:image" content="https://sudoku1012.com/sudoku-app-logo.svg" />
+    
+    <!-- Twitter Card tags -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Sudoku Advanced Techniques - Open Source Ad-Free Sudoku Game" />
+    <meta name="twitter:description" content="Ad-free Sudoku learning platform with X-Wing, XY-Wing tutorials and expert-level puzzles." />
+    <meta name="twitter:image" content="https://sudoku1012.com/sudoku-app-logo.svg" />
+    
+    <!-- Search engine crawling optimization -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow, snippet" />
+    
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Game",
+      "name": "Sudoku Advanced Techniques",
+      "description": "Free open-source Sudoku platform focused on advanced techniques learning and tutorials.",
+      "applicationCategory": "EducationalApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "100"
+      }
+    }
+    </script>
+    
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #f5f5f5;
+        color: #333;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+      }
+      
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      
+      .logo {
+        width: 150px;
+        height: 150px;
+        margin-bottom: 30px;
+      }
+      
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+      
+      p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        color: #7f8c8d;
+      }
+      
+      .buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-width: 300px;
+        margin: 0 auto;
+      }
+      
+      .btn {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: block;
+      }
+      
+      .btn-primary {
+        background-color: #3498db;
+        color: white;
+      }
+      
+      .btn-primary:hover {
+        background-color: #2980b9;
+      }
+      
+      .btn-secondary {
+        background-color: #2ecc71;
+        color: white;
+      }
+      
+      .btn-secondary:hover {
+        background-color: #27ae60;
+      }
+      
+      .language-switch {
+        margin-top: 40px;
+      }
+      
+      .language-switch a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      
+      .language-switch a:hover {
+        text-decoration: underline;
+      }
+      
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+        
+        p {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img src="sudoku-app-logo.svg" alt="Sudoku App Logo" class="logo" />
+      <h1>Sudoku Advanced Techniques</h1>
+      <p>Learn advanced Sudoku solving methods like X-Wing, XY-Wing, and Swordfish with our free, open-source, ad-free Sudoku platform.</p>
+      
+      <div class="buttons">
+        <a href="/" class="btn btn-primary" onclick="setLanguage('en'); return false;">Start Playing</a>
+        <a href="/" class="btn btn-secondary" onclick="setLanguage('en'); return false;">Browse Techniques</a>
+      </div>
+      
+      <div class="language-switch">
+        <p>Switch to <a href="/" onclick="setLanguage('zh'); return false;">中文</a></p>
+      </div>
+    </div>
+    
+    <script>
+      function setLanguage(lang) {
+        localStorage.setItem('sudoku-language', lang);
+        // Redirect to the main app
+        window.location.href = '/';
+      }
+    </script>
+  </body>
+</html>

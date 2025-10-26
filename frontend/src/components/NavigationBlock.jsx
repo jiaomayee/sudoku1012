@@ -24,6 +24,12 @@ const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   
   // 确保在父容器中正确对齐
   align-self: flex-start;
+  
+  // 竖屏模式下减小高度
+  @media (max-width: 768px) and (orientation: portrait) {
+    padding: 4px;
+    min-height: 36px;
+  }
 `;
 
 const NavTitle = styled.h3`
@@ -40,7 +46,12 @@ const ButtonGrid = styled.div`
   grid-template-columns: repeat(5, 1fr); // 5个按钮平均分布
   gap: 2px;
   margin: 0;
-  padding: 2px 0;
+  padding: 2px 0; // 进一步减小内边距以减小整体高度
+  
+  // 竖屏模式下进一步减小内边距
+  @media (max-width: 768px) and (orientation: portrait) {
+    padding: 1px 0;
+  }
 `;
 
 const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
@@ -54,8 +65,14 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   padding: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 36px;
-  min-width: 36px;
+  min-height: 40px; // 减小最小高度
+  height: auto; // 允许高度自适应内容
+  
+  // 竖屏模式下进一步减小高度并确保居中
+  @media (max-width: 768px) and (orientation: portrait) {
+    min-height: 32px;
+    padding: 2px;
+  }
   font-size: 12px;
   font-family: inherit;
   margin: 0;

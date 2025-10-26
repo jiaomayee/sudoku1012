@@ -1816,23 +1816,23 @@ const ControlPanel = ({
                                   }}>
                                     {step.step}
                                   </div>
-                                  <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5', paddingRight: '70px' }}>
+                                  <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5', paddingRight: '80px' }}>
                                     {/* 缩短第一条记录的描述文字以适应竖屏 */}
                                     {verticalMode ? (
-                                      step.description.length > 35 ? 
-                                      `${step.description.substring(0, 35)}...` : 
+                                      step.description.length > 25 ? 
+                                      `${step.description.substring(0, 25)}...` : 
                                       step.description
                                     ) : (
-                                      step.description.length > 50 ? 
-                                      `${step.description.substring(0, 50)}...` : 
+                                      step.description.length > 40 ? 
+                                      `${step.description.substring(0, 40)}...` : 
                                       step.description
                                     )}
                                   </div>
-                                  {/* 按钮与第一条记录同行 */}
+                                  {/* 按钮与第一条记录同行，固定位置 */}
                                   <div style={{ 
                                     position: 'absolute',
                                     right: '12px',
-                                    bottom: '12px',
+                                    top: '12px',
                                     display: 'flex',
                                     gap: '6px'
                                   }}>
@@ -1840,14 +1840,14 @@ const ControlPanel = ({
                                       <button 
                                         onClick={() => setCurrentPage(currentPage + 1)}
                                         style={{
-                                          width: '65px',
-                                          height: '26px',
+                                          width: verticalMode ? '50px' : '70px',
+                                          height: verticalMode ? '18px' : '32px',
                                           backgroundColor: '#3498db',
                                           color: 'white',
                                           border: 'none',
                                           borderRadius: '4px',
                                           cursor: 'pointer',
-                                          fontSize: '12px',
+                                          fontSize: verticalMode ? '8px' : '13px',
                                           fontWeight: '600',
                                           display: 'flex',
                                           alignItems: 'center',
@@ -1875,14 +1875,14 @@ const ControlPanel = ({
                                       <button 
                                         onClick={handleApplyTechnique}
                                         style={{
-                                          width: '65px',
-                                          height: '26px',
+                                          width: verticalMode ? '50px' : '70px',
+                                          height: verticalMode ? '18px' : '32px',
                                           backgroundColor: '#2ecc71', // 绿色背景
                                           color: 'white',
                                           border: 'none',
                                           borderRadius: '4px',
                                           cursor: 'pointer',
-                                          fontSize: '12px',
+                                          fontSize: verticalMode ? '8px' : '13px',
                                           fontWeight: '600',
                                           display: 'flex',
                                           alignItems: 'center',
@@ -1951,14 +1951,14 @@ const ControlPanel = ({
                               <button 
                                 onClick={() => setCurrentPage(currentPage + 1)}
                                 style={{
-                                  width: '80px',
-                                  height: '36px',
+                                  width: verticalMode ? '65px' : '90px',
+                                  height: verticalMode ? '22px' : '40px',
                                   backgroundColor: '#3498db',
                                   color: 'white',
                                   border: 'none',
                                   borderRadius: '4px',
                                   cursor: 'pointer',
-                                  fontSize: '14px',
+                                  fontSize: verticalMode ? '9px' : '14px',
                                   fontWeight: '600',
                                   display: 'flex',
                                   alignItems: 'center',

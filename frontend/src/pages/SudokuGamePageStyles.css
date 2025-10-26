@@ -165,7 +165,7 @@ html, body {
   :root {
     --board-width: calc(100vw - 16px); /* 最大化利用屏幕宽度，保留8px边距 */
     --control-panel-width: calc(100vw - 16px); /* 操作面板与棋盘宽度一致 */
-    --block-gap: 4px; /* 减小区块间距 */
+    --block-gap: 2px; /* 减小区块间距 */
   }
   
   /* 实现优化的滚动吸附功能 - 基于正确布局顺序 */

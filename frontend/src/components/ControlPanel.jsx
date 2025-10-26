@@ -100,10 +100,10 @@ const ControlPanel = ({
   
   // 监听选中单元格的变化，当用户点击单元格时退出技巧模式
   useEffect(() => {
-    if (selectedCell && activeTab !== 'keyboard') {
+    if (selectedCell) {
       exitTechniqueMode();
     }
-  }, [selectedCell, activeTab, exitTechniqueMode]);
+  }, [selectedCell, exitTechniqueMode]);
   
   // 保存找到的技巧
   const [availableTechniques, setAvailableTechniques] = useState([]);

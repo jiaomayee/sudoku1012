@@ -421,6 +421,7 @@ const translations = {
     // Toast messages
     pairTechniqueIdentified: 'Pair technique identified, please manually remove the related candidates',
     techniqueOnlyForHint: 'This technique is primarily for hinting and does not support automatic application',
+    techniqueApplyFailed: 'Failed to apply technique, please try again',
     candidatesRemovedSuccess: 'Candidates successfully removed',
     candidateErrorDetected: 'Candidate pruning error detected, refreshing data',
     candidatesComplete: 'Candidates are correct and complete, calculating techniques directly!',

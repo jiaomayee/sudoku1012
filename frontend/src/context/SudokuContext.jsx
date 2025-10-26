@@ -842,7 +842,8 @@ export const SudokuContextProvider = ({ children }) => {
   };
 
   // 更新fillCell函数，使其能处理铅笔模式并添加自动删减候选数功能
-  const fillCell = (row, col, value) => {
+  // 添加forceFill参数，用于在技巧应用时强制以非铅笔模式填入数字
+  const fillCell = (row, col, value, forceFill = false) => {
     if (!gameStarted || gameCompleted) return;
     
     const cellKey = `${row}-${col}`;
@@ -859,8 +860,8 @@ export const SudokuContextProvider = ({ children }) => {
       return;
     }
     
-    // 如果是铅笔模式，使用标注功能
-    if (isPencilMode) {
+    // 如果是铅笔模式且没有强制填充，使用标注功能
+    if (isPencilMode && !forceFill) {
       if (value === 0) {
         clearPencilNotes(row, col);
       } else {
@@ -1198,7 +1199,26 @@ export const SudokuContextProvider = ({ children }) => {
   
   // 应用技巧
   const applyTechniqueToBoard = useCallback((technique) => {
+    // 保存当前铅笔模式状态，用于后续恢复
+    const originalPencilMode = isPencilMode;
+    let needRestorePencilMode = false;
+    
+    // 检查是否是需要特殊处理的技巧类型（唯一数法、隐性唯一数法、候选数唯一法）
+    const isSingleNumberTechnique = technique.type && (
+      technique.type === 'nakedSingle' ||
+      technique.type === 'notesSingle' ||
+      technique.type === 'hiddenSingleRow' ||
+      technique.type === 'hiddenSingleCol' ||
+      technique.type === 'hiddenSingleBox'
+    );
+    
     try {
+      // 对于特定技巧，如果当前是铅笔模式，先关闭它
+      if (isSingleNumberTechnique && originalPencilMode) {
+        setIsPencilMode(false);
+        needRestorePencilMode = true;
+      }
+      
       // 调用技巧应用函数
       const result = applyTechnique(technique, currentBoard);
       
@@ -1215,21 +1235,12 @@ export const SudokuContextProvider = ({ children }) => {
           
           const { row, col, value } = operation;
           
-          // 保存当前的铅笔模式状态
-          const currentPencilMode = isPencilMode;
+          // 确保在fillCell执行时铅笔模式是关闭的
+          // 注意：由于React状态更新是异步的，这里直接使用fillCell的内部逻辑
+          // 而不是依赖setIsPencilMode的状态更新
           
-          // 临时关闭铅笔模式，确保技巧应用始终填入正确数字
-          if (currentPencilMode) {
-            setIsPencilMode(false);
-          }
-          
-          // 使用现有的fillCell方法来更新棋盘，这样可以确保历史记录和锁定单元格等状态被正确维护
-          fillCell(row, col, value);
-          
-          // 恢复原始铅笔模式状态
-          if (currentPencilMode) {
-            setIsPencilMode(true);
-          }
+          // 使用现有的fillCell方法来更新棋盘，传入forceFill=true确保直接填入数字，而不是添加标注
+            fillCell(row, col, value, true);
           
           return true;
         }
@@ -1309,13 +1320,22 @@ export const SudokuContextProvider = ({ children }) => {
       return false;
     } catch (error) {
       console.error('应用技巧失败:', error);
-      toast.error('应用技巧失败，请重试', { 
+      toast.error(t('techniqueApplyFailed', { defaultMessage: '应用技巧失败，请重试' }), { 
         position: 'top-right',
         autoClose: 2000
       });
+      // 即使出错，也要恢复铅笔模式
+      if (needRestorePencilMode) {
+        setIsPencilMode(true);
+      }
       return false;
+    } finally {
+      // 在函数结束时恢复铅笔模式（无论成功还是失败）
+      if (needRestorePencilMode) {
+        setIsPencilMode(true);
+      }
     }
-  }, [fillCell, currentBoard, isPencilMode, candidates, setCandidates]);
+  }, [fillCell, currentBoard, isPencilMode, candidates, setCandidates, setIsPencilMode]);
 
   // 切换计时器活跃状态
   const toggleTimer = () => {

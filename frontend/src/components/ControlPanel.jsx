@@ -873,7 +873,7 @@ const ControlPanel = ({
                 // 竖屏布局：数字1-6一行，数字7-9和操作按钮一行
                 <>
                   {/* 第一行：数字按钮 1-6 */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px', marginBottom: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px', marginBottom: '8px', padding: '0 2px' }}>
                     {[1, 2, 3, 4, 5, 6].map(number => {
                       const remainingCount = remainingNumbers.hasOwnProperty(number) ? remainingNumbers[number] : 9;
                       const isDisabled = remainingCount === 0;
@@ -950,7 +950,7 @@ const ControlPanel = ({
                   </div>
                   
                   {/* 第二行：数字7-9和操作按钮 */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px', padding: '0 2px' }}>
                     {/* 数字7-9 */}
                     {[7, 8, 9].map(number => {
                       const remainingCount = remainingNumbers.hasOwnProperty(number) ? remainingNumbers[number] : 9;
@@ -990,7 +990,7 @@ const ControlPanel = ({
                             overflow: 'hidden',
                             
                             // 阴影和过渡
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08)',
                             transition: 'all 0.2s ease'
                           }}
                         >

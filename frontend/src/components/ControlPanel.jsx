@@ -1832,7 +1832,7 @@ const ControlPanel = ({
                                   <div style={{ 
                                     position: 'absolute',
                                     right: '12px',
-                                    top: '12px',
+                                    top: verticalMode ? '8px' : '12px',
                                     display: 'flex',
                                     gap: '6px'
                                   }}>
@@ -1840,14 +1840,14 @@ const ControlPanel = ({
                                       <button 
                                         onClick={() => setCurrentPage(currentPage + 1)}
                                         style={{
-                                          width: verticalMode ? '50px' : '70px',
+                                          width: verticalMode ? '60px' : '70px',
                                           height: verticalMode ? '18px' : '32px',
                                           backgroundColor: '#3498db',
                                           color: 'white',
                                           border: 'none',
                                           borderRadius: '4px',
                                           cursor: 'pointer',
-                                          fontSize: verticalMode ? '8px' : '13px',
+                                          fontSize: verticalMode ? '5px' : '13px',
                                           fontWeight: '600',
                                           display: 'flex',
                                           alignItems: 'center',
@@ -1875,14 +1875,14 @@ const ControlPanel = ({
                                       <button 
                                         onClick={handleApplyTechnique}
                                         style={{
-                                          width: verticalMode ? '50px' : '70px',
+                                          width: verticalMode ? '60px' : '70px',
                                           height: verticalMode ? '18px' : '32px',
                                           backgroundColor: '#2ecc71', // 绿色背景
                                           color: 'white',
                                           border: 'none',
                                           borderRadius: '4px',
                                           cursor: 'pointer',
-                                          fontSize: verticalMode ? '8px' : '13px',
+                                          fontSize: verticalMode ? '5px' : '13px',
                                           fontWeight: '600',
                                           display: 'flex',
                                           alignItems: 'center',
@@ -1951,14 +1951,14 @@ const ControlPanel = ({
                               <button 
                                 onClick={() => setCurrentPage(currentPage + 1)}
                                 style={{
-                                  width: verticalMode ? '65px' : '90px',
+                                  width: verticalMode ? '75px' : '90px',
                                   height: verticalMode ? '22px' : '40px',
                                   backgroundColor: '#3498db',
                                   color: 'white',
                                   border: 'none',
                                   borderRadius: '4px',
                                   cursor: 'pointer',
-                                  fontSize: verticalMode ? '9px' : '14px',
+                                  fontSize: verticalMode ? '5px' : '14px',
                                   fontWeight: '600',
                                   display: 'flex',
                                   alignItems: 'center',

@@ -38,6 +38,7 @@ const SudokuGamePage = () => {
   const togglePencilMode = sudokuContext?.togglePencilMode || (() => {});
   const toggleTimer = sudokuContext?.toggleTimer || (() => {});
   const getHint = sudokuContext?.getHint || (() => {});
+  const clearCell = sudokuContext?.clearCell || (() => {});
   const identifyTechniques = sudokuContext?.identifyTechniques || (() => []);
   const openSettings = sudokuContext?.openSettings || (() => {});
   const fillCell = sudokuContext?.fillCell || (() => {});
@@ -230,11 +231,8 @@ const SudokuGamePage = () => {
     if (!selectedCell) return;
     
     try {
-      if (sudokuContext?.clearCell) {
-        sudokuContext.clearCell(selectedCell.row, selectedCell.col);
-      } else {
-        console.warn('clearCell function not available in context');
-      }
+      // 直接使用解构出来的clearCell函数
+      clearCell(selectedCell.row, selectedCell.col);
     } catch (error) {
       console.error('Error clearing cell:', error);
     }

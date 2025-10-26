@@ -128,6 +128,7 @@ const translations = {
     enterPencilMode: '进入铅笔模式，可以添加候选数字',
     exitPencilMode: '退出铅笔模式，返回正常输入',
     notesCalculated: '已为所有空白格子计算并填充候选数',
+    foundRandomTechnique: '随机发现技巧：',
     // 解题技巧和步骤
       findSingleCandidateCell: '查找唯一候选数的单元格',
       cellOnlyHasSingleCandidate: '单元格{position}只有唯一候选数{value}',
@@ -253,6 +254,7 @@ const translations = {
     // Technique hints
     pairTechniqueIdentified: 'Pair technique identified, please manually remove the related candidates',
     techniqueOnlyForHint: 'This technique is primarily for hinting and does not support automatic application',
+    foundRandomTechnique: 'Random technique found: ',
     // 难度选择
     selectDifficulty: 'Select Difficulty',
     difficultyDescription: {

@@ -434,7 +434,7 @@ const SudokuGamePage = () => {
         const randomTechnique = techniques[randomIndex];
         
         // 格式化技巧信息进行显示
-        let techniqueInfo = t('foundRandomTechnique', { defaultMessage: '找到一条技巧机会：' });
+        let techniqueInfo = t('foundRandomTechnique', '找到随机技巧：');
         
         // 获取技巧名称（支持国际化）
         const techniqueName = t(randomTechnique.type) || t('unknownTechnique') || randomTechnique.type;

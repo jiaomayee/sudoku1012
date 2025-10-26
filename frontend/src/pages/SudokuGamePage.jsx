@@ -46,6 +46,7 @@ const SudokuGamePage = () => {
   const solution = sudokuContext?.solution || Array(9).fill().map(() => Array(9).fill(0)); // 获取解决方案用于计算剩余数字
   const highlightedCells = sudokuContext?.highlightedCells || [];
   const pencilNotes = sudokuContext?.pencilNotes || [];
+  const calculateTechniques = sudokuContext?.calculateTechniques || (() => {}); // 添加calculateTechniques函数引用
   
   // 计算每个数字的剩余未填入数量
   const calculateRemainingNumbers = () => {
@@ -561,7 +562,7 @@ const SudokuGamePage = () => {
                 isPencilMode={isPencilMode}
                 togglePencilMode={handleTogglePencilMode}
                 fillAllCandidates={fillAllCandidates}
-                calculateTechniques={calculateTechniques}
+                calculateTechniques={calculateTechniques} // 添加calculateTechniques属性
                 remainingNumbers={remainingNumbers} // 添加剩余数字数量
               />
             </div>
@@ -631,6 +632,7 @@ const SudokuGamePage = () => {
                   isPencilMode={isPencilMode}
                   togglePencilMode={handleTogglePencilMode}
                   fillAllCandidates={fillAllCandidates}
+                  calculateTechniques={calculateTechniques} // 添加calculateTechniques属性
                   remainingNumbers={remainingNumbers} // 添加剩余数字数量
                 />
               </div>

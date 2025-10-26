@@ -8,7 +8,7 @@ import { useLanguage } from '../context/LanguageContext';
 const NotesIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
     {/* 数独格子背景 */}
-    <rect x="4" y="4" width="16" height="16" rx="2" fill="transparent" stroke="white" strokeWidth="1.5"/>
+    <rect x="4" y="4" width="16" height="16" rx="2" stroke="white" strokeWidth="1.5" fill="transparent"/>
     {/* 添加2x2网格分割线 */}
     <line x1="12" y1="4" x2="12" y2="20" stroke="white" strokeWidth="1" strokeDasharray="1"/>
     <line x1="4" y1="12" x2="20" y2="12" stroke="white" strokeWidth="1" strokeDasharray="1"/>
@@ -19,8 +19,7 @@ const NotesIcon = () => (
 );
 
 // 获取技巧显示名称
-// 获取技巧显示名称
-const getTechniqueDisplayType = (primaryType, secondaryType) => {
+const getTechniqueDisplayType = (primaryType, secondaryType, t) => {
     if (primaryType === 'hiddenSingle') {
       if (secondaryType === t('row')) return t('rowElimination');
       if (secondaryType === t('col')) return t('columnElimination');
@@ -46,14 +45,6 @@ const getTechniqueDisplayType = (primaryType, secondaryType) => {
     return techniqueNames[primaryType] || primaryType;
   };
 
-// 清理所有残留的CSS代码
-
-// 清理所有残留的styled-components定义
-  
-// 清理所有残留的styled-components定义
-
-// 清理所有残留的styled-components定义
-
 const ControlPanel = ({ 
   onNumberSelect, 
   onClearCell,
@@ -65,9 +56,10 @@ const ControlPanel = ({
   isPencilMode,
   remainingNumbers = {} // 添加剩余数字数量属性，默认为空对象
 }) => {
-  // 检测是否为竖屏模式
+  // 检测是否为竖屏模式 - 改进检测逻辑
   const isVerticalMode = () => {
-    return window.innerWidth < 768 && window.innerHeight > window.innerWidth;
+    // 使用更准确的竖屏检测逻辑
+    return window.innerHeight > window.innerWidth;
   };
   
   const [verticalMode, setVerticalMode] = useState(isVerticalMode());
@@ -81,6 +73,7 @@ const ControlPanel = ({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  
   const { theme } = useTheme();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
@@ -101,7 +94,8 @@ const ControlPanel = ({
     }
     // 清除选中的技巧和步骤
     setSelectedTechnique(null);
-    setTechniqueSteps([]);
+    // 重置分页
+    setCurrentPage(0);
   }, [setHighlightedCells]);
   
   // 监听选中单元格的变化，当用户点击单元格时退出技巧模式
@@ -361,7 +355,7 @@ const ControlPanel = ({
       steps.push(
         { step: 1, description: `在${regionType}${regionNum}中查找数对`, highlight: '' },
         { step: 2, description: t('foundNakedPair', { numbers: pairNumbers, cells: formattedCells }), highlight: position },
-    { step: 3, description: t('removeCandidatesFromTargets', { numbers: pairNumbers, targets: formattedTargetCells }), highlight: position }
+        { step: 3, description: t('removeCandidatesFromTargets', { numbers: pairNumbers, targets: formattedTargetCells }), highlight: position }
       );
     } else if (technique.type.includes('HiddenPairs') || technique.type.includes('hiddenPairs') || technique.type.includes('hiddenPair')) {
       // 隐性数对法解题步骤
@@ -504,7 +498,7 @@ const ControlPanel = ({
       const targetCells = [];
       
       // 根据区域类型确定目标单元格
-      if (regionType === '行' && regionNum > 0) {
+      if (regionType === t('row') && regionNum > 0) {
         // 行区域：同一行中的其他单元格
         for (let col = 0; col < 9; col++) {
           // 检查是否是三链数中的单元格
@@ -518,7 +512,7 @@ const ControlPanel = ({
             targetCells.push([regionNum - 1, col]);
           }
         }
-      } else if (regionType === '列' && regionNum > 0) {
+      } else if (regionType === t('col') && regionNum > 0) {
         // 列区域：同一列中的其他单元格
         for (let row = 0; row < 9; row++) {
           // 检查是否是三链数中的单元格
@@ -532,7 +526,7 @@ const ControlPanel = ({
             targetCells.push([row, regionNum - 1]);
           }
         }
-      } else if (regionType === '宫' && regionNum > 0) {
+      } else if (regionType === t('box') && regionNum > 0) {
         // 宫区域：同一宫中的其他单元格
         const boxRow = Math.floor((regionNum - 1) / 3) * 3;
         const boxCol = ((regionNum - 1) % 3) * 3;
@@ -701,6 +695,7 @@ const ControlPanel = ({
     }
     
     setTechniqueSteps(steps);
+    setCurrentPage(0); // 重置分页到第一页
     
     // 设置技巧指示高亮 - 使用真实的技巧机会数据
     if (setHighlightedCells) {
@@ -770,7 +765,10 @@ const ControlPanel = ({
       boxSizing: 'border-box',
       border: '1px solid #e0e0e0',
       position: 'relative',
-      height: window.innerWidth <= 576 ? 'auto' : 'var(--board-width)',
+      // 修复竖屏模式下的高度问题
+      height: verticalMode ? 'auto' : 'var(--board-width)',
+      maxHeight: verticalMode ? '400px' : 'var(--board-width)',
+      minHeight: verticalMode ? '200px' : 'var(--board-width)', // 确保最小高度
       overflow: 'hidden',
       outline: 'none', // 移除聚焦轮廓
       WebkitTapHighlightColor: 'transparent' // 移除点击高亮
@@ -796,60 +794,35 @@ const ControlPanel = ({
                 padding: '4px 8px',
                 backgroundColor: activeTab === 'keyboard' ? '#3498db15' : 'transparent',
                 border: 'none',
-                borderRadius: '6px 6px 0 0',
-                fontSize: '14px',
-                fontWeight: activeTab === 'keyboard' ? '700' : '500',
-                color: activeTab === 'keyboard' ? '#3498db' : '#7f8c8d',
+                borderRadius: '4px 4px 0 0',
+                color: activeTab === 'keyboard' ? '#3498db' : '#333',
                 cursor: 'pointer',
-                margin: '0 2px',
-                boxSizing: 'border-box',
-                minHeight: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative'
+                outline: 'none',
+                WebkitTapHighlightColor: 'transparent',
+                transition: 'background-color 0.3s, color 0.3s'
               }}
-              onClick={() => {
-                // 点击键盘标签页，退出技巧模式
-                exitTechniqueMode();
-              }}
-            >
-              {t('keyboardTab')}
-            </button>
-            <button 
+              onClick={() => setActiveTab('keyboard')}
+          >
+            {t('keyboard')}
+          </button>
+          <button 
               style={{
                 flex: 1,
                 padding: '4px 8px',
                 backgroundColor: activeTab === 'techniques' ? '#3498db15' : 'transparent',
                 border: 'none',
-                borderRadius: '6px 6px 0 0',
-                fontSize: '14px',
-                fontWeight: activeTab === 'techniques' ? '700' : '500',
-                color: activeTab === 'techniques' ? '#3498db' : '#7f8c8d',
+                borderRadius: '4px 4px 0 0',
+                color: activeTab === 'techniques' ? '#3498db' : '#333',
                 cursor: 'pointer',
-                margin: '0 2px',
-                boxSizing: 'border-box',
-                minHeight: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative'
+                outline: 'none',
+                WebkitTapHighlightColor: 'transparent',
+                transition: 'background-color 0.3s, color 0.3s'
               }}
-              onClick={() => {
-                setActiveTab('techniques');
-                // 取消选中单元格，进入技巧模式
-                if (setSelectedCell) {
-                  setSelectedCell(null);
-                }
-                // 如果当前处于铅笔模式，切换到正常模式
-                if (isPencilMode && togglePencilMode) {
-                  togglePencilMode();
-                }
-              }}
-            >
-              {t('techniquesTab')}
-            </button>
-            <button 
+              onClick={() => setActiveTab('techniques')}
+          >
+            {t('techniques')}
+          </button>
+          <button 
               style={{
                 flex: 1,
                 padding: '4px 8px',
@@ -1312,7 +1285,7 @@ const ControlPanel = ({
                       e.stopPropagation(); // 阻止事件冒泡
                       onUndo();
                     }}
-                    title="撤回"
+                    title={t('undoAction')}
                     style={{
                       // 基础样式
                       position: 'relative',
@@ -1367,7 +1340,7 @@ const ControlPanel = ({
                       e.stopPropagation(); // 阻止事件冒泡
                       onClearCell();
                     }}
-                    title="清空单元格"
+                    title={t('clearCell')}
                     style={{
                       // 基础样式
                       position: 'relative',
@@ -1426,7 +1399,7 @@ const ControlPanel = ({
                       e.stopPropagation(); // 阻止事件冒泡
                       togglePencilMode();
                     }}
-                    title={isPencilMode ? "退出铅笔模式" : "进入铅笔模式"}
+                    title={isPencilMode ? t('exitPencilMode') : t('enterPencilMode')}
                     style={{
                       // 基础样式
                       position: 'relative',
@@ -1599,7 +1572,7 @@ const ControlPanel = ({
                       }
                     }
                     else {
-                      positionText = '(未知位置)';
+                      positionText = t('unknownPosition');
                     }
                     
                     // 根据技巧类型确定一级分类和二级类型
@@ -1607,7 +1580,7 @@ const ControlPanel = ({
                     let secondaryType = '';
                     
                     if (technique.type === 'nakedSingle' || technique.type === 'naked_single') {
-                      primaryType = t(technique.description || 'singleCandidateTechnique');
+                      primaryType = t('singleCandidateTechnique');
                       // 候选数唯一法是一级分类，这里可以根据需要添加二级类型
                     } else if (technique.type.includes('hidden_single') || technique.type.includes('hiddenSingle')) {
                       // 直接设置primaryType，不设置secondaryType避免重复
@@ -1660,13 +1633,29 @@ const ControlPanel = ({
                       } else if (technique.type.includes('Box')) {
                         secondaryType = t('boxSuffix');
                       }
+                    } else if (technique.type.includes('pointingPairs')) {
+                      primaryType = t('pointingPairs');
+                      // 根据类型确定是行/列
+                      if (technique.type.includes('Row')) {
+                        secondaryType = t('rowSuffix');
+                      } else if (technique.type.includes('Col')) {
+                        secondaryType = t('colSuffix');
+                      }
+                    } else if (technique.type.includes('boxLineReduction')) {
+                      primaryType = t('boxLineReduction');
+                      // 根据类型确定是行/列
+                      if (technique.type.includes('Row')) {
+                        secondaryType = t('rowSuffix');
+                      } else if (technique.type.includes('Col')) {
+                        secondaryType = t('colSuffix');
+                      }
                     } else {
                       // 如果是未知类型，使用原始描述
                       primaryType = technique.description || t('unknownTechnique');
                     }
                     
                     // 直接使用primaryType作为显示类型，因为已经包含了行/列/宫信息
-                    const displayType = primaryType + secondaryType;
+                    const displayType = primaryType + (secondaryType ? ` ${secondaryType}` : '');
                     
                     return (
                       <div 
@@ -1827,9 +1816,17 @@ const ControlPanel = ({
                                   }}>
                                     {step.step}
                                   </div>
-                                  <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5' }}>
-                                    {/* 缩短第一条记录的描述文字 */}
-                                    {step.description.length > 50 ? `${step.description.substring(0, 50)}...` : step.description}
+                                  <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5', paddingRight: '70px' }}>
+                                    {/* 缩短第一条记录的描述文字以适应竖屏 */}
+                                    {verticalMode ? (
+                                      step.description.length > 35 ? 
+                                      `${step.description.substring(0, 35)}...` : 
+                                      step.description
+                                    ) : (
+                                      step.description.length > 50 ? 
+                                      `${step.description.substring(0, 50)}...` : 
+                                      step.description
+                                    )}
                                   </div>
                                   {/* 按钮与第一条记录同行 */}
                                   <div style={{ 
@@ -1837,14 +1834,14 @@ const ControlPanel = ({
                                     right: '12px',
                                     bottom: '12px',
                                     display: 'flex',
-                                    gap: '8px'
+                                    gap: '6px'
                                   }}>
                                     {showNextButton && (
                                       <button 
                                         onClick={() => setCurrentPage(currentPage + 1)}
                                         style={{
-                                          width: '60px',
-                                          height: '28px',
+                                          width: '65px',
+                                          height: '26px',
                                           backgroundColor: '#3498db',
                                           color: 'white',
                                           border: 'none',
@@ -1856,7 +1853,8 @@ const ControlPanel = ({
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                           boxShadow: '0 2px 4px rgba(52, 152, 219, 0.4), 0 1px 2px rgba(0, 0, 0, 0.15)',
-                                          transition: 'all 0.2s ease'
+                                          transition: 'all 0.2s ease',
+                                          whiteSpace: 'nowrap'
                                         }}
                                         onMouseEnter={(e) => {
                                           e.currentTarget.style.backgroundColor = '#2980b9';
@@ -1869,7 +1867,7 @@ const ControlPanel = ({
                                           e.currentTarget.style.transform = 'translateY(0)';
                                         }}
                                       >
-                                        下一步
+                                        {t('nextStep')}
                                       </button>
                                     )}
                                     
@@ -1877,8 +1875,8 @@ const ControlPanel = ({
                                       <button 
                                         onClick={handleApplyTechnique}
                                         style={{
-                                          width: '60px',
-                                          height: '28px',
+                                          width: '65px',
+                                          height: '26px',
                                           backgroundColor: '#2ecc71', // 绿色背景
                                           color: 'white',
                                           border: 'none',
@@ -1890,7 +1888,8 @@ const ControlPanel = ({
                                           alignItems: 'center',
                                           justifyContent: 'center',
                                           boxShadow: '0 2px 4px rgba(46, 204, 113, 0.4), 0 1px 2px rgba(0, 0, 0, 0.15)',
-                                          transition: 'all 0.2s ease'
+                                          transition: 'all 0.2s ease',
+                                          whiteSpace: 'nowrap'
                                         }}
                                         onMouseEnter={(e) => {
                                           e.currentTarget.style.backgroundColor = '#27ae60';
@@ -1903,7 +1902,7 @@ const ControlPanel = ({
                                           e.currentTarget.style.transform = 'translateY(0)';
                                         }}
                                       >
-                                        应用
+                                        {t('apply')}
                                       </button>
                                     )}
                                   </div>
@@ -1978,7 +1977,7 @@ const ControlPanel = ({
                                   e.currentTarget.style.transform = 'translateY(0)';
                                 }}
                               >
-                                下一步
+                                {t('nextStep')}
                               </button>
                             </div>
                           )}

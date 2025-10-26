@@ -16,8 +16,8 @@ export default defineConfig({
     }
   },
   server: {
-    host: true, // 允许通过IP访问
-    port: 3000,
+    host: '192.168.3.170', // 固定IP地址
+    port: 3000, // 固定端口
     proxy: {
       // 配置API代理，确保只有API路径被代理
       '^/sudoku/.*': {

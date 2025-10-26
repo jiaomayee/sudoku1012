@@ -1855,64 +1855,86 @@ export const findYing = (board, pencilNotes = {}) => {
  * 识别所有可用的技巧
  * @param {Array<Array<number>>} board - 当前数独棋盘
  * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
+ * @param {boolean} includeCandidateTechniques - 是否包含候选数相关技巧
  * @returns {Array} - 所有可用的技巧机会
  */
-export const identifyAllTechniques = (board, pencilNotes = {}) => {
+export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateTechniques = true) => {
   // 查找所有可用技巧机会
   const nakedSingles = findNakedSingles(board);
   const hiddenSingles = findHiddenSingles(board);
-  const nakedPairs = findNakedPairs(board, pencilNotes);
-  const hiddenPairs = findHiddenPairs(board, pencilNotes);
-  const pointingPairs = findPointingPairs(board, pencilNotes);
-  const boxLineReduction = findBoxLineReduction(board, pencilNotes);
-  const nakedTriples = findNakedTriples(board, pencilNotes);
-  const hiddenTriples = findHiddenTriples(board, pencilNotes);
-  // 高级技巧
-  const xWing = findXWing(board, pencilNotes);
-  const yWing = findYing(board, pencilNotes);
   
-  // 创建已识别单元格的集合，避免重复识别
-  const identifiedCells = new Set();
+  // 只在需要时查找候选数相关技巧
+  let nakedPairs = [];
+  let hiddenPairs = [];
+  let pointingPairs = [];
+  let boxLineReduction = [];
+  let nakedTriples = [];
+  let hiddenTriples = [];
+  let xWing = [];
+  let yWing = [];
+  let notesSingles = [];
   
-  // 添加已识别的单元格到集合中
-  const addToIdentified = (techniques) => {
-    techniques.forEach(technique => {
-      if (technique.cells) {
-        technique.cells.forEach(([row, col]) => {
-          identifiedCells.add(`${row}-${col}`);
-        });
-      }
+  if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
+    nakedPairs = findNakedPairs(board, pencilNotes);
+    hiddenPairs = findHiddenPairs(board, pencilNotes);
+    pointingPairs = findPointingPairs(board, pencilNotes);
+    boxLineReduction = findBoxLineReduction(board, pencilNotes);
+    nakedTriples = findNakedTriples(board, pencilNotes);
+    hiddenTriples = findHiddenTriples(board, pencilNotes);
+    // 高级技巧
+    xWing = findXWing(board, pencilNotes);
+    yWing = findYing(board, pencilNotes);
+    
+    // 创建已识别单元格的集合，避免重复识别
+    const identifiedCells = new Set();
+    
+    // 添加已识别的单元格到集合中
+    const addToIdentified = (techniques) => {
+      techniques.forEach(technique => {
+        if (technique.cells) {
+          technique.cells.forEach(([row, col]) => {
+            identifiedCells.add(`${row}-${col}`);
+          });
+        }
+      });
+    };
+    
+    // 先添加基础技巧识别的单元格
+    addToIdentified(nakedSingles);
+    addToIdentified(hiddenSingles);
+    
+    // 过滤候选数唯一法，只保留未被基础技巧识别的单元格
+    notesSingles = findNotesSingles(board, pencilNotes).filter(technique => {
+      return !technique.cells.some(([row, col]) => identifiedCells.has(`${row}-${col}`));
     });
-  };
-  
-  // 先添加基础技巧识别的单元格
-  addToIdentified(nakedSingles);
-  addToIdentified(hiddenSingles);
-  
-  // 过滤候选数唯一法，只保留未被基础技巧识别的单元格
-  const notesSingles = findNotesSingles(board, pencilNotes).filter(technique => {
-    return !technique.cells.some(([row, col]) => identifiedCells.has(`${row}-${col}`));
-  });
+  }
   
   // 按技巧难度顺序合并所有技巧机会
-  return [
+  const result = [
     // 基础技巧（第一优先级）
     ...nakedSingles,
-    ...hiddenSingles,
-    // 候选数基础技巧（第二优先级）- 只包含未被基础技巧识别的单元格
-    ...notesSingles,
-    // 中级技巧（第三优先级）
-    ...nakedPairs,
-    ...hiddenPairs,
-    ...pointingPairs,
-    ...boxLineReduction,
-    // 高级技巧（第四优先级）
-    ...nakedTriples,
-    ...hiddenTriples,
-    // Hodoku风格高级技巧（第五优先级）
-    ...xWing,
-    ...yWing
+    ...hiddenSingles
   ];
+  
+  // 只在需要时添加候选数相关技巧
+  if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
+    // 候选数基础技巧（第二优先级）- 只包含未被基础技巧识别的单元格
+    result.push(...notesSingles);
+    // 中级技巧（第三优先级）
+    result.push(...nakedPairs);
+    result.push(...hiddenPairs);
+    result.push(...pointingPairs);
+    result.push(...boxLineReduction);
+    // 高级技巧（第四优先级）
+    result.push(...nakedTriples);
+    result.push(...hiddenTriples);
+    // Hodoku风格高级技巧（第五优先级）
+    result.push(...xWing);
+    result.push(...yWing);
+  }
+  
+  return result;
+
 };
 
 /**

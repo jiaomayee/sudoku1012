@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback, use
 import { toast } from 'react-toastify';
 import localforage from 'localforage';
 import { useUser } from './UserContext';
+import { useLanguage } from './LanguageContext';
 import { api } from '../services/api';
 import DLX from '../utils/DLX'; // 添加DLX算法导入
 import { generateSudoku, solveSudoku, hasUniqueSolution } from '../utils/sudokuUtils';
@@ -21,6 +22,7 @@ export const DIFFICULTY_LEVELS = {
 
 export const SudokuContextProvider = ({ children }) => {
   const { userId, updateUserStats } = useUser();
+  const { t } = useLanguage();
   
   // 数独状态
   const [currentPuzzle, setCurrentPuzzle] = useState(null);
@@ -1181,8 +1183,11 @@ export const SudokuContextProvider = ({ children }) => {
   // 识别可应用的技巧
   const identifyTechniques = useCallback(() => {
     try {
-      // 传入currentBoard和pencilNotes参数，确保所有技巧都能正常工作
-      const techniques = identifyAllTechniques(currentBoard, pencilNotes);
+      // 检查pencilNotes是否为空对象，如果为空则不包含候选数技巧
+      const hasPencilNotes = pencilNotes && typeof pencilNotes === 'object' && Object.keys(pencilNotes).length > 0;
+      
+      // 传入currentBoard和pencilNotes参数，根据是否有候选数数据决定是否包含候选数技巧
+      const techniques = identifyAllTechniques(currentBoard, pencilNotes, hasPencilNotes);
       setActiveTechniques(techniques);
       return techniques;
     } catch (error) {
@@ -1262,7 +1267,7 @@ export const SudokuContextProvider = ({ children }) => {
           console.log('成功移除候选数:', technique.type);
           
           // 显示成功提示
-          toast.success('候选数已成功移除', {
+          toast.success(t('candidatesRemovedSuccess', { defaultMessage: '候选数已成功移除' }), {
             position: 'top-right',
             autoClose: 2000
           });
@@ -1272,12 +1277,19 @@ export const SudokuContextProvider = ({ children }) => {
         
         // 对于高亮类型的操作，保持支持但提供更好的反馈
         if (operation && operation.type === 'highlight') {
-          // 数对技巧等可能需要用户手动操作，但我们仍然返回true表示成功
+          // 数对、三链数等技巧可能需要用户手动操作，但我们仍然返回true表示成功
           console.log('技巧应用成功（高亮提示）:', technique.type);
           
           // 如果是数对类型，提供特定的提示
           if (technique.type && (technique.type.includes('Pair') || technique.type.includes('pair'))) {
-            toast.success('数对技巧已识别，建议手动移除相关候选数', {
+            toast.success(t('pairTechniqueIdentified', { defaultMessage: '数对技巧已识别，建议手动移除相关候选数' }), {
+              position: 'top-right',
+              autoClose: 3000
+            });
+          }
+          // 对于三链数等其他需要手动操作的技巧
+          else {
+            toast.success(t('pairTechniqueIdentified', { defaultMessage: '技巧已识别，建议手动移除相关候选数' }), {
               position: 'top-right',
               autoClose: 3000
             });
@@ -1288,7 +1300,7 @@ export const SudokuContextProvider = ({ children }) => {
         
         // 如果操作类型未知或缺少必要参数
         console.warn('无法应用技巧：操作信息不完整或类型不支持', operation);
-        toast.info('此技巧主要用于提示，暂不支持自动应用', { 
+        toast.info(t('techniqueOnlyForHint', { defaultMessage: '此技巧主要用于提示，暂不支持自动应用' }), { 
           position: 'top-right',
           autoClose: 2000
         });
@@ -1362,7 +1374,7 @@ export const SudokuContextProvider = ({ children }) => {
     // 更新铅笔标注数据
     setPencilNotes(newPencilNotes);
     
-    toast.info('已为所有空白格子计算并填充候选数！', {
+    toast.info(t('candidatesFilled', { defaultMessage: '已为所有空白格子计算并填充候选数！' }), {
       position: 'top-right',
       autoClose: 2000
     });
@@ -1402,7 +1414,7 @@ export const SudokuContextProvider = ({ children }) => {
     
     // 如果存在无候选数的空白单元格，需要重新计算候选数
     if (hasEmptyCandidateCell) {
-      toast.info('发现无候选数的空白单元格，重新计算候选数...', {
+      toast.info(t('emptyCandidateCellsFound', { defaultMessage: '发现无候选数的空白单元格，重新计算候选数...' }), {
         position: 'top-right',
         autoClose: 2000
       });
@@ -1440,7 +1452,7 @@ export const SudokuContextProvider = ({ children }) => {
     
     // 如果候选数错误，需要重新计算候选数
     if (hasCandidateError) {
-      toast.error('存在候选数删减错误，数据刷新', {
+      toast.error(t('candidateErrorDetected', { defaultMessage: '存在候选数删减错误，数据刷新' }), {
         position: 'top-right',
         autoClose: 3000
       });
@@ -1450,7 +1462,7 @@ export const SudokuContextProvider = ({ children }) => {
     }
     
     // 候选数正确完整，无需重新生成候选数，直接计算技巧机会
-    toast.info('候选数正确完整，直接计算技巧机会！', {
+    toast.info(t('candidatesComplete', { defaultMessage: '候选数正确完整，直接计算技巧机会！' }), {
       position: 'top-right',
       autoClose: 2000
     });

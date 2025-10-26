@@ -250,6 +250,9 @@ const translations = {
     gameCompleted: 'Game Completed',
     hint: 'Hint',
     notes: 'Notes',
+    // Technique hints
+    pairTechniqueIdentified: 'Pair technique identified, please manually remove the related candidates',
+    techniqueOnlyForHint: 'This technique is primarily for hinting and does not support automatic application',
     // 难度选择
     selectDifficulty: 'Select Difficulty',
     difficultyDescription: {
@@ -415,6 +418,14 @@ const translations = {
     relatedPosition: 'Related Position: {position}',
     relatedNumber: 'Involving Number: {number}',
     relatedCells: 'Related Cells',
+    // Toast messages
+    pairTechniqueIdentified: 'Pair technique identified, please manually remove the related candidates',
+    techniqueOnlyForHint: 'This technique is primarily for hinting and does not support automatic application',
+    candidatesRemovedSuccess: 'Candidates successfully removed',
+    candidateErrorDetected: 'Candidate pruning error detected, refreshing data',
+    candidatesComplete: 'Candidates are correct and complete, calculating techniques directly!',
+    candidatesFilled: 'Calculated and filled candidates for all empty cells!',
+    emptyCandidateCellsFound: 'Found empty cells without candidates, recalculating candidates...',
       analysisCompleted: 'Analysis Completed',
       findPairInRegion: 'Find pair in {regionType} {regionNum}',
       foundNakedPair: 'Found naked pair of numbers {numbers} in cells {cells}',

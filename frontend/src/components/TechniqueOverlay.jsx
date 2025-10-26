@@ -1,43 +1,232 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
-// 完全隔离的技巧高亮覆盖层组件 - 实现基础技巧指示功能
+// 重新设计的技巧高亮覆盖层组件 - 与techniqueIndicator.js保持一致的高亮逻辑
 const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrait = false }) => {
   // 严格检查highlightedCells，确保它是有效的数组
   if (!highlightedCells || !Array.isArray(highlightedCells)) {
     return null;
   }
 
-  // 极其严格的过滤逻辑，只处理明确的技巧高亮单元格
+  // 过滤并处理技巧高亮单元格
   const techniqueCells = highlightedCells.filter(cell => 
     cell && 
-    cell.techniqueIndicator === true && // 必须显式标记为技巧单元格
+    cell.techniqueIndicator === true && 
     typeof cell.row === 'number' && 
     typeof cell.col === 'number' &&
-    cell.row >= 0 && cell.row < 9 && // 确保行列值有效
+    cell.row >= 0 && cell.row < 9 && 
     cell.col >= 0 && cell.col < 9
   );
 
-  // 如果没有明确的技巧高亮单元格，返回null
   if (techniqueCells.length === 0) {
     return null;
   }
 
   // 根据屏幕方向使用不同的计算逻辑
-  let cellWidth, cellHeight, fontSize, overlayHeight;
+  let cellWidth, cellHeight, fontSize, noteFontSize, overlayHeight;
   
   if (isPortrait && boardHeight) {
-    // 竖屏模式：使用boardHeight进行计算，修复位置不准确问题
+    // 竖屏模式
     cellWidth = boardWidth / 9;
     cellHeight = boardHeight / 9;
-    fontSize = `${Math.max(16, Math.min(cellWidth, cellHeight) * 0.4)}px`;
+    fontSize = `${Math.max(16, Math.min(cellWidth, cellHeight) * 0.45)}px`; // 增大字体
+    noteFontSize = `${Math.max(12, Math.min(cellWidth, cellHeight) * 0.25)}px`; // 更大的候选数字体
     overlayHeight = boardHeight;
   } else {
-    // 横屏模式：保持原有逻辑，确保横屏显示正常
+    // 横屏模式
     cellWidth = boardWidth / 9;
-    cellHeight = cellWidth; // 横屏模式下宽度和高度保持一致
-    fontSize = `${Math.max(16, cellWidth * 0.4)}px`;
+    cellHeight = cellWidth;
+    fontSize = `${Math.max(16, cellWidth * 0.45)}px`; // 增大字体
+    noteFontSize = `${Math.max(12, cellWidth * 0.25)}px`; // 更大的候选数字体
     overlayHeight = boardWidth;
   }
+
+  // 提取需要高亮的相关区域
+  const renderRelatedAreas = useMemo(() => {
+    const areaHighlights = [];
+    
+    // 收集所有需要高亮的区域信息
+    techniqueCells.forEach(cell => {
+      if (cell.relatedAreas && Array.isArray(cell.relatedAreas)) {
+        const { row, col } = cell;
+        
+        // 高亮行
+        if (cell.relatedAreas.includes('row')) {
+          areaHighlights.push({
+            type: 'row',
+            row,
+            key: `row-${row}`
+          });
+        }
+        
+        // 高亮列
+        if (cell.relatedAreas.includes('col')) {
+          areaHighlights.push({
+            type: 'col',
+            col,
+            key: `col-${col}`
+          });
+        }
+        
+        // 高亮宫
+        if (cell.relatedAreas.includes('box')) {
+          const boxRow = Math.floor(row / 3);
+          const boxCol = Math.floor(col / 3);
+          areaHighlights.push({
+            type: 'box',
+            boxRow,
+            boxCol,
+            key: `box-${boxRow}-${boxCol}`
+          });
+        }
+      }
+    });
+    
+    return areaHighlights;
+  }, [techniqueCells, cellWidth, cellHeight]);
+
+  // 渲染需要删除的候选数高亮 - 增强显示效果
+  const renderRemovableNotes = (cell) => {
+    if (!cell.notesToRemove || !Array.isArray(cell.notesToRemove) || cell.notesToRemove.length === 0) {
+      return null;
+    }
+
+    return cell.notesToRemove.map((note) => {
+      if (typeof note !== 'number' || note < 1 || note > 9) return null;
+      
+      // 计算候选数的位置（3x3网格）
+      const noteIndex = note - 1; // 转换为0-8的索引
+      const noteRow = Math.floor(noteIndex / 3);
+      const noteCol = noteIndex % 3;
+      
+      // 计算位置偏移，使候选数在单元格中居中排列
+      const noteSize = cellWidth * 0.32; // 增大候选数显示区域
+      const offset = cellWidth * 0.1; // 调整偏移使布局更合理
+      const left = offset + noteCol * noteSize;
+      const top = offset + noteRow * noteSize;
+      
+      return (
+        <div
+          key={`removable-note-${cell.row}-${cell.col}-${note}`}
+          style={{
+            position: 'absolute',
+            left: `${left}px`,
+            top: `${top}px`,
+            width: `${noteSize}px`,
+            height: `${noteSize}px`,
+            backgroundColor: '#e74c3c', // 红色背景表示需要删除
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 40,
+            fontWeight: 'bold',
+            border: '2px solid #c0392b', // 添加深色边框
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+          }}
+        >
+          <span
+            style={{
+              fontSize: noteFontSize,
+              fontWeight: 'bold',
+              color: '#ffffff',
+              zIndex: 45,
+              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+            }}
+          >
+            {note}
+          </span>
+        </div>
+      );
+    });
+  };
+
+  // 为不同类型的单元格设置不同的高亮样式 - 与techniqueIndicator.js保持一致
+  const getCellStyle = (cell) => {
+    const baseStyle = {
+      position: 'absolute',
+      left: `${cell.col * cellWidth}px`,
+      top: `${cell.row * cellHeight}px`,
+      width: `${cellWidth}px`,
+      height: `${cellHeight}px`,
+      pointerEvents: 'none',
+      boxSizing: 'border-box',
+      borderRadius: '6px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'all 0.2s ease'
+    };
+
+    // 支持primary和secondary高亮类型（与techniqueIndicator.js保持一致）
+    const highlightStyles = {
+      'primary': {
+        backgroundColor: cell.backgroundColor || 'rgba(76, 175, 80, 0.3)', // 绿色半透明（关键单元格）
+        borderColor: cell.borderColor || '#4CAF50',
+        border: `3px solid ${cell.borderColor || '#4CAF50'}`,
+        zIndex: 35 // 最高层级
+      },
+      'primary-removal': {
+        backgroundColor: cell.backgroundColor || 'rgba(76, 175, 80, 0.3)', // 绿色半透明（关键单元格且有候选数删除）
+        borderColor: cell.borderColor || '#4CAF50',
+        border: `3px solid ${cell.borderColor || '#4CAF50'}`,
+        zIndex: 35
+      },
+      'secondary': {
+        backgroundColor: cell.backgroundColor || 'rgba(33, 150, 243, 0.3)', // 蓝色半透明（目标单元格）
+        borderColor: cell.borderColor || '#2196F3',
+        border: `3px solid ${cell.borderColor || '#2196F3'}`,
+        zIndex: 30
+      },
+      'removal': {
+        // 专门用于显示需要删除候选数的单元格
+        backgroundColor: cell.backgroundColor || 'rgba(231, 76, 60, 0.25)', // 淡红色背景
+        borderColor: cell.borderColor || '#e74c3c',
+        border: `2px dashed ${cell.borderColor || '#e74c3c'}`, // 红色虚线边框
+        zIndex: 25
+      },
+      'row': {
+        backgroundColor: 'rgba(52, 152, 219, 0.3)', // 蓝色半透明
+        border: '1px solid #3498db',
+        zIndex: 20
+      },
+      'col': {
+        backgroundColor: 'rgba(231, 76, 60, 0.3)', // 红色半透明
+        border: '1px solid #e74c3c',
+        zIndex: 20
+      },
+      'box': {
+        backgroundColor: 'rgba(46, 204, 113, 0.3)', // 绿色半透明
+        border: '1px solid #2ecc71',
+        zIndex: 20
+      }
+    };
+
+    // 优先使用highlightType
+    if (cell.highlightType && highlightStyles[cell.highlightType]) {
+      return {
+        ...baseStyle,
+        ...highlightStyles[cell.highlightType]
+      };
+    }
+
+    // 兼容旧的isTarget属性
+    if (cell.isTarget) {
+      return {
+        ...baseStyle,
+        backgroundColor: 'rgba(33, 150, 243, 0.3)', // 蓝色半透明
+        border: '3px solid #2196F3',
+        zIndex: 30
+      };
+    }
+    
+    // 默认样式
+    return {
+      ...baseStyle,
+      backgroundColor: 'rgba(249, 231, 159, 0.5)', // 淡金色背景
+      border: '3px solid #ffffff',
+      zIndex: 25
+    };
+  };
 
   return (
     <div 
@@ -47,49 +236,110 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         top: 0,
         left: 0,
         width: `${boardWidth}px`,
-        height: `${overlayHeight}px`, // 根据屏幕方向设置高度
-        pointerEvents: 'none', // 完全禁用所有事件，不干扰原系统
-        zIndex: 15, // 适当的z-index确保可见但不影响原系统
+        height: `${overlayHeight}px`,
+        pointerEvents: 'none',
+        zIndex: 10,
         boxSizing: 'border-box',
-        background: 'transparent' // 确保背景完全透明
+        background: 'transparent'
       }}
     >
-      {/* 渲染技巧高亮单元格 - 为每个技巧单元格添加不太明亮的黄色背景和白色粗边框 */}
+      {/* 1. 渲染相关区域高亮（行、列、宫）- 放在最底层 */}
+      {renderRelatedAreas.map((area) => {
+        if (area.type === 'row') {
+          return (
+            <div
+              key={area.key}
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: `${area.row * cellHeight}px`,
+                width: `${boardWidth}px`,
+                height: `${cellHeight}px`,
+                backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                border: '1px solid rgba(52, 152, 219, 0.3)',
+                zIndex: 5,
+                pointerEvents: 'none'
+              }}
+            />
+          );
+        }
+        
+        if (area.type === 'col') {
+          return (
+            <div
+              key={area.key}
+              style={{
+                position: 'absolute',
+                left: `${area.col * cellWidth}px`,
+                top: 0,
+                width: `${cellWidth}px`,
+                height: `${overlayHeight}px`,
+                backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                border: '1px solid rgba(52, 152, 219, 0.3)',
+                zIndex: 5,
+                pointerEvents: 'none'
+              }}
+            />
+          );
+        }
+        
+        if (area.type === 'box') {
+          return (
+            <div
+              key={area.key}
+              style={{
+                position: 'absolute',
+                left: `${area.boxCol * 3 * cellWidth}px`,
+                top: `${area.boxRow * 3 * cellHeight}px`,
+                width: `${3 * cellWidth}px`,
+                height: `${3 * cellHeight}px`,
+                backgroundColor: 'rgba(46, 204, 113, 0.15)',
+                border: '2px solid rgba(46, 204, 113, 0.4)',
+                borderRadius: '6px',
+                zIndex: 6,
+                pointerEvents: 'none'
+              }}
+            />
+          );
+        }
+        
+        return null;
+      })}
+      
+      {/* 2. 渲染单元格高亮 */}
       {techniqueCells.map((cell) => {
+        const cellStyle = getCellStyle(cell);
+        
+        // 根据高亮类型设置不同的数字颜色
+        let numberColor = '#2ecc71'; // 默认绿色
+        if (cell.highlightType === 'primary' || cell.highlightType === 'primary-removal') {
+          numberColor = '#27ae60'; // 深绿色
+        } else if (cell.highlightType === 'secondary') {
+          numberColor = '#2980b9'; // 深蓝色
+        }
+        
         return (
           <div
-            key={`tech-${cell.row}-${cell.col}`}
-            style={{
-              position: 'absolute',
-              left: `${cell.col * cellWidth}px`,
-              top: `${cell.row * cellHeight}px`, // 根据屏幕方向使用不同的垂直定位
-              width: `${cellWidth}px`,
-              height: `${cellHeight}px`, // 根据屏幕方向使用不同的高度
-              pointerEvents: 'none',
-              zIndex: 20,
-              // 为技巧指示单元格添加不太明亮的黄色背景
-              backgroundColor: '#f9e79f', // 不太明亮的黄色背景
-              border: '3px solid #ffffff', // 粗白色边框
-              boxSizing: 'border-box',
-              borderRadius: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
+            key={`tech-${cell.row}-${cell.col}-${cell.highlightType || 'default'}-${cell.isTarget ? 'target' : 'normal'}`}
+            style={cellStyle}
           >
-            {/* 显示绿色的预填入数字，字体大小与用户填入数字大小相同 */}
+            {/* 显示预填入数字 */}
             {cell.number && (
               <span
                 style={{
                   fontSize: fontSize,
                   fontWeight: 'bold',
-                  color: '#2ecc71', // 绿色
-                  zIndex: 30
+                  color: numberColor,
+                  zIndex: 50,
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
                 }}
               >
                 {cell.number}
               </span>
             )}
+            
+            {/* 渲染需要删除的候选数高亮 */}
+            {renderRemovableNotes(cell)}
           </div>
         );
       })}

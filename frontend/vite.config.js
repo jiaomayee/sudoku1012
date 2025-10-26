@@ -5,6 +5,7 @@ import { resolve } from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // base路径配置 - 自定义域名使用根路径
   base: '/',
   resolve: {
     alias: {

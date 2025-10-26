@@ -1092,7 +1092,9 @@ const ControlPanel = ({
                 WebkitTapHighlightColor: 'transparent',
                 transition: 'background-color 0.3s, color 0.3s'
               }}
-              onClick={() => setActiveTab('techniques')}
+              onClick={() => {
+                setActiveTab('techniques');
+              }}
           >
             {t('techniques')}
           </button>

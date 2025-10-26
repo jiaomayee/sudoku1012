@@ -421,26 +421,55 @@ const SudokuGamePage = () => {
   };
 
   // 处理获取提示
-  const handleGetHint = useCallback(async () => {
+  const handleGetHint = useCallback(() => {
     // 取消选中单元格
     setSelectedCell(null);
     
-    if (getHint) {
-      try {
-        const hint = await getHint();
-        if (hint && hint.row !== undefined && hint.col !== undefined && hint.value !== undefined) {
+    // 随机提取一条技巧机会并弹窗提示
+    if (identifyTechniques) {
+      const techniques = identifyTechniques();
+      if (techniques && techniques.length > 0) {
+        // 随机选择一条技巧
+        const randomIndex = Math.floor(Math.random() * techniques.length);
+        const randomTechnique = techniques[randomIndex];
+        
+        // 格式化技巧信息进行显示
+        let techniqueInfo = t('foundRandomTechnique', { defaultMessage: '找到一条技巧机会：' });
+        
+        // 获取技巧名称（支持国际化）
+        const techniqueName = t(randomTechnique.type) || t('unknownTechnique') || randomTechnique.type;
+        techniqueInfo += techniqueName;
+        
+        // 添加位置信息
+        if (randomTechnique.row !== undefined && randomTechnique.col !== undefined) {
+          const positionLabel = t('position', { defaultMessage: '位置' });
+          techniqueInfo += ` ${positionLabel}:(${randomTechnique.row + 1},${randomTechnique.col + 1})`;
           // 高亮提示的单元格
-          setHighlightedCells([[hint.row, hint.col]]);
-          toast.info(`提示：在(${hint.row + 1},${hint.col + 1})填入${hint.value}`, {
-            position: 'top-right',
-            autoClose: 2000
-          });
+          setHighlightedCells([[randomTechnique.row, randomTechnique.col]]);
         }
-      } catch (error) {
-        console.error('获取提示失败:', error);
+        
+        // 添加数字信息（如果有）
+        if (randomTechnique.value !== undefined) {
+          const numberLabel = t('number', { defaultMessage: '数字' });
+          techniqueInfo += ` ${numberLabel}:${randomTechnique.value}`;
+        }
+        
+        // 弹窗提示
+        toast.info(techniqueInfo, {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      } else {
+        // 如果没有找到技巧，显示提示
+        toast.info(t('noTechniquesAvailable', { defaultMessage: '当前没有可用的技巧机会' }), {
+          position: 'top-right',
+          autoClose: 2000
+        });
       }
+    } else {
+      console.error('identifyTechniques 函数不可用');
     }
-  }, [getHint, setHighlightedCells, setSelectedCell]);
+  }, [identifyTechniques, setHighlightedCells, setSelectedCell, t]);
   
   // 技巧提示 - 识别并显示可用技巧
   const handleShowTechniques = useCallback(() => {

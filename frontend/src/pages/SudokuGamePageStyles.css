@@ -248,7 +248,7 @@ html, body {
   }
   
   /* 在导航区块下方添加滚动吸附线 */
-  .nav-block::after {
+  /* .nav-block::after {
     content: '';
     position: absolute;
     bottom: -10px;
@@ -257,7 +257,7 @@ html, body {
     height: 1px;
     background: linear-gradient(to right, transparent, #3498db, transparent);
     scroll-snap-align: start;
-  }
+  } */
   
   /* 竖屏模式下显示顶部菜单栏 */
   nav {

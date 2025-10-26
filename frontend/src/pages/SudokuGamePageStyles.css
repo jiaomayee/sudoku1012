@@ -181,8 +181,8 @@ html, body {
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    /* 使用宽松的吸附模式，允许用户正常滚动查看所有内容 */
-    scroll-snap-type: y proximity;
+    /* 使用更严格的吸附模式，增强导航区块下边线的吸附效果 */
+    scroll-snap-type: y mandatory;
     -webkit-overflow-scrolling: touch;
     position: relative;
   }
@@ -243,21 +243,23 @@ html, body {
     padding: 0;
     margin: 0;
     position: relative;
-    scroll-snap-align: start;
-    scroll-margin-top: 10px; /* 使用标准属性替代scroll-snap-margin-top */
+    scroll-snap-align: end; /* 设置吸附点为元素底部 */
+    scroll-margin-bottom: 5px; /* 底部边距，增强下边线吸附效果 */
   }
   
-  /* 在导航区块下方添加滚动吸附线 */
-  /* .nav-block::after {
+  /* 在导航区块下方添加透明滚动吸附线，增强吸附体验但不显示视觉线条 */
+  .nav-block::after {
     content: '';
     position: absolute;
-    bottom: -10px;
+    bottom: -5px;
     left: 0;
     right: 0;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #3498db, transparent);
+    height: 2px;
+    background: transparent; /* 设置为透明，不显示视觉线条 */
     scroll-snap-align: start;
-  } */
+    scroll-margin-top: 5px;
+    z-index: -1; /* 设置为负值，确保位于所有元素下方，不拦截点击事件 */
+  }
   
   /* 竖屏模式下显示顶部菜单栏 */
   nav {
@@ -266,7 +268,7 @@ html, body {
     margin-bottom: 4px; /* 调整底部间距 */
     /* 保留顶部菜单栏的吸附设置，但使用更宽松的设置 */
     scroll-snap-align: start;
-    scroll-margin-top: 5px; /* 使用标准属性替代scroll-snap-margin-top */
+    scroll-margin-top: 5px;
   }
   
   /* 上滑提示功能已停用 - 专注于滚动吸附功能实现 */
@@ -369,8 +371,8 @@ html, body {
     width: 100%; /* 完全充满父容器 */
     border-radius: var(--border-radius);
     position: relative;
-    scroll-snap-align: start;
-    scroll-margin-top: 10px; /* 使用标准属性替代scroll-snap-margin-top */
+    scroll-snap-align: end; /* 设置吸附点为元素底部，便于过渡到导航区块 */
+    scroll-margin-bottom: 5px;
   }
   
   /* 添加微妙的视觉指示 */

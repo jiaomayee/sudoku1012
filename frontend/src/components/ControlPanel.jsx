@@ -861,7 +861,7 @@ const ControlPanel = ({
           <div style={{
             flex: 1,
             padding: '4px 0',
-            overflow: 'hidden',
+            overflow: 'visible',
             position: 'relative',
             display: 'flex',
             flexDirection: 'column',
@@ -1736,7 +1736,7 @@ const ControlPanel = ({
           )}
           
           {activeTab === 'solution' && (
-            <div style={{ overflowY: 'auto', padding: '8px' }}>
+            <div style={{ overflowY: 'auto', padding: '8px', flex: 1, minHeight: '200px', maxHeight: '400px' }}>
               {selectedTechnique ? (
                 <>
                   {/* 分页显示解题步骤 */}
@@ -1816,17 +1816,9 @@ const ControlPanel = ({
                                   }}>
                                     {step.step}
                                   </div>
-                                  <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5', paddingRight: '80px' }}>
-                                    {/* 缩短第一条记录的描述文字以适应竖屏 */}
-                                    {verticalMode ? (
-                                      step.description.length > 25 ? 
-                                      `${step.description.substring(0, 25)}...` : 
-                                      step.description
-                                    ) : (
-                                      step.description.length > 40 ? 
-                                      `${step.description.substring(0, 40)}...` : 
-                                      step.description
-                                    )}
+                                  <div style={{ flex: 1, fontSize: '14px', color: '#34495e', lineHeight: '1.5', paddingRight: '80px', minHeight: '40px' }}>
+                                    {/* 完整显示描述文字 */}
+                                    {step.description}
                                   </div>
                                   {/* 按钮与第一条记录同行，固定位置 */}
                                   <div style={{ 

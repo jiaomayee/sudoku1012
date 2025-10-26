@@ -15,6 +15,7 @@ const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   margin: 0;
   box-sizing: border-box;
   border: 1px solid ${props => props.theme?.border || '#e0e0e0'};
+  border-bottom: 3px solid transparent;
   transition: all 0.3s ease;
   
   // 添加悬停效果
@@ -25,10 +26,15 @@ const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   // 确保在父容器中正确对齐
   align-self: flex-start;
   
+  // 添加滚动吸附功能
+  scroll-snap-align: start;
+  scroll-margin: 5px;
+  
   // 竖屏模式下减小高度
   @media (max-width: 768px) and (orientation: portrait) {
     padding: 4px;
     min-height: 36px;
+    border-bottom-width: 2px;
   }
 `;
 

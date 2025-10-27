@@ -474,6 +474,24 @@ html, body {
     width: var(--control-panel-width);
     height: var(--board-width);
   }
+  
+  /* 适度增加横屏模式下控制面板按钮的高度和文字大小 */
+  .control-panel button {
+    min-height: 45px !important; /* 适度增加按钮最小高度 */
+    font-size: 16px !important; /* 适度增加按钮文字大小 */
+  }
+  
+  /* 特别针对数字按钮适度增加高度和字体大小 */
+  .control-panel .number-pad button.number-button {
+    min-height: 60px !important; /* 数字按钮最小高度 */
+    font-size: 18px !important; /* 数字按钮文字大小 */
+  }
+  
+  /* 特别针对标签页按钮适度增加高度 */
+  .control-panel .tab-buttons button {
+    min-height: 42px !important; /* 标签页按钮最小高度 */
+    font-size: 15px !important; /* 标签页按钮文字大小 */
+  }
 }
 
 /* 游戏暂停蒙板样式 */

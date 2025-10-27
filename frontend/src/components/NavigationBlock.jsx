@@ -317,16 +317,39 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   // 处理短点击
   const handleShortClick = () => {
     console.log('候选数按钮短点击');
+    console.log('sudokuContext:', sudokuContext);
+    
+    // 检查sudokuContext是否存在
+    if (!sudokuContext) {
+      console.log('sudokuContext不存在');
+      toast.info(t('errorOccurred', { defaultMessage: '系统错误，请刷新页面重试' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
+      return;
+    }
+    
     // 检查是否有选中的单元格
-    if (sudokuContext?.selectedCell) {
+    if (sudokuContext.selectedCell) {
       const { row, col } = sudokuContext.selectedCell;
+      console.log('选中的单元格:', row, col);
+      
       // 检查单元格是否为空白（值为0）
-      if (sudokuContext.currentBoard && sudokuContext.currentBoard[row][col] === 0) {
+      if (sudokuContext.currentBoard && sudokuContext.currentBoard[row] && sudokuContext.currentBoard[row][col] === 0) {
+        console.log('单元格是空白的，准备填充候选数');
         // 为选中的空白单元格填充候选数
         if (sudokuContext.fillSelectedCellCandidates) {
+          console.log('调用fillSelectedCellCandidates方法');
           sudokuContext.fillSelectedCellCandidates(row, col);
+        } else {
+          console.log('fillSelectedCellCandidates方法不存在');
+          toast.info(t('functionNotAvailable', { defaultMessage: '该功能暂不可用' }), {
+            position: 'top-right',
+            autoClose: 2000
+          });
         }
       } else {
+        console.log('单元格不是空白的或currentBoard不存在');
         // 如果选中的不是空白单元格，显示提示信息
         toast.info(t('selectEmptyCell', { defaultMessage: '请选择一个空白单元格' }), {
           position: 'top-right',
@@ -334,6 +357,7 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         });
       }
     } else {
+      console.log('没有选中的单元格');
       // 如果没有选中的单元格，显示提示信息
       toast.info(t('selectCellForCandidates', { defaultMessage: '请先选择一个空白单元格' }), {
         position: 'top-right',
@@ -392,6 +416,7 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           
           {/* 候选数按钮 */}
           <NavButton 
+            onClick={handleShortClick} // 直接添加onClick处理短点击
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}

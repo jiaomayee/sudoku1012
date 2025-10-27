@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 // 移除styled-components导入
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku } from '../context/SudokuContext';
 import { useLanguage } from '../context/LanguageContext';
+// 导入模式上下文
+import { ModeContext } from '../context/ModeContext';
 
 // 候选数图标组件（从NavigationBlock复制并修改为白色）
 const NotesIcon = () => (
@@ -76,6 +78,7 @@ const ControlPanel = ({
   
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const { mode } = useContext(ModeContext); // 获取当前模式
   const [activeTab, setActiveTab] = useState('keyboard'); // 'keyboard', 'techniques', 'solution'
   const [selectedTechnique, setSelectedTechnique] = useState(null);
   const [currentPage, setCurrentPage] = useState(0); // 添加分页状态
@@ -1079,58 +1082,64 @@ const ControlPanel = ({
           >
             {t('keyboard')}
           </button>
-          <button 
-              style={{
-                flex: 1,
-                padding: '4px 8px',
-                backgroundColor: activeTab === 'techniques' ? '#3498db15' : 'transparent',
-                border: 'none',
-                borderRadius: '4px 4px 0 0',
-                color: activeTab === 'techniques' ? '#3498db' : '#333',
-                cursor: 'pointer',
-                outline: 'none',
-                WebkitTapHighlightColor: 'transparent',
-                transition: 'background-color 0.3s, color 0.3s'
-              }}
-              onClick={() => {
-                setActiveTab('techniques');
-              }}
-          >
-            {t('techniques')}
-          </button>
-          <button 
-              style={{
-                flex: 1,
-                padding: '4px 8px',
-                backgroundColor: activeTab === 'solution' ? '#3498db15' : 'transparent',
-                border: 'none',
-                borderRadius: '6px 6px 0 0',
-                fontSize: '14px',
-                fontWeight: activeTab === 'solution' ? '700' : '500',
-                color: activeTab === 'solution' ? '#3498db' : '#7f8c8d',
-                cursor: 'pointer',
-                margin: '0 2px',
-                boxSizing: 'border-box',
-                minHeight: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative'
-              }}
-              onClick={() => {
-                setActiveTab('solution');
-                // 取消选中单元格，进入技巧模式
-                if (setSelectedCell) {
-                  setSelectedCell(null);
-                }
-                // 如果当前处于铅笔模式，切换到正常模式
-                if (isPencilMode && togglePencilMode) {
-                  togglePencilMode();
-                }
-              }}
+          {/* 技巧标签页 - 只在学习模式下显示 */}
+          {mode === 'learning' && (
+            <button 
+                style={{
+                  flex: 1,
+                  padding: '4px 8px',
+                  backgroundColor: activeTab === 'techniques' ? '#3498db15' : 'transparent',
+                  border: 'none',
+                  borderRadius: '4px 4px 0 0',
+                  color: activeTab === 'techniques' ? '#3498db' : '#333',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  WebkitTapHighlightColor: 'transparent',
+                  transition: 'background-color 0.3s, color 0.3s'
+                }}
+                onClick={() => {
+                  setActiveTab('techniques');
+                }}
             >
-              {t('solutionTab')}
+              {t('techniques')}
             </button>
+          )}
+          {/* 解题标签页 - 只在学习模式下显示 */}
+          {mode === 'learning' && (
+            <button 
+                style={{
+                  flex: 1,
+                  padding: '4px 8px',
+                  backgroundColor: activeTab === 'solution' ? '#3498db15' : 'transparent',
+                  border: 'none',
+                  borderRadius: '6px 6px 0 0',
+                  fontSize: '14px',
+                  fontWeight: activeTab === 'solution' ? '700' : '500',
+                  color: activeTab === 'solution' ? '#3498db' : '#7f8c8d',
+                  cursor: 'pointer',
+                  margin: '0 2px',
+                  boxSizing: 'border-box',
+                  minHeight: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative'
+                }}
+                onClick={() => {
+                  setActiveTab('solution');
+                  // 取消选中单元格，进入技巧模式
+                  if (setSelectedCell) {
+                    setSelectedCell(null);
+                  }
+                  // 如果当前处于铅笔模式，切换到正常模式
+                  if (isPencilMode && togglePencilMode) {
+                    togglePencilMode();
+                  }
+                }}
+              >
+                {t('solutionTab')}
+              </button>
+          )}
         </div>
         
         {/* 标签页内容 */}
@@ -1726,7 +1735,7 @@ const ControlPanel = ({
             </>
           )}
           
-          {activeTab === 'techniques' && (
+          {activeTab === 'techniques' && mode === 'learning' && (
             <div style={{ overflowY: 'auto', padding: '4px 8px 8px 8px' }}>
               {availableTechniques.length === 0 ? (
                 <div style={{ 
@@ -2094,7 +2103,7 @@ const ControlPanel = ({
             </div>
           )}
           
-          {activeTab === 'solution' && (
+          {activeTab === 'solution' && mode === 'learning' && (
             <div style={{ overflowY: 'auto', padding: '8px', flex: 1, minHeight: '200px', maxHeight: '400px' }}>
               {selectedTechnique ? (
                 <>

@@ -146,22 +146,32 @@ const FlagContainer = styled.span`
 // 更美观的SVG语言图标组件
 const LanguageFlagIcon = ({ langCode, size = 20 }) => {
   if (langCode === 'zh-CN') {
-    // 中国国旗SVG
+    // 中国国旗SVG - 更准确的五星红旗设计
     return (
-      <svg width={size} height={size * 0.7} viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width={size} height={size * 0.667} viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="30" height="20" fill="#DE2910"/>
         <path d="M0 0L10 10L0 20V0Z" fill="#FFDE00"/>
-        <path d="M12 7H14V9H12V7Z" fill="#FFDE00"/>
-        <path d="M16 7H18V9H16V7Z" fill="#FFDE00"/>
-        <path d="M12 11H14V13H12V11Z" fill="#FFDE00"/>
-        <path d="M16 11H18V13H16V11Z" fill="#FFDE00"/>
-        <path d="M20 11H22V13H20V11Z" fill="#FFDE00"/>
+        <g transform="translate(12, 6)">
+          <path d="M0,0 L1.176,0.382 L0.727,1.25 L0,1.5 L-0.727,1.25 L-1.176,0.382 L-0.951,-0.309 L-0.176,-0.618 L0.447,-0.309 Z" fill="#FFDE00"/>
+        </g>
+        <g transform="translate(14, 4)">
+          <path d="M0,0 L0.706,0.229 L0.436,0.75 L0,0.9 L-0.436,0.75 L-0.706,0.229 L-0.571,-0.185 L-0.106,-0.371 L0.268,-0.185 Z" fill="#FFDE00"/>
+        </g>
+        <g transform="translate(15, 6)">
+          <path d="M0,0 L0.706,0.229 L0.436,0.75 L0,0.9 L-0.436,0.75 L-0.706,0.229 L-0.571,-0.185 L-0.106,-0.371 L0.268,-0.185 Z" fill="#FFDE00"/>
+        </g>
+        <g transform="translate(15, 8)">
+          <path d="M0,0 L0.706,0.229 L0.436,0.75 L0,0.9 L-0.436,0.75 L-0.706,0.229 L-0.571,-0.185 L-0.106,-0.371 L0.268,-0.185 Z" fill="#FFDE00"/>
+        </g>
+        <g transform="translate(14, 10)">
+          <path d="M0,0 L0.706,0.229 L0.436,0.75 L0,0.9 L-0.436,0.75 L-0.706,0.229 L-0.571,-0.185 L-0.106,-0.371 L0.268,-0.185 Z" fill="#FFDE00"/>
+        </g>
       </svg>
     );
   } else {
     // 美国国旗SVG
     return (
-      <svg width={size} height={size * 0.7} viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width={size} height={size * 0.667} viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="30" height="20" fill="#B22234"/>
         <rect y="2" width="30" height="2" fill="white"/>
         <rect y="6" width="30" height="2" fill="white"/>
@@ -169,31 +179,33 @@ const LanguageFlagIcon = ({ langCode, size = 20 }) => {
         <rect y="14" width="30" height="2" fill="white"/>
         <rect y="18" width="30" height="2" fill="white"/>
         <rect width="12" height="11" fill="#3C3B6E"/>
-        <rect x="1" y="1" width="1" height="1" fill="white"/>
-        <rect x="3" y="1" width="1" height="1" fill="white"/>
-        <rect x="5" y="1" width="1" height="1" fill="white"/>
-        <rect x="7" y="1" width="1" height="1" fill="white"/>
-        <rect x="9" y="1" width="1" height="1" fill="white"/>
-        <rect x="1" y="3" width="1" height="1" fill="white"/>
-        <rect x="3" y="3" width="1" height="1" fill="white"/>
-        <rect x="5" y="3" width="1" height="1" fill="white"/>
-        <rect x="7" y="3" width="1" height="1" fill="white"/>
-        <rect x="9" y="3" width="1" height="1" fill="white"/>
-        <rect x="1" y="5" width="1" height="1" fill="white"/>
-        <rect x="3" y="5" width="1" height="1" fill="white"/>
-        <rect x="5" y="5" width="1" height="1" fill="white"/>
-        <rect x="7" y="5" width="1" height="1" fill="white"/>
-        <rect x="9" y="5" width="1" height="1" fill="white"/>
-        <rect x="1" y="7" width="1" height="1" fill="white"/>
-        <rect x="3" y="7" width="1" height="1" fill="white"/>
-        <rect x="5" y="7" width="1" height="1" fill="white"/>
-        <rect x="7" y="7" width="1" height="1" fill="white"/>
-        <rect x="9" y="7" width="1" height="1" fill="white"/>
-        <rect x="1" y="9" width="1" height="1" fill="white"/>
-        <rect x="3" y="9" width="1" height="1" fill="white"/>
-        <rect x="5" y="9" width="1" height="1" fill="white"/>
-        <rect x="7" y="9" width="1" height="1" fill="white"/>
-        <rect x="9" y="9" width="1" height="1" fill="white"/>
+        <g fill="white">
+          <rect x="1" y="1" width="1" height="1"/>
+          <rect x="3" y="1" width="1" height="1"/>
+          <rect x="5" y="1" width="1" height="1"/>
+          <rect x="7" y="1" width="1" height="1"/>
+          <rect x="9" y="1" width="1" height="1"/>
+          <rect x="1" y="3" width="1" height="1"/>
+          <rect x="3" y="3" width="1" height="1"/>
+          <rect x="5" y="3" width="1" height="1"/>
+          <rect x="7" y="3" width="1" height="1"/>
+          <rect x="9" y="3" width="1" height="1"/>
+          <rect x="1" y="5" width="1" height="1"/>
+          <rect x="3" y="5" width="1" height="1"/>
+          <rect x="5" y="5" width="1" height="1"/>
+          <rect x="7" y="5" width="1" height="1"/>
+          <rect x="9" y="5" width="1" height="1"/>
+          <rect x="1" y="7" width="1" height="1"/>
+          <rect x="3" y="7" width="1" height="1"/>
+          <rect x="5" y="7" width="1" height="1"/>
+          <rect x="7" y="7" width="1" height="1"/>
+          <rect x="9" y="7" width="1" height="1"/>
+          <rect x="1" y="9" width="1" height="1"/>
+          <rect x="3" y="9" width="1" height="1"/>
+          <rect x="5" y="9" width="1" height="1"/>
+          <rect x="7" y="9" width="1" height="1"/>
+          <rect x="9" y="9" width="1" height="1"/>
+        </g>
       </svg>
     );
   }

@@ -1873,7 +1873,7 @@ const ControlPanel = ({
                       // 清除secondaryType，避免重复显示
                       secondaryType = '';
                     } else if (technique.type === 'nakedPairs' || technique.type === 'naked_pairs' || technique.type.includes('nakedPair')) {
-                      primaryType = t('nakedPairs');
+                      primaryType = t('nakedPairTechnique');
                       // 根据类型确定是行/列/宫
                       if (technique.type.includes('Row')) {
                         secondaryType = t('rowSuffix');
@@ -1883,7 +1883,7 @@ const ControlPanel = ({
                         secondaryType = t('boxSuffix');
                       }
                     } else if (technique.type === 'hiddenPairs' || technique.type === 'hidden_pairs' || technique.type.includes('hiddenPair')) {
-                      primaryType = t('hiddenPairs');
+                      primaryType = t('hiddenPairTechnique');
                       // 根据类型确定是行/列/宫
                       if (technique.type.includes('Row')) {
                         secondaryType = t('rowSuffix');
@@ -1893,7 +1893,7 @@ const ControlPanel = ({
                         secondaryType = t('boxSuffix');
                       }
                     } else if (technique.type.includes('nakedTriple')) {
-                      primaryType = t('nakedTriple');
+                      primaryType = t('nakedTripleTechnique');
                       // 根据类型确定是行/列/宫
                       if (technique.type.includes('Row')) {
                         secondaryType = t('rowSuffix');
@@ -1903,7 +1903,7 @@ const ControlPanel = ({
                         secondaryType = t('boxSuffix');
                       }
                     } else if (technique.type.includes('hiddenTriple')) {
-                      primaryType = t('hiddenTriple');
+                      primaryType = t('hiddenTripleTechnique');
                       // 根据类型确定是行/列/宫
                       if (technique.type.includes('Row')) {
                         secondaryType = t('rowSuffix');
@@ -1913,7 +1913,7 @@ const ControlPanel = ({
                         secondaryType = t('boxSuffix');
                       }
                     } else if (technique.type.includes('pointingPairs')) {
-                      primaryType = t('pointingPairs');
+                      primaryType = t('pointingPairsTechnique');
                       // 根据类型确定是行/列
                       if (technique.type.includes('Row')) {
                         secondaryType = t('rowSuffix');
@@ -1921,7 +1921,7 @@ const ControlPanel = ({
                         secondaryType = t('colSuffix');
                       }
                     } else if (technique.type.includes('boxLineReduction')) {
-                      primaryType = t('boxLineReduction');
+                      primaryType = t('boxLineReductionTechnique');
                       // 根据类型确定是行/列
                       if (technique.type.includes('Row')) {
                         secondaryType = t('rowSuffix');

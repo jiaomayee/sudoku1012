@@ -320,9 +320,18 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
     // 检查是否有选中的单元格
     if (sudokuContext?.selectedCell) {
       const { row, col } = sudokuContext.selectedCell;
-      // 为选中的单元格填充候选数
-      if (sudokuContext.fillSelectedCellCandidates) {
-        sudokuContext.fillSelectedCellCandidates(row, col);
+      // 检查单元格是否为空白（值为0）
+      if (sudokuContext.currentBoard && sudokuContext.currentBoard[row][col] === 0) {
+        // 为选中的空白单元格填充候选数
+        if (sudokuContext.fillSelectedCellCandidates) {
+          sudokuContext.fillSelectedCellCandidates(row, col);
+        }
+      } else {
+        // 如果选中的不是空白单元格，显示提示信息
+        toast.info(t('selectEmptyCell', { defaultMessage: '请选择一个空白单元格' }), {
+          position: 'top-right',
+          autoClose: 2000
+        });
       }
     } else {
       // 如果没有选中的单元格，显示提示信息

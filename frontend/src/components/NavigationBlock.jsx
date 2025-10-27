@@ -165,7 +165,7 @@ const Icons = {
       {/* 显示两个数字：2（左上角）和5（右下角） */}
       <text x="7" y="10" fontSize="6" fontWeight="bold">2</text>
       <text x="15" y="18" fontSize="6" fontWeight="bold">5</text>
-      {/* 添加右上角的"1"角标（在图标外部，恢复到合适的大小并向右移动一点） */}
+      {/* 添加右上角的"1"角标（在图标外部，进一步加粗角标） */}
       <text x="21" y="8" fontSize="9" fontWeight="900" fill="currentColor">1</text>
     </svg>
   ),

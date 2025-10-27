@@ -1605,11 +1605,12 @@ const ControlPanel = ({
                       cursor: 'pointer',
                       boxSizing: 'border-box',
                        
-                      // 尺寸控制
+                      // 尺寸控制 - 自适应容器大小
                       width: '100%',
                       aspectRatio: '1',
-                      minHeight: '60px',
-                      maxHeight: '150px',
+                      height: '100%',
+                      minHeight: '40px',
+                      maxHeight: 'none',
                       overflow: 'visible',
                       
                       // 阴影和过渡
@@ -1660,11 +1661,12 @@ const ControlPanel = ({
                       cursor: 'pointer',
                       boxSizing: 'border-box',
                        
-                      // 尺寸控制
+                      // 尺寸控制 - 自适应容器大小
                       width: '100%',
                       aspectRatio: '1',
-                      minHeight: '60px',
-                      maxHeight: '150px',
+                      height: '100%',
+                      minHeight: '40px',
+                      maxHeight: 'none',
                       overflow: 'visible',
                       
                       // 阴影和过渡
@@ -1675,8 +1677,8 @@ const ControlPanel = ({
                     <svg 
                       className="icon"
                       xmlns="http://www.w3.org/2000/svg" 
-                      width="40" 
-                      height="40" 
+                      width="60%" 
+                      height="60%" 
                       viewBox="0 0 24 24" 
                       fill="none" 
                       stroke="currentColor" 
@@ -1719,11 +1721,12 @@ const ControlPanel = ({
                       cursor: 'pointer',
                       boxSizing: 'border-box',
                        
-                      // 尺寸控制
+                      // 尺寸控制 - 自适应容器大小
                       width: '100%',
                       aspectRatio: '1',
-                      minHeight: '60px',
-                      maxHeight: '150px',
+                      height: '100%',
+                      minHeight: '40px',
+                      maxHeight: 'none',
                       overflow: 'visible',
                       
                       // 阴影和过渡

@@ -264,30 +264,28 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   
   // 处理按钮按下
   const handleMouseDown = () => {
-    // 设置1秒延迟后显示填充动画
-    longPressTimer.current = setTimeout(() => {
-      setShowProgressBar(true);
-      setProgress(0);
+    // 立即开始显示填充动画，不延迟
+    setShowProgressBar(true);
+    setProgress(0);
+    
+    // 启动填充动画（3秒内完成）
+    const startTime = Date.now();
+    const duration = 3000; // 3秒，符合用户要求
+    
+    const updateProgress = () => {
+      const elapsed = Date.now() - startTime;
+      const newProgress = Math.min((elapsed / duration) * 100, 100);
+      setProgress(newProgress);
       
-      // 启动填充动画（3秒内完成）
-      const startTime = Date.now();
-      const duration = 3000; // 3秒，符合用户要求
-      
-      const updateProgress = () => {
-        const elapsed = Date.now() - startTime;
-        const newProgress = Math.min((elapsed / duration) * 100, 100);
-        setProgress(newProgress);
-        
-        if (newProgress < 100) {
-          progressTimer.current = requestAnimationFrame(updateProgress);
-        } else {
-          // 填充动画完成，执行长按操作
-          handleLongPress();
-        }
-      };
-      
-      progressTimer.current = requestAnimationFrame(updateProgress);
-    }, 1000); // 1秒延迟
+      if (newProgress < 100) {
+        progressTimer.current = requestAnimationFrame(updateProgress);
+      } else {
+        // 填充动画完成，执行长按操作
+        handleLongPress();
+      }
+    };
+    
+    progressTimer.current = requestAnimationFrame(updateProgress);
   };
   
   // 处理按钮释放

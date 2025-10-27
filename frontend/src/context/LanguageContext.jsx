@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 
 // 语言包定义
-const translations = {
+export const translations = {
   'zh-CN': {
     // 通用
     home: '首页',
@@ -540,7 +540,7 @@ export const LanguageProvider = ({ children }) => {
       { code: 'en-US', name: 'English' }
     ]
   };
-  
+
   return (
     <LanguageContext.Provider value={value}>
       {children}
@@ -557,11 +557,5 @@ export const useLanguage = () => {
   return context;
 };
 
-// 自定义Hook，方便使用语言上下文
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
-};
+export default LanguageContext;
+export default LanguageContext;

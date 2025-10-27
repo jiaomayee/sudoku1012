@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faSave, faUndo, faDownload, faUpload, faEye } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faSave, faUndo, faUpload, faDownload } from '@fortawesome/free-solid-svg-icons';
+import styled from 'styled-components';
+import { updateCustomTheme, resetCustomTheme, exportTheme, importTheme } from '../utils/themeUtils';
 
 const EditorContainer = styled.div`
   display: flex;
@@ -295,7 +296,7 @@ const HiddenFileInput = styled.input`
 `;
 
 const ThemeEditorPage = () => {
-  const { theme, customTheme, updateCustomTheme, resetCustomTheme, exportTheme, importTheme } = useTheme();
+  const { theme, customTheme } = useTheme();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -327,19 +328,19 @@ const ThemeEditorPage = () => {
   // 保存主题
   const handleSave = () => {
     updateCustomTheme(editedTheme);
-    toast.success('主题已保存', { position: 'top-right', autoClose: 2000 });
+    toast.success(t('themeSaved'), { position: 'top-right', autoClose: 2000 });
   };
   
   // 重置主题
   const handleReset = () => {
     resetCustomTheme();
-    toast.info('主题已重置', { position: 'top-right', autoClose: 2000 });
+    toast.info(t('themeReset'), { position: 'top-right', autoClose: 2000 });
   };
   
   // 导出主题
   const handleExport = () => {
     exportTheme(editedTheme);
-    toast.info('主题已导出', { position: 'top-right', autoClose: 2000 });
+    toast.info(t('themeExported'), { position: 'top-right', autoClose: 2000 });
   };
   
   // 导入主题
@@ -348,10 +349,10 @@ const ThemeEditorPage = () => {
     if (file) {
       try {
         await importTheme(file);
-        toast.success('主题导入成功', { position: 'top-right', autoClose: 2000 });
+        toast.success(t('themeImported'), { position: 'top-right', autoClose: 2000 });
         e.target.value = '';
       } catch (error) {
-        toast.error('主题导入失败: ' + error.message, { position: 'top-right', autoClose: 3000 });
+        toast.error(t('themeImportFailed') + error.message, { position: 'top-right', autoClose: 3000 });
       }
     }
   };

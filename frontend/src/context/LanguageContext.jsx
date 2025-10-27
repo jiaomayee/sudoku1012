@@ -33,6 +33,9 @@ const translations = {
     notes: '候选数',
     // 游戏完成消息
     gameCompletedMessage: '恭喜！您成功完成了这个数独！',
+    // 谜题生成错误消息
+    generatePuzzleFailed: '生成谜题失败，请重试',
+    generatePuzzleFailedRefresh: '生成谜题失败，请刷新页面重试',
     // 难度选择
     selectDifficulty: '选择难度',
     difficultyDescription: {
@@ -126,6 +129,12 @@ const translations = {
     copyright: '版权所有',
     version: '版本',
     appName: '数独学习应用',
+    // 主题编辑器消息
+    themeSaved: '主题已保存',
+    themeReset: '主题已重置',
+    themeExported: '主题已导出',
+    themeImported: '主题导入成功',
+    themeImportFailed: '主题导入失败: ',
     // 游戏页面提示
     enterPencilMode: '进入铅笔模式，可以添加候选数字',
     exitPencilMode: '退出铅笔模式，返回正常输入',
@@ -255,6 +264,9 @@ const translations = {
     notes: 'Notes',
     // Game completion message
     gameCompletedMessage: 'Congratulations! You have successfully completed this Sudoku!',
+    // Puzzle generation error messages
+    generatePuzzleFailed: 'Failed to generate puzzle, please try again',
+    generatePuzzleFailedRefresh: 'Failed to generate puzzle, please refresh the page and try again',
     // Technique hints
     pairTechniqueIdentified: 'Pair technique identified, please manually remove the related candidates',
     techniqueOnlyForHint: 'This technique is primarily for hinting and does not support automatic application',
@@ -352,6 +364,12 @@ const translations = {
     copyright: 'All Rights Reserved',
     version: 'Version',
     appName: 'Sudoku Learning App',
+    // Theme editor messages
+    themeSaved: 'Theme saved successfully',
+    themeReset: 'Theme has been reset',
+    themeExported: 'Theme exported',
+    themeImported: 'Theme imported successfully',
+    themeImportFailed: 'Failed to import theme: ',
     // Game page hints
     enterPencilMode: 'Enter pencil mode, you can add candidate numbers',
     exitPencilMode: 'Exit pencil mode, return to normal input',

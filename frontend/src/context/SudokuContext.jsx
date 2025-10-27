@@ -465,7 +465,7 @@ export const SudokuContextProvider = ({ children }) => {
       } catch (fallbackError) {
         console.error('使用备用谜题也失败:', fallbackError);
         if (showToast) {
-          toast.error('生成谜题失败，请刷新页面重试', { position: 'top-right', autoClose: 2000 });
+          toast.error(t('generatePuzzleFailedRefresh'), { position: 'top-right', autoClose: 2000 });
         }
       }
       return null;
@@ -582,7 +582,7 @@ export const SudokuContextProvider = ({ children }) => {
     } catch (error) {
       console.error('生成新谜题失败:', error);
       if (showToast) {
-        toast.error('生成谜题失败，请重试', { position: 'top-right', autoClose: 2000 });
+        toast.error(t('generatePuzzleFailed'), { position: 'top-right', autoClose: 2000 });
       }
       return null;
     }

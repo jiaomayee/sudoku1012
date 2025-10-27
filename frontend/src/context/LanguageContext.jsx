@@ -31,6 +31,8 @@ export const translations = {
     gameCompleted: '游戏已完成',
     hint: '技巧提示',
     notes: '候选数',
+    learningMode: '学习',
+    gameMode: '游戏',
     switchToLearningMode: '切换到学习模式',
     switchToGameMode: '切换到游戏模式',
     // 游戏完成消息
@@ -235,7 +237,7 @@ export const translations = {
       // 添加候选数相关的翻译键
       cellNotEmpty: '该单元格已有数字，无法填充候选数',
       cellPrefilled: '该单元格为预填数字，无法填充候选数',
-      cellCandidatesFilled: '已为单元格({{row}},{{col}})计算并填充候选数！',
+      cellCandidatesFilled: '已为单元格({row},{col})计算并填充候选数！',
       selectCellForCandidates: '请先选择一个空白单元格',
       candidatesFilled: '已为所有空白格子计算并填充候选数！',
       emptyCandidateCellsFound: '发现无候选数的空白单元格，重新计算候选数...',
@@ -271,6 +273,8 @@ export const translations = {
     gameCompleted: 'Game Completed',
     hint: 'Hint',
     notes: 'Notes',
+    learningMode: 'Learning',
+    gameMode: 'Game',
     switchToLearningMode: 'Switch to Learning Mode',
     switchToGameMode: 'Switch to Game Mode',
     // Game completion message

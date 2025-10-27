@@ -1450,7 +1450,11 @@ export const SudokuContextProvider = ({ children }) => {
     
     setPencilNotes(newPencilNotes);
     
-    toast.info(t('cellCandidatesFilled', { defaultMessage: `已为单元格(${row+1},${col+1})计算并填充候选数！` }), {
+    toast.info(t('cellCandidatesFilled', { 
+      row: row + 1, 
+      col: col + 1,
+      defaultMessage: `已为单元格(${row+1},${col+1})计算并填充候选数！` 
+    }), {
       position: 'top-right',
       autoClose: 2000
     });

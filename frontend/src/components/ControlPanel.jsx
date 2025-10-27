@@ -1856,7 +1856,7 @@ const ControlPanel = ({
                     let secondaryType = '';
                     
                     if (technique.type === 'nakedSingle' || technique.type === 'naked_single') {
-                      primaryType = t('singleCandidateTechnique');
+                      primaryType = t('nakedSingleTechnique');
                       // 候选数唯一法是一级分类，这里可以根据需要添加二级类型
                     } else if (technique.type.includes('hidden_single') || technique.type.includes('hiddenSingle')) {
                       // 直接设置primaryType，不设置secondaryType避免重复
@@ -1926,10 +1926,10 @@ const ControlPanel = ({
                         secondaryType = t('colSuffix');
                       }
                     } else {
-                      // 如果是未知类型，使用原始描述
-                      primaryType = technique.description || t('unknownTechnique');
+                      // 如果是未知类型，使用翻译后的未知技巧
+                      primaryType = t('unknownTechnique');
                     }
-                    
+
                     // 直接使用primaryType作为显示类型，因为已经包含了行/列/宫信息
                     const displayType = primaryType + (secondaryType ? ` ${secondaryType}` : '');
                     
@@ -1943,7 +1943,8 @@ const ControlPanel = ({
                           borderRadius: '6px',
                           border: '1px solid #e9ecef',
                           cursor: 'pointer',
-                          transition: 'all 0.2s ease'
+                          transition: 'all 0.2s ease',
+                          marginBottom: '6px'
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.backgroundColor = '#e9ecef';
@@ -1954,9 +1955,34 @@ const ControlPanel = ({
                           e.currentTarget.style.borderColor = '#e9ecef';
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', color: '#34495e' }}>
-                          <span>{displayType}</span>
-                          <span style={{ fontSize: '14px', color: '#7f8c8d', fontWeight: 'normal' }}>{t('position')}: {positionText}{valueText}</span>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '8px', 
+                          fontWeight: '600', 
+                          color: '#34495e',
+                          flexWrap: 'wrap'
+                        }}>
+                          <span style={{ 
+                            whiteSpace: 'nowrap', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis',
+                            flexShrink: 0
+                          }}>
+                            {displayType}
+                          </span>
+                          <span style={{ 
+                            fontSize: '14px', 
+                            color: '#7f8c8d', 
+                            fontWeight: 'normal',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            flex: 1,
+                            minWidth: 0
+                          }}>
+                            {t('position')}: {positionText}{valueText}
+                          </span>
                         </div>
                       </div>
                     );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -206,9 +206,17 @@ const LanguageFlagIcon = ({ langCode, size = 20 }) => {
   }
 };
 
+// 设置图标组件
+const SettingsIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+  </svg>
+);
+
 const Navbar = () => {
   const { theme } = useTheme();
   const { language, changeLanguage } = useLanguage();
+  const navigate = useNavigate();
   
   // 语言切换状态
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -239,6 +247,11 @@ const Navbar = () => {
     setIsDropdownOpen(false);
   };
 
+  // 跳转到设置页面
+  const goToSettings = () => {
+    navigate('/settings');
+  };
+
   return (
     <Nav>
       <NavContainer>
@@ -246,31 +259,38 @@ const Navbar = () => {
           <LogoIcon src="/sudoku-app-logo.svg" alt="Sudoku Logo" />
           SudokuTech
         </Logo>
-        <LanguageSelector className="language-selector">
-            <LanguageButton onClick={toggleDropdown}>
-              <LanguageFlagIcon langCode={language} size={20} />
-              {language === 'zh-CN' ? '中文' : 'English'}
-            </LanguageButton>
-            
-            {isDropdownOpen && (
-              <LanguageDropdown>
-                <LanguageOption 
-                  className={language === 'zh-CN' ? 'selected' : ''}
-                  onClick={() => handleLanguageSelect('zh-CN')}
-                >
-                  <LanguageFlagIcon langCode="zh-CN" size={16} />
-                  中文
-                </LanguageOption>
-                <LanguageOption 
-                  className={language === 'en-US' ? 'selected' : ''}
-                  onClick={() => handleLanguageSelect('en-US')}
-                >
-                  <LanguageFlagIcon langCode="en-US" size={16} />
-                  English
-                </LanguageOption>
-              </LanguageDropdown>
-            )}
-        </LanguageSelector>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <LanguageSelector className="language-selector">
+              <LanguageButton onClick={toggleDropdown}>
+                <LanguageFlagIcon langCode={language} size={20} />
+                {language === 'zh-CN' ? '中文' : 'English'}
+              </LanguageButton>
+              
+              {isDropdownOpen && (
+                <LanguageDropdown>
+                  <LanguageOption 
+                    className={language === 'zh-CN' ? 'selected' : ''}
+                    onClick={() => handleLanguageSelect('zh-CN')}
+                  >
+                    <LanguageFlagIcon langCode="zh-CN" size={16} />
+                    中文
+                  </LanguageOption>
+                  <LanguageOption 
+                    className={language === 'en-US' ? 'selected' : ''}
+                    onClick={() => handleLanguageSelect('en-US')}
+                  >
+                    <LanguageFlagIcon langCode="en-US" size={16} />
+                    English
+                  </LanguageOption>
+                </LanguageDropdown>
+              )}
+          </LanguageSelector>
+          
+          {/* 设置按钮 */}
+          <LanguageButton onClick={goToSettings} title="设置">
+            <SettingsIcon />
+          </LanguageButton>
+        </div>
       </NavContainer>
     </Nav>
   );

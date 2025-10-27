@@ -264,14 +264,14 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   
   // 处理按钮按下
   const handleMouseDown = () => {
-    // 设置1秒延迟后显示进度条
+    // 设置1秒延迟后显示填充动画
     longPressTimer.current = setTimeout(() => {
       setShowProgressBar(true);
       setProgress(0);
       
-      // 启动进度条动画（2秒内完成）
+      // 启动填充动画（3秒内完成）
       const startTime = Date.now();
-      const duration = 2000; // 2秒
+      const duration = 3000; // 3秒，符合用户要求
       
       const updateProgress = () => {
         const elapsed = Date.now() - startTime;
@@ -281,7 +281,7 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         if (newProgress < 100) {
           progressTimer.current = requestAnimationFrame(updateProgress);
         } else {
-          // 进度条完成，执行长按操作
+          // 填充动画完成，执行长按操作
           handleLongPress();
         }
       };
@@ -447,26 +447,18 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
               )}
             </ButtonIcon>
             
-            {/* 进度条 */}
+            {/* 从左向右的底色填充特效 */}
             {showProgressBar && (
               <div style={{
                 position: 'absolute',
-                top: '-8px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '40px',
-                height: '4px',
-                backgroundColor: '#e0e0e0',
-                borderRadius: '2px',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: `${progress}%`,
-                  height: '100%',
-                  backgroundColor: '#3498db',
-                  transition: 'width 0.1s linear'
-                }} />
-              </div>
+                top: 0,
+                left: 0,
+                width: `${progress}%`,
+                height: '100%',
+                backgroundColor: 'rgba(52, 152, 219, 0.3)', // 半透明蓝色
+                zIndex: -1, // 确保在按钮内容下方
+                transition: 'width 0.1s linear'
+              }} />
             )}
           </NavButton>
           

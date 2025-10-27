@@ -155,13 +155,13 @@ const translations = {
       // 额外翻译
       error: '错误',
     // 技巧类型翻译键
-      nakedSingleTechnique: '唯一候选数',
+      nakedSingleTechnique: '唯一余数',
       nakedPairTechnique: '显性数对',
       hiddenPairTechnique: '隐性数对',
       nakedTripleTechnique: '显性三链数',
       hiddenTripleTechnique: '隐性三链数',
       pointingPairsTechnique: '指向对',
-      boxLineReductionTechnique: '宫行列排除',
+      boxLineReductionTechnique: '宫线摒除',
     // 技巧名称
       nakedSingle: '唯一数法',
       hiddenSingleRow: '隐性唯一数法(行)',
@@ -419,7 +419,7 @@ const translations = {
       nakedTriple: 'Naked Triple',
       hiddenTriple: 'Hidden Triple',
       // Technique type translation keys
-      nakedSingleTechnique: 'Naked Single',
+      nakedSingleTechnique: 'Unique Candidate',
       nakedPairTechnique: 'Naked Pair',
       hiddenPairTechnique: 'Hidden Pair',
       nakedTripleTechnique: 'Naked Triple',

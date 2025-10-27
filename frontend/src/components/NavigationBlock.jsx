@@ -1,4 +1,5 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
+import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';

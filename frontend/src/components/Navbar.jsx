@@ -141,10 +141,63 @@ const FlagContainer = styled.span`
   margin-right: 6px;
   font-size: 12px;
   font-weight: bold;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 2px;
 `;
+
+// 更美观的SVG语言图标组件
+const LanguageFlagIcon = ({ langCode, size = 20 }) => {
+  if (langCode === 'zh-CN') {
+    // 中国国旗SVG
+    return (
+      <svg width={size} height={size * 0.7} viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="30" height="20" fill="#DE2910"/>
+        <path d="M0 0L10 10L0 20V0Z" fill="#FFDE00"/>
+        <path d="M12 7H14V9H12V7Z" fill="#FFDE00"/>
+        <path d="M16 7H18V9H16V7Z" fill="#FFDE00"/>
+        <path d="M12 11H14V13H12V11Z" fill="#FFDE00"/>
+        <path d="M16 11H18V13H16V11Z" fill="#FFDE00"/>
+        <path d="M20 11H22V13H20V11Z" fill="#FFDE00"/>
+      </svg>
+    );
+  } else {
+    // 美国国旗SVG
+    return (
+      <svg width={size} height={size * 0.7} viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="30" height="20" fill="#B22234"/>
+        <rect y="2" width="30" height="2" fill="white"/>
+        <rect y="6" width="30" height="2" fill="white"/>
+        <rect y="10" width="30" height="2" fill="white"/>
+        <rect y="14" width="30" height="2" fill="white"/>
+        <rect y="18" width="30" height="2" fill="white"/>
+        <rect width="12" height="11" fill="#3C3B6E"/>
+        <rect x="1" y="1" width="1" height="1" fill="white"/>
+        <rect x="3" y="1" width="1" height="1" fill="white"/>
+        <rect x="5" y="1" width="1" height="1" fill="white"/>
+        <rect x="7" y="1" width="1" height="1" fill="white"/>
+        <rect x="9" y="1" width="1" height="1" fill="white"/>
+        <rect x="1" y="3" width="1" height="1" fill="white"/>
+        <rect x="3" y="3" width="1" height="1" fill="white"/>
+        <rect x="5" y="3" width="1" height="1" fill="white"/>
+        <rect x="7" y="3" width="1" height="1" fill="white"/>
+        <rect x="9" y="3" width="1" height="1" fill="white"/>
+        <rect x="1" y="5" width="1" height="1" fill="white"/>
+        <rect x="3" y="5" width="1" height="1" fill="white"/>
+        <rect x="5" y="5" width="1" height="1" fill="white"/>
+        <rect x="7" y="5" width="1" height="1" fill="white"/>
+        <rect x="9" y="5" width="1" height="1" fill="white"/>
+        <rect x="1" y="7" width="1" height="1" fill="white"/>
+        <rect x="3" y="7" width="1" height="1" fill="white"/>
+        <rect x="5" y="7" width="1" height="1" fill="white"/>
+        <rect x="7" y="7" width="1" height="1" fill="white"/>
+        <rect x="9" y="7" width="1" height="1" fill="white"/>
+        <rect x="1" y="9" width="1" height="1" fill="white"/>
+        <rect x="3" y="9" width="1" height="1" fill="white"/>
+        <rect x="5" y="9" width="1" height="1" fill="white"/>
+        <rect x="7" y="9" width="1" height="1" fill="white"/>
+        <rect x="9" y="9" width="1" height="1" fill="white"/>
+      </svg>
+    );
+  }
+};
 
 const Navbar = () => {
   const { theme } = useTheme();
@@ -179,23 +232,6 @@ const Navbar = () => {
     setIsDropdownOpen(false);
   };
 
-  // 语言标识组件
-  const LanguageIcon = ({ langCode }) => {
-    if (langCode === 'zh-CN') {
-      return (
-        <FlagContainer>
-          <span>🇨🇳</span>
-        </FlagContainer>
-      );
-    } else {
-      return (
-        <FlagContainer>
-          <span>🇺🇸</span>
-        </FlagContainer>
-      );
-    }
-  };
-
   return (
     <Nav>
       <NavContainer>
@@ -205,7 +241,7 @@ const Navbar = () => {
         </Logo>
         <LanguageSelector className="language-selector">
             <LanguageButton onClick={toggleDropdown}>
-              <LanguageIcon langCode={language} />
+              <LanguageFlagIcon langCode={language} size={20} />
               {language === 'zh-CN' ? '中文' : 'English'}
             </LanguageButton>
             
@@ -215,18 +251,14 @@ const Navbar = () => {
                   className={language === 'zh-CN' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('zh-CN')}
                 >
-                  <FlagContainer>
-                    <span>🇨🇳</span>
-                  </FlagContainer>
+                  <LanguageFlagIcon langCode="zh-CN" size={16} />
                   中文
                 </LanguageOption>
                 <LanguageOption 
                   className={language === 'en-US' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('en-US')}
                 >
-                  <FlagContainer>
-                    <span>🇺🇸</span>
-                  </FlagContainer>
+                  <LanguageFlagIcon langCode="en-US" size={16} />
                   English
                 </LanguageOption>
               </LanguageDropdown>

@@ -179,6 +179,23 @@ const Navbar = () => {
     setIsDropdownOpen(false);
   };
 
+  // 语言标识组件
+  const LanguageIcon = ({ langCode }) => {
+    if (langCode === 'zh-CN') {
+      return (
+        <FlagContainer>
+          <span>🇨🇳</span>
+        </FlagContainer>
+      );
+    } else {
+      return (
+        <FlagContainer>
+          <span>🇺🇸</span>
+        </FlagContainer>
+      );
+    }
+  };
+
   return (
     <Nav>
       <NavContainer>
@@ -188,6 +205,7 @@ const Navbar = () => {
         </Logo>
         <LanguageSelector className="language-selector">
             <LanguageButton onClick={toggleDropdown}>
+              <LanguageIcon langCode={language} />
               {language === 'zh-CN' ? '中文' : 'English'}
             </LanguageButton>
             
@@ -197,12 +215,18 @@ const Navbar = () => {
                   className={language === 'zh-CN' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('zh-CN')}
                 >
+                  <FlagContainer>
+                    <span>🇨🇳</span>
+                  </FlagContainer>
                   中文
                 </LanguageOption>
                 <LanguageOption 
                   className={language === 'en-US' ? 'selected' : ''}
                   onClick={() => handleLanguageSelect('en-US')}
                 >
+                  <FlagContainer>
+                    <span>🇺🇸</span>
+                  </FlagContainer>
                   English
                 </LanguageOption>
               </LanguageDropdown>

@@ -419,7 +419,7 @@ const translations = {
       nakedTriple: 'Naked Triple',
       hiddenTriple: 'Hidden Triple',
       // Technique type translation keys
-      nakedSingleTechnique: 'Unique Candidate',
+      nakedSingleTechnique: 'naked single',
       nakedPairTechnique: 'Naked Pair',
       hiddenPairTechnique: 'Hidden Pair',
       nakedTripleTechnique: 'Naked Triple',

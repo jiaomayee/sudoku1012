@@ -6,6 +6,21 @@ import { useLanguage } from '../context/LanguageContext';
 // 导入模式上下文
 import { ModeContext } from '../context/ModeContext';
 
+// 添加清除按钮图标的CSS样式
+const clearCellIconStyles = `
+  .clear-cell-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  @media (min-width: 769px) {
+    .clear-cell-icon {
+      width: 32px;
+      height: 32px;
+    }
+  }
+`;
+
 // 候选数图标组件（从NavigationBlock复制并修改为白色）
 const NotesIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
@@ -1660,8 +1675,8 @@ const ControlPanel = ({
                     <svg 
                       className="icon"
                       xmlns="http://www.w3.org/2000/svg" 
-                      width="24" 
-                      height="24" 
+                      width="40" 
+                      height="40" 
                       viewBox="0 0 24 24" 
                       fill="none" 
                       stroke="currentColor" 

@@ -272,7 +272,6 @@ const translations = {
     generatePuzzleFailed: 'Failed to generate puzzle, please try again',
     generatePuzzleFailedRefresh: 'Failed to generate puzzle, please refresh the page and try again',
     // Technique hints
-    pairTechniqueIdentified: 'Pair technique identified, please manually remove the related candidates',
     techniqueOnlyForHint: 'This technique is primarily for hinting and does not support automatic application',
     foundRandomTechnique: 'Random technique found: ',
     // 难度选择

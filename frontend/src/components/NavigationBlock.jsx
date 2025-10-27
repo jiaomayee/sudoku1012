@@ -6,28 +6,8 @@ import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import DifficultySelectModal from './DifficultySelectModal';
 
-// 创建模式上下文
-const ModeContext = React.createContext();
-
-// 模式提供者组件
-export const ModeProvider = ({ children }) => {
-  const [mode, setMode] = useState('game'); // 'game' 或 'learning'
-
-  return (
-    <ModeContext.Provider value={{ mode, setMode }}>
-      {children}
-    </ModeContext.Provider>
-  );
-};
-
-// 使用模式的钩子
-export const useMode = () => {
-  const context = React.useContext(ModeContext);
-  if (!context) {
-    throw new Error('useMode must be used within a ModeProvider');
-  }
-  return context;
-};
+// 导入模式上下文
+import { ModeContext } from '../context/ModeContext';
 
 const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   background-color: ${props => props.theme?.background || '#f8f9fa'};
@@ -213,7 +193,7 @@ const LearningModeIcon = () => (
 const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques, onToggleNotes, onSettings, isNotesMode = false, isTimerActive = true, gameCompleted = false }) => {
   const { theme } = useTheme();
   const { t } = useLanguage();
-  const { mode, setMode } = useMode(); // 使用模式上下文
+  const { mode, setMode } = useContext(ModeContext); // 使用模式上下文
   const sudokuContext = useSudoku();
   const { startLoading, stopLoading } = useLoading();
   const [showDifficultyModal, setShowDifficultyModal] = useState(false); // 控制难度选择模态框显示

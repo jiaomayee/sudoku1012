@@ -1,8 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
+
+// 创建模式上下文
+const ModeContext = createContext();
+
+// 模式提供者组件
+export const ModeProvider = ({ children }) => {
+  const [mode, setMode] = useState('game'); // 'game' 或 'learning'
+
+  return (
+    <ModeContext.Provider value={{ mode, setMode }}>
+      {children}
+    </ModeContext.Provider>
+  );
+};
+
+// 使用模式的钩子
+export const useMode = () => {
+  const context = useContext(ModeContext);
+  if (!context) {
+    throw new Error('useMode must be used within a ModeProvider');
+  }
+  return context;
+};
 
 const Nav = styled.nav`
   background-color: #2196F3;
@@ -213,9 +236,26 @@ const SettingsIcon = () => (
   </svg>
 );
 
+// 游戏模式图标组件
+const GameModeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+    <path d="M12 17c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0-8c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z"/>
+  </svg>
+);
+
+// 学习模式图标组件
+const LearningModeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    <path d="M12 15.4l-3.78 1.98 0.69-4.06-2.97-2.88 4.08-0.6 1.98-3.7 1.98 3.7 4.08 0.6-2.97 2.88 0.69 4.06L12 15.4z"/>
+  </svg>
+);
+
 const Navbar = () => {
   const { theme } = useTheme();
   const { language, changeLanguage } = useLanguage();
+  const { mode, setMode } = useMode(); // 使用模式上下文
   const navigate = useNavigate();
   
   // 语言切换状态
@@ -245,6 +285,11 @@ const Navbar = () => {
   const handleLanguageSelect = (langCode) => {
     changeLanguage(langCode);
     setIsDropdownOpen(false);
+  };
+
+  // 切换模式
+  const toggleMode = () => {
+    setMode(mode === 'game' ? 'learning' : 'game');
   };
 
   // 跳转到设置页面
@@ -285,6 +330,14 @@ const Navbar = () => {
                 </LanguageDropdown>
               )}
           </LanguageSelector>
+          
+          {/* 模式切换按钮 */}
+          <LanguageButton onClick={toggleMode} title={mode === 'game' ? '切换到学习模式' : '切换到游戏模式'}>
+            {mode === 'game' ? <LearningModeIcon /> : <GameModeIcon />}
+            <span style={{ marginLeft: '6px' }}>
+              {mode === 'game' ? (language === 'zh-CN' ? '学习模式' : 'Learning') : (language === 'zh-CN' ? '游戏模式' : 'Game')}
+            </span>
+          </LanguageButton>
           
           {/* 设置按钮 */}
           <LanguageButton onClick={goToSettings} title="设置">

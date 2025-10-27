@@ -1854,7 +1854,10 @@ const ControlPanel = ({
                     // 根据技巧类型确定一级分类和二级类型
                     let primaryType = '';
                     let secondaryType = '';
-                    
+
+                    // 定义应该保持英文的技巧名称
+                    const englishOnlyTechniques = ['X-Wing', 'Y-Wing', 'XY-Wing', 'XYZ-Wing', 'Swordfish', 'Jellyfish'];
+
                     if (technique.type === 'nakedSingle' || technique.type === 'naked_single') {
                       primaryType = t('nakedSingleTechnique');
                       // 候选数唯一法是一级分类，这里可以根据需要添加二级类型
@@ -1925,9 +1928,63 @@ const ControlPanel = ({
                       } else if (technique.type.includes('Col')) {
                         secondaryType = t('colSuffix');
                       }
+                    } else if (technique.type.includes('xWing') || technique.type.includes('x-wing')) {
+                      // X-Wing技巧保持英文
+                      primaryType = 'X-Wing';
+                      // 根据类型确定是行/列
+                      if (technique.type.includes('Row')) {
+                        secondaryType = t('rowSuffix');
+                      } else if (technique.type.includes('Col')) {
+                        secondaryType = t('colSuffix');
+                      }
+                    } else if (technique.type.includes('yWing') || technique.type.includes('y-wing')) {
+                      // Y-Wing技巧保持英文
+                      primaryType = 'Y-Wing';
+                      // Y-Wing通常不需要二级类型
+                      secondaryType = '';
+                    } else if (technique.type.includes('xyWing') || technique.type.includes('xy-wing')) {
+                      // XY-Wing技巧保持英文
+                      primaryType = 'XY-Wing';
+                      // XY-Wing通常不需要二级类型
+                      secondaryType = '';
+                    } else if (technique.type.includes('xyzWing') || technique.type.includes('xyz-wing')) {
+                      // XYZ-Wing技巧保持英文
+                      primaryType = 'XYZ-Wing';
+                      // XYZ-Wing通常不需要二级类型
+                      secondaryType = '';
+                    } else if (technique.type.includes('swordfish')) {
+                      // Swordfish技巧保持英文
+                      primaryType = 'Swordfish';
+                      // 根据类型确定是行/列
+                      if (technique.type.includes('Row')) {
+                        secondaryType = t('rowSuffix');
+                      } else if (technique.type.includes('Col')) {
+                        secondaryType = t('colSuffix');
+                      }
+                    } else if (technique.type.includes('jellyfish')) {
+                      // Jellyfish技巧保持英文
+                      primaryType = 'Jellyfish';
+                      // 根据类型确定是行/列
+                      if (technique.type.includes('Row')) {
+                        secondaryType = t('rowSuffix');
+                      } else if (technique.type.includes('Col')) {
+                        secondaryType = t('colSuffix');
+                      }
                     } else {
-                      // 如果是未知类型，使用翻译后的未知技巧
-                      primaryType = t('unknownTechnique');
+                      // 检查是否是应该保持英文的技巧
+                      let foundEnglishTechnique = false;
+                      for (const engTech of englishOnlyTechniques) {
+                        if (technique.description && technique.description.includes(engTech)) {
+                          primaryType = engTech;
+                          foundEnglishTechnique = true;
+                          break;
+                        }
+                      }
+                      
+                      // 如果是未知类型且不是应该保持英文的技巧，使用翻译后的未知技巧
+                      if (!foundEnglishTechnique) {
+                        primaryType = t('unknownTechnique');
+                      }
                     }
 
                     // 直接使用primaryType作为显示类型，因为已经包含了行/列/宫信息

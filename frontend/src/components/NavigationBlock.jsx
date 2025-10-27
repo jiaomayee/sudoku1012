@@ -1,10 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import DifficultySelectModal from './DifficultySelectModal';
+
+// 创建模式上下文
+const ModeContext = React.createContext();
+
+// 模式提供者组件
+export const ModeProvider = ({ children }) => {
+  const [mode, setMode] = useState('game'); // 'game' 或 'learning'
+
+  return (
+    <ModeContext.Provider value={{ mode, setMode }}>
+      {children}
+    </ModeContext.Provider>
+  );
+};
+
+// 使用模式的钩子
+export const useMode = () => {
+  const context = React.useContext(ModeContext);
+  if (!context) {
+    throw new Error('useMode must be used within a ModeProvider');
+  }
+  return context;
+};
+
 const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   background-color: ${props => props.theme?.background || '#f8f9fa'};
   border-radius: 12px;
@@ -170,9 +194,26 @@ const Icons = {
   )
 };
 
+// 游戏模式图标组件
+const GameModeIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+    <path d="M12 17c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0-8c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z"/>
+  </svg>
+);
+
+// 学习模式图标组件
+const LearningModeIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+    <path d="M12 15.4l-3.78 1.98 0.69-4.06-2.97-2.88 4.08-0.6 1.98-3.7 1.98 3.7 4.08 0.6-2.97 2.88 0.69 4.06L12 15.4z"/>
+  </svg>
+);
+
 const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques, onToggleNotes, onSettings, isNotesMode = false, isTimerActive = true, gameCompleted = false }) => {
   const { theme } = useTheme();
   const { t } = useLanguage();
+  const { mode, setMode } = useMode(); // 使用模式上下文
   const sudokuContext = useSudoku();
   const { startLoading, stopLoading } = useLoading();
   const [showDifficultyModal, setShowDifficultyModal] = useState(false); // 控制难度选择模态框显示
@@ -226,6 +267,11 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
     }
   };
 
+  // 切换模式
+  const toggleMode = () => {
+    setMode(mode === 'game' ? 'learning' : 'game');
+  };
+
   return (
     <>
       <NavBlockContainer>
@@ -259,9 +305,11 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
               <ButtonIcon><Icons.Notes /></ButtonIcon>
             </NavButton>
           
-          {/* 设置按钮 */}
-          <NavButton onClick={onSettings} title={t('settings')}>
-            <ButtonIcon><Icons.Settings /></ButtonIcon>
+          {/* 模式切换按钮 */}
+          <NavButton onClick={toggleMode} title={mode === 'game' ? (t('switchToLearningMode') || '切换到学习模式') : (t('switchToGameMode') || '切换到游戏模式')}>
+            <ButtonIcon>
+              {mode === 'game' ? <LearningModeIcon /> : <GameModeIcon />}
+            </ButtonIcon>
           </NavButton>
         </ButtonGrid>
       </NavBlockContainer>

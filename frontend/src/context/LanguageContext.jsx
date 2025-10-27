@@ -31,6 +31,8 @@ const translations = {
     gameCompleted: '游戏已完成',
     hint: '技巧提示',
     notes: '候选数',
+    switchToLearningMode: '切换到学习模式',
+    switchToGameMode: '切换到游戏模式',
     // 游戏完成消息
     gameCompletedMessage: '恭喜！您成功完成了这个数独！',
     // 谜题生成错误消息
@@ -262,6 +264,8 @@ const translations = {
     gameCompleted: 'Game Completed',
     hint: 'Hint',
     notes: 'Notes',
+    switchToLearningMode: 'Switch to Learning Mode',
+    switchToGameMode: 'Switch to Game Mode',
     // Game completion message
     gameCompletedMessage: 'Congratulations! You have successfully completed this Sudoku!',
     // Puzzle generation error messages

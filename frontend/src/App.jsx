@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTheme } from './context/ThemeContext';
 import { useLoading } from './context/LoadingContext';
-import { ModeProvider } from './components/Navbar'; // 导入ModeProvider
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -45,20 +44,18 @@ function App({ children }) {
   const { isLoading } = useLoading();
 
   return (
-    <ModeProvider> {/* 包装ModeProvider */}
-      <AppContainer theme={theme}>
-        <Navbar />
-        <MainContent>
-          {children}
-        </MainContent>
-        <Footer />
-        {isLoading && (
-          <LoadingOverlay>
-            <LoadingSpinner />
-          </LoadingOverlay>
-        )}
-      </AppContainer>
-    </ModeProvider>
+    <AppContainer theme={theme}>
+      <Navbar />
+      <MainContent>
+        {children}
+      </MainContent>
+      <Footer />
+      {isLoading && (
+        <LoadingOverlay>
+          <LoadingSpinner />
+        </LoadingOverlay>
+      )}
+    </AppContainer>
   );
 }
 

@@ -1404,6 +1404,60 @@ export const SudokuContextProvider = ({ children }) => {
     return true;
   };
   
+  // 为选中的单元格填充候选数
+  const fillSelectedCellCandidates = (row, col) => {
+    if (!gameStarted || gameCompleted || !currentBoard || row === undefined || col === undefined) return;
+    
+    // 检查单元格是否为空
+    if (currentBoard[row][col] !== 0) {
+      toast.info(t('cellNotEmpty', { defaultMessage: '该单元格已有数字，无法填充候选数' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
+      return;
+    }
+    
+    // 检查是否为预填数字
+    if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== 0) {
+      toast.info(t('cellPrefilled', { defaultMessage: '该单元格为预填数字，无法填充候选数' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
+      return;
+    }
+    
+    // 保存当前状态到历史记录
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      type: 'fill-cell-candidates'
+    });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    
+    // 计算该单元格的候选数
+    const candidates = calculateCellCandidates(row, col);
+    
+    // 更新铅笔标注数据
+    const newPencilNotes = { ...pencilNotes };
+    if (candidates.length > 0) {
+      newPencilNotes[`${row}-${col}`] = candidates;
+    } else {
+      // 如果没有候选数，删除该单元格的记录
+      delete newPencilNotes[`${row}-${col}`];
+    }
+    
+    setPencilNotes(newPencilNotes);
+    
+    toast.info(t('cellCandidatesFilled', { defaultMessage: `已为单元格(${row+1},${col+1})计算并填充候选数！` }), {
+      position: 'top-right',
+      autoClose: 2000
+    });
+    
+    return candidates;
+  };
+  
   // 计算技巧机会
   const calculateTechniques = () => {
     if (!gameStarted || gameCompleted || !currentBoard) return;
@@ -1575,6 +1629,7 @@ export const SudokuContextProvider = ({ children }) => {
       togglePencilNote, // 添加切换铅笔标注方法
       clearPencilNotes, // 添加清除铅笔标注方法
       fillAllCandidates, // 添加填充所有候选数方法
+      fillSelectedCellCandidates, // 添加为选中单元格填充候选数方法
       calculateTechniques, // 添加计算技巧机会方法
       loadSavedProgress,
       saveGameProgress,

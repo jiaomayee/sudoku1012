@@ -166,7 +166,7 @@ const Icons = {
       <text x="7" y="10" fontSize="6" fontWeight="bold">2</text>
       <text x="15" y="18" fontSize="6" fontWeight="bold">5</text>
       {/* 添加右上角的"1"角标（在图标外部，继续向右移动） */}
-      <text x="21" y="6" fontSize="7" fontWeight="900" fill="currentColor">1</text>
+      <text x="25" y="6" fontSize="7" fontWeight="900" fill="currentColor">1</text>
     </svg>
   ),
   Settings: () => (
@@ -200,6 +200,13 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   const { startLoading, stopLoading } = useLoading();
   const [showDifficultyModal, setShowDifficultyModal] = useState(false); // 控制难度选择模态框显示
   const [isNotesButtonActive, setIsNotesButtonActive] = useState(false); // 控制候选数按钮激活状态
+  
+  // 添加状态用于跟踪长按功能
+  const [isLongPressActive, setIsLongPressActive] = useState(false); // 控制是否处于长按状态
+  const [showProgressBar, setShowProgressBar] = useState(false); // 控制进度条显示
+  const [progress, setProgress] = useState(0); // 进度条进度
+  const longPressTimer = useRef(null); // 长按计时器
+  const progressTimer = useRef(null); // 进度条计时器
 
   // 处理新建游戏按钮点击
   const handleNewGameClick = () => {
@@ -253,7 +260,105 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   const toggleMode = () => {
     setMode(mode === 'game' ? 'learning' : 'game');
   };
-
+  
+  // 处理按钮按下
+  const handleMouseDown = () => {
+    // 设置1秒延迟后显示进度条
+    longPressTimer.current = setTimeout(() => {
+      setShowProgressBar(true);
+      setProgress(0);
+      
+      // 启动进度条动画（2秒内完成）
+      const startTime = Date.now();
+      const duration = 2000; // 2秒
+      
+      const updateProgress = () => {
+        const elapsed = Date.now() - startTime;
+        const newProgress = Math.min((elapsed / duration) * 100, 100);
+        setProgress(newProgress);
+        
+        if (newProgress < 100) {
+          progressTimer.current = requestAnimationFrame(updateProgress);
+        } else {
+          // 进度条完成，执行长按操作
+          handleLongPress();
+        }
+      };
+      
+      progressTimer.current = requestAnimationFrame(updateProgress);
+    }, 1000); // 1秒延迟
+  };
+  
+  // 处理按钮释放
+  const handleMouseUp = () => {
+    // 清除长按计时器
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    
+    // 清除进度条计时器
+    if (progressTimer.current) {
+      cancelAnimationFrame(progressTimer.current);
+      progressTimer.current = null;
+    }
+    
+    // 如果进度条正在显示但未完成，执行短点击操作
+    if (showProgressBar && progress < 100) {
+      handleShortClick();
+    }
+    
+    // 重置状态
+    setShowProgressBar(false);
+    setProgress(0);
+  };
+  
+  // 处理短点击
+  const handleShortClick = () => {
+    console.log('候选数按钮短点击');
+    // 检查是否有选中的单元格
+    if (sudokuContext?.selectedCell) {
+      const { row, col } = sudokuContext.selectedCell;
+      // 为选中的单元格填充候选数
+      if (sudokuContext.fillSelectedCellCandidates) {
+        sudokuContext.fillSelectedCellCandidates(row, col);
+      }
+    } else {
+      // 如果没有选中的单元格，显示提示信息
+      toast.info(t('selectCellForCandidates', { defaultMessage: '请先选择一个空白单元格' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
+    }
+  };
+  
+  // 处理长按
+  const handleLongPress = () => {
+    console.log('候选数按钮长按');
+    setIsLongPressActive(true);
+    // 为所有空白单元格填充候选数
+    if (onToggleNotes) {
+      onToggleNotes();
+      setIsNotesButtonActive(true); // 设置为激活状态
+    }
+    
+    // 3秒后自动恢复按钮状态
+    setTimeout(() => {
+      setIsLongPressActive(false);
+      setShowProgressBar(false);
+      setProgress(0);
+    }, 3000);
+  };
+  
+  // 处理触摸事件（移动端支持）
+  const handleTouchStart = (e) => {
+    handleMouseDown();
+  };
+  
+  const handleTouchEnd = (e) => {
+    handleMouseUp();
+  };
+  
   return (
     <>
       <NavBlockContainer>
@@ -276,16 +381,59 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           </NavButton>
           
           {/* 候选数按钮 */}
-            <NavButton 
-              onClick={() => {
-                onToggleNotes();
-                setIsNotesButtonActive(true); // 点击时设置为激活状态
-              }} 
-              title={t('notes')} 
-              isActive={isNotesButtonActive}
-            >
-              <ButtonIcon><Icons.Notes /></ButtonIcon>
-            </NavButton>
+          <NavButton 
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            title={t('notes')} 
+            isActive={isNotesButtonActive || isLongPressActive}
+            style={{ position: 'relative' }} // 为进度条定位添加相对定位
+          >
+            <ButtonIcon>
+              {isLongPressActive ? (
+                // 长按状态下显示"All"角标的图标
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                  {/* 数独格子背景 */}
+                  <rect x="4" y="4" width="16" height="16" rx="2" fill="transparent" stroke="currentColor" strokeWidth="1.5"/>
+                  {/* 添加2x2网格分割线 */}
+                  <line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" strokeWidth="1" strokeDasharray="1"/>
+                  <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="1" strokeDasharray="1"/>
+                  {/* 显示两个数字：2（左上角）和5（右下角） */}
+                  <text x="7" y="10" fontSize="6" fontWeight="bold">2</text>
+                  <text x="15" y="18" fontSize="6" fontWeight="bold">5</text>
+                  {/* 添加"All"角标 */}
+                  <text x="18" y="6" fontSize="6" fontWeight="900" fill="currentColor">All</text>
+                </svg>
+              ) : (
+                // 正常状态下显示原来的图标
+                <Icons.Notes />
+              )}
+            </ButtonIcon>
+            
+            {/* 进度条 */}
+            {showProgressBar && (
+              <div style={{
+                position: 'absolute',
+                top: '-8px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '40px',
+                height: '4px',
+                backgroundColor: '#e0e0e0',
+                borderRadius: '2px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${progress}%`,
+                  height: '100%',
+                  backgroundColor: '#3498db',
+                  transition: 'width 0.1s linear'
+                }} />
+              </div>
+            )}
+          </NavButton>
           
           {/* 模式切换按钮 */}
           <NavButton onClick={toggleMode} title={mode === 'game' ? (t('switchToLearningMode') || '切换到学习模式') : (t('switchToGameMode') || '切换到游戏模式')}>

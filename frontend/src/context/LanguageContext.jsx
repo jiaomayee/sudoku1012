@@ -232,6 +232,15 @@ const translations = {
       findBoxLineReductionInLine: '在第{lineNum}{lineType}，数字{number}只能出现在第{boxNum}宫',
       removeBoxLineReductionFromTargets: '从第{boxNum}宫的目标单元格{targets}中移除候选数{number}',
       findHiddenTripleInRegion: '在{regionType}{regionNum}中查找只能出现在三个单元格中的数字组',
+      // 添加候选数相关的翻译键
+      cellNotEmpty: '该单元格已有数字，无法填充候选数',
+      cellPrefilled: '该单元格为预填数字，无法填充候选数',
+      cellCandidatesFilled: '已为单元格({{row}},{{col}})计算并填充候选数！',
+      selectCellForCandidates: '请先选择一个空白单元格',
+      candidatesFilled: '已为所有空白格子计算并填充候选数！',
+      emptyCandidateCellsFound: '发现无候选数的空白单元格，重新计算候选数...',
+      candidatesComplete: '候选数正确完整，直接计算技巧机会！',
+      candidateErrorDetected: '存在候选数删减错误，数据刷新',
   },
   'en-US': {
     // Common
@@ -537,6 +546,15 @@ export const LanguageProvider = ({ children }) => {
       {children}
     </LanguageContext.Provider>
   );
+};
+
+// 自定义Hook，方便使用语言上下文
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
 };
 
 // 自定义Hook，方便使用语言上下文

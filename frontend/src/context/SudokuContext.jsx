@@ -1160,7 +1160,8 @@ export const SudokuContextProvider = ({ children }) => {
       });
     }
     
-    toast.success('恭喜！您成功完成了这个数独！', {
+    // 显示游戏完成提示（使用默认消息，因为在这个函数内部无法直接使用useLanguage钩子）
+    toast.success(t('gameCompletedMessage'), {
       position: 'top-right',
       autoClose: 3000
     });

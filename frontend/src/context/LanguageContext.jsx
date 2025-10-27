@@ -31,6 +31,8 @@ const translations = {
     gameCompleted: '游戏已完成',
     hint: '技巧提示',
     notes: '候选数',
+    // 游戏完成消息
+    gameCompletedMessage: '恭喜！您成功完成了这个数独！',
     // 难度选择
     selectDifficulty: '选择难度',
     difficultyDescription: {
@@ -251,6 +253,8 @@ const translations = {
     gameCompleted: 'Game Completed',
     hint: 'Hint',
     notes: 'Notes',
+    // Game completion message
+    gameCompletedMessage: 'Congratulations! You have successfully completed this Sudoku!',
     // Technique hints
     pairTechniqueIdentified: 'Pair technique identified, please manually remove the related candidates',
     techniqueOnlyForHint: 'This technique is primarily for hinting and does not support automatic application',

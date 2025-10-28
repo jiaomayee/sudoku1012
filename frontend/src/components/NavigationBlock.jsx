@@ -177,37 +177,10 @@ const Icons = {
   )
 };
 
-// 游戏模式图标组件 - 基于参考代码优化的PlayStation风格手柄
+// 游戏模式图标组件 - 用户提供的游戏手柄图标
 const GameModeIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-    {/* 手柄主体 */}
-    <path d="M12 3C8 3 5 5.5 5 9v6c0 3.5 3 6 7 6s7-2.5 7-6V9c0-3.5-3-6-7-6z" fill="currentColor"/>
-    
-    {/* 左侧蘑菇头方向键 */}
-    <circle cx="8" cy="12" r="2" fill="none" stroke="currentColor" strokeWidth="1"/>
-    <circle cx="8" cy="12" r="0.5" fill="currentColor"/>
-    
-    {/* 右侧PlayStation标志性按钮 */}
-    
-    {/* 圆形按钮 */}
-    <circle cx="14" cy="10" r="1" fill="currentColor"/>
-    
-    {/* 十字形按钮 */}
-    <path d="M17 10H18V11H17V10Z" fill="currentColor"/>
-    
-    {/* 方块按钮 */}
-    <path d="M16 13H17V14H16V13Z" fill="currentColor"/>
-    
-    {/* 三角形按钮 */}
-    <path d="M15 15L16 14L17 15L16 16Z" fill="currentColor"/>
-    
-    {/* 顶部肩键 */}
-    <rect x="7" y="4" width="2" height="1" rx="0.5" fill="currentColor"/>
-    <rect x="15" y="4" width="2" height="1" rx="0.5" fill="currentColor"/>
-    
-    {/* 底部选择和开始按钮 */}
-    <circle cx="10" cy="17" r="0.5" fill="currentColor"/>
-    <circle cx="14" cy="17" r="0.5" fill="currentColor"/>
+  <svg width="24" height="24" viewBox="0 0 512 512" fill="currentColor">
+    <path d="M144 16c-26.51 0-48 21.49-48 48v96h-24c-22.09 0-40 17.91-40 40v112c0 22.09 17.91 40 40 40h24v96c0 26.51 21.49 48 48 48s48-21.49 48-48v-96h112v96c0 26.51 21.49 48 48 48s48-21.49 48-48v-96h24c22.09 0 40-17.91 40-40v-112c0-22.09-17.91-40-40-40h-24v-96c0-26.51-21.49-48-48-48s-48 21.49-48 48v96H144v-96c0-26.51-21.49-48-48-48zm224 384c0 8.84-7.16 16-16 16s-16-7.16-16-16v-64h-64v64c0 8.84-7.16 16-16 16s-16-7.16-16-16v-64h-64v64c0 8.84-7.16 16-16 16s-16-7.16-16-16v-64h-32v-64h32v-64h-32v-32h32v-64h32v64c0 17.67 14.33 32 32 32s32-14.33 32-32v-64h32v64h32v32h-32v64h32v64h-32zm-160-160c-17.67 0-32-14.33-32-32v-64c0-17.67 14.33-32 32-32s32 14.33 32 32v64c0 17.67-14.33 32-32 32zm128 0c-17.67 0-32-14.33-32-32v-64c0-17.67 14.33-32 32-32s32 14.33 32 32v64c0 17.67-14.33 32-32 32z" fill="currentColor"/>
   </svg>
 );
 

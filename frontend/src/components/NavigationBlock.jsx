@@ -461,11 +461,8 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           
           {/* 模式切换按钮 */}
           <NavButton onClick={toggleMode} title={mode === 'game' ? (t('switchToLearningMode') || '切换到学习模式') : (t('switchToGameMode') || '切换到游戏模式')}>
-            <ButtonIcon style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <ButtonIcon>
               {mode === 'game' ? <GameModeIcon /> : <LearningModeIcon />}
-              <span style={{ fontSize: '14px', fontWeight: 'bold', lineHeight: 1, height: '24px', display: 'flex', alignItems: 'center' }}>
-                {mode === 'game' ? t('gameMode') || '游戏' : t('learningMode') || '学习'}
-              </span>
             </ButtonIcon>
           </NavButton>
         </ButtonGrid>

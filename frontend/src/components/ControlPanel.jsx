@@ -1112,7 +1112,13 @@ const ControlPanel = ({
                 WebkitTapHighlightColor: 'transparent',
                 transition: 'background-color 0.3s, color 0.3s'
               }}
-              onClick={() => setActiveTab('keyboard')}
+              onClick={() => {
+                setActiveTab('keyboard');
+                // 取消选中单元格
+                if (setSelectedCell) {
+                  setSelectedCell(null);
+                }
+              }}
           >
             {t('keyboard')}
           </button>
@@ -1133,6 +1139,10 @@ const ControlPanel = ({
                 }}
                 onClick={() => {
                   setActiveTab('techniques');
+                  // 取消选中单元格
+                  if (setSelectedCell) {
+                    setSelectedCell(null);
+                  }
                 }}
             >
               {t('techniques')}

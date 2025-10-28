@@ -190,13 +190,13 @@ const GameModeIcon = () => (
     <path d="m158.15 116.54c6.08 0 12.51 6 11.92 10.77-.69 5.5-5.61 10.54-11.69 10.54s-10.1-4.24-10.31-10.31c-.23-6.65 4-11 10.08-11z"/>
     
     {/* 中心左侧白色加号 - 向下移动一点点 */}
-    <path d="M40 110h24v-24h24v24h24v24h-24v24h-24v-24h-24v-24z" fill="white" stroke="black" stroke-width="4"/>
+    <path d="M40 110h24v-24h24v24h24v24h-24v24h-24v-24h-24v-24z" fill="white" stroke="black" strokeWidth="4"/>
     
     {/* 中心右侧菱形四个白色圆点 - 向下移动5px */}
-    <circle cx="190" cy="95" r="14" fill="white" stroke="black" stroke-width="4"/>
-    <circle cx="214" cy="119" r="14" fill="white" stroke="black" stroke-width="4"/>
-    <circle cx="190" cy="143" r="14" fill="white" stroke="black" stroke-width="4"/>
-    <circle cx="166" cy="119" r="14" fill="white" stroke="black" stroke-width="4"/>
+    <circle cx="190" cy="95" r="14" fill="white" stroke="black" strokeWidth="4"/>
+    <circle cx="214" cy="119" r="14" fill="white" stroke="black" strokeWidth="4"/>
+    <circle cx="190" cy="143" r="14" fill="white" stroke="black" strokeWidth="4"/>
+    <circle cx="166" cy="119" r="14" fill="white" stroke="black" strokeWidth="4"/>
   </svg>
 );
 

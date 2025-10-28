@@ -98,11 +98,10 @@ const Cell = styled.div`
   }
   
   &.selected {
-    /* 优化性能：简化选中状态样式 */
-    background: #ffffff;
+    /* 为选中单元格设置更深的蓝色底色，与其他高亮区分 */
+    background: #cce5ff;
     z-index: 2;
-    /* 为选中的单元格添加蓝色实线边框 */
-    border: 2px solid ${props => props.theme?.primary || '#3498db'} !important;
+    /* 取消蓝色边框，保持与普通单元格相同的边框 */
   }
   
   &.error,

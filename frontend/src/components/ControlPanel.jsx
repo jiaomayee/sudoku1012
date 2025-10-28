@@ -146,6 +146,25 @@ const ControlPanel = ({
     }
   }, [gameStarted, currentBoard]); // 当游戏重新开始或棋盘变化时触发
   
+  // 监听模式变化，确保从学习模式切换到游戏模式时自动选中键盘标签页
+  useEffect(() => {
+    // 当模式不是学习模式时，确保显示键盘标签页
+    if (mode !== 'learning') {
+      setActiveTab('keyboard');
+      // 清除选中的技巧和步骤
+      setSelectedTechnique(null);
+      setTechniqueSteps([]);
+      // 清空可用技巧列表
+      setAvailableTechniques([]);
+      // 重置分页
+      setCurrentPage(0);
+      // 清除高亮
+      if (setHighlightedCells) {
+        setHighlightedCells([]);
+      }
+    }
+  }, [mode]); // 只监听模式变化
+  
   // 查找技巧的函数
   const findTechniques = useCallback(() => {
     if (identifyTechniques && currentBoard) {

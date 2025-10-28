@@ -259,7 +259,23 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
 
   // 切换模式
   const toggleMode = () => {
-    setMode(mode === 'game' ? 'learning' : 'game');
+    const newMode = mode === 'game' ? 'learning' : 'game';
+    setMode(newMode);
+    
+    // 显示模式切换提示（支持多语言）
+    if (newMode === 'learning') {
+      // 从游戏模式切换到学习模式
+      toast.info(t('learningModeActive', { defaultMessage: '当前学习模式，已开启技巧辅助' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
+    } else {
+      // 从学习模式切换到游戏模式
+      toast.info(t('gameModeActive', { defaultMessage: '当前游戏模式，已关闭技巧辅助' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
+    }
   };
   
   // 处理按钮按下

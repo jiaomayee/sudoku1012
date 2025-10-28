@@ -12,7 +12,7 @@ import { ModeContext } from '../context/ModeContext';
 
 const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   background-color: ${props => props.theme?.background || '#f8f9fa'};
-  border-radius: 12px;
+  border-radius: var(--border-radius, 8px);
   padding: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
   width: 100%; // 与数独棋盘同宽

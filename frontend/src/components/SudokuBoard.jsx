@@ -7,7 +7,7 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
-  border-radius: 12px;
+  border-radius: var(--border-radius, 8px);
   background-color: #ffffff; /* 使用纯白色背景 */
   position: relative;
   width: 100% !important;
@@ -98,12 +98,12 @@ const Cell = styled.div`
   
   /* 基础选中状态样式 - 确保在所有设备上的高对比度和可见性 */
   &.selected {
-    /* 使用更鲜明的主色调，提高对比度 */
-    background: #2196f3 !important; /* 使用Material Design主色，在更多设备上表现一致 */
+    /* 使用较浅的蓝色，提高视觉舒适度 */
+    background: #42a5f5 !important; /* 更浅的Material Design蓝色 */
     color: white !important;
     z-index: 2;
     /* 使用更明显的边框和阴影组合，增强视觉反馈 */
-    border: 2px solid #1976d2 !important;
+    border: 2px solid #1e88e5 !important;
     font-weight: bold;
     /* 确保在所有平台上的渲染一致性 */
     -webkit-tap-highlight-color: transparent;
@@ -111,9 +111,9 @@ const Cell = styled.div`
   
   /* 普通选中状态 - 与基础选中状态保持一致 */
   &.normal-selected {
-    background: #2196f3 !important;
+    background: #42a5f5 !important;
     color: white !important;
-    border: 2px solid #1976d2 !important;
+    border: 2px solid #1e88e5 !important;
   }
   
   /* 铅笔模式选中状态 - 略微调整颜色但保持高对比度 */
@@ -125,26 +125,28 @@ const Cell = styled.div`
   
   &.error,
   &.incorrect {
-    color: ${props => props.theme?.error || '#cc3333'}; /* 使用暗红色替代亮红色 */
+    color: ${props => props.theme?.error || '#e74c3c'}; /* 使用更浅的红色 */
     /* 只保留红色文本，不改变背景色 */
   }
   
   /* 确保错误数字没有阴影效果，并保持红色文字 */
   &.error,
   &.incorrect {
-    color: ${props => props.theme?.error || '#cc3333'} !important; /* 使用暗红色替代亮红色 */
+    color: ${props => props.theme?.error || '#e74c3c'} !important; /* 使用更浅的红色 */
     text-shadow: none !important;
   }
   
-  /* 确保选中状态下的错误单元格显示红色文字，无阴影 */
+  /* 确保选中状态下的错误单元格显示红色文字，无阴影，且取消选中底色 */
   &.selected.error,
   &.selected.incorrect,
   &.normal-selected.error,
   &.normal-selected.incorrect,
   &.pencil-selected.error,
   &.pencil-selected.incorrect {
-    color: ${props => props.theme?.error || '#cc3333'} !important; /* 使用暗红色替代亮红色 */
+    color: ${props => props.theme?.error || '#e74c3c'} !important; /* 使用更浅的红色 */
     text-shadow: none !important;
+    background-color: transparent !important; /* 取消选中底色 */
+    border-color: ${props => props.theme?.error || '#e74c3c'} !important; /* 使用错误颜色作为边框 */
   }
   
   &.same-number {
@@ -173,11 +175,11 @@ const Cell = styled.div`
   ${props => props.col === 0 && `border-left: none;`}
   ${props => props.col === 8 && `border-right: none;`}
   
-  /* 四个角落单元格的特殊处理 */
-  ${props => props.row === 0 && props.col === 0 && `border-radius: 5px 0 0 0;`}
-  ${props => props.row === 0 && props.col === 8 && `border-radius: 0 5px 0 0;`}
-  ${props => props.row === 8 && props.col === 0 && `border-radius: 0 0 0 5px;`}
-  ${props => props.row === 8 && props.col === 8 && `border-radius: 0 0 5px 0;`}
+  /* 四个角落单元格的特殊处理 - 与容器圆角保持一致 */
+  ${props => props.row === 0 && props.col === 0 && `border-radius: var(--border-radius, 8px) 0 0 0;`}
+  ${props => props.row === 0 && props.col === 8 && `border-radius: 0 var(--border-radius, 8px) 0 0;`}
+  ${props => props.row === 8 && props.col === 0 && `border-radius: 0 0 0 var(--border-radius, 8px);`}
+  ${props => props.row === 8 && props.col === 8 && `border-radius: 0 0 var(--border-radius, 8px) 0;`}
   
   /* 3x3子网格（宫）之间的分隔 - 使用浅灰色细线 */
   ${props => {
@@ -199,15 +201,15 @@ const Cell = styled.div`
     
     // 更加强化的选中状态悬停规则 - 直接指定颜色值而不是使用inherit
     &.selected:hover:not(.error):not(.incorrect) {
-      background-color: #2196f3 !important; /* 直接使用与.selected相同的颜色值 */
+      background-color: #42a5f5 !important; /* 直接使用与.selected相同的颜色值 */
       color: white !important; /* 确保文字颜色也不变 */
-      border-color: #1976d2 !important; /* 确保边框颜色也不变 */
+      border-color: #1e88e5 !important; /* 确保边框颜色也不变 */
     }
     
     &.normal-selected:hover:not(.error):not(.incorrect) {
-      background-color: #2196f3 !important;
+      background-color: #42a5f5 !important;
       color: white !important;
-      border-color: #1976d2 !important;
+      border-color: #1e88e5 !important;
     }
     
     &.pencil-selected:hover:not(.error):not(.incorrect) {
@@ -216,15 +218,17 @@ const Cell = styled.div`
       border-color: #00796b !important;
     }
     
-    // 确保错误单元格在悬停时保持红色文字
+    // 确保错误单元格在悬停时保持红色文字，且不显示选中底色
     &.selected:hover.error,
     &.selected:hover.incorrect,
     &.normal-selected:hover.error,
     &.normal-selected:hover.incorrect,
     &.pencil-selected:hover.error,
     &.pencil-selected:hover.incorrect {
-      color: ${props => props.theme?.error || '#cc3333'} !important;
+      color: ${props => props.theme?.error || '#e74c3c'} !important;
       text-shadow: none !important;
+      background-color: transparent !important; /* 悬停时也不显示选中底色 */
+      border-color: ${props => props.theme?.error || '#e74c3c'} !important; /* 使用错误颜色作为边框 */
     }
     
     // 额外添加:focus和:active状态以确保在所有交互情况下保持选中效果
@@ -360,11 +364,14 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false })
   
   return (
     <div style={containerStyle}>
-      {/* 只渲染活跃的候选数 */}
-      {activeNotes.map((number) => {
+      {/* 渲染所有9个位置的固定容器，确保位置固定不变 */}
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => {
         // 计算每个数字在网格中的位置
         const col = ((number - 1) % 3);
         const row = Math.floor((number - 1) / 3);
+        
+        // 判断该数字是否在活跃候选数列表中
+        const isActive = activeNotes.includes(number);
         
         // 判断是否需要高亮此候选数
         const isHighlighted = highlightedNumber && number === highlightedNumber;
@@ -376,11 +383,19 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false })
               ...baseItemStyle,
               gridColumn: col + 1,
               gridRow: row + 1,
-              // 如果是高亮数字，应用高亮样式
-              ...(isHighlighted && highlightedItemStyle)
+              // 根据位置添加特定边距调整
+              paddingTop: row === 0 ? '2px' : '1px', // 第一行(123)增大上边距
+              // 竖屏模式下第三行(789)增加额外1px下边距
+              paddingBottom: row === 2 ? (window.innerHeight > window.innerWidth ? '3px' : '2px') : '1px', // 第三行(789)增大下边距
+              paddingLeft: col === 0 ? '2px' : '1px', // 第一列(147)增大左边距
+              paddingRight: col === 2 ? '2px' : '1px', // 第三列(369)增大右边距
+              // 如果是高亮数字且是活跃候选数，应用高亮样式
+              ...(isActive && isHighlighted && highlightedItemStyle),
+              // 非活跃候选数的透明度设为0，保持布局但不显示
+              opacity: isActive ? 1 : 0
             }}
           >
-            {number}
+            {isActive && number}
           </div>
         );
       })}

@@ -5,7 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const DisplayBlockContainer = styled(({theme, ...props}) => <div {...props} />).attrs({ className: 'display-block' })`
   background-color: ${props => props.theme?.surface || '#ffffff'};
-  border-radius: 8px;
+  border-radius: var(--border-radius, 8px);
   padding: 8px;
   box-shadow: 0 2px 8px ${props => props.theme?.shadow || 'rgba(0, 0, 0, 0.1)'};
   display: flex;

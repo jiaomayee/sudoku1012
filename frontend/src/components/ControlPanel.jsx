@@ -1065,7 +1065,7 @@ const ControlPanel = ({
   return (
     <div className="control-panel" style={{
       backgroundColor: '#ffffff',
-      borderRadius: '12px',
+      borderRadius: 'var(--border-radius, 8px)',
       padding: '8px',
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.12)',
       display: 'flex',

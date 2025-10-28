@@ -224,7 +224,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
   const highlightedItemStyle = {
     color: '#ffffff',
     backgroundColor: '#3498db', // 与按钮数字选中颜色相同
-    borderRadius: '50%',
+    borderRadius: '4px', // 改为矩形背景，使用4px圆角
     fontWeight: 'bold',
     width: '80%',
     height: '80%'

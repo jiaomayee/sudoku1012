@@ -60,14 +60,11 @@ const Cell = styled.div`
   font-size: calc(var(--board-width) * 0.08);
   font-weight: 500;
   cursor: pointer;
-  /* 优化性能：使用纯色背景替代磨砂玻璃效果 */
+  /* 进一步优化性能：简化样式 */
   background: #ffffff;
-  border: 1px solid rgba(52, 152, 219, 0.4); /* 增强边框对比度 */
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  border: 1px solid #e0e0e0; /* 使用纯色边框替代半透明 */
   color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
-  transition: all 0.2s ease; /* 简化过渡效果 */
+  transition: none; /* 移除过渡效果以提升性能 */
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   margin: 0;
   padding: 0;
@@ -89,8 +86,8 @@ const Cell = styled.div`
     cursor: default;
     color: ${props => props.theme?.textOriginal || '#666666'};
     font-weight: 400; /* 将预填数字字体调整为较细 */
-    /* 优化性能：使用纯色背景 */
-    background: #f8f9fa;
+    /* 使用与空白单元格相同的白色底色 */
+    background: #ffffff;
     border-color: rgba(102, 102, 102, 0.3);
   }
   
@@ -101,14 +98,11 @@ const Cell = styled.div`
   }
   
   &.selected {
-    /* 优化性能：使用纯色背景 */
+    /* 优化性能：简化选中状态样式 */
     background: #ffffff;
     z-index: 2;
     /* 为选中的单元格添加蓝色实线边框 */
     border: 2px solid ${props => props.theme?.primary || '#3498db'} !important;
-    box-shadow: 
-      0 2px 6px rgba(52, 152, 219, 0.3),
-      inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
   
   &.error,
@@ -151,14 +145,14 @@ const Cell = styled.div`
   ${props => props.row === 8 && props.col === 0 && `border-radius: 0 0 0 5px;`}
   ${props => props.row === 8 && props.col === 8 && `border-radius: 0 0 5px 0;`}
   
-  /* 3x3子网格（宫）之间的分隔 - 调整分隔线为更细的样式 */
+  /* 3x3子网格（宫）之间的分隔 - 使用浅灰色细线 */
   ${props => {
     let borders = '';
     if (props.col % 3 === 0 && props.col > 0) {
-      borders += 'border-left: 2px solid ' + (props.theme?.gridLineThick || '#1a5276') + ';';
+      borders += 'border-left: 2px solid #888888 !important;';
     }
     if (props.row % 3 === 0 && props.row > 0) {
-      borders += 'border-top: 2px solid ' + (props.theme?.gridLineThick || '#1a5276') + ';';
+      borders += 'border-top: 2px solid #888888 !important;';
     }
     return borders;
   }}

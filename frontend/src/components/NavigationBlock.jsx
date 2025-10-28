@@ -177,10 +177,33 @@ const Icons = {
   )
 };
 
-// 游戏模式图标组件 - 用户提供的游戏手柄图标（保持原样，调整显示尺寸）
+// 游戏模式图标组件 - PS风格游戏手柄图标
 const GameModeIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M6.75 1.5c-1.25 0-2.25 1-2.25 2.25v4.5h-1.125c-1 0-1.875.8-1.875 1.875v5.25c0 1 0.8 1.875 1.875 1.875h1.125v4.5c0 1.25 1 2.25 2.25 2.25s2.25-1 2.25-2.25v-4.5h5.25v4.5c0 1.25 1 2.25 2.25 2.25s2.25-1 2.25-2.25v-4.5h1.125c1 0 1.875-.8 1.875-1.875v-5.25c0-1-.8-1.875-1.875-1.875h-1.125v-4.5c0-1.25-1-2.25-2.25-2.25s-2.25 1-2.25 2.25v4.5H6.75v-4.5c0-1.25-1-2.25-2.25-2.25zm10.5 17.625c0 .41-.33.75-.75.75s-.75-.33-.75-.75v-3h-3v3c0 .41-.33.75-.75.75s-.75-.33-.75-.75v-3h-3v3c0 .41-.33.75-.75.75s-.75-.33-.75-.75v-3h-1.5v-3h1.5v-3h-1.5v-1.5h1.5v-3h1.5v3c0 .8 0.65 1.5 1.5 1.5s1.5-.65 1.5-1.5v-3h1.5v3h1.5v1.5h-1.5v3h1.5v3h-1.5zm-7.5-7.5c-.8 0-1.5-.65-1.5-1.5v-3c0-.8.65-1.5 1.5-1.5s1.5.65 1.5 1.5v3c0 .8-.65 1.5-1.5 1.5zm6 0c-.8 0-1.5-.65-1.5-1.5v-3c0-.8.65-1.5 1.5-1.5s1.5.65 1.5 1.5v3c0 .8-.65 1.5-1.5 1.5z" fill="currentColor"/>
+    <!-- 左侧摇杆 -->
+    <circle cx="6" cy="15" r="2.5" fill="currentColor" opacity="0.7"/>
+    <circle cx="6" cy="15" r="1.2" fill="currentColor"/>
+    
+    <!-- 右侧四个圆形按钮 -->
+    <circle cx="18" cy="12" r="1" fill="currentColor"/>
+    <circle cx="16" cy="14" r="1" fill="currentColor"/>
+    <circle cx="18" cy="16" r="1" fill="currentColor"/>
+    <circle cx="20" cy="14" r="1" fill="currentColor"/>
+    
+    <!-- 顶部L1/R1按钮 -->
+    <rect x="3" y="7" width="4" height="1.5" rx="0.5" fill="currentColor"/>
+    <rect x="17" y="7" width="4" height="1.5" rx="0.5" fill="currentColor"/>
+    
+    <!-- 顶部L2/R2按钮 -->
+    <rect x="4" y="9" width="2" height="1" rx="0.3" fill="currentColor" opacity="0.7"/>
+    <rect x="18" y="9" width="2" height="1" rx="0.3" fill="currentColor" opacity="0.7"/>
+    
+    <!-- 中心区域和方向键 -->
+    <rect x="10" y="12" width="1" height="5" rx="0.3" fill="currentColor"/>
+    <rect x="8.5" y="13.5" width="4" height="1" rx="0.3" fill="currentColor"/>
+    
+    <!-- 主体框架 -->
+    <path d="M7 11C5.89 11 5 11.89 5 13C5 14.11 5.89 15 7 15H8V18H7C5.89 18 5 18.89 5 20C5 21.11 5.89 22 7 22H17C18.11 22 19 21.11 19 20C19 18.89 18.11 18 17 18H16V15H17C18.11 15 19 14.11 19 13C19 11.89 18.11 11 17 11H7Z" opacity="0.3" fill="currentColor"/>
   </svg>
 );
 

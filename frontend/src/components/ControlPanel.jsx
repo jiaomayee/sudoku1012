@@ -1405,6 +1405,11 @@ const ControlPanel = ({
                       key="clear"
                       onClick={(e) => {
                         e.stopPropagation();
+                        // 检查是否有选中的单元格，如果没有则显示提示
+                        if (!selectedCell) {
+                          alert('请先选择一个单元格');
+                          return;
+                        }
                         onClearCell();
                       }}
                       title={t('clearCell')}
@@ -1657,6 +1662,11 @@ const ControlPanel = ({
                     key="clear"
                     onClick={(e) => {
                       e.stopPropagation(); // 阻止事件冒泡
+                      // 检查是否有选中的单元格，如果没有则显示提示
+                      if (!selectedCell) {
+                        alert('请先选择一个单元格');
+                        return;
+                      }
                       onClearCell();
                     }}
                     title={t('clearCell')}

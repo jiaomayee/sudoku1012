@@ -820,7 +820,7 @@ export const SudokuContextProvider = ({ children }) => {
     const cellKey = `${row}-${col}`;
     
     // 如果单元格没有标注，直接返回
-    if (!pencilNotes[cellKey]) return;
+    if (!pencilNotes[cellKey] || pencilNotes[cellKey].length === 0) return;
     
     // 保存当前状态到历史记录
     const newHistory = history.slice(0, historyIndex + 1);
@@ -839,6 +839,51 @@ export const SudokuContextProvider = ({ children }) => {
     delete newPencilNotes[cellKey];
     
     setPencilNotes(newPencilNotes);
+    
+    // 添加清除成功的反馈
+    console.log(`已清除单元格(${row+1},${col+1})的候选数标注`);
+  };
+
+  // 专门清除候选数的函数 - 用于铅笔模式下清除候选数
+  const clearCandidates = (row, col) => {
+    if (!gameStarted || gameCompleted) return;
+    
+    const cellKey = `${row}-${col}`;
+    console.log('clearCandidates called for cell:', cellKey);
+    
+    // 检查是否为预填数字，如果是则不允许删除候选数
+    if (originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== 0) {
+      console.log('Cannot clear candidates for prefilled cell:', row, col);
+      return;
+    }
+    
+    // 检查单元格是否有候选数标注
+    if (!pencilNotes[cellKey] || pencilNotes[cellKey].length === 0) {
+      console.log('No candidates to clear in cell:', row, col);
+      return;
+    }
+    
+    console.log('Clearing candidates:', pencilNotes[cellKey]);
+    
+    // 保存当前状态到历史记录
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ 
+      board: currentBoard, 
+      pencilNotes: { ...pencilNotes },
+      row, 
+      col, 
+      type: 'clear-candidates'
+    });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    
+    // 创建新的标注对象，不包含要清除的单元格
+    const newPencilNotes = { ...pencilNotes };
+    delete newPencilNotes[cellKey];
+    
+    setPencilNotes(newPencilNotes);
+    
+    console.log(`已清除单元格(${row+1},${col+1})的所有候选数`);
   };
 
   // 更新fillCell函数，使其能处理铅笔模式并添加自动删减候选数功能
@@ -1024,17 +1069,53 @@ export const SudokuContextProvider = ({ children }) => {
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
     
-    // 如果是铅笔模式，清除标注
+    // 如果是铅笔模式，清除候选数标注
     if (isPencilMode) {
-      clearPencilNotes(row, col);
+      console.log('铅笔模式：尝试清除单元格', row, col);
+      // 检查单元格是否有候选数标注
+      const cellKey = `${row}-${col}`;
+      console.log('候选数状态:', pencilNotes[cellKey]);
+      
+      if (pencilNotes[cellKey] && pencilNotes[cellKey].length > 0) {
+        console.log('清除候选数标注');
+        clearCandidates(row, col);
+      } else {
+        console.log('没有候选数标注，检查是否有数字');
+        // 如果没有候选数标注，但单元格有数字，清除数字
+        if (currentBoard[row][col] !== 0) {
+          console.log('清除数字内容');
+          const newBoard = [...currentBoard.map(row => [...row])];
+          newBoard[row][col] = 0;
+          setCurrentBoard(newBoard);
+          
+          // 清除单元格，从错误集合和锁定集合中移除
+          const updatedIncorrectCells = new Set(incorrectCells);
+          updatedIncorrectCells.delete(cellKey);
+          setIncorrectCells(updatedIncorrectCells);
+          setErrorCount(updatedIncorrectCells.size);
+          
+          // 从锁定集合中移除（如果存在）
+          const updatedLockedCells = new Set(lockedCells);
+          updatedLockedCells.delete(cellKey);
+          setLockedCells(updatedLockedCells);
+        } else {
+          console.log('单元格既没有候选数也没有数字');
+        }
+      }
       return;
     }
     
     const newBoard = [...currentBoard.map(row => [...row])];
     
-    // 清除单元格
+    // 清除单元格数字内容
     newBoard[row][col] = 0;
     setCurrentBoard(newBoard);
+    
+    // 清除候选数标注（如果存在）
+    if (pencilNotes[cellKey] && pencilNotes[cellKey].length > 0) {
+      console.log('普通模式：清除候选数标注');
+      clearCandidates(row, col);
+    }
     
     // 清除单元格，从错误集合和锁定集合中移除
     const updatedIncorrectCells = new Set(incorrectCells);
@@ -1632,6 +1713,7 @@ export const SudokuContextProvider = ({ children }) => {
       togglePencilMode, // 添加切换铅笔模式方法
       togglePencilNote, // 添加切换铅笔标注方法
       clearPencilNotes, // 添加清除铅笔标注方法
+      clearCandidates, // 添加清除候选数方法
       fillAllCandidates, // 添加填充所有候选数方法
       fillSelectedCellCandidates, // 添加为选中单元格填充候选数方法
       calculateTechniques, // 添加计算技巧机会方法

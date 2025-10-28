@@ -7,7 +7,7 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
-  border: 3px solid ${props => props.theme?.gridLineThick || '#34495e'};
+  border: 4px solid ${props => props.theme?.gridLineThick || '#3498db'};
   border-radius: 12px;
   background-color: ${props => props.theme?.surface || '#ffffff'};
   position: relative;
@@ -21,10 +21,10 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   grid-gap: 0;
   // 使用多层阴影增加立体感
   box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.12),
-    0 8px 24px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  border: 1px solid ${props => props.theme?.border || '#e0e0e0'};
+    0 6px 12px rgba(0, 0, 0, 0.15),
+    0 12px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  border: 2px solid ${props => props.theme?.border || '#3498db'};
   transition: all 0.3s ease;
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   
@@ -52,7 +52,7 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   }
 `;
 
-// 单元格基础样式 - 只负责显示，不包含复杂逻辑判断
+// 单元格基础样式 - 优化性能，移除高消耗的磨砂玻璃效果
 const Cell = styled.div`
   display: flex;
   align-items: center;
@@ -60,69 +60,83 @@ const Cell = styled.div`
   font-size: calc(var(--board-width) * 0.08);
   font-weight: 500;
   cursor: pointer;
-  background-color: ${props => props.theme?.cellBackground || '#ffffff'};
+  /* 优化性能：使用纯色背景替代磨砂玻璃效果 */
+  background: #ffffff;
+  border: 1px solid rgba(52, 152, 219, 0.4); /* 增强边框对比度 */
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
   color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
-  border: 1px dashed ${props => props.theme?.gridLine || '#e0e0e0'};
-    transition: all 0.2s ease;
-    font-family: 'Arial', 'Microsoft YaHei', sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    min-width: 0;
-    width: 100%;
-    height: 100%;
-    word-break: break-all;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    outline: 0;
+  transition: all 0.2s ease; /* 简化过渡效果 */
+  font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  outline: 0;
     
-    /* 完全移除3x3子网格之间的虚线边框，避免与粗边框重叠 */
-     /* 处理列方向的网格分隔线 */
-     ${props => props.col % 3 === 0 && props.col > 0 && `border-left: none;`}
-     ${props => props.col % 3 === 2 && `border-right: none;`}
-     /* 处理行方向的网格分隔线 */
-     ${props => props.row % 3 === 0 && props.row > 0 && `border-top: none;`}
-     ${props => props.row % 3 === 2 && `border-bottom: none;`}
+    /* 保留3x3子网格之间的分隔线，但使用更明显的样式 */
+     /* 处理列方向的网格分隔线 - 移除none设置，让分隔线显示 */
+     /* 处理行方向的网格分隔线 - 移除none设置，让分隔线显示 */
 
-  /* 基础样式类 */
+  /* 基础样式类 - 优化性能，移除高消耗的磨砂玻璃效果 */
   &.prefilled {
     cursor: default;
     color: ${props => props.theme?.textOriginal || '#666666'};
     font-weight: 400; /* 将预填数字字体调整为较细 */
+    /* 优化性能：使用纯色背景 */
+    background: #f8f9fa;
+    border-color: rgba(102, 102, 102, 0.3);
   }
   
   &.highlighted {
-    background-color: #cce5ff;
+    /* 优化性能：使用纯色背景 */
+    background: #d1ecf1;
+    border-color: rgba(52, 152, 219, 0.5);
   }
   
   &.selected {
-    background-color: #ffffff;
+    /* 优化性能：使用纯色背景 */
+    background: #ffffff;
     z-index: 2;
     /* 为选中的单元格添加蓝色实线边框 */
     border: 2px solid ${props => props.theme?.primary || '#3498db'} !important;
+    box-shadow: 
+      0 2px 6px rgba(52, 152, 219, 0.3),
+      inset 0 1px 1px rgba(255, 255, 255, 0.9);
   }
   
   &.error,
   &.incorrect {
     color: ${props => props.theme?.error || 'red'};
-    background-color: ${props => (props.theme?.error || '#e74c3c') + '20'};
+    /* 优化性能：使用纯色背景 */
+    background: #f8d7da;
     border-color: ${props => props.theme?.error || 'red'};
   }
   
   &.same-number {
-    background-color: #d1ecf1;
+    /* 优化性能：使用纯色背景 */
+    background: #d1ecf1;
   }
   
   &.same-region {
-    background-color: #e8f4fd;
+    /* 优化性能：使用纯色背景 */
+    background: #e8f4fd;
   }
   
   &.same-note {
-    background-color: #fff3cd;
+    /* 优化性能：使用纯色背景 */
+    background: #fff3cd;
   }
   
   &.technique-indicator {
-    background-color: #ffeaa7;
+    /* 优化性能：使用纯色背景 */
+    background: #ffeaa7;
   }
 
   /* 边缘单元格处理 */
@@ -137,14 +151,14 @@ const Cell = styled.div`
   ${props => props.row === 8 && props.col === 0 && `border-radius: 0 0 0 5px;`}
   ${props => props.row === 8 && props.col === 8 && `border-radius: 0 0 5px 0;`}
   
-  /* 3x3子网格（宫）之间的分隔 */
+  /* 3x3子网格（宫）之间的分隔 - 调整分隔线为更细的样式 */
   ${props => {
     let borders = '';
     if (props.col % 3 === 0 && props.col > 0) {
-      borders += 'border-left: 2px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
+      borders += 'border-left: 2px solid ' + (props.theme?.gridLineThick || '#1a5276') + ';';
     }
     if (props.row % 3 === 0 && props.row > 0) {
-      borders += 'border-top: 2px solid ' + (props.theme?.gridLineThick || '#34495e') + ';';
+      borders += 'border-top: 2px solid ' + (props.theme?.gridLineThick || '#1a5276') + ';';
     }
     return borders;
   }}

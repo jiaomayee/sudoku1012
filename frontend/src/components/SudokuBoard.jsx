@@ -7,14 +7,13 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
-  border: 4px solid ${props => props.theme?.gridLineThick || '#3498db'};
   border-radius: 12px;
-  background-color: ${props => props.theme?.surface || '#ffffff'};
+  background-color: #ffffff; /* 使用纯白色背景 */
   position: relative;
   width: 100% !important;
   aspect-ratio: 1 / 1 !important;
   margin: 0 auto !important;
-  padding: 0;
+  padding: 0; /* 移除容器内边距，改为在单元格上处理边框 */
   box-sizing: border-box;
   overflow: visible !important;
   z-index: 1;
@@ -61,7 +60,7 @@ const Cell = styled.div`
   font-weight: 500;
   cursor: pointer;
   /* 进一步优化性能：简化样式 */
-  background: #ffffff;
+  background: #ffffff; /* 纯色背景 */
   border: 1px solid #e0e0e0; /* 使用纯色边框替代半透明 */
   color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
   transition: none; /* 移除过渡效果以提升性能 */
@@ -97,19 +96,55 @@ const Cell = styled.div`
     border-color: rgba(52, 152, 219, 0.5);
   }
   
+  /* 基础选中状态样式 - 确保在所有设备上的高对比度和可见性 */
   &.selected {
-    /* 为选中单元格设置更深的蓝色底色，与其他高亮区分 */
-    background: #cce5ff;
+    /* 使用更鲜明的主色调，提高对比度 */
+    background: #2196f3 !important; /* 使用Material Design主色，在更多设备上表现一致 */
+    color: white !important;
     z-index: 2;
-    /* 取消蓝色边框，保持与普通单元格相同的边框 */
+    /* 使用更明显的边框和阴影组合，增强视觉反馈 */
+    border: 2px solid #1976d2 !important;
+    font-weight: bold;
+    /* 确保在所有平台上的渲染一致性 */
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* 普通选中状态 - 与基础选中状态保持一致 */
+  &.normal-selected {
+    background: #2196f3 !important;
+    color: white !important;
+    border: 2px solid #1976d2 !important;
+  }
+  
+  /* 铅笔模式选中状态 - 略微调整颜色但保持高对比度 */
+  &.pencil-selected {
+    background: #0097a7 !important; /* 调整为更统一的青色系 */
+    color: white !important;
+    border: 2px solid #00796b !important;
   }
   
   &.error,
   &.incorrect {
-    color: ${props => props.theme?.error || 'red'};
-    /* 优化性能：使用纯色背景 */
-    background: #f8d7da;
-    border-color: ${props => props.theme?.error || 'red'};
+    color: ${props => props.theme?.error || '#cc3333'}; /* 使用暗红色替代亮红色 */
+    /* 只保留红色文本，不改变背景色 */
+  }
+  
+  /* 确保错误数字没有阴影效果，并保持红色文字 */
+  &.error,
+  &.incorrect {
+    color: ${props => props.theme?.error || '#cc3333'} !important; /* 使用暗红色替代亮红色 */
+    text-shadow: none !important;
+  }
+  
+  /* 确保选中状态下的错误单元格显示红色文字，无阴影 */
+  &.selected.error,
+  &.selected.incorrect,
+  &.normal-selected.error,
+  &.normal-selected.incorrect,
+  &.pencil-selected.error,
+  &.pencil-selected.incorrect {
+    color: ${props => props.theme?.error || '#cc3333'} !important; /* 使用暗红色替代亮红色 */
+    text-shadow: none !important;
   }
   
   &.same-number {
@@ -158,49 +193,135 @@ const Cell = styled.div`
   
   // 悬停效果（仅在非移动设备上）
   @media (hover: hover) {
-    &:not(.prefilled):hover {
+    &:not(.prefilled):not(.selected):not(.normal-selected):not(.pencil-selected):hover {
       background-color: ${props => (props.theme?.primary || '#3498db') + '15'} !important;
+    }
+    
+    // 更加强化的选中状态悬停规则 - 直接指定颜色值而不是使用inherit
+    &.selected:hover:not(.error):not(.incorrect) {
+      background-color: #2196f3 !important; /* 直接使用与.selected相同的颜色值 */
+      color: white !important; /* 确保文字颜色也不变 */
+      border-color: #1976d2 !important; /* 确保边框颜色也不变 */
+    }
+    
+    &.normal-selected:hover:not(.error):not(.incorrect) {
+      background-color: #2196f3 !important;
+      color: white !important;
+      border-color: #1976d2 !important;
+    }
+    
+    &.pencil-selected:hover:not(.error):not(.incorrect) {
+      background-color: #0097a7 !important;
+      color: white !important;
+      border-color: #00796b !important;
+    }
+    
+    // 确保错误单元格在悬停时保持红色文字
+    &.selected:hover.error,
+    &.selected:hover.incorrect,
+    &.normal-selected:hover.error,
+    &.normal-selected:hover.incorrect,
+    &.pencil-selected:hover.error,
+    &.pencil-selected:hover.incorrect {
+      color: ${props => props.theme?.error || '#cc3333'} !important;
+      text-shadow: none !important;
+    }
+    
+    // 额外添加:focus和:active状态以确保在所有交互情况下保持选中效果
+    &.selected:focus,
+    &.selected:active,
+    &.normal-selected:focus,
+    &.normal-selected:active,
+    &.pencil-selected:focus,
+    &.pencil-selected:active {
+      background-color: inherit !important; /* 保持原有选中背景色 */
+      color: white !important;
+      border-color: inherit !important;
     }
   }
   
-  // 触摸反馈
+  // 触摸反馈和选中状态优化
   &:active {
     transform: scale(0.97);
   }
   
-  // 横屏模式下调整字体大小
-  @media (min-width: 992px) {
-    font-size: calc(var(--board-width) * 0.09);
+  /* 增强触摸设备的选中效果 - 使用更通用的移动设备检测方案 */
+  @media (hover: none) {
+    /* 确保选中状态在所有触摸设备上有更强的视觉反馈 */
+    &.selected,
+    &.normal-selected,
+    &.pencil-selected {
+      /* 移除可能导致渲染不一致的过渡效果 */
+      transition: none;
+      /* 增加更明显的内阴影，确保在所有设备上都有突出显示 */
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.8);
+      /* 添加更强的外阴影，增强立体效果 */
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.8), 0 0 8px rgba(0, 0, 0, 0.2);
+      /* 增强边框效果 */
+      border-width: 3px !important;
+    }
+    
+    /* 触摸设备上的活动状态 */
+    &:active {
+      /* 使用缩放效果提供即时反馈 */
+      transform: scale(0.97);
+      /* 确保所有浏览器兼容性 */
+      -webkit-transform: scale(0.97);
+      -moz-transform: scale(0.97);
+      -ms-transform: scale(0.97);
+    }
   }
   
-  // 屏幕较大时适当减小字体比例以避免文字过大
-  @media (min-width: 992px) and (min-height: 800px) {
-    font-size: calc(var(--board-width) * 0.08);
+  /* 针对特定移动设备视口的优化 */
+  @media screen and (max-width: 768px) and (orientation: portrait),
+         screen and (max-height: 768px) and (orientation: landscape) {
+    /* 增加选中状态的对比和可见性 */
+    &.selected,
+    &.normal-selected,
+    &.pencil-selected {
+      /* 调整边框宽度以适应小屏幕 */
+      border-width: 2.5px !important;
+      /* 增加阴影强度 */
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 6px rgba(0, 0, 0, 0.3);
+    }
   }
   
-  // 屏幕非常大时进一步减小字体比例
-  @media (min-width: 992px) and (min-height: 900px) {
+  /* 横屏模式下增强选中单元格的白色边框 */
+  @media screen and (orientation: landscape) {
+    /* 为选中的单元格添加白色边框 */
+    &.selected,
+    &.normal-selected,
+    &.pencil-selected {
+      box-shadow: inset 0 0 0 3px white; /* 使用内阴影创建白色边框效果 */
+    }
+  }
+  
+  /* 小屏幕横屏模式下调整选中单元格的白色边框 */
+  @media screen and (max-height: 768px) and (orientation: landscape) {
+    &.selected,
+    &.normal-selected,
+    &.pencil-selected {
+      box-shadow: inset 0 0 0 2.5px white; /* 调整白色边框宽度 */
+    }
+  }
+  
+  // 统一的字体大小设置，适用于所有屏幕尺寸
+  font-size: calc(var(--board-width) * 0.08);
+  min-height: 36px;
+  
+  // 仅调整非常大屏幕的字体大小以避免文字过大
+  @media (min-width: 1200px) and (min-height: 900px) {
     font-size: calc(var(--board-width) * 0.075);
   }
   
-  // 高度不足时的字体大小调整
-  @media (min-width: 992px) and (max-height: 700px) {
-    font-size: calc(var(--board-width) * 0.08);
-  }
-  
-  @media (min-width: 992px) and (max-height: 600px) {
+  // 仅调整非常小屏幕的字体大小
+  @media (max-width: 480px) {
     font-size: calc(var(--board-width) * 0.07);
-  }
-  
-  // 竖屏模式下调整字体大小
-  @media (max-width: 991px) {
-    font-size: calc(var(--board-width) * 0.07);
-    min-height: 36px;
   }
 `;
 
 // 原始的铅笔模式数字标注组件 - 恢复高亮功能
-const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
+const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false }) => {
   // 确保notes是数组且不为null或undefined
   const activeNotes = Array.isArray(notes) ? notes : [];
   
@@ -222,7 +343,7 @@ const PencilNotes = ({ notes = [], highlightedNumber = null }) => {
     // 动态计算字体大小，使用相对单位
     fontSize: 'calc(var(--board-width) * 0.025)',
     fontWeight: '500',
-    color: '#4A6FA5',
+    color: selected ? '#ffffff' : '#4A6FA5', // 选中时显示白色，非选中时显示正常颜色
     // 确保单元格内有适当的内边距
     padding: '1px'
   };
@@ -417,8 +538,17 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
     return classes.join(' ');
   };
   
-  // 单元格点击处理
-  const handleCellClick = (row, col) => {
+  // 通用单元格交互处理函数 - 简化实现，提高兼容性
+  const handleCellInteraction = (row, col, event) => {
+    // 防止事件冒泡和默认行为，确保跨设备一致性
+    if (event) {
+      event.stopPropagation();
+      // 对于触摸事件，我们阻止默认行为来避免潜在的滚动问题
+      if (event.type === 'touchstart') {
+        event.preventDefault();
+      }
+    }
+    
     if (onCellClick) {
       onCellClick(row, col);
     }
@@ -460,20 +590,29 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
             }
           }
           
+          // 生成通用的事件处理函数引用，减少重复代码
+          const interactionHandler = (e) => handleCellInteraction(rowIndex, colIndex, e);
+          
           return (
               <Cell
                 key={cellKey}
                 row={rowIndex}
                 col={colIndex}
                 className={cellClasses}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
+                onClick={interactionHandler}
+                onTouchStart={interactionHandler}
+                onMouseDown={interactionHandler} // 添加鼠标按下事件以增强桌面端交互
+                style={{
+                  touchAction: 'manipulation', // 优化移动设备交互
+                  userSelect: 'none' // 防止文本选择
+                }}
                 theme={theme}
               >
                 {value && value !== 0 && value !== 'error' ? (
                   value
                 ) : hasNotes ? (
-                  // 原有候选数系统 - 传递highlightedNumber以支持候选数高亮
-                  <PencilNotes notes={cellNotes} highlightedNumber={highlightedNumber} />
+                  // 原有候选数系统 - 传递highlightedNumber和选中状态以支持候选数高亮和白色显示
+                  <PencilNotes notes={cellNotes} highlightedNumber={highlightedNumber} selected={selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex} />
                 ) : (
                   ''
                 )}

@@ -177,19 +177,43 @@ const Icons = {
   )
 };
 
-// 游戏模式图标组件 - 使用更形象的游戏手柄图标
+// 游戏模式图标组件 - 使用PlayStation风格手柄
 const GameModeIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-    {/* 手柄主体 */}
-    <path d="M16 4H8C6.9 4 6 4.9 6 6v12c0 1.1 0.9 2 2 2h8c1.1 0 2-0.9 2-2V6C18 4.9 17.1 4 16 4zM7 6h1v10H7V6zM8 17H7v1h1V17zM17 6h-1v10h1V6zM16 17h1v1h-1V17z" />
-    {/* 方向键 - 十字形 */}
-    <path d="M10 7V5h4v2h3v4h-2v3h-4v-2H7V11h2V7h1z" fill="currentColor"/>
-    {/* 右侧圆形按钮 - A和B */}
-    <circle cx="18" cy="8" r="1.5" />
-    <circle cx="16" cy="11" r="1.5" />
-    {/* 顶部触发器按钮 */}
-    <rect x="8" y="3" width="2" height="1" rx="0.5" />
-    <rect x="14" y="3" width="2" height="1" rx="0.5" />
+    {/* 手柄主体外壳 */}
+    <path d="M10 3C7.24 3 5 5.24 5 8v8c0 2.76 2.24 5 5 5s5-2.24 5-5V8c0-2.76-2.24-5-5-5z" stroke="currentColor" strokeWidth="1" fill="none"/>
+    
+    {/* 左侧握把 */}
+    <path d="M3 10c0-1.1.9-2 2-2s2 .9 2 2 1 4 1 4H3s1-2.9 1-4z" stroke="currentColor" strokeWidth="1" fill="none"/>
+    
+    {/* 右侧握把 */}
+    <path d="M19 10c0-1.1-.9-2-2-2s-2 .9-2 2-1 4-1 4h7s-1-2.9-1-4z" stroke="currentColor" strokeWidth="1" fill="none"/>
+    
+    {/* 左侧圆形方向键 */}
+    <circle cx="7" cy="12" r="3" stroke="currentColor" strokeWidth="1" fill="none"/>
+    <circle cx="7" cy="12" r="1" />
+    
+    {/* 右侧PlayStation标志性按钮 */}
+    
+    {/* 三角形按钮 */}
+    <path d="M16 9L17.5 7.5L19 9L17.5 10.5Z" />
+    
+    {/* 圆形按钮 */}
+    <circle cx="17.5" cy="12.5" r="1" />
+    
+    {/* 十字形按钮 */}
+    <path d="M16 15H17V17H15V15H16Z" />
+    
+    {/* 方块按钮 */}
+    <path d="M19 15H20V16H19V15Z" />
+    
+    {/* 顶部肩键 */}
+    <rect x="6" y="4" width="2" height="1" rx="0.5" />
+    <rect x="16" y="4" width="2" height="1" rx="0.5" />
+    
+    {/* 底部选择和开始按钮 */}
+    <circle cx="10" cy="17" r="0.5" />
+    <circle cx="14" cy="17" r="0.5" />
   </svg>
 );
 

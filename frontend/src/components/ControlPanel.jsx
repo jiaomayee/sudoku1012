@@ -1496,8 +1496,8 @@ const ControlPanel = ({
                   </div>
                 </>
               ) : (
-                // 横屏布局：保持原有的九宫格布局
-                <div className="number-pad" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', width: '100%', maxHeight: '100%', overflow: 'visible', padding: '4px', boxSizing: 'border-box' }}>
+                // 横屏布局：保持原有的九宫格布局，添加适当负边距上移，减小与顶部间距但不侵占标题栏
+                <div className="number-pad" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', width: '100%', maxHeight: '100%', overflow: 'visible', padding: '4px', boxSizing: 'border-box', marginTop: '-10px' }}>
                   {/* 数字按钮 1-9 */}
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(number => {
                     // 使用hasOwnProperty确保当值为0时也能正确处理，而不是使用默认值9
@@ -1605,12 +1605,11 @@ const ControlPanel = ({
                       cursor: 'pointer',
                       boxSizing: 'border-box',
                        
-                      // 尺寸控制 - 自适应容器大小
+                      // 尺寸控制 - 自适应容器大小，与数字按钮保持一致
                       width: '100%',
                       aspectRatio: '1',
-                      height: '100%',
-                      minHeight: '40px',
-                      maxHeight: 'none',
+                      minHeight: '60px',
+                      maxHeight: '150px',
                       overflow: 'visible',
                       
                       // 阴影和过渡
@@ -1661,12 +1660,11 @@ const ControlPanel = ({
                       cursor: 'pointer',
                       boxSizing: 'border-box',
                        
-                      // 尺寸控制 - 自适应容器大小
+                      // 尺寸控制 - 自适应容器大小，与数字按钮保持一致
                       width: '100%',
                       aspectRatio: '1',
-                      height: '100%',
-                      minHeight: '40px',
-                      maxHeight: 'none',
+                      minHeight: '60px',
+                      maxHeight: '150px',
                       overflow: 'visible',
                       
                       // 阴影和过渡
@@ -1721,12 +1719,11 @@ const ControlPanel = ({
                       cursor: 'pointer',
                       boxSizing: 'border-box',
                        
-                      // 尺寸控制 - 自适应容器大小
+                      // 尺寸控制 - 自适应容器大小，与数字按钮保持一致
                       width: '100%',
                       aspectRatio: '1',
-                      height: '100%',
-                      minHeight: '40px',
-                      maxHeight: 'none',
+                      minHeight: '60px',
+                      maxHeight: '150px',
                       overflow: 'visible',
                       
                       // 阴影和过渡

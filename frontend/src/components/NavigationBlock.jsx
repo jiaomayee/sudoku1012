@@ -265,13 +265,13 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
     // 显示模式切换提示（支持多语言）
     if (newMode === 'learning') {
       // 从游戏模式切换到学习模式
-      toast.info(t('learningModeActive', '当前学习模式，已开启技巧辅助'), {
+      toast.info(t('learningModeActive'), {
         position: 'top-right',
         autoClose: 2000
       });
     } else {
       // 从学习模式切换到游戏模式
-      toast.info(t('gameModeActive', '当前游戏模式，已关闭技巧辅助'), {
+      toast.info(t('gameModeActive'), {
         position: 'top-right',
         autoClose: 2000
       });

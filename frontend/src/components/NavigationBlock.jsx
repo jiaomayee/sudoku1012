@@ -177,19 +177,19 @@ const Icons = {
   )
 };
 
-// 游戏模式图标组件 - 使用游戏手柄图标
+// 游戏模式图标组件 - 使用更形象的游戏手柄图标
 const GameModeIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
     {/* 手柄主体 */}
-    <path d="M17.5 6v12c0 1.38-1.12 2.5-2.5 2.5s-2.5-1.12-2.5-2.5v-2H9.5v2c0 1.38-1.12 2.5-2.5 2.5S4.5 19.88 4.5 18.5 5.62 16 7 16h0v-10c0-1.38 1.12-2.5 2.5-2.5S12 4.62 12 6v2h1v-2c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5z" />
-    {/* 方向键 - 上 */}
-    <path d="M9.5 9.5v-3h-1v3H6.5v1h2v3h1v-3h2v-1z" />
-    {/* 右侧按钮 - A和B */}
-    <circle cx="17" cy="9" r="2" />
-    <circle cx="19" cy="12" r="2" />
-    {/* 扳机键 */}
-    <rect x="13" y="6" width="1" height="3" rx="0.5" />
-    <rect x="13" y="15" width="1" height="3" rx="0.5" />
+    <path d="M16 4H8C6.9 4 6 4.9 6 6v12c0 1.1 0.9 2 2 2h8c1.1 0 2-0.9 2-2V6C18 4.9 17.1 4 16 4zM7 6h1v10H7V6zM8 17H7v1h1V17zM17 6h-1v10h1V6zM16 17h1v1h-1V17z" />
+    {/* 方向键 - 十字形 */}
+    <path d="M10 7V5h4v2h3v4h-2v3h-4v-2H7V11h2V7h1z" fill="currentColor"/>
+    {/* 右侧圆形按钮 - A和B */}
+    <circle cx="18" cy="8" r="1.5" />
+    <circle cx="16" cy="11" r="1.5" />
+    {/* 顶部触发器按钮 */}
+    <rect x="8" y="3" width="2" height="1" rx="0.5" />
+    <rect x="14" y="3" width="2" height="1" rx="0.5" />
   </svg>
 );
 

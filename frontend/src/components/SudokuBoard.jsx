@@ -15,7 +15,7 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   margin: 0 auto !important;
   padding: 0; /* 移除容器内边距，改为在单元格上处理边框 */
   box-sizing: border-box;
-  overflow: hidden !important;
+  overflow: visible !important;
   z-index: 1;
   grid-gap: 0;
   // 使用多层阴影增加立体感
@@ -90,11 +90,7 @@ const Cell = styled.div`
     font-weight: 400; /* 将预填数字字体调整为较细 */
     /* 使用与空白单元格相同的白色底色 */
     background: #ffffff;
-    /* 预填单元格也只使用右边框和下边框 */
-    border-right: 0.5px solid #e0e0e0;
-    border-bottom: 0.5px solid #e0e0e0;
-    border-top: none;
-    border-left: none;
+    /* 移除边框定义，让预填单元格继承基础单元格的边框设置 */
   }
   
   &.highlighted {
@@ -208,11 +204,11 @@ const Cell = styled.div`
     background: #ffeaa7;
   }
 
-  /* 边缘单元格处理 - 确保完全覆盖容器 */
-  ${props => props.row === 0 && `border-top: 0.5px solid #e0e0e0;`}
-  ${props => props.row === 8 && `border-bottom: 0.5px solid #e0e0e0;`}
-  ${props => props.col === 0 && `border-left: 0.5px solid #e0e0e0;`}
-  ${props => props.col === 8 && `border-right: 0.5px solid #e0e0e0;`}
+  /* 边缘单元格处理 */
+  ${props => props.row === 0 && `border-top: none;`}
+  ${props => props.row === 8 && `border-bottom: none;`}
+  ${props => props.col === 0 && `border-left: none;`}
+  ${props => props.col === 8 && `border-right: none;`}
   
   /* 四个角落单元格的特殊处理 - 与容器圆角保持一致 */
   ${props => props.row === 0 && props.col === 0 && `border-radius: var(--border-radius, 8px) 0 0 0;`}

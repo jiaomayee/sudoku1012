@@ -398,7 +398,13 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false })
     borderRadius: '4px', // 改为矩形背景，使用4px圆角
     fontWeight: 'bold',
     width: '80%',
-    height: '80%'
+    height: '80%',
+    // 确保高亮数字在背景中心
+    margin: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0' // 重置内边距，确保居中效果
   };
   
   return (

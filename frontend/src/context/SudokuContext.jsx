@@ -398,7 +398,7 @@ export const SudokuContextProvider = ({ children }) => {
       setGameStarted(true);
       setGameCompleted(false);
       setTimeElapsed(0);
-      setTimerActive(true);
+      setTimerActive(true); // 启动计时器，避免显示暂停界面
       setHistory([]);
       setHistoryIndex(-1);
 

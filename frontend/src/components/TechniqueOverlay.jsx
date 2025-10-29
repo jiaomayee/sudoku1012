@@ -21,6 +21,8 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
     return null;
   }
 
+  // 移除调试日志以提高性能
+
   // 根据屏幕方向使用不同的计算逻辑
   let cellWidth, cellHeight, fontSize, noteFontSize, overlayHeight;
   
@@ -310,13 +312,8 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       {techniqueCells.map((cell) => {
         const cellStyle = getCellStyle(cell);
         
-        // 根据高亮类型设置不同的数字颜色
-        let numberColor = '#2ecc71'; // 默认绿色
-        if (cell.highlightType === 'primary' || cell.highlightType === 'primary-removal') {
-          numberColor = '#27ae60'; // 深绿色
-        } else if (cell.highlightType === 'secondary') {
-          numberColor = '#2980b9'; // 深蓝色
-        }
+        // 数字颜色统一使用蓝色，与棋盘中的数字颜色风格一致
+        const numberColor = '#2196F3'; // 蓝色
         
         return (
           <div
@@ -328,10 +325,11 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
               <span
                 style={{
                   fontSize: fontSize,
-                  fontWeight: 'bold',
-                  color: numberColor,
+                  fontWeight: '600', // 与棋盘中的字体粗细一致
+                  color: '#2196F3', // 蓝色，与棋盘中的数字颜色风格一致
                   zIndex: 50,
-                  textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                  textShadow: 'none', // 移除阴影，使样式更接近棋盘
+                  fontFamily: 'inherit' // 继承父元素的字体
                 }}
               >
                 {cell.number}

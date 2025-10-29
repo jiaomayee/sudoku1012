@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { useMemo } from 'react';
 
 // 独立的技巧遮罩覆盖层组件 - 专门处理唯一余数技巧的遮罩效果
 const TechniqueMaskOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrait = false }) => {
@@ -18,23 +18,8 @@ const TechniqueMaskOverlay = ({ highlightedCells, boardWidth, boardHeight, isPor
   );
 
   if (techniqueCells.length === 0) {
-    console.log('TechniqueMaskOverlay: 没有技巧高亮单元格，不显示遮罩');
     return null;
   }
-
-  // 调试信息：显示接收到的技巧单元格数据
-  console.log('TechniqueMaskOverlay: 接收到的技巧单元格数量:', techniqueCells.length);
-  techniqueCells.forEach((cell, index) => {
-    console.log(`技巧单元格 ${index}:`, {
-      row: cell.row,
-      col: cell.col,
-      highlightType: cell.highlightType,
-      isTarget: cell.isTarget,
-      techniqueType: cell.techniqueType,
-      technique: cell.technique,
-      techniqueIndicator: cell.techniqueIndicator
-    });
-  });
 
   // 根据屏幕方向使用不同的计算逻辑
   let cellWidth, cellHeight, overlayHeight;
@@ -82,13 +67,8 @@ const TechniqueMaskOverlay = ({ highlightedCells, boardWidth, boardHeight, isPor
 
   // 如果不是唯一余数技巧，不显示遮罩
   if (!isNakedSingle) {
-    console.log('TechniqueMaskOverlay: 不是唯一余数技巧，不显示遮罩');
-    console.log('技巧单元格:', techniqueCells);
     return null;
   }
-  
-  console.log('TechniqueMaskOverlay: 检测到唯一余数技巧，显示遮罩');
-  console.log('技巧单元格:', techniqueCells);
 
   // 计算需要排除遮罩的区域（高亮区域）
   const exclusionAreas = [];
@@ -251,10 +231,7 @@ const TechniqueMaskOverlay = ({ highlightedCells, boardWidth, boardHeight, isPor
       }
     }
     
-    // 调试信息：显示遮罩生成结果
-    console.log('TechniqueMaskOverlay: 高亮区域映射表:', highlightMap);
-    console.log('TechniqueMaskOverlay: 生成的遮罩区域数量:', maskAreas.length);
-    console.log('TechniqueMaskOverlay: 排除区域数量:', exclusionAreas.length);
+    // 遮罩区域已生成
   }
 
   return (
@@ -291,11 +268,5 @@ const TechniqueMaskOverlay = ({ highlightedCells, boardWidth, boardHeight, isPor
   );
 };
 
-// 使用memo包装组件，避免不必要的重新渲染
-export default memo(TechniqueMaskOverlay, (prevProps, nextProps) => {
-  // 只有当highlightedCells发生变化时才重新渲染
-  return JSON.stringify(prevProps.highlightedCells) === JSON.stringify(nextProps.highlightedCells) &&
-         prevProps.boardWidth === nextProps.boardWidth &&
-         prevProps.boardHeight === nextProps.boardHeight &&
-         prevProps.isPortrait === nextProps.isPortrait;
-});
+// 导出组件
+export default TechniqueMaskOverlay;

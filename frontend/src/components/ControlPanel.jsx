@@ -202,7 +202,31 @@ const ControlPanel = ({
     const row = hasSingleCell ? technique.row : 0;
     const col = hasSingleCell ? technique.col : 0;
     const position = hasSingleCell ? `(${row + 1},${col + 1})` : t('multipleCells');
-    const value = technique.value || '';
+    
+    // 与handlePageChange保持一致的value提取逻辑
+    let value = '';
+    if (technique) {
+      // 优先使用value属性
+      value = technique.value || '';
+      
+      // 如果没有value属性，尝试从number属性获取
+      if (!value && technique.number !== undefined) {
+        value = technique.number;
+      }
+      
+      // 如果还是没有，尝试从其他属性中提取
+      if (!value && technique.result && technique.result.value) {
+        value = technique.result.value;
+      }
+      
+      if (!value && technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
+        // 从cells数组中提取第一个单元格的value
+        const firstCell = technique.cells[0];
+        if (firstCell && firstCell.value) {
+          value = firstCell.value;
+        }
+      }
+    }
     
     // 根据技巧类型构建解题步骤
     if (technique.type === 'nakedSingle') {
@@ -745,34 +769,116 @@ const ControlPanel = ({
     // 从解题步骤中提取目标数字 - 与handleTechniqueSelect保持一致
     let value = '';
     if (selectedTechnique) {
-      // 优先使用value属性
+      // 优先使用value属性（与handleTechniqueSelect保持一致）
       value = selectedTechnique.value || '';
+      console.log('1. 从selectedTechnique.value提取:', value);
       
       // 如果没有value属性，尝试从number属性获取
       if (!value && selectedTechnique.number !== undefined) {
         value = selectedTechnique.number;
+        console.log('2. 从selectedTechnique.number提取:', value);
       }
       
       // 如果还是没有，尝试从解题步骤中提取
       if (!value && techniqueSteps.length > 0) {
-        // 从第三页的解题步骤中提取目标数字
-        const step3 = techniqueSteps.find(step => step.step === 3);
-        if (step3 && step3.description) {
-          // 从描述中提取数字，例如："填入数字：5"
-          const numberMatch = step3.description.match(/\d+/);
+        // 从第二页的解题步骤中提取目标数字（因为第二页应该显示数字）
+        const step2 = techniqueSteps.find(step => step.step === 2);
+        if (step2 && step2.description) {
+          // 从描述中提取数字，例如："数字5只能出现在位置(1,1)"
+          const numberMatch = step2.description.match(/\d+/);
           if (numberMatch) {
             value = numberMatch[0];
+            console.log('3. 从step2.description提取:', value, '描述:', step2.description);
+          }
+        }
+        
+        // 如果第二页没有找到，尝试从第三页提取
+        if (!value) {
+          const step3 = techniqueSteps.find(step => step.step === 3);
+          if (step3 && step3.description) {
+            const numberMatch = step3.description.match(/\d+/);
+            if (numberMatch) {
+              value = numberMatch[0];
+              console.log('4. 从step3.description提取:', value, '描述:', step3.description);
+            }
           }
         }
       }
+      
+      // 如果所有方法都失败，尝试从selectedTechnique的其他属性中提取
+      if (!value && selectedTechnique.result && selectedTechnique.result.value) {
+        value = selectedTechnique.result.value;
+        console.log('5. 从selectedTechnique.result.value提取:', value);
+      }
+      
+      if (!value && selectedTechnique.cells && Array.isArray(selectedTechnique.cells) && selectedTechnique.cells.length > 0) {
+        // 从cells数组中提取第一个单元格的value
+        const firstCell = selectedTechnique.cells[0];
+        if (firstCell && firstCell.value) {
+          value = firstCell.value;
+          console.log('6. 从selectedTechnique.cells[0].value提取:', value);
+        }
+      }
+      
+      console.log('最终提取的value:', value);
     }
     
     // 调试信息：检查selectedTechnique对象结构
-    console.log('handlePageChange - selectedTechnique:', selectedTechnique);
-    console.log('handlePageChange - value:', value, 'newPage:', newPage, 'hasSingleCell:', hasSingleCell);
-    console.log('handlePageChange - selectedTechnique.value:', selectedTechnique?.value);
-    console.log('handlePageChange - selectedTechnique.number:', selectedTechnique?.number);
-    console.log('handlePageChange - techniqueSteps:', techniqueSteps);
+    console.log('=== handlePageChange 调试信息 ===');
+    console.log('newPage:', newPage);
+    console.log('selectedTechnique:', selectedTechnique);
+    console.log('selectedTechnique.type:', selectedTechnique?.type);
+    console.log('selectedTechnique.row:', selectedTechnique?.row, '(0-8对应第1-9行)');
+    console.log('selectedTechnique.col:', selectedTechnique?.col, '(0-8对应第1-9列)');
+    console.log('selectedTechnique.value:', selectedTechnique?.value);
+    console.log('selectedTechnique.number:', selectedTechnique?.number);
+    console.log('hasSingleCell:', hasSingleCell);
+    console.log('row:', row, 'col:', col, '(计算后的坐标)');
+    console.log('extracted value:', value);
+    console.log('techniqueSteps length:', techniqueSteps.length);
+    console.log('techniqueSteps:', techniqueSteps);
+    
+    // 详细检查value提取过程
+    console.log('=== value提取过程调试 ===');
+    if (selectedTechnique) {
+      console.log('1. selectedTechnique.value:', selectedTechnique.value);
+      console.log('2. selectedTechnique.number:', selectedTechnique.number);
+      
+      if (techniqueSteps.length > 0) {
+        const step2 = techniqueSteps.find(step => step.step === 2);
+        const step3 = techniqueSteps.find(step => step.step === 3);
+        console.log('3. step2 description:', step2?.description);
+        console.log('4. step3 description:', step3?.description);
+        
+        // 检查所有步骤
+        console.log('5. 所有techniqueSteps:');
+        techniqueSteps.forEach((step, index) => {
+          console.log(`  步骤${index}:`, step);
+        });
+      }
+      
+      console.log('6. selectedTechnique.result:', selectedTechnique.result);
+      console.log('7. selectedTechnique.cells:', selectedTechnique.cells);
+      
+      // 检查selectedTechnique的所有属性
+      console.log('8. selectedTechnique所有属性:');
+      Object.keys(selectedTechnique).forEach(key => {
+        console.log(`  ${key}:`, selectedTechnique[key]);
+      });
+    }
+    console.log('=== value提取过程调试结束 ===');
+    
+    // 检查技巧类型是否匹配
+    const isTargetTechnique = selectedTechnique && hasSingleCell && 
+        ['nakedSingle', 'hiddenSingleRow', 'hiddenSingleCol', 'hiddenSingleBox', 'notesSingle'].includes(selectedTechnique.type);
+    console.log('isTargetTechnique:', isTargetTechnique);
+    console.log('setHighlightedCells exists:', !!setHighlightedCells);
+    
+    // 检查坐标是否在有效范围内
+    const isValidRow = row >= 0 && row < 9;
+    const isValidCol = col >= 0 && col < 9;
+    console.log('坐标有效性 - row:', isValidRow, 'col:', isValidCol);
+    console.log('=== 调试信息结束 ===');
     
     // 对于候选数唯一法、隐性唯一数法和唯一数法，在不同页面显示不同的高亮效果
     if (setHighlightedCells && selectedTechnique && hasSingleCell && 
@@ -787,7 +893,9 @@ const ControlPanel = ({
           row: row,
           col: col,
           techniqueIndicator: true,
-          isTarget: true
+          isTarget: true,
+          techniqueType: selectedTechnique.type
+          // 第一页不设置number属性，确保不显示数字
         });
         
         // 根据技巧类型确定高亮区域
@@ -875,13 +983,14 @@ const ControlPanel = ({
         }
       } else if (newPage === 1) {
         // 第二页（点击"下一步"后）：显示目标数字和相关区域
-        // 确保目标单元格是数组中的第一个元素
-        cellsToHighlight.unshift({
+        // 首先添加目标单元格（显示数字）
+        cellsToHighlight.push({
           row: row,
           col: col,
           techniqueIndicator: true,
           number: value,
-          isTarget: true
+          isTarget: true,
+          techniqueType: selectedTechnique.type
         });
         
         // 根据技巧类型确定高亮区域
@@ -974,7 +1083,8 @@ const ControlPanel = ({
           col: col,
           techniqueIndicator: true,
           number: value,
-          isTarget: true
+          isTarget: true,
+          techniqueType: selectedTechnique.type
         });
       }
       
@@ -1074,6 +1184,20 @@ const ControlPanel = ({
         if (!targetExists) {
           pushPrimaryCell(row, col, value);
         }
+        
+        // 确保目标单元格有number属性
+        cellsToHighlight.forEach(cell => {
+          if (cell.row === row && cell.col === col) {
+            // 确保number属性存在
+            if (!cell.number && value) {
+              cell.number = value;
+            }
+            // 确保techniqueType属性存在
+            if (!cell.techniqueType && technique.type) {
+              cell.techniqueType = technique.type;
+            }
+          }
+        });
         
         // 对于唯一数法和候选数唯一法，高亮相关的行、列、宫
         if (['nakedSingle', 'notesSingle'].includes(technique.type)) {
@@ -2548,5 +2672,172 @@ const ControlPanel = ({
     </div>
   );
 };
+
+// 调试函数：检查实际应用中的技巧对象
+const debugSelectedTechnique = () => {
+  if (typeof window !== 'undefined') {
+    // 在全局对象中暴露调试函数
+    window.debugSudokuTechnique = () => {
+      console.log('=== 实际应用技巧对象调试 ===');
+      
+      // 尝试从React组件中获取selectedTechnique
+      const controlPanel = document.querySelector('.control-panel');
+      if (controlPanel) {
+        console.log('找到ControlPanel组件');
+        
+        // 检查是否有全局变量存储技巧对象
+        if (window.selectedTechnique) {
+          console.log('window.selectedTechnique:', window.selectedTechnique);
+        }
+        
+        // 检查localStorage中是否有技巧数据
+        const storedTechnique = localStorage.getItem('selectedTechnique');
+        if (storedTechnique) {
+          console.log('localStorage selectedTechnique:', JSON.parse(storedTechnique));
+        }
+      }
+      
+      console.log('=== 调试结束 ===');
+    };
+    
+    // 在组件挂载时存储技巧对象到全局变量
+    window.storeSelectedTechnique = (technique) => {
+      window.selectedTechnique = technique;
+      localStorage.setItem('selectedTechnique', JSON.stringify(technique));
+      console.log('技巧对象已存储到全局变量:', technique);
+    };
+    
+    console.log('调试函数已加载:');
+    console.log('- 在控制台输入 debugSudokuTechnique() 检查技巧对象');
+    console.log('- 技巧对象会自动存储到 window.selectedTechnique');
+  }
+};
+
+// 调用调试函数设置
+debugSelectedTechnique();
+
+// 测试函数：验证目标数字显示功能
+const testNumberDisplay = () => {
+  console.log('=== 开始测试目标数字显示功能 ===');
+  
+  // 测试数据1：模拟唯一余数法技巧
+  const testTechnique1 = {
+    type: 'nakedSingle',
+    row: 3,
+    col: 4,
+    value: '5',
+    number: '5'
+  };
+  
+  // 测试数据2：模拟隐性唯一数法技巧
+  const testTechnique2 = {
+    type: 'hiddenSingleRow',
+    row: 1,
+    col: 2,
+    value: '7',
+    number: '7'
+  };
+  
+  // 测试数据3：模拟没有value属性的技巧
+  const testTechnique3 = {
+    type: 'hiddenSingleCol',
+    row: 5,
+    col: 6,
+    number: '3'
+  };
+  
+  // 测试数据4：模拟从解题步骤中提取数字
+  const testTechnique4 = {
+    type: 'hiddenSingleBox',
+    row: 7,
+    col: 8
+  };
+  
+  const testSteps = [
+    { step: 1, description: '找到宫中的隐性唯一数' },
+    { step: 2, description: '数字9只能出现在位置(8,9)' },
+    { step: 3, description: '填入数字：9' }
+  ];
+  
+  // 测试值提取逻辑
+  const testValueExtraction = (technique, steps = []) => {
+    let value = '';
+    
+    // 优先使用value属性
+    value = technique.value || '';
+    
+    // 如果没有value属性，尝试从number属性获取
+    if (!value && technique.number !== undefined) {
+      value = technique.number;
+    }
+    
+    // 如果还是没有，尝试从解题步骤中提取
+    if (!value && steps.length > 0) {
+      // 从第二页的解题步骤中提取目标数字
+      const step2 = steps.find(step => step.step === 2);
+      if (step2 && step2.description) {
+        const numberMatch = step2.description.match(/\d+/);
+        if (numberMatch) {
+          value = numberMatch[0];
+        }
+      }
+      
+      // 如果第二页没有找到，尝试从第三页提取
+      if (!value) {
+        const step3 = steps.find(step => step.step === 3);
+        if (step3 && step3.description) {
+          const numberMatch = step3.description.match(/\d+/);
+          if (numberMatch) {
+            value = numberMatch[0];
+          }
+        }
+      }
+    }
+    
+    return value;
+  };
+  
+  // 测试每个技巧
+  console.log('测试技巧1 - 唯一余数法:', testValueExtraction(testTechnique1));
+  console.log('测试技巧2 - 隐性唯一数法:', testValueExtraction(testTechnique2));
+  console.log('测试技巧3 - 无value属性:', testValueExtraction(testTechnique3));
+  console.log('测试技巧4 - 从步骤提取:', testValueExtraction(testTechnique4, testSteps));
+  
+  // 测试高亮单元格生成逻辑
+  const testHighlightGeneration = (technique, page, value) => {
+    const hasSingleCell = technique && typeof technique.row === 'number' && typeof technique.col === 'number';
+    const row = hasSingleCell ? technique.row : 0;
+    const col = hasSingleCell ? technique.col : 0;
+    
+    const cellsToHighlight = [];
+    
+    if (page === 1) { // 第二页
+      // 确保目标单元格是数组中的第一个元素
+      cellsToHighlight.unshift({
+        row: row,
+        col: col,
+        techniqueIndicator: true,
+        number: value,
+        isTarget: true
+      });
+      
+      console.log(`页面${page} - 目标单元格: (${row},${col}), 数字: ${value}`);
+      console.log('高亮单元格数组:', cellsToHighlight);
+    }
+    
+    return cellsToHighlight;
+  };
+  
+  // 测试第二页的高亮生成
+  console.log('\
+测试第二页高亮生成:');
+  testHighlightGeneration(testTechnique1, 1, '5');
+  testHighlightGeneration(testTechnique2, 1, '7');
+  
+  console.log('=== 测试完成 ===');
+};
+
+// 导出测试函数（可选）
+// export { testNumberDisplay };
 
 export default ControlPanel;

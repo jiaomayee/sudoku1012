@@ -343,8 +343,15 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
     setProgress(0);
   };
   
+  // 添加防抖标志
+  const [isProcessingClick, setIsProcessingClick] = useState(false);
+  
   // 处理短点击
   const handleShortClick = () => {
+    // 防止短时间内重复触发
+    if (isProcessingClick) return;
+    
+    setIsProcessingClick(true);
     console.log('候选数按钮短点击');
     console.log('sudokuContext:', sudokuContext);
     
@@ -355,6 +362,9 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         position: 'top-right',
         autoClose: 2000
       });
+      
+      // 延迟重置状态，确保不会重复触发
+      setTimeout(() => setIsProcessingClick(false), 500);
       return;
     }
     
@@ -393,6 +403,9 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         autoClose: 2000
       });
     }
+    
+    // 延迟重置状态，确保不会重复触发
+    setTimeout(() => setIsProcessingClick(false), 500);
   };
   
   // 处理长按

@@ -61,7 +61,10 @@ const Cell = styled.div`
   cursor: pointer;
   /* 进一步优化性能：简化样式 */
   background: #ffffff; /* 纯色背景 */
-  border: 1px solid #e0e0e0; /* 使用纯色边框替代半透明 */
+  border-right: 0.5px solid #e0e0e0; /* 只设置右边框 */
+  border-bottom: 0.5px solid #e0e0e0; /* 只设置下边框 */
+  border-top: none;
+  border-left: none;
   color: #3498db; /* 修改为蓝色，用于用户输入的数字 */
   transition: none; /* 移除过渡效果以提升性能 */
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
@@ -87,13 +90,33 @@ const Cell = styled.div`
     font-weight: 400; /* 将预填数字字体调整为较细 */
     /* 使用与空白单元格相同的白色底色 */
     background: #ffffff;
-    border-color: rgba(102, 102, 102, 0.3);
+    /* 预填单元格也只使用右边框和下边框 */
+    border-right: 0.5px solid #e0e0e0;
+    border-bottom: 0.5px solid #e0e0e0;
+    border-top: none;
+    border-left: none;
   }
   
   &.highlighted {
-    /* 优化性能：使用纯色背景 */
-    background: #d1ecf1;
+    /* 优化性能：使用纯色背景，四周留出2px边距 */
+    background: transparent;
+    color: white;
     border-color: rgba(52, 152, 219, 0.5);
+    
+    /* 使用伪元素创建内部背景 */
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      background: #bbdefb; /* 加深的淡蓝色背景 */
+      z-index: -1;
+      border-radius: 2px;
+    }
   }
   
   /* 基础选中状态样式 - 确保在所有设备上的高对比度和可见性 */
@@ -150,8 +173,24 @@ const Cell = styled.div`
   }
   
   &.same-number {
-    /* 优化性能：使用纯色背景 */
-    background: #d1ecf1;
+    /* 优化性能：使用纯色背景，四周留出2px边距 */
+    background: transparent;
+    color: white;
+    
+    /* 使用伪元素创建内部背景 */
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      background: #bbdefb; /* 加深的淡蓝色背景 */
+      z-index: -1;
+      border-radius: 2px;
+    }
   }
   
   &.same-region {
@@ -181,14 +220,14 @@ const Cell = styled.div`
   ${props => props.row === 8 && props.col === 0 && `border-radius: 0 0 0 var(--border-radius, 8px);`}
   ${props => props.row === 8 && props.col === 8 && `border-radius: 0 0 var(--border-radius, 8px) 0;`}
   
-  /* 3x3子网格（宫）之间的分隔 - 使用浅灰色细线 */
+  /* 3x3子网格（宫）之间的分隔 - 使用更细的深灰色线 */
   ${props => {
     let borders = '';
     if (props.col % 3 === 0 && props.col > 0) {
-      borders += 'border-left: 2px solid #888888 !important;';
+      borders += 'border-left: 1px solid #888888 !important;';
     }
     if (props.row % 3 === 0 && props.row > 0) {
-      borders += 'border-top: 2px solid #888888 !important;';
+      borders += 'border-top: 1px solid #888888 !important;';
     }
     return borders;
   }}
@@ -354,8 +393,8 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false })
   
   // 高亮候选数的样式 - 与数字按钮颜色保持一致
   const highlightedItemStyle = {
-    color: '#ffffff',
-    backgroundColor: '#3498db', // 与按钮数字选中颜色相同
+    backgroundColor: '#42a5f5',
+    color: 'white',
     borderRadius: '4px', // 改为矩形背景，使用4px圆角
     fontWeight: 'bold',
     width: '80%',

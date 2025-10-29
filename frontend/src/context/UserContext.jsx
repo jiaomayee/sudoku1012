@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useRef } from 'react';
 import { toast } from 'react-toastify';
 import localforage from 'localforage';
 
@@ -24,6 +24,9 @@ export const UserContextProvider = ({ children }) => {
     pointingPairs: { mastered: 0, practiced: 0 },
     boxLineReduction: { mastered: 0, practiced: 0 }
   });
+  
+  // 防止重复显示欢迎弹窗的标志
+  const welcomeShownRef = useRef(false);
 
   // 初始化用户ID
   useEffect(() => {
@@ -39,10 +42,15 @@ export const UserContextProvider = ({ children }) => {
         // 生成新的用户ID
         storedUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         await localforage.setItem('userId', storedUserId);
-        toast.success('欢迎使用数独学习应用！', {
-          position: 'top-right',
-          autoClose: 2000
-        });
+        
+        // 防止重复显示欢迎弹窗
+        if (!welcomeShownRef.current) {
+          welcomeShownRef.current = true;
+          toast.success('欢迎使用数独学习应用！', {
+            position: 'top-right',
+            autoClose: 2000
+          });
+        }
       }
       
       setUserId(storedUserId);

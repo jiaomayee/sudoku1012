@@ -45,7 +45,6 @@ const getTechniqueDisplayType = (primaryType, secondaryType, t) => {
     // 确保返回的是翻译后的技巧名称
     const techniqueNames = {
       'nakedSingle': t('nakedSingleTechnique'),
-      'notesSingle': t('singleCandidateTechnique'),
       'nakedPairRow': t('nakedPairTechnique'),
       'nakedPairCol': t('nakedPairTechnique'),
       'nakedPairBox': t('nakedPairTechnique'),
@@ -738,16 +737,146 @@ const ControlPanel = ({
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     
-    // 对于候选数唯一法、隐性唯一数法和唯一数法，在第一、二页高亮目标单元格和相应区域
+    // 添加变量提取逻辑，与handleTechniqueSelect保持一致
+    const hasSingleCell = selectedTechnique && typeof selectedTechnique.row === 'number' && typeof selectedTechnique.col === 'number';
+    const row = hasSingleCell ? selectedTechnique.row : 0;
+    const col = hasSingleCell ? selectedTechnique.col : 0;
+    
+    // 从解题步骤中提取目标数字 - 与handleTechniqueSelect保持一致
+    let value = '';
+    if (selectedTechnique) {
+      // 优先使用value属性
+      value = selectedTechnique.value || '';
+      
+      // 如果没有value属性，尝试从number属性获取
+      if (!value && selectedTechnique.number !== undefined) {
+        value = selectedTechnique.number;
+      }
+      
+      // 如果还是没有，尝试从解题步骤中提取
+      if (!value && techniqueSteps.length > 0) {
+        // 从第三页的解题步骤中提取目标数字
+        const step3 = techniqueSteps.find(step => step.step === 3);
+        if (step3 && step3.description) {
+          // 从描述中提取数字，例如："填入数字：5"
+          const numberMatch = step3.description.match(/\d+/);
+          if (numberMatch) {
+            value = numberMatch[0];
+          }
+        }
+      }
+    }
+    
+    // 调试信息：检查selectedTechnique对象结构
+    console.log('handlePageChange - selectedTechnique:', selectedTechnique);
+    console.log('handlePageChange - value:', value, 'newPage:', newPage, 'hasSingleCell:', hasSingleCell);
+    console.log('handlePageChange - selectedTechnique.value:', selectedTechnique?.value);
+    console.log('handlePageChange - selectedTechnique.number:', selectedTechnique?.number);
+    console.log('handlePageChange - techniqueSteps:', techniqueSteps);
+    
+    // 对于候选数唯一法、隐性唯一数法和唯一数法，在不同页面显示不同的高亮效果
     if (setHighlightedCells && selectedTechnique && hasSingleCell && 
         ['nakedSingle', 'hiddenSingleRow', 'hiddenSingleCol', 'hiddenSingleBox', 'notesSingle'].includes(selectedTechnique.type)) {
       
-      // 在第一页或第二页时，高亮目标单元格和相应区域
-      if (newPage === 0 || newPage === 1) {
-        const cellsToHighlight = [];
-        
-        // 添加目标单元格
+      const cellsToHighlight = [];
+      
+      // 第一页：显示相关区域（行、列、宫）但不显示目标数字
+      if (newPage === 0) {
+        // 添加目标单元格（不显示数字）
         cellsToHighlight.push({
+          row: row,
+          col: col,
+          techniqueIndicator: true,
+          isTarget: true
+        });
+        
+        // 根据技巧类型确定高亮区域
+        if (selectedTechnique.type === 'hiddenSingleRow') {
+          // 行隐性唯一数法：仅高亮目标单元格的行
+          for (let c = 0; c < 9; c++) {
+            if (c !== col) {
+              cellsToHighlight.push({
+                row: row,
+                col: c,
+                techniqueIndicator: true,
+                highlightType: 'row'
+              });
+            }
+          }
+        } else if (selectedTechnique.type === 'hiddenSingleCol') {
+          // 列隐性唯一数法：仅高亮目标单元格的列
+          for (let r = 0; r < 9; r++) {
+            if (r !== row) {
+              cellsToHighlight.push({
+                row: r,
+                col: col,
+                techniqueIndicator: true,
+                highlightType: 'col'
+              });
+            }
+          }
+        } else if (selectedTechnique.type === 'hiddenSingleBox') {
+          // 宫隐性唯一数法：仅高亮目标单元格的宫
+          const boxRow = Math.floor(row / 3);
+          const boxCol = Math.floor(col / 3);
+          for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+            for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+              if (r !== row || c !== col) {
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  highlightType: 'box'
+                });
+              }
+            }
+          }
+        } else {
+          // 候选数唯一法和唯一数法：保持原有逻辑，高亮所有区域
+          // 添加目标单元格所在的整行
+          for (let c = 0; c < 9; c++) {
+            if (c !== col) {
+              cellsToHighlight.push({
+                row: row,
+                col: c,
+                techniqueIndicator: true,
+                highlightType: 'row'
+              });
+            }
+          }
+          
+          // 添加目标单元格所在的整列
+          for (let r = 0; r < 9; r++) {
+            if (r !== row) {
+              cellsToHighlight.push({
+                row: r,
+                col: col,
+                techniqueIndicator: true,
+                highlightType: 'col'
+              });
+            }
+          }
+          
+          // 添加目标单元格所在的整宫
+          const boxRow = Math.floor(row / 3);
+          const boxCol = Math.floor(col / 3);
+          for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+            for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+              if (r !== row || c !== col) {
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  highlightType: 'box'
+                });
+              }
+            }
+          }
+        }
+      } else if (newPage === 1) {
+        // 第二页（点击"下一步"后）：显示目标数字和相关区域
+        // 确保目标单元格是数组中的第一个元素
+        cellsToHighlight.unshift({
           row: row,
           col: col,
           techniqueIndicator: true,
@@ -838,18 +967,18 @@ const ControlPanel = ({
             }
           }
         }
-        
-        setHighlightedCells(cellsToHighlight);
       } else {
-        // 第三页只高亮目标单元格
-        setHighlightedCells([{
+        // 第三页：保持原有逻辑，只高亮目标单元格
+        cellsToHighlight.push({
           row: row,
           col: col,
           techniqueIndicator: true,
           number: value,
           isTarget: true
-        }]);
+        });
       }
+      
+      setHighlightedCells(cellsToHighlight);
     }
   };
   

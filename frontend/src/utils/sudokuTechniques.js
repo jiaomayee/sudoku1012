@@ -1872,7 +1872,6 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
   let hiddenTriples = [];
   let xWing = [];
   let yWing = [];
-  let notesSingles = [];
   
   if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
     nakedPairs = findNakedPairs(board, pencilNotes);
@@ -1903,10 +1902,7 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
     addToIdentified(nakedSingles);
     addToIdentified(hiddenSingles);
     
-    // 过滤候选数唯一法，只保留未被基础技巧识别的单元格
-    notesSingles = findNotesSingles(board, pencilNotes).filter(technique => {
-      return !technique.cells.some(([row, col]) => identifiedCells.has(`${row}-${col}`));
-    });
+
   }
   
   // 按技巧难度顺序合并所有技巧机会
@@ -1918,8 +1914,7 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
   
   // 只在需要时添加候选数相关技巧
   if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
-    // 候选数基础技巧（第二优先级）- 只包含未被基础技巧识别的单元格
-    result.push(...notesSingles);
+
     // 中级技巧（第三优先级）
     result.push(...nakedPairs);
     result.push(...hiddenPairs);
@@ -1954,7 +1949,6 @@ export const applyTechnique = (technique, board) => {
     case 'hiddenSingleRow':
     case 'hiddenSingleCol':
     case 'hiddenSingleBox':
-    case 'notesSingle':
       // 应用数字填入
       if (technique.row !== undefined && technique.col !== undefined && technique.value !== undefined) {
         newBoard[technique.row][technique.col] = technique.value;

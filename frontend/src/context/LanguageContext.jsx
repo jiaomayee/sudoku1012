@@ -148,8 +148,8 @@ export const translations = {
     notesCalculated: '已为所有空白格子计算并填充候选数',
     foundRandomTechnique: '随机发现技巧：',
     // 解题技巧和步骤
-      findSingleCandidateCell: '查找唯一候选数的单元格',
-      cellOnlyHasSingleCandidate: '单元格{position}只有唯一候选数{value}',
+      findSingleCandidateCell: '查找仅有唯一可填数字的单元格',
+      cellOnlyHasSingleCandidate: '单元格{position}只有唯一可填数字{value}',
       fillNumber: '填入数字{value}',
       findHiddenSingleInRegion: '在{regionType}{regionNum}中查找隐藏的唯一数字',
       numberOnlyInPosition: '数字{value}在{regionType}{regionNum}中只能出现在{position}',
@@ -394,8 +394,8 @@ export const translations = {
     exitPencilMode: 'Exit pencil mode, return to normal input',
     notesCalculated: 'Candidate numbers have been calculated and filled for all empty cells',
     // Solving techniques and steps
-      findSingleCandidateCell: 'Find cells with a single candidate number',
-      cellOnlyHasSingleCandidate: 'Cell {position} has only one candidate: {value}',
+      findSingleCandidateCell: 'Find cells with only one possible number',
+      cellOnlyHasSingleCandidate: 'Cell {position} can only contain number {value}',
       fillNumber: 'Fill in number {value}',
       findHiddenSingleInRegion: 'Find hidden single number in {regionType} {regionNum}',
       numberOnlyInPosition: 'Number {value} can only appear at {position} in {regionType} {regionNum}',

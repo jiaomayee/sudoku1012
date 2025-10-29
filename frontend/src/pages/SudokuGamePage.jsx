@@ -6,6 +6,7 @@ import NavigationBlock from '../components/NavigationBlock';
 import DisplayBlock from '../components/DisplayBlock';
 import DifficultySelectModal from '../components/DifficultySelectModal';
 import TechniqueOverlay from '../components/TechniqueOverlay';
+import TechniqueMaskOverlay from '../components/TechniqueMaskOverlay';
 import { useSudoku } from '../context/SudokuContext';
 import { toast } from 'react-toastify';
 import { useLoading } from '../context/LoadingContext';
@@ -570,6 +571,14 @@ const SudokuGamePage = () => {
                 isPencilMode={isPencilMode}
                 pencilNotes={sudokuContext?.pencilNotes || []}
               />
+              {/* 外挂式技巧遮罩层 - 唯一余数技巧专用 */}
+              <TechniqueMaskOverlay 
+                highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
+                boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                boardHeight={boardContainerRef.current?.offsetHeight || 450}
+                isPortrait={isPortrait}
+              />
+              
               {/* 外挂式技巧高亮层 */}
               <TechniqueOverlay 
                 highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
@@ -641,10 +650,19 @@ const SudokuGamePage = () => {
                   isPencilMode={isPencilMode}
                   pencilNotes={pencilNotes}
                 />
+                {/* 外挂式技巧遮罩层 - 唯一余数技巧专用 */}
+                <TechniqueMaskOverlay 
+                  highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
+                  boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                  boardHeight={boardContainerRef.current?.offsetHeight || 450}
+                  isPortrait={isPortrait}
+                />
+                
                 {/* 外挂式技巧高亮层 */}
                 <TechniqueOverlay 
                   highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
                   boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                  boardHeight={boardContainerRef.current?.offsetHeight || 450}
                   isPortrait={isPortrait}
                 />
               </div>

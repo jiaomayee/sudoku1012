@@ -640,9 +640,16 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
           // 逻辑2：没有单元格被选中时，点击数字按钮，与其相同的数字和候选数高亮
           if (!highlightedNumber && highlightedCells && Array.isArray(highlightedCells) && highlightedCells.length > 0) {
             // 检查highlightedCells数组中是否包含数字信息
-            const firstHighlighted = highlightedCells[0];
-            if (firstHighlighted && firstHighlighted.number && firstHighlighted.number !== 0 && firstHighlighted.number !== 'error') {
-              highlightedNumber = firstHighlighted.number;
+            // 优先查找有数字的目标单元格
+            const targetCell = highlightedCells.find(cell => cell.number && cell.number !== 0 && cell.number !== 'error');
+            if (targetCell) {
+              highlightedNumber = targetCell.number;
+            } else {
+              // 如果没有找到有数字的单元格，检查第一个单元格
+              const firstHighlighted = highlightedCells[0];
+              if (firstHighlighted && firstHighlighted.number && firstHighlighted.number !== 0 && firstHighlighted.number !== 'error') {
+                highlightedNumber = firstHighlighted.number;
+              }
             }
           }
           

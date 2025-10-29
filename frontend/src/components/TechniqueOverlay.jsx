@@ -255,9 +255,9 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
                 top: `${area.row * cellHeight}px`,
                 width: `${boardWidth}px`,
                 height: `${cellHeight}px`,
-                backgroundColor: 'rgba(52, 152, 219, 0.15)',
-                border: '1px solid rgba(52, 152, 219, 0.3)',
-                zIndex: 5,
+                backgroundColor: 'rgba(52, 152, 219, 0.25)',
+                border: '1px solid rgba(52, 152, 219, 0.5)',
+                zIndex: 15,
                 pointerEvents: 'none'
               }}
             />
@@ -274,9 +274,9 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
                 top: 0,
                 width: `${cellWidth}px`,
                 height: `${overlayHeight}px`,
-                backgroundColor: 'rgba(52, 152, 219, 0.15)',
-                border: '1px solid rgba(52, 152, 219, 0.3)',
-                zIndex: 5,
+                backgroundColor: 'rgba(52, 152, 219, 0.25)',
+                border: '1px solid rgba(52, 152, 219, 0.5)',
+                zIndex: 15,
                 pointerEvents: 'none'
               }}
             />
@@ -293,10 +293,10 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
                 top: `${area.boxRow * 3 * cellHeight}px`,
                 width: `${3 * cellWidth}px`,
                 height: `${3 * cellHeight}px`,
-                backgroundColor: 'rgba(46, 204, 113, 0.15)',
-                border: '2px solid rgba(46, 204, 113, 0.4)',
+                backgroundColor: 'rgba(46, 204, 113, 0.25)',
+                border: '2px solid rgba(46, 204, 113, 0.6)',
                 borderRadius: '6px',
-                zIndex: 6,
+                zIndex: 16,
                 pointerEvents: 'none'
               }}
             />

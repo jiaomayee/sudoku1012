@@ -35,58 +35,64 @@
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow, snippet" />
     
-    <!-- Google 自动推送代码 - 优化版本，避免CORS错误 -->
+    <!-- Google 自动推送代码 - 极简版本，仅使用最安全的方式 -->
     <script>
-    // 页面加载完成后推送URL给Google
+    // 注意：由于网络环境限制，某些Google服务可能无法直接访问
+    // 以下代码使用最基础的方式，减少对网站功能的影响
+    
+    // 页面加载完成后推送URL给Google - 仅使用Image对象方式
     window.addEventListener('load', function() {
-      // 方法1：使用Google Sitemap Ping接口 - Image对象方式不会触发CORS限制
+      // 使用Image对象发送请求，这种方式通常影响最小
       try {
+        // 1. 推送站点地图
         var img = new Image();
+        img.onerror = function() {
+          console.log('Google推送请求已尝试发送（可能受网络环境限制）');
+        };
         img.src = 'https://www.google.com/ping?sitemap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml');
         img.style.display = 'none';
         document.body.appendChild(img);
-        console.log('Google sitemap ping 请求已发送');
+        
+        // 2. 推送当前页面
+        setTimeout(function() {
+          try {
+            var notifyImg = new Image();
+            notifyImg.onerror = function() {
+              console.log('页面URL推送请求已尝试发送');
+            };
+            notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + encodeURIComponent(window.location.href);
+            notifyImg.style.display = 'none';
+            document.body.appendChild(notifyImg);
+          } catch(e) {
+            // 静默处理错误，不影响用户体验
+          }
+        }, 1000); // 延迟执行，避免同时发送多个请求
       } catch(e) {
-        console.log('Google ping方法执行出错:', e);
-      }
-      
-      // 方法2：直接推送当前页面URL (不依赖sitemap)
-      try {
-        var currentUrl = encodeURIComponent(window.location.href);
-        var notifyImg = new Image();
-        notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + currentUrl;
-        notifyImg.style.display = 'none';
-        document.body.appendChild(notifyImg);
-        console.log('当前页面URL推送请求已发送');
-      } catch(e) {
-        console.log('直接推送URL方法执行出错:', e);
-      }
-      
-      // 方法3：使用fetch API的no-cors模式
-      try {
-        fetch('https://www.google.com/ping?sitemap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml'), {
-          mode: 'no-cors'
-        }).catch(e => console.log('Fetch推送失败但不影响功能:', e));
-      } catch(e) {
-        console.log('Fetch推送方法执行出错:', e);
+        // 静默处理所有错误，确保网站功能不受影响
       }
     });
     
-    // 页面切换时也推送当前URL（针对SPA应用）
+    // 页面切换时的推送 - 简化版本
     if (window.history && window.history.pushState) {
       var originalPushState = window.history.pushState;
       window.history.pushState = function() {
         var result = originalPushState.apply(this, arguments);
-        try {
-          var currentUrl = encodeURIComponent(window.location.href);
-          var notifyImg = new Image();
-          notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + currentUrl;
-          notifyImg.style.display = 'none';
-          document.body.appendChild(notifyImg);
-          console.log('页面切换时URL推送请求已发送');
-        } catch(e) {
-          console.log('历史状态变更时推送URL出错:', e);
-        }
+        
+        // 使用setTimeout延迟执行，避免过于频繁的请求
+        setTimeout(function() {
+          try {
+            var notifyImg = new Image();
+            notifyImg.onerror = function() {
+              // 静默处理，不显示错误信息
+            };
+            notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + encodeURIComponent(window.location.href);
+            notifyImg.style.display = 'none';
+            document.body.appendChild(notifyImg);
+          } catch(e) {
+            // 静默处理所有错误
+          }
+        }, 500);
+        
         return result;
       };
     }

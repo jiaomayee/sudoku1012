@@ -70,6 +70,35 @@
       } catch(e) {
         // 静默处理所有错误，确保网站功能不受影响
       }
+      
+      // Bing 自动推送代码
+      try {
+        // 1. 使用Bing网站管理员工具推荐的推送方式
+        var bingImg = new Image();
+        bingImg.onerror = function() {
+          console.log('Bing推送请求已尝试发送');
+        };
+        bingImg.src = 'https://ssl.bing.com/webmaster/api.svc/ping?siteMap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml');
+        bingImg.style.display = 'none';
+        document.body.appendChild(bingImg);
+        
+        // 2. 推送当前页面URL给Bing
+        setTimeout(function() {
+          try {
+            var bingPageImg = new Image();
+            bingPageImg.onerror = function() {
+              // 静默处理
+            };
+            bingPageImg.src = 'https://ssl.bing.com/webmaster/api.svc/ping?siteMap=' + encodeURIComponent(window.location.href);
+            bingPageImg.style.display = 'none';
+            document.body.appendChild(bingPageImg);
+          } catch(e) {
+            // 静默处理错误
+          }
+        }, 1500); // 延迟执行，避免同时发送多个请求
+      } catch(e) {
+        // 静默处理所有错误
+      }
     });
     
     // 页面切换时的推送 - 简化版本
@@ -88,6 +117,19 @@
             notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + encodeURIComponent(window.location.href);
             notifyImg.style.display = 'none';
             document.body.appendChild(notifyImg);
+            
+            // 同时推送给Bing
+            try {
+              var bingPageImg = new Image();
+              bingPageImg.onerror = function() {
+                // 静默处理
+              };
+              bingPageImg.src = 'https://ssl.bing.com/webmaster/api.svc/ping?siteMap=' + encodeURIComponent(window.location.href);
+              bingPageImg.style.display = 'none';
+              document.body.appendChild(bingPageImg);
+            } catch(e) {
+              // 静默处理错误
+            }
           } catch(e) {
             // 静默处理所有错误
           }

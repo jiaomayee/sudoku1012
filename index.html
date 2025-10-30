@@ -35,38 +35,40 @@
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow, snippet" />
     
-    <!-- Google 自动推送代码 -->
+    <!-- Google 自动推送代码 - 优化版本，避免CORS错误 -->
     <script>
     // 页面加载完成后推送URL给Google
     window.addEventListener('load', function() {
-      // 方法1：使用Google Sitemap Ping接口
+      // 方法1：使用Google Sitemap Ping接口 - Image对象方式不会触发CORS限制
       try {
         var img = new Image();
         img.src = 'https://www.google.com/ping?sitemap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml');
         img.style.display = 'none';
         document.body.appendChild(img);
+        console.log('Google sitemap ping 请求已发送');
       } catch(e) {
-        console.log('Google ping方法1执行出错:', e);
+        console.log('Google ping方法执行出错:', e);
       }
       
-      // 方法2：使用XMLHttpRequest推送
-      try {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'https://www.google.com/ping?sitemap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml'));
-        xhr.send();
-      } catch(e) {
-        console.log('Google ping方法2执行出错:', e);
-      }
-      
-      // 方法3：直接推送当前页面URL (不依赖sitemap)
+      // 方法2：直接推送当前页面URL (不依赖sitemap)
       try {
         var currentUrl = encodeURIComponent(window.location.href);
         var notifyImg = new Image();
         notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + currentUrl;
         notifyImg.style.display = 'none';
         document.body.appendChild(notifyImg);
+        console.log('当前页面URL推送请求已发送');
       } catch(e) {
         console.log('直接推送URL方法执行出错:', e);
+      }
+      
+      // 方法3：使用fetch API的no-cors模式
+      try {
+        fetch('https://www.google.com/ping?sitemap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml'), {
+          mode: 'no-cors'
+        }).catch(e => console.log('Fetch推送失败但不影响功能:', e));
+      } catch(e) {
+        console.log('Fetch推送方法执行出错:', e);
       }
     });
     
@@ -81,6 +83,7 @@
           notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + currentUrl;
           notifyImg.style.display = 'none';
           document.body.appendChild(notifyImg);
+          console.log('页面切换时URL推送请求已发送');
         } catch(e) {
           console.log('历史状态变更时推送URL出错:', e);
         }

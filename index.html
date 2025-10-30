@@ -35,6 +35,60 @@
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow, snippet" />
     
+    <!-- Google 自动推送代码 -->
+    <script>
+    // 页面加载完成后推送URL给Google
+    window.addEventListener('load', function() {
+      // 方法1：使用Google Sitemap Ping接口
+      try {
+        var img = new Image();
+        img.src = 'https://www.google.com/ping?sitemap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml');
+        img.style.display = 'none';
+        document.body.appendChild(img);
+      } catch(e) {
+        console.log('Google ping方法1执行出错:', e);
+      }
+      
+      // 方法2：使用XMLHttpRequest推送
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://www.google.com/ping?sitemap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml'));
+        xhr.send();
+      } catch(e) {
+        console.log('Google ping方法2执行出错:', e);
+      }
+      
+      // 方法3：直接推送当前页面URL (不依赖sitemap)
+      try {
+        var currentUrl = encodeURIComponent(window.location.href);
+        var notifyImg = new Image();
+        notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + currentUrl;
+        notifyImg.style.display = 'none';
+        document.body.appendChild(notifyImg);
+      } catch(e) {
+        console.log('直接推送URL方法执行出错:', e);
+      }
+    });
+    
+    // 页面切换时也推送当前URL（针对SPA应用）
+    if (window.history && window.history.pushState) {
+      var originalPushState = window.history.pushState;
+      window.history.pushState = function() {
+        var result = originalPushState.apply(this, arguments);
+        try {
+          var currentUrl = encodeURIComponent(window.location.href);
+          var notifyImg = new Image();
+          notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + currentUrl;
+          notifyImg.style.display = 'none';
+          document.body.appendChild(notifyImg);
+        } catch(e) {
+          console.log('历史状态变更时推送URL出错:', e);
+        }
+        return result;
+      };
+    }
+    </script>
+    
     <!-- 结构化数据 -->
     <script type="application/ld+json">
     {

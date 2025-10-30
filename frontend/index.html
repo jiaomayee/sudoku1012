@@ -2,8 +2,11 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="sudoku-app-logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/app-logo.svg" />
+    <link rel="apple-touch-icon" href="/app-logo.svg" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="baidu-site-verification" content="codeva-JEb2RsCo5f" />
     <title>数独高级技巧学习 - 开源无广告数独游戏 | 高难度数独题目挑战</title>
     <meta name="description" content="免费开源的数独游戏平台，专注于高级数独技巧学习，包括X-Wing、XY-Wing、Swordfish等解法详解，提供无广告体验和骨灰级难度数独题目挑战。" />
     <meta name="keywords" content="数独,数独高级技巧,X-Wing解法,XY-Wing数独,BUG+1技巧,数独链列技巧,骨灰级数独题目,专家级数独挑战,开源数独游戏,无广告数独,数独技巧学习网站" />
@@ -18,17 +21,124 @@
     <meta property="og:description" content="专注于高级数独技巧学习的开源平台，提供X-Wing、Swordfish等解法详解和高难度数独挑战。" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://sudokutech.org.cn/" />
-    <meta property="og:image" content="https://sudokutech.org.cn/sudoku-app-logo.svg" />
+    <meta property="og:image" content="https://sudokutech.org.cn/app-logo.svg" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
     
     <!-- Twitter Card 标签 -->
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="数独高级技巧学习 - 开源无广告数独游戏" />
     <meta name="twitter:description" content="无广告的数独技巧学习平台，提供X-Wing、XY-Wing等高级解法教程和专家级数独题目。" />
-    <meta name="twitter:image" content="https://sudokutech.org.cn/sudoku-app-logo.svg" />
+    <meta name="twitter:image" content="https://sudokutech.org.cn/app-logo.svg" />
     
     <!-- 搜索引擎抓取优化 -->
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow, snippet" />
+    
+    <!-- Google 自动推送代码 - 极简版本，仅使用最安全的方式 -->
+    <script>
+    // 注意：由于网络环境限制，某些Google服务可能无法直接访问
+    // 以下代码使用最基础的方式，减少对网站功能的影响
+    
+    // 页面加载完成后推送URL给Google - 仅使用Image对象方式
+    window.addEventListener('load', function() {
+      // 使用Image对象发送请求，这种方式通常影响最小
+      try {
+        // 1. 推送站点地图
+        var img = new Image();
+        img.onerror = function() {
+          console.log('Google推送请求已尝试发送（可能受网络环境限制）');
+        };
+        img.src = 'https://www.google.com/ping?sitemap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml');
+        img.style.display = 'none';
+        document.body.appendChild(img);
+        
+        // 2. 推送当前页面
+        setTimeout(function() {
+          try {
+            var notifyImg = new Image();
+            notifyImg.onerror = function() {
+              console.log('页面URL推送请求已尝试发送');
+            };
+            notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + encodeURIComponent(window.location.href);
+            notifyImg.style.display = 'none';
+            document.body.appendChild(notifyImg);
+          } catch(e) {
+            // 静默处理错误，不影响用户体验
+          }
+        }, 1000); // 延迟执行，避免同时发送多个请求
+      } catch(e) {
+        // 静默处理所有错误，确保网站功能不受影响
+      }
+      
+      // Bing 自动推送代码
+      try {
+        // 1. 使用Bing网站管理员工具推荐的推送方式
+        var bingImg = new Image();
+        bingImg.onerror = function() {
+          console.log('Bing推送请求已尝试发送');
+        };
+        bingImg.src = 'https://ssl.bing.com/webmaster/api.svc/ping?siteMap=' + encodeURIComponent('https://sudokutech.org.cn/sitemap.xml');
+        bingImg.style.display = 'none';
+        document.body.appendChild(bingImg);
+        
+        // 2. 推送当前页面URL给Bing
+        setTimeout(function() {
+          try {
+            var bingPageImg = new Image();
+            bingPageImg.onerror = function() {
+              // 静默处理
+            };
+            bingPageImg.src = 'https://ssl.bing.com/webmaster/api.svc/ping?siteMap=' + encodeURIComponent(window.location.href);
+            bingPageImg.style.display = 'none';
+            document.body.appendChild(bingPageImg);
+          } catch(e) {
+            // 静默处理错误
+          }
+        }, 1500); // 延迟执行，避免同时发送多个请求
+      } catch(e) {
+        // 静默处理所有错误
+      }
+    });
+    
+    // 页面切换时的推送 - 简化版本
+    if (window.history && window.history.pushState) {
+      var originalPushState = window.history.pushState;
+      window.history.pushState = function() {
+        var result = originalPushState.apply(this, arguments);
+        
+        // 使用setTimeout延迟执行，避免过于频繁的请求
+        setTimeout(function() {
+          try {
+            var notifyImg = new Image();
+            notifyImg.onerror = function() {
+              // 静默处理，不显示错误信息
+            };
+            notifyImg.src = 'https://www.google.com/webmasters/tools/ping?sitemap=' + encodeURIComponent(window.location.href);
+            notifyImg.style.display = 'none';
+            document.body.appendChild(notifyImg);
+            
+            // 同时推送给Bing
+            try {
+              var bingPageImg = new Image();
+              bingPageImg.onerror = function() {
+                // 静默处理
+              };
+              bingPageImg.src = 'https://ssl.bing.com/webmaster/api.svc/ping?siteMap=' + encodeURIComponent(window.location.href);
+              bingPageImg.style.display = 'none';
+              document.body.appendChild(bingPageImg);
+            } catch(e) {
+              // 静默处理错误
+            }
+          } catch(e) {
+            // 静默处理所有错误
+          }
+        }, 500);
+        
+        return result;
+      };
+    }
+    </script>
     
     <!-- 结构化数据 -->
     <script type="application/ld+json">

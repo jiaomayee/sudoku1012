@@ -85,6 +85,9 @@ patches/
 # Test scripts (临时文件，可删除)
 check_db_structure.py
 test_expert_puzzle.py
+test-number-display.html
+test-target-number-fix.html
+test-target-number-fix2.html
 
 # Python virtual environment
 .venv/

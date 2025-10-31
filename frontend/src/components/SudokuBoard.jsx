@@ -79,7 +79,7 @@ const Cell = styled.div`
   overflow: hidden;
   outline: 0;
     
-    /* 保留3x3子网格之间的分隔线，但使用更明显的样式 */
+    /* 保留3x3子网格之间的分隔线，但使用更明确的样式 */
      /* 处理列方向的网格分隔线 - 移除none设置，让分隔线显示 */
      /* 处理行方向的网格分隔线 - 移除none设置，让分隔线显示 */
 
@@ -94,12 +94,16 @@ const Cell = styled.div`
   }
   
   &.highlighted {
-    /* 使用纯色背景，移除伪元素和透明效果 */
-    background: #64B5F6 !important; /* 使用与selected类相似的蓝色背景 */
-    color: inherit; /* 保持原数字颜色，不强制白色 */
-    border: 2px solid #42A5F5; /* 添加边框以增强视觉效果 */
+    /* 使用纯色背景 */
+    background: #64B5F6 !important; /* 保持现有蓝色背景 */
+    color: #666666 !important; /* 修改为灰色字体 */
+    border: 1px solid transparent; /* 保持边框一致性 */
     opacity: 1; /* 确保完全不透明 */
+    box-sizing: border-box !important; /* 使用border-box确保尺寸正确 */
+    box-shadow: inset 0 0 0 2px white; /* 创建2px宽的内部白边 */
   }
+  
+
   
   /* 基础选中状态样式 - 确保在所有设备上的高对比度和可见性 */
   &.selected {
@@ -157,12 +161,16 @@ const Cell = styled.div`
   }
   
   &.same-number {
-    /* 使用纯色背景，移除伪元素和透明效果 */
-    background: #90CAF9; /* 使用更明显的蓝色背景 */
-    color: inherit; /* 保持原字体颜色，不强制改变 */
+    /* 使用纯色背景 */
+    background: #90CAF9; /* 保持现有浅蓝色背景 */
+    color: #666666 !important; /* 修改为灰色字体 */
     border: 1px solid transparent; /* 保持边框一致性 */
+    box-sizing: border-box !important; /* 使用border-box确保尺寸正确 */
+    box-shadow: inset 0 0 0 2px white; /* 创建2px宽的内部白边 */
   }
   
+
+
   &.same-region {
     /* 优化性能：使用纯色背景 */
     background: #e8f4fd;

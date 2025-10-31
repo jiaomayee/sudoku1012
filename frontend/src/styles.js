@@ -40,9 +40,9 @@ const lightTheme = {
   // 游戏特定颜色
   sudokuCellBorder: '#CCCCCC',
   sudokuCellBorderThick: '#666666',
-  sudokuCellHighlight: '#E3F2FD',
+  sudokuCellHighlight: '#90CAF9',
   sudokuCellError: '#FFEBEE',
-  sudokuCellSelected: '#BBDEFB',
+  sudokuCellSelected: '#64B5F6',
   sudokuCellPreFilled: '#F5F5F5',
 };
 

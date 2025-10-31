@@ -306,7 +306,6 @@ const GlobalStyle = createGlobalStyle`
     background-color: ${props => props.theme.surface};
     color: ${props => props.theme.text};
     cursor: pointer;
-    transition: all 0.2s ease;
   }
 
   .sudoku-cell:hover {

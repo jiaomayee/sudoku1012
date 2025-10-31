@@ -300,7 +300,7 @@ const GlobalStyle = createGlobalStyle`
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    font-weight: 300;
+    font-weight: 200;
     border: 1px solid ${props => props.theme.sudokuCellBorder};
     background-color: ${props => props.theme.surface};
     color: ${props => props.theme.text};

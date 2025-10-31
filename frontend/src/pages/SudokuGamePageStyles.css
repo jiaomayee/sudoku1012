@@ -658,12 +658,32 @@ html, body {
   flex-direction: column;
   gap: 25px;
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 40px auto 20px;
   padding: 20px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* 移动设备适配 - 小屏幕 */
+@media (max-width: 480px) {
+  .sudoku-info-section {
+    padding: 15px;
+    margin: 20px 6px;
+    border-radius: 8px;
+    max-width: none;
+    box-sizing: border-box;
+  }
+}
+
+/* 移动设备横屏适配 */
+@media (max-width: 900px) and (orientation: landscape) {
+  .sudoku-info-section {
+    margin: 20px auto;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .info-block {

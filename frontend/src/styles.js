@@ -301,6 +301,7 @@ const GlobalStyle = createGlobalStyle`
     justify-content: center;
     font-size: 20px;
     font-weight: 200;
+    font-family: 'Arial', 'Helvetica Neue', 'Helvetica', sans-serif;
     border: 1px solid ${props => props.theme.sudokuCellBorder};
     background-color: ${props => props.theme.surface};
     color: ${props => props.theme.text};

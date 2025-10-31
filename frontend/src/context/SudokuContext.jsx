@@ -49,6 +49,7 @@ export const SudokuContextProvider = ({ children }) => {
   const [isPencilMode, setIsPencilMode] = useState(false); // 铅笔模式状态
   const [pencilNotes, setPencilNotes] = useState({}); // 存储标注数字，格式为 {"row-col": [1, 2, 3]}
   const [lockedCells, setLockedCells] = useState(new Set()); // 存储已锁定的单元格（用户填入正确数字的单元格）
+  const [isFillAllCandidatesActive, setIsFillAllCandidatesActive] = useState(false); // 全部候选数填充状态
 
   // 初始化时自动生成谜题
   useEffect(() => {
@@ -254,6 +255,9 @@ export const SudokuContextProvider = ({ children }) => {
       setCumulativeErrorCount(0); // 重置累计错误次数
       setIncorrectCells(new Set()); // 重置错误单元格
       setLockedCells(new Set()); // 重置锁定单元格
+      
+      // 确保重置与候选数按钮相关的状态标志
+      setIsFillAllCandidatesActive(false); // 重置全部候选数填充状态
       
       // 添加短暂延迟，确保状态更新完成后再继续
       await new Promise(resolve => setTimeout(resolve, 50));
@@ -500,6 +504,9 @@ export const SudokuContextProvider = ({ children }) => {
       setCumulativeErrorCount(0); // 重置累计错误次数
       setIncorrectCells(new Set()); // 重置错误单元格
       setLockedCells(new Set()); // 重置锁定单元格
+      
+      // 确保重置与候选数按钮相关的状态标志
+      setIsFillAllCandidatesActive(false); // 重置全部候选数填充状态
       
       // 确保gameStarted状态为true
       setGameStarted(true);
@@ -1249,6 +1256,12 @@ export const SudokuContextProvider = ({ children }) => {
     
     // 标记进度为已完成
     saveGameProgress();
+    
+    // 3秒后自动触发打开新游戏窗口的事件
+    // 使用CustomEvent来通知组件层打开新游戏窗口
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('openNewGameWindow'));
+    }, 3000);
   };
 
   // 获取候选数

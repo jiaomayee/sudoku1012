@@ -126,10 +126,19 @@ const SudokuGamePage = () => {
       gameArea.addEventListener('click', handleGameAreaClick);
     }
     
+    // 添加监听自动打开新游戏窗口的事件
+    const handleOpenNewGameWindow = () => {
+      console.log('接收到打开新游戏窗口的事件');
+      handleNewGame();
+    };
+    
+    window.addEventListener('openNewGameWindow', handleOpenNewGameWindow);
+    
     return () => {
       if (gameArea) {
         gameArea.removeEventListener('click', handleGameAreaClick);
       }
+      window.removeEventListener('openNewGameWindow', handleOpenNewGameWindow);
     };
   }, [selectedCell]);
   
@@ -242,6 +251,16 @@ const SudokuGamePage = () => {
   // 处理新游戏
   const handleNewGame = () => {
     console.log('handleNewGame 被调用');
+    // 重置候选数相关状态
+    setShowNotesInstructions(false);
+    setShowPencilModeInstructions(false);
+    
+    // 确保清除任何高亮或选中状态
+    setSelectedCell(null);
+    if (sudokuContext?.setHighlightedCells) {
+      sudokuContext.setHighlightedCells([]);
+    }
+    
     // 显示难度选择模态框
     setShowDifficultyModal(true);
     console.log('设置 showDifficultyModal 为 true');

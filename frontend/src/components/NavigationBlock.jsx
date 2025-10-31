@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
@@ -223,6 +223,23 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   const [progress, setProgress] = useState(0); // 进度条进度
   const longPressTimer = useRef(null); // 长按计时器
   const progressTimer = useRef(null); // 进度条计时器
+
+  // 添加对自动打开新游戏窗口事件的监听
+  useEffect(() => {
+    const handleOpenNewGameWindow = () => {
+      console.log('NavigationBlock: 接收到打开新游戏窗口的事件');
+      // 重置候选数按钮激活状态
+      setIsNotesButtonActive(false);
+      // 显示难度选择模态框
+      setShowDifficultyModal(true);
+    };
+    
+    window.addEventListener('openNewGameWindow', handleOpenNewGameWindow);
+    
+    return () => {
+      window.removeEventListener('openNewGameWindow', handleOpenNewGameWindow);
+    };
+  }, []);
 
   // 处理新建游戏按钮点击
   const handleNewGameClick = () => {

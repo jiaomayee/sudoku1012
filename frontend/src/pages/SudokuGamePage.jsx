@@ -705,6 +705,27 @@ const SudokuGamePage = () => {
         )}
       </div>
       
+      {/* 新增内容区块 - 为SEO优化添加 */}
+      <div className="sudoku-info-section">
+        {/* 欢迎区域 */}
+        <div className="info-block welcome-section">
+          <h2>{t('welcomeTitle')}</h2>
+          <p>{t('welcomeContent')}</p>
+        </div>
+        
+        {/* 数独基本规则 */}
+        <div className="info-block rules-section">
+          <h2>{t('rulesTitle')}</h2>
+          <p>{t('rulesContent')}</p>
+        </div>
+        
+        {/* 数独技巧介绍 */}
+        <div className="info-block techniques-section">
+          <h2>{t('techniquesTitle')}</h2>
+          <div className="techniques-container" dangerouslySetInnerHTML={{ __html: t('techniquesContent') }} />
+        </div>
+      </div>
+      
       {/* 加载覆盖层 */}
       {isLoading && (
         <div className="loading-overlay">

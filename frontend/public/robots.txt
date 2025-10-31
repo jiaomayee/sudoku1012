@@ -13,7 +13,7 @@ Disallow: /admin/
 Disallow: /tmp/
 
 # 网站地图
-Sitemap: https://sudoku1012.com/sitemap.xml
+Sitemap: https://sudokutech.org.cn/sitemap.xml
 
 # 针对不同搜索引擎的优化
 User-agent: Googlebot

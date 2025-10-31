@@ -181,8 +181,7 @@ html, body {
     padding: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    /* 使用更严格的吸附模式，增强导航区块下边线的吸附效果 */
-    scroll-snap-type: y mandatory;
+    /* 移除滚动吸附，允许自由滚动 */
     -webkit-overflow-scrolling: touch;
     position: relative;
   }
@@ -243,22 +242,12 @@ html, body {
     padding: 0;
     margin: 0;
     position: relative;
-    scroll-snap-align: end; /* 设置吸附点为元素底部 */
-    scroll-margin-bottom: 5px; /* 底部边距，增强下边线吸附效果 */
+    /* 移除吸附设置，允许自由滚动 */
   }
   
-  /* 在导航区块下方添加透明滚动吸附线，增强吸附体验但不显示视觉线条 */
+  /* 移除导航区块下方的吸附线，避免限制滚动 */
   .nav-block::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: transparent; /* 设置为透明，不显示视觉线条 */
-    scroll-snap-align: start;
-    scroll-margin-top: 5px;
-    z-index: -1; /* 设置为负值，确保位于所有元素下方，不拦截点击事件 */
+    content: none; /* 完全移除伪元素 */
   }
   
   /* 竖屏模式下显示顶部菜单栏 */
@@ -266,9 +255,7 @@ html, body {
     display: block;
     padding: 4px 0; /* 减少上下内边距以降低高度 */
     margin-bottom: 4px; /* 调整底部间距 */
-    /* 保留顶部菜单栏的吸附设置，但使用更宽松的设置 */
-    scroll-snap-align: start;
-    scroll-margin-top: 5px;
+    /* 移除吸附设置，允许自由滚动 */
   }
   
   /* 上滑提示功能已停用 - 专注于滚动吸附功能实现 */
@@ -475,6 +462,12 @@ html, body {
     height: var(--board-width);
   }
   
+  /* 设置内容区块在横屏时的宽度与棋盘和控制面板整体宽度一致 */
+  .sudoku-info-section {
+    width: calc(var(--board-width) + var(--control-panel-width) + var(--block-gap));
+    display: block;
+  }
+  
   /* 适度增加横屏模式下控制面板按钮的高度和文字大小 */
   .control-panel button {
     min-height: 45px !important; /* 适度增加按钮最小高度 */
@@ -540,5 +533,220 @@ html, body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* 信息区块样式 - SEO优化内容 */
+.sudoku-info-section {
+  margin: 40px auto 20px;
+  padding: 0;
+  animation: fadeIn 0.5s ease-in-out;
+  box-sizing: border-box;
+}
+
+.info-block {
+  margin-bottom: 30px;
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-block:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.info-block:last-child {
+  margin-bottom: 0;
+}
+
+/* 为不同区块添加微妙的背景色差异 */
+.info-block.welcome-section {
+  background-color: #f8f9fa;
+  border-left: 4px solid #3498db;
+}
+
+.info-block.rules-section {
+  background-color: #f0f7ff;
+  border-left: 4px solid #2ecc71;
+}
+
+.info-block.techniques-section {
+  background-color: #fff7f0;
+  border-left: 4px solid #e67e22;
+}
+
+.info-block h2 {
+  color: #2c3e50;
+  font-size: 24px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #3498db;
+  font-weight: 600;
+  position: relative;
+}
+
+.info-block h2::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background-color: #e67e22;
+}
+
+/* 为不同区块的标题设置不同的颜色 */
+.info-block.welcome-section h2::after {
+  background-color: #3498db;
+}
+
+.info-block.rules-section h2::after {
+  background-color: #2ecc71;
+}
+
+.info-block.techniques-section h2::after {
+  background-color: #e67e22;
+}
+
+.info-block p {
+  color: #555;
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 0;
+  text-align: justify;
+}
+
+/* 技巧列表样式 */
+.techniques-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.techniques-list li {
+  padding: 8px 0 8px 25px;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.techniques-list li::before {
+  content: '✦';
+  position: absolute;
+  left: 0;
+  color: #3498db;
+  font-weight: bold;
+}
+
+.techniques-list.difficulty-basic li::before {
+  color: #2ecc71;
+}
+
+.techniques-list.difficulty-intermediate li::before {
+  color: #f39c12;
+}
+
+.techniques-list.difficulty-advanced li::before {
+  color: #e74c3c;
+}
+
+/* 信息区块样式 - 为SEO优化添加 */
+.sudoku-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 100%;
+  max-width: 900px;
+  margin: 40px auto 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.info-block {
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.info-block h2 {
+  font-size: 22px;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ecf0f1;
+  font-weight: 600;
+}
+
+.info-block p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #555;
+  margin: 0;
+}
+
+/* 技巧列表样式 */
+.techniques-container {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.techniques-container strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* 竖屏/移动设备适配 */
+@media (max-width: 991px) {
+  .sudoku-info-section {
+    width: var(--board-width);
+    margin: 30px auto 15px;
+    padding: 15px;
+    gap: 15px;
+  }
+  
+  .info-block {
+    padding: 15px;
+  }
+  
+  .info-block h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+  }
+  
+  .info-block p,
+  .techniques-container {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+/* 极窄屏幕适配 */
+@media (max-width: 480px) {
+  .sudoku-info-section {
+    margin: 25px auto 10px;
+    padding: 0 12px;
+    gap: 12px;
+  }
+  
+  .info-block {
+    padding: 18px;
+    border-radius: 6px;
+  }
+  
+  .info-block h2 {
+    font-size: 17px;
   }
 }

@@ -31,9 +31,7 @@ const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   // 确保在父容器中正确对齐
   align-self: flex-start;
   
-  // 添加滚动吸附功能
-  scroll-snap-align: start;
-  scroll-margin: 5px;
+  // 移除滚动吸附功能，允许自由滚动
   
   // 竖屏模式下减小高度
   @media (max-width: 768px) and (orientation: portrait) {

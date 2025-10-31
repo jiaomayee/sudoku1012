@@ -309,12 +309,13 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .sudoku-cell:hover {
-    background-color: ${props => props.theme.sudokuCellHighlight};
+    background-color: #90CAF9 !important;
   }
 
   .sudoku-cell.selected {
-    background-color: ${props => props.theme.sudokuCellSelected};
+    background-color: #64B5F6 !important;
     border-color: ${props => props.theme.primary};
+    opacity: 1;
   }
 
   .sudoku-cell.prefilled {

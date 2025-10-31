@@ -102,11 +102,11 @@ class TechniqueIndicator {
       });
       
       // 应用高亮
-      cell.style.backgroundColor = color + '20'; // 20% 透明度
-      cell.style.borderColor = color;
-      cell.style.borderWidth = '2px';
-      cell.style.borderStyle = 'solid';
-      cell.style.transition = 'all 0.3s ease';
+      cell.style.backgroundColor = color; // 移除透明度
+    cell.style.borderColor = color;
+    cell.style.borderWidth = '2px';
+    cell.style.borderStyle = 'solid';
+    // 移除过渡效果
     }
   }
 

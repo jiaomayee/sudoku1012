@@ -94,52 +94,40 @@ const Cell = styled.div`
   }
   
   &.highlighted {
-    /* 优化性能：使用纯色背景，四周留出2px边距 */
-    background: transparent;
-    color: white;
-    border-color: rgba(52, 152, 219, 0.5);
-    
-    /* 使用伪元素创建内部背景 */
-    position: relative;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      right: 2px;
-      bottom: 2px;
-      background: #bbdefb; /* 加深的淡蓝色背景 */
-      z-index: -1;
-      border-radius: 2px;
-    }
+    /* 使用纯色背景，移除伪元素和透明效果 */
+    background: #64B5F6 !important; /* 使用与selected类相似的蓝色背景 */
+    color: inherit; /* 保持原数字颜色，不强制白色 */
+    border: 2px solid #42A5F5; /* 添加边框以增强视觉效果 */
+    opacity: 1; /* 确保完全不透明 */
   }
   
   /* 基础选中状态样式 - 确保在所有设备上的高对比度和可见性 */
   &.selected {
-    /* 使用较浅的蓝色，提高视觉舒适度 */
-    background: #42a5f5 !important; /* 更浅的Material Design蓝色 */
-    color: white !important;
+    /* 使用与.same-number和.highlighted类一致的高亮颜色 */
+    background: #64B5F6 !important; /* 与highlighted状态完全一致的蓝色 */
+    color: white !important; /* 一直保持白色字体 */
     z-index: 2;
-    /* 使用更明显的边框和阴影组合，增强视觉反馈 */
-    border: 2px solid #1e88e5 !important;
-    font-weight: bold;
+    /* 使用更明显的边框 */
+    border: 2px solid #42A5F5 !important;
+    font-weight: bold !important; /* 使用粗体增强可读性 */
     /* 确保在所有平台上的渲染一致性 */
     -webkit-tap-highlight-color: transparent;
   }
   
   /* 普通选中状态 - 与基础选中状态保持一致 */
   &.normal-selected {
-    background: #42a5f5 !important;
-    color: white !important;
-    border: 2px solid #1e88e5 !important;
+    background: #64B5F6 !important;
+    color: white !important; /* 一直保持白色字体 */
+    border: 2px solid #42A5F5 !important;
+    font-weight: bold !important; /* 使用粗体增强可读性 */
   }
   
-  /* 铅笔模式选中状态 - 略微调整颜色但保持高对比度 */
+  /* 铅笔模式选中状态 */
   &.pencil-selected {
-    background: #0097a7 !important; /* 调整为更统一的青色系 */
-    color: white !important;
+    background: #0097a7 !important;
+    color: white !important; /* 一直保持白色字体 */
     border: 2px solid #00796b !important;
+    font-weight: bold !important; /* 使用粗体增强可读性 */
   }
   
   &.error,
@@ -169,24 +157,10 @@ const Cell = styled.div`
   }
   
   &.same-number {
-    /* 优化性能：使用纯色背景，四周留出2px边距 */
-    background: transparent;
-    color: white;
-    
-    /* 使用伪元素创建内部背景 */
-    position: relative;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      right: 2px;
-      bottom: 2px;
-      background: #bbdefb; /* 加深的淡蓝色背景 */
-      z-index: -1;
-      border-radius: 2px;
-    }
+    /* 使用纯色背景，移除伪元素和透明效果 */
+    background: #90CAF9; /* 使用更明显的蓝色背景 */
+    color: inherit; /* 保持原字体颜色，不强制改变 */
+    border: 1px solid transparent; /* 保持边框一致性 */
   }
   
   &.same-region {

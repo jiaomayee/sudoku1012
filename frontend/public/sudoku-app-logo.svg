@@ -50,16 +50,16 @@
    </g> 
    
    <!-- 字体颜色改回原颜色#2196F3 --> 
-   <g font-family="Arial" font-size="56" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#2196F3"> 
-     <text x="50" y="55">1</text> 
-     <text x="150" y="55">2</text> 
-     <text x="250" y="55">3</text> 
-     <text x="50" y="155">4</text> 
-     <text x="150" y="155">5</text> 
-     <text x="250" y="155">6</text> 
-     <text x="50" y="255">7</text> 
-     <text x="150" y="255">8</text> 
-     <text x="250" y="255">9</text> 
+   <g font-family="Arial" font-size="72" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#2196F3"> 
+     <text x="50" y="75">1</text> 
+     <text x="150" y="75">2</text> 
+     <text x="250" y="75">3</text> 
+     <text x="50" y="175">4</text> 
+     <text x="150" y="175">5</text> 
+     <text x="250" y="175">6</text> 
+     <text x="50" y="275">7</text> 
+     <text x="150" y="275">8</text> 
+     <text x="250" y="275">9</text> 
    </g> 
    
    <!-- 右高左低的铅笔（保留原结构和样式，对比清晰） --> 

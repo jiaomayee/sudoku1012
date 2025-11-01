@@ -36,6 +36,9 @@ export const translations = {
     // 模式切换提示
     learningModeActive: '当前学习模式，已开启技巧辅助',
     gameModeActive: '当前游戏模式，已关闭技巧辅助',
+    // 模式详细描述
+    learningModeDescription: '提供技巧学习辅助，帮助您学习数独解题技巧。',
+    gameModeDescription: '关闭技巧学习辅助功能，专注于游戏体验。',
     // 游戏完成消息
     gameCompletedMessage: '恭喜！您成功完成了这个数独！',
     // 谜题生成错误消息
@@ -327,6 +330,9 @@ export const translations = {
     // Mode switch notifications
     learningModeActive: 'Current learning mode, technique assistance enabled',
     gameModeActive: 'Current game mode, technique assistance disabled',
+    // Mode detailed descriptions
+    learningModeDescription: 'Provides technique learning assistance to help you learn Sudoku solving techniques.',
+    gameModeDescription: 'Disables technique learning assistance for a focused gaming experience.',
     // Game completion message
     gameCompletedMessage: 'Congratulations! You have successfully completed this Sudoku!',
     // Puzzle generation error messages

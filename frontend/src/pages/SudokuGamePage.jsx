@@ -126,19 +126,13 @@ const SudokuGamePage = () => {
       gameArea.addEventListener('click', handleGameAreaClick);
     }
     
-    // 添加监听自动打开新游戏窗口的事件
-    const handleOpenNewGameWindow = () => {
-      console.log('接收到打开新游戏窗口的事件');
-      handleNewGame();
-    };
-    
-    window.addEventListener('openNewGameWindow', handleOpenNewGameWindow);
+      // 移除游戏结束后自动打开新游戏窗口的事件监听，避免与NavigationBlock重复
+    // 新游戏窗口的显示现在由NavigationBlock组件统一处理
     
     return () => {
       if (gameArea) {
         gameArea.removeEventListener('click', handleGameAreaClick);
       }
-      window.removeEventListener('openNewGameWindow', handleOpenNewGameWindow);
     };
   }, [selectedCell]);
   

@@ -165,7 +165,7 @@ html, body {
   :root {
     --board-width: calc(100vw - 16px); /* 最大化利用屏幕宽度，保留8px边距 */
     --control-panel-width: calc(100vw - 16px); /* 操作面板与棋盘宽度一致 */
-    --block-gap: 2px; /* 减小区块间距 */
+    --block-gap: 5px; /* 统一区块间距为5px */
   }
   
   /* 实现优化的滚动吸附功能 - 基于正确布局顺序 */
@@ -198,28 +198,28 @@ html, body {
   }
   
   .main-content {
-    margin-top: 4px; /* 适当增加顶部间距 */
-    gap: var(--block-gap); /* 使用变量控制间距 */
+    margin-top: 0 !important; /* 移除顶部间距 */
+    gap: 5px !important; /* 直接设置间距为5px */
     display: flex;
     flex-direction: column;
     width: 100%;
     overflow: visible;
-    padding: 0 8px 6px 8px; /* 适当增加内边距 */
+    padding: 8px !important; /* 统一内边距 */
   }
   
   /* 竖屏模式下的布局 - 强制上下布局并设置合适间距 */
   .is-portrait .main-content {
     flex-direction: column;
     align-items: center;
-    gap: 4px !important; /* 减小区块间距 */
+    gap: 5px !important; /* 统一区块间距为5px */
     padding: 8px;
-    --block-gap: 4px !important;
+    --block-gap: 5px !important;
   }
   
   .top-row {
     flex-direction: column;
     align-items: stretch; /* 让子元素完全填充宽度 */
-    gap: 4px; /* 适当增加间距 */
+    gap: 5px !important; /* 统一区块间距为5px */
     margin: 0;
     padding: 0;
     width: 100%;
@@ -228,7 +228,7 @@ html, body {
   .bottom-row {
     flex-direction: column;
     align-items: stretch; /* 让子元素完全填充宽度 */
-    gap: 4px; /* 适当增加间距 */
+    gap: 5px !important; /* 统一区块间距为5px */
     margin: 0;
     padding: 0;
     width: 100%;
@@ -240,7 +240,7 @@ html, body {
     height: auto;
     min-height: 60px; /* 确保完整显示 */
     padding: 0;
-    margin: 0;
+    margin: 0 !important;
     position: relative;
     /* 移除吸附设置，允许自由滚动 */
   }
@@ -330,7 +330,7 @@ html, body {
   .controls-container {
     width: 100%; /* 与棋盘宽度一致 */
     max-width: var(--board-width); /* 最大宽度不超过棋盘宽度 */
-    margin: 0 auto; /* 居中显示 */
+    margin: 0 !important;
   }
   
   .control-panel {
@@ -341,6 +341,7 @@ html, body {
     box-sizing: border-box;
     border-radius: var(--border-radius);
     align-self: auto; /* 移除居中设置 */
+    margin: 0 !important;
   }
   
   /* 显示区块 - 位于顶部菜单栏下方 */
@@ -351,7 +352,7 @@ html, body {
     height: auto;
     min-height: 52px; /* 适当增加最小高度 */
     gap: 12px; /* 适当增加内部间距 */
-    margin: 4px 0 !important; /* 调整垂直间距 */
+    margin: 0 !important; /* 移除垂直间距，让gap控制区块间距 */
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-around;
@@ -359,7 +360,7 @@ html, body {
     border-radius: var(--border-radius);
     position: relative;
     scroll-snap-align: end; /* 设置吸附点为元素底部，便于过渡到导航区块 */
-    scroll-margin-bottom: 5px;
+    scroll-margin-bottom: 0;
   }
   
   /* 添加微妙的视觉指示 */

@@ -558,19 +558,17 @@ const SudokuGamePage = () => {
             />
             
             {/* 导航栏区块 - 包含5个图标按钮 */}
-            <div className="nav-block">
-              <NavigationBlock
-                onNewGame={handleNewGame}
-                onPauseTimer={handlePauseTimer}
-                onGetHint={handleGetHint}
-                onShowTechniques={handleShowTechniques}
-                onToggleNotes={handleToggleNotes}
-                onSettings={handleSettings}
-                isNotesMode={isPencilMode}
-                isTimerActive={isTimerActive}
-                gameCompleted={sudokuContext?.gameCompleted || false}
-              />
-            </div>
+            <NavigationBlock
+              onNewGame={handleNewGame}
+              onPauseTimer={handlePauseTimer}
+              onGetHint={handleGetHint}
+              onShowTechniques={handleShowTechniques}
+              onToggleNotes={handleToggleNotes}
+              onSettings={handleSettings}
+              isNotesMode={isPencilMode}
+              isTimerActive={isTimerActive}
+              gameCompleted={sudokuContext?.gameCompleted || false}
+            />
             
             {/* 数独棋盘 */}
             <div className="board-container" ref={boardContainerRef} onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>

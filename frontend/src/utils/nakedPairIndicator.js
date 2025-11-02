@@ -36,8 +36,8 @@ class NakedPairIndicator {
     if (!this.currentStep) return;
     
     const { 
-      primaryColor = '#ADD8E6',    // 浅蓝色高亮颜色（用于条件单元格）
-      secondaryColor = '#90EE90',  // 浅绿色高亮颜色（用于目标单元格）
+      primaryColor = 'rgba(173, 216, 230, 0.6)',    // 半透明浅蓝色高亮颜色（用于条件单元格）
+      secondaryColor = 'rgba(144, 238, 144, 0.6)',  // 半透明浅绿色高亮颜色（用于目标单元格）
       valueColor = '#0000FF',      // 蓝色高亮颜色（用于数对数字）
       noteColor = '#FF0000'        // 红色高亮颜色（用于要删除的候选数）
     } = options;
@@ -149,12 +149,12 @@ class NakedPairIndicator {
       
       // 如果是需要删除的候选数，使用红底白字
       if (isRemovable) {
-        element.style.backgroundColor = '#FF0000'; // 红色背景
+        element.style.backgroundColor = 'rgba(255, 0, 0, 0.8)'; // 半透明红色背景
         element.style.color = '#FFFFFF'; // 白色文字
         element.style.textDecoration = 'line-through';
       } else {
         // 否则使用蓝底白字（用于数对候选数）
-        element.style.backgroundColor = '#0000FF'; // 蓝色背景
+        element.style.backgroundColor = 'rgba(0, 0, 255, 0.8)'; // 半透明蓝色背景
         element.style.color = '#FFFFFF'; // 白色文字
       }
       

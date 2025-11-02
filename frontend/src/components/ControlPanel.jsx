@@ -1113,7 +1113,7 @@ const ControlPanel = ({
       
       // 为显性数对技巧使用特殊的处理逻辑
       if (isNakedPairTechnique) {
-        // 1. 高亮条件单元格（浅蓝色底色）
+        // 1. 高亮条件单元格（半透明浅蓝色底色）
         if (Array.isArray(cells) && cells.length > 0) {
           cells.forEach(cell => {
             const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
@@ -1128,14 +1128,14 @@ const ControlPanel = ({
                 highlightType: 'pair', // 条件单元格特殊标识
                 isTarget: false, // 条件单元格不是目标单元格
                 pairNotes: technique.values || [], // 数对中的数字
-                backgroundColor: '#ADD8E6', // 浅蓝色背景
-                borderColor: '#000000'
+                backgroundColor: 'rgba(173, 216, 230, 0.6)', // 半透明浅蓝色背景
+                borderColor: 'rgba(0, 0, 0, 0.5)'
               });
             }
           });
         }
         
-        // 2. 高亮目标单元格（浅绿色底色）
+        // 2. 高亮目标单元格（半透明浅绿色底色）
         if (Array.isArray(targetCells) && targetCells.length > 0) {
           targetCells.forEach(cell => {
             const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
@@ -1156,14 +1156,14 @@ const ControlPanel = ({
                   techniqueType: technique.type,
                   highlightType: 'target', // 目标单元格标识
                   isTarget: true,
-                  backgroundColor: '#90EE90', // 浅绿色背景
-                  borderColor: '#000000'
+                  backgroundColor: 'rgba(144, 238, 144, 0.6)', // 半透明浅绿色背景
+                  borderColor: 'rgba(0, 0, 0, 0.5)'
                 });
               } else {
                 // 如果已存在，更新类型为target
                 cellsToHighlight[existingIndex].highlightType = 'target';
                 cellsToHighlight[existingIndex].isTarget = true;
-                cellsToHighlight[existingIndex].backgroundColor = '#90EE90'; // 浅绿色背景
+                cellsToHighlight[existingIndex].backgroundColor = 'rgba(144, 238, 144, 0.6)'; // 半透明浅绿色背景
               }
             }
           });
@@ -1203,7 +1203,7 @@ const ControlPanel = ({
             );
             
             if (existingIndex === -1) {
-              // 新的移除候选数单元格（使用浅绿色底色）
+              // 新的移除候选数单元格（使用半透明浅绿色底色）
               cellsToHighlight.push({
                 row: r,
                 col: c,
@@ -1211,14 +1211,14 @@ const ControlPanel = ({
                 techniqueType: technique.type,
                 highlightType: 'removal', // 删除候选数标识
                 notesToRemove: valuesToRemove,
-                backgroundColor: '#90EE90', // 浅绿色背景
-                borderColor: '#000000'
+                backgroundColor: 'rgba(144, 238, 144, 0.6)', // 半透明浅绿色背景
+                borderColor: 'rgba(0, 0, 0, 0.5)'
               });
             } else {
               // 已有高亮的单元格，添加候选数移除信息
               cellsToHighlight[existingIndex].notesToRemove = valuesToRemove;
               cellsToHighlight[existingIndex].highlightType = 'removal';
-              cellsToHighlight[existingIndex].backgroundColor = '#90EE90'; // 浅绿色背景
+              cellsToHighlight[existingIndex].backgroundColor = 'rgba(144, 238, 144, 0.6)'; // 半透明浅绿色背景
             }
           });
         }

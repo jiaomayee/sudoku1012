@@ -57,29 +57,27 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const noteCol = noteIndex % 3;
       
       // 计算位置偏移，使候选数在单元格中居中排列
-      const noteSize = cellWidth * 0.32; // 增大候选数显示区域
-      const offset = cellWidth * 0.1; // 调整偏移使布局更合理
-      const left = offset + noteCol * noteSize;
-      const top = offset + noteRow * noteSize;
+      const noteSize = cellWidth * 0.3; // 候选数大小
+      const offset = (cellWidth - 3 * noteSize) / 2 + noteCol * noteSize;
+      const topOffset = (cellHeight - 3 * noteSize) / 2 + noteRow * noteSize;
       
       return (
         <div
           key={`removable-note-${cell.row}-${cell.col}-${note}`}
           style={{
             position: 'absolute',
-            left: `${left}px`,
-            top: `${top}px`,
+            left: `${offset}px`,
+            top: `${topOffset}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: '#FF0000', // 红色背景表示需要删除
-            borderRadius: '4px',
+            backgroundColor: 'rgba(255, 0, 0, 0.8)', // 半透明红色背景表示需要删除
+            borderRadius: '2px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 40,
             fontWeight: 'bold',
-            border: '1px solid #000000', // 黑色边框
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            border: '1px solid rgba(0, 0, 0, 0.3)' // 半透明黑色边框
           }}
         >
           <span
@@ -113,29 +111,27 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const noteCol = noteIndex % 3;
       
       // 计算位置偏移，使候选数在单元格中居中排列
-      const noteSize = cellWidth * 0.32; // 增大候选数显示区域
-      const offset = cellWidth * 0.1; // 调整偏移使布局更合理
-      const left = offset + noteCol * noteSize;
-      const top = offset + noteRow * noteSize;
+      const noteSize = cellWidth * 0.3; // 候选数大小
+      const offset = (cellWidth - 3 * noteSize) / 2 + noteCol * noteSize;
+      const topOffset = (cellHeight - 3 * noteSize) / 2 + noteRow * noteSize;
       
       return (
         <div
           key={`pair-note-${cell.row}-${cell.col}-${note}`}
           style={{
             position: 'absolute',
-            left: `${left}px`,
-            top: `${top}px`,
+            left: `${offset}px`,
+            top: `${topOffset}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: '#0000FF', // 蓝色背景表示数对候选数
-            borderRadius: '4px',
+            backgroundColor: 'rgba(0, 0, 255, 0.8)', // 半透明蓝色背景表示数对候选数
+            borderRadius: '2px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 38,
             fontWeight: 'bold',
-            border: '1px solid #000000', // 黑色边框
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            border: '1px solid rgba(0, 0, 0, 0.3)' // 半透明黑色边框
           }}
         >
           <span
@@ -164,7 +160,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       height: `${cellHeight}px`,
       pointerEvents: 'none',
       boxSizing: 'border-box',
-      borderRadius: '6px',
+      borderRadius: '4px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -173,32 +169,32 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
 
     // 显性数对法专用高亮样式
     const highlightStyles = {
-      // 条件单元格 - 浅蓝色底色
+      // 条件单元格 - 半透明浅蓝色底色
       'pair': {
-        backgroundColor: '#ADD8E6', // 浅蓝色背景
-        borderColor: '#000000',
-        border: '1px solid #000000',
+        backgroundColor: 'rgba(173, 216, 230, 0.6)', // 半透明浅蓝色背景
+        borderColor: 'rgba(0, 0, 0, 0.5)',
+        border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 35
       },
-      // 目标单元格 - 浅绿色底色
+      // 目标单元格 - 半透明浅绿色底色
       'target': {
-        backgroundColor: '#90EE90', // 浅绿色背景
-        borderColor: '#000000',
-        border: '1px solid #000000',
+        backgroundColor: 'rgba(144, 238, 144, 0.6)', // 半透明浅绿色背景
+        borderColor: 'rgba(0, 0, 0, 0.5)',
+        border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 30
       },
-      // 需要删除候选数的单元格 - 浅绿色底色（与目标单元格相同）
+      // 需要删除候选数的单元格 - 半透明浅绿色底色（与目标单元格相同）
       'removal': {
-        backgroundColor: '#90EE90', // 浅绿色背景
-        borderColor: '#000000',
-        border: '1px solid #000000',
+        backgroundColor: 'rgba(144, 238, 144, 0.6)', // 半透明浅绿色背景
+        borderColor: 'rgba(0, 0, 0, 0.5)',
+        border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 25
       },
       // 默认样式
       'default': {
-        backgroundColor: '#ADD8E6', // 浅蓝色背景
-        borderColor: '#000000',
-        border: '1px solid #000000',
+        backgroundColor: 'rgba(173, 216, 230, 0.6)', // 半透明浅蓝色背景
+        borderColor: 'rgba(0, 0, 0, 0.5)',
+        border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 35
       }
     };

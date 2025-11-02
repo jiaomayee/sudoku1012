@@ -130,16 +130,16 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 35
       },
-      // 目标单元格 - 半透明浅绿色底色
+      // 目标单元格 - 更透明的浅绿色底色
       'target': {
-        backgroundColor: 'rgba(144, 238, 144, 0.6)', // 半透明浅绿色背景
+        backgroundColor: 'rgba(144, 238, 144, 0.3)', // 增加透明度到0.3
         borderColor: 'rgba(0, 0, 0, 0.5)',
         border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 30
       },
-      // 需要删除候选数的单元格 - 半透明浅绿色底色（与目标单元格相同）
+      // 需要删除候选数的单元格 - 更透明的浅绿色底色（与目标单元格相同）
       'removal': {
-        backgroundColor: 'rgba(144, 238, 144, 0.6)', // 半透明浅绿色背景
+        backgroundColor: 'rgba(144, 238, 144, 0.3)', // 增加透明度到0.3
         borderColor: 'rgba(0, 0, 0, 0.5)',
         border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 25
@@ -186,7 +186,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         width: `${boardWidth}px`,
         height: `${overlayHeight}px`,
         pointerEvents: 'none',
-        zIndex: 12,
+        zIndex: 14, // 设置为最高层，确保条件单元格显示在目标单元格之上
         boxSizing: 'border-box',
         background: 'transparent'
       }}

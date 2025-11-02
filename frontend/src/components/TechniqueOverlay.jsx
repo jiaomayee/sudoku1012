@@ -100,11 +100,17 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const noteRow = Math.floor(noteIndex / 3);
       const noteCol = noteIndex % 3;
       
-      // 计算位置偏移，使候选数在单元格中居中排列
-      const noteSize = cellWidth * 0.32; // 增大候选数显示区域
-      const offset = cellWidth * 0.1; // 调整偏移使布局更合理
-      const left = offset + noteCol * noteSize;
-      const top = offset + noteRow * noteSize;
+      // 计算位置偏移，使候选数在单元格中居中排列，确保不超出单元格边界
+      const noteSize = Math.min(cellWidth, cellHeight) * 0.25; // 候选数大小为单元格的25%
+      const containerPadding = Math.min(cellWidth, cellHeight) * 0.05; // 容器内边距
+      
+      // 计算3x3网格的总大小
+      const gridSize = Math.min(cellWidth, cellHeight) - 2 * containerPadding;
+      const gridCellSize = gridSize / 3;
+      
+      // 计算候选数在网格中的位置
+      const left = containerPadding + noteCol * gridCellSize + (gridCellSize - noteSize) / 2;
+      const top = containerPadding + noteRow * gridCellSize + (gridCellSize - noteSize) / 2;
       
       return (
         <div
@@ -116,23 +122,23 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             width: `${noteSize}px`,
             height: `${noteSize}px`,
             backgroundColor: '#e74c3c', // 红色背景表示需要删除
-            borderRadius: '4px',
+            borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 40,
+            zIndex: 60, // 提高z-index确保在所有单元格底色上方
             fontWeight: 'bold',
-            border: '2px solid #c0392b', // 添加深色边框
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            border: '1px solid rgba(255, 255, 255, 0.5)', // 白色边框
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
           }}
         >
           <span
             style={{
-              fontSize: noteFontSize,
+              fontSize: `${noteSize * 0.6}px`, // 字体大小为候选数区域的60%
               fontWeight: 'bold',
               color: '#ffffff',
-              zIndex: 45,
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+              zIndex: 65, // 确保文字在候选数背景上方
+              textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)'
             }}
           >
             {note}
@@ -181,9 +187,9 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       },
       'removal': {
         // 专门用于显示需要删除候选数的单元格
-        backgroundColor: cell.backgroundColor || 'rgba(231, 76, 60, 0.25)', // 淡红色背景
-        borderColor: cell.borderColor || '#e74c3c',
-        border: `2px dashed ${cell.borderColor || '#e74c3c'}`, // 红色虚线边框
+        backgroundColor: cell.backgroundColor || 'rgba(144, 238, 144, 0.3)', // 增加透明度到0.3
+        borderColor: cell.borderColor || 'rgba(0, 0, 0, 0.5)',
+        border: `1px solid ${cell.borderColor || 'rgba(0, 0, 0, 0.5)'}`, // 实线边框
         zIndex: 25
       },
       'row': {
@@ -215,8 +221,8 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
     if (cell.isTarget) {
       return {
         ...baseStyle,
-        backgroundColor: 'rgba(33, 150, 243, 0.3)', // 蓝色半透明
-        border: '3px solid #2196F3',
+        backgroundColor: 'rgba(144, 238, 144, 0.3)', // 增加透明度到0.3
+        border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 30
       };
     }
@@ -240,7 +246,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         width: `${boardWidth}px`,
         height: `${overlayHeight}px`,
         pointerEvents: 'none',
-        zIndex: 10,
+        zIndex: 12, // 设置为中层，确保目标单元格显示在遮罩层之上，条件单元格之下
         boxSizing: 'border-box',
         background: 'transparent'
       }}

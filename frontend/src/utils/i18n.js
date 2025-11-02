@@ -116,7 +116,7 @@ function getCurrentLanguage() {
   }
   
   // 默认语言
-  return 'zh';
+  return 'en';
 }
 
 // 设置语言
@@ -137,25 +137,19 @@ function t(key, lang = getCurrentLanguage()) {
 
 // SEO优化函数：更新页面元数据
 function updateSEOMetadata(lang = getCurrentLanguage()) {
-  // 更新标题
-  document.title = t('siteTitle', lang);
+  // 标题不再在此处修改，已在main.jsx中通过Object.defineProperty硬编码
   
-  // 更新描述
+  // 描述和其他元数据仍然根据当前语言更新
   const descMeta = document.querySelector('meta[name="description"]');
   if (descMeta) {
     descMeta.content = t('siteDescription', lang);
   }
   
-  // 更新Open Graph标签
-  const ogTitle = document.querySelector('meta[property="og:title"]');
+  // 只更新描述相关的元标签，不再修改标题
   const ogDesc = document.querySelector('meta[property="og:description"]');
-  if (ogTitle) ogTitle.content = t('siteTitle', lang);
   if (ogDesc) ogDesc.content = t('siteDescription', lang);
   
-  // 更新Twitter标签
-  const twitterTitle = document.querySelector('meta[name="twitter:title"]');
   const twitterDesc = document.querySelector('meta[name="twitter:description"]');
-  if (twitterTitle) twitterTitle.content = t('siteTitle', lang);
   if (twitterDesc) twitterDesc.content = t('siteDescription', lang);
 }
 
@@ -166,3 +160,6 @@ export {
   t,
   updateSEOMetadata
 };
+
+// 页面加载时立即更新SEO元数据
+updateSEOMetadata();

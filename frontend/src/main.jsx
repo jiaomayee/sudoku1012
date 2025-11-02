@@ -18,6 +18,33 @@ import { LanguageProvider } from './context/LanguageContext';
 import { LoadingProvider } from './context/LoadingContext';
 import './styles/global.css'; // 全局样式
 
+// 硬编码英文标题，直接覆盖原生document.title属性
+Object.defineProperty(document, 'title', {
+  get: function() {
+    return 'Sudoku Advanced Techniques - Open Source Sudoku Game | Expert Sudoku Challenges';
+  },
+  set: function(newValue) {
+    // 忽略任何尝试修改标题的操作
+    console.log('标题修改尝试已阻止');
+  },
+  configurable: true
+});
+
+// 立即设置OG和Twitter标题元标签
+const setOgAndTwitterTitles = () => {
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+  if (ogTitle) ogTitle.content = 'SudokuTech - Sudoku Techniques Learning Platform';
+  if (twitterTitle) twitterTitle.content = 'SudokuTech - Sudoku Techniques Learning Platform';
+};
+
+// 立即执行设置元标签
+setOgAndTwitterTitles();
+
+// 页面加载完成后再次确认
+window.addEventListener('DOMContentLoaded', setOgAndTwitterTitles);
+window.addEventListener('load', setOgAndTwitterTitles);
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(

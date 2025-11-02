@@ -36,16 +36,16 @@ class NakedPairIndicator {
     if (!this.currentStep) return;
     
     const { 
-      primaryColor = '#9B59B6',    // 紫色高亮颜色（用于数对单元格）
-      secondaryColor = '#3498DB',  // 蓝色高亮颜色（用于受影响的单元格）
-      valueColor = '#E67E22',      // 橙色高亮颜色（用于数对数字）
-      noteColor = '#E74C3C'        // 红色高亮颜色（用于要删除的候选数）
+      primaryColor = '#ADD8E6',    // 浅蓝色高亮颜色（用于条件单元格）
+      secondaryColor = '#90EE90',  // 浅绿色高亮颜色（用于目标单元格）
+      valueColor = '#0000FF',      // 蓝色高亮颜色（用于数对数字）
+      noteColor = '#FF0000'        // 红色高亮颜色（用于要删除的候选数）
     } = options;
 
-    // 高亮数对单元格（技巧的核心单元格）
+    // 高亮条件单元格（技巧的核心单元格）
     if (this.currentStep.cells && Array.isArray(this.currentStep.cells)) {
       this.currentStep.cells.forEach(([row, col]) => {
-        this._highlightCell(boardElement, row, col, primaryColor, 'pair');
+        this._highlightCell(boardElement, row, col, primaryColor, 'condition');
       });
     }
 
@@ -102,9 +102,9 @@ class NakedPairIndicator {
       });
       
       // 应用高亮
-      cell.style.backgroundColor = `${color}40`; // 添加透明度
-      cell.style.borderColor = color;
-      cell.style.borderWidth = '3px';
+      cell.style.backgroundColor = color;
+      cell.style.borderColor = '#000000';
+      cell.style.borderWidth = '1px';
       cell.style.borderStyle = 'solid';
     }
   }
@@ -141,18 +141,25 @@ class NakedPairIndicator {
     noteElements.forEach(element => {
       const originalColor = element.style.color;
       const originalFontWeight = element.style.fontWeight;
+      const originalBackgroundColor = element.style.backgroundColor;
       
       element.dataset.originalColor = originalColor;
       element.dataset.originalFontWeight = originalFontWeight;
+      element.dataset.originalBackgroundColor = originalBackgroundColor;
       
-      element.style.color = color;
+      // 如果是需要删除的候选数，使用红底白字
+      if (isRemovable) {
+        element.style.backgroundColor = '#FF0000'; // 红色背景
+        element.style.color = '#FFFFFF'; // 白色文字
+        element.style.textDecoration = 'line-through';
+      } else {
+        // 否则使用蓝底白字（用于数对候选数）
+        element.style.backgroundColor = '#0000FF'; // 蓝色背景
+        element.style.color = '#FFFFFF'; // 白色文字
+      }
+      
       element.style.fontWeight = 'bold';
       element.style.transition = 'all 0.3s ease';
-      
-      if (isRemovable) {
-        element.style.textDecoration = 'line-through';
-        element.style.opacity = '0.6';
-      }
     });
   }
 
@@ -180,10 +187,11 @@ class NakedPairIndicator {
     const noteElements = document.querySelectorAll('.cell .notes .note[data-original-color]');
     noteElements.forEach(element => {
       element.style.color = element.dataset.originalColor || '';
+      element.style.backgroundColor = element.dataset.originalBackgroundColor || '';
       element.style.fontWeight = element.dataset.originalFontWeight || '';
       element.style.textDecoration = '';
-      element.style.opacity = '1';
       delete element.dataset.originalColor;
+      delete element.dataset.originalBackgroundColor;
       delete element.dataset.originalFontWeight;
     });
     

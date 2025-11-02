@@ -71,14 +71,14 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             top: `${top}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: '#e74c3c', // 红色背景表示需要删除
+            backgroundColor: '#FF0000', // 红色背景表示需要删除
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 40,
             fontWeight: 'bold',
-            border: '2px solid #c0392b', // 添加深色边框
+            border: '1px solid #000000', // 黑色边框
             boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
           }}
         >
@@ -86,9 +86,65 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             style={{
               fontSize: noteFontSize,
               fontWeight: 'bold',
-              color: '#ffffff',
+              color: '#FFFFFF', // 白色文字
               zIndex: 45,
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+              textShadow: 'none'
+            }}
+          >
+            {note}
+          </span>
+        </div>
+      );
+    });
+  };
+
+  // 渲染数对候选数高亮
+  const renderPairNotes = (cell) => {
+    if (!cell.pairNotes || !Array.isArray(cell.pairNotes) || cell.pairNotes.length === 0) {
+      return null;
+    }
+
+    return cell.pairNotes.map((note) => {
+      if (typeof note !== 'number' || note < 1 || note > 9) return null;
+      
+      // 计算候选数的位置（3x3网格）
+      const noteIndex = note - 1; // 转换为0-8的索引
+      const noteRow = Math.floor(noteIndex / 3);
+      const noteCol = noteIndex % 3;
+      
+      // 计算位置偏移，使候选数在单元格中居中排列
+      const noteSize = cellWidth * 0.32; // 增大候选数显示区域
+      const offset = cellWidth * 0.1; // 调整偏移使布局更合理
+      const left = offset + noteCol * noteSize;
+      const top = offset + noteRow * noteSize;
+      
+      return (
+        <div
+          key={`pair-note-${cell.row}-${cell.col}-${note}`}
+          style={{
+            position: 'absolute',
+            left: `${left}px`,
+            top: `${top}px`,
+            width: `${noteSize}px`,
+            height: `${noteSize}px`,
+            backgroundColor: '#0000FF', // 蓝色背景表示数对候选数
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 38,
+            fontWeight: 'bold',
+            border: '1px solid #000000', // 黑色边框
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+          }}
+        >
+          <span
+            style={{
+              fontSize: noteFontSize,
+              fontWeight: 'bold',
+              color: '#FFFFFF', // 白色文字
+              zIndex: 43,
+              textShadow: 'none'
             }}
           >
             {note}
@@ -117,32 +173,32 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
 
     // 显性数对法专用高亮样式
     const highlightStyles = {
-      // 数对单元格 - 紫色高亮
+      // 条件单元格 - 浅蓝色底色
       'pair': {
-        backgroundColor: 'rgba(155, 89, 182, 0.4)', // 紫色半透明
-        borderColor: '#9B59B6',
-        border: '3px solid #9B59B6',
+        backgroundColor: '#ADD8E6', // 浅蓝色背景
+        borderColor: '#000000',
+        border: '1px solid #000000',
         zIndex: 35
       },
-      // 目标单元格 - 蓝色高亮
+      // 目标单元格 - 浅绿色底色
       'target': {
-        backgroundColor: 'rgba(52, 152, 219, 0.3)', // 蓝色半透明
-        borderColor: '#3498DB',
-        border: '3px solid #3498DB',
+        backgroundColor: '#90EE90', // 浅绿色背景
+        borderColor: '#000000',
+        border: '1px solid #000000',
         zIndex: 30
       },
-      // 需要删除候选数的单元格 - 红色虚线边框
+      // 需要删除候选数的单元格 - 浅绿色底色（与目标单元格相同）
       'removal': {
-        backgroundColor: 'rgba(231, 76, 60, 0.25)', // 淡红色背景
-        borderColor: '#e74c3c',
-        border: '2px dashed #e74c3c',
+        backgroundColor: '#90EE90', // 浅绿色背景
+        borderColor: '#000000',
+        border: '1px solid #000000',
         zIndex: 25
       },
       // 默认样式
       'default': {
-        backgroundColor: 'rgba(155, 89, 182, 0.4)', // 紫色半透明
-        borderColor: '#9B59B6',
-        border: '3px solid #9B59B6',
+        backgroundColor: '#ADD8E6', // 浅蓝色背景
+        borderColor: '#000000',
+        border: '1px solid #000000',
         zIndex: 35
       }
     };
@@ -163,7 +219,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       };
     }
     
-    // 默认使用数对单元格样式
+    // 默认使用条件单元格样式
     return {
       ...baseStyle,
       ...highlightStyles['pair']
@@ -200,7 +256,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
                 style={{
                   fontSize: fontSize,
                   fontWeight: '600',
-                  color: '#9B59B6', // 紫色，与数对高亮颜色一致
+                  color: '#000000', // 黑色数字
                   zIndex: 50,
                   textShadow: 'none',
                   fontFamily: 'inherit'
@@ -209,6 +265,9 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
                 {cell.number}
               </span>
             )}
+            
+            {/* 渲染数对候选数高亮 */}
+            {renderPairNotes(cell)}
             
             {/* 渲染需要删除的候选数高亮 */}
             {renderRemovableNotes(cell)}

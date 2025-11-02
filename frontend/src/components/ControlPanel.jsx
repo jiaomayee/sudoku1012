@@ -1107,13 +1107,13 @@ const ControlPanel = ({
       
       // 检查是否为显性数对技巧
       const isNakedPairTechnique = technique.type && 
-                                 (technique.type.includes('nakedPair') || 
-                                  technique.type.includes('naked_pairs') || 
-                                  technique.type === 'nakedPairs');
+                           (technique.type.includes('nakedPair') || 
+                            technique.type.includes('naked_pairs') || 
+                            technique.type === 'nakedPairs');
       
       // 为显性数对技巧使用特殊的处理逻辑
       if (isNakedPairTechnique) {
-        // 1. 高亮数对单元格（紫色高亮）
+        // 1. 高亮条件单元格（浅蓝色底色）
         if (Array.isArray(cells) && cells.length > 0) {
           cells.forEach(cell => {
             const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
@@ -1125,24 +1125,24 @@ const ControlPanel = ({
                 col: c,
                 techniqueIndicator: true,
                 techniqueType: technique.type,
-                highlightType: 'pair', // 数对单元格特殊标识
-                isTarget: false, // 数对单元格不是目标单元格
+                highlightType: 'pair', // 条件单元格特殊标识
+                isTarget: false, // 条件单元格不是目标单元格
                 pairNotes: technique.values || [], // 数对中的数字
-                backgroundColor: 'rgba(155, 89, 182, 0.4)', // 紫色半透明背景
-                borderColor: '#9B59B6'
+                backgroundColor: '#ADD8E6', // 浅蓝色背景
+                borderColor: '#000000'
               });
             }
           });
         }
         
-        // 2. 高亮目标单元格（蓝色高亮）
+        // 2. 高亮目标单元格（浅绿色底色）
         if (Array.isArray(targetCells) && targetCells.length > 0) {
           targetCells.forEach(cell => {
             const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
             const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
             
             if (r !== null && c !== null) {
-              // 检查是否已经作为数对单元格高亮
+              // 检查是否已经作为条件单元格高亮
               const existingIndex = cellsToHighlight.findIndex(
                 cell => cell.row === r && cell.col === c
               );
@@ -1156,15 +1156,20 @@ const ControlPanel = ({
                   techniqueType: technique.type,
                   highlightType: 'target', // 目标单元格标识
                   isTarget: true,
-                  backgroundColor: 'rgba(52, 152, 219, 0.3)', // 蓝色半透明背景
-                  borderColor: '#3498DB'
+                  backgroundColor: '#90EE90', // 浅绿色背景
+                  borderColor: '#000000'
                 });
+              } else {
+                // 如果已存在，更新类型为target
+                cellsToHighlight[existingIndex].highlightType = 'target';
+                cellsToHighlight[existingIndex].isTarget = true;
+                cellsToHighlight[existingIndex].backgroundColor = '#90EE90'; // 浅绿色背景
               }
             }
           });
         }
         
-        // 3. 高亮需要删除的候选数（红色虚线边框）
+        // 3. 高亮需要删除的候选数（红底白字）
         if (Array.isArray(removableCandidates) && removableCandidates.length > 0) {
           // 构建一个映射，将目标单元格与其需要删除的候选数关联起来
           const removableCandidatesMap = {};
@@ -1198,7 +1203,7 @@ const ControlPanel = ({
             );
             
             if (existingIndex === -1) {
-              // 新的移除候选数单元格
+              // 新的移除候选数单元格（使用浅绿色底色）
               cellsToHighlight.push({
                 row: r,
                 col: c,
@@ -1206,14 +1211,14 @@ const ControlPanel = ({
                 techniqueType: technique.type,
                 highlightType: 'removal', // 删除候选数标识
                 notesToRemove: valuesToRemove,
-                backgroundColor: 'rgba(231, 76, 60, 0.25)', // 淡红色背景
-                borderColor: '#e74c3c',
-                borderStyle: 'dashed'
+                backgroundColor: '#90EE90', // 浅绿色背景
+                borderColor: '#000000'
               });
             } else {
               // 已有高亮的单元格，添加候选数移除信息
               cellsToHighlight[existingIndex].notesToRemove = valuesToRemove;
               cellsToHighlight[existingIndex].highlightType = 'removal';
+              cellsToHighlight[existingIndex].backgroundColor = '#90EE90'; // 浅绿色背景
             }
           });
         }

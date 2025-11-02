@@ -1447,6 +1447,8 @@ const ControlPanel = ({
 
   // 应用技巧
   const handleApplyTechnique = () => {
+    console.log('handleApplyTechnique called', { selectedTechnique, isPencilMode, togglePencilMode });
+    
     if (selectedTechnique) {
       // 检查技巧类型，确定是否需要特殊处理
       const isSpecialTechnique = selectedTechnique.type && (
@@ -1455,8 +1457,11 @@ const ControlPanel = ({
         selectedTechnique.type.includes('hiddenSingle')
       );
       
+      console.log('Technique type check', { isSpecialTechnique, techniqueType: selectedTechnique.type });
+      
       // 对于特殊技巧，直接应用
       if (isSpecialTechnique) {
+        console.log('Applying special technique');
         const success = applyTechniqueToBoard(selectedTechnique);
         if (success) {
           // 应用成功后，清除高亮
@@ -1471,6 +1476,7 @@ const ControlPanel = ({
           findTechniques();
         }
       } else {
+        console.log('Applying non-special technique');
         // 对于其他技巧，弹窗提示用户手动删除候选数
         // 显示提示信息
         toast.info(t('manualCandidateRemovalRequired', { 
@@ -1484,7 +1490,9 @@ const ControlPanel = ({
         setActiveTab('keyboard');
         
         // 切换到铅笔模式（如果当前不是铅笔模式）
+        console.log('Toggling pencil mode', { isPencilMode, togglePencilMode });
         if (!isPencilMode && togglePencilMode) {
+          console.log('Calling togglePencilMode');
           togglePencilMode();
         }
         
@@ -1498,6 +1506,8 @@ const ControlPanel = ({
         setTechniqueSteps([]);
         setCurrentPage(0);
       }
+    } else {
+      console.log('No selected technique');
     }
   };
 

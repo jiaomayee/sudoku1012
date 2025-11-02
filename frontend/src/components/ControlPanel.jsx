@@ -1448,18 +1448,50 @@ const ControlPanel = ({
   // 应用技巧
   const handleApplyTechnique = () => {
     if (selectedTechnique) {
-      const success = applyTechniqueToBoard(selectedTechnique);
-      if (success) {
-        // 应用成功后，清除高亮
-        if (setHighlightedCells) {
-          setHighlightedCells([]);
+      // 检查技巧类型，确定是否需要特殊处理
+      const isSpecialTechnique = selectedTechnique.type && (
+        selectedTechnique.type === 'nakedSingle' ||
+        selectedTechnique.type === 'notesSingle' ||
+        selectedTechnique.type.includes('hiddenSingle')
+      );
+      
+      // 对于特殊技巧，直接应用
+      if (isSpecialTechnique) {
+        const success = applyTechniqueToBoard(selectedTechnique);
+        if (success) {
+          // 应用成功后，清除高亮
+          if (setHighlightedCells) {
+            setHighlightedCells([]);
+          }
+          // 取消单元格选中状态
+          if (setSelectedCell) {
+            setSelectedCell(null);
+          }
+          // 重新查找可用技巧
+          findTechniques();
         }
+      } else {
+        // 对于其他技巧，弹窗提示用户手动删除候选数
+        // 显示提示信息
+        toast.info(t('manualCandidateRemovalRequired', { 
+          defaultMessage: '请手动删除相关单元格中的候选数' 
+        }), { 
+          position: 'top-right',
+          autoClose: 3000
+        });
+        
+        // 跳转到"键盘"标签页并切换到铅笔模式
+        setActiveTab('keyboard');
+        
+        // 切换到铅笔模式（如果当前不是铅笔模式）
+        if (!isPencilMode && togglePencilMode) {
+          togglePencilMode();
+        }
+        
         // 取消单元格选中状态
         if (setSelectedCell) {
           setSelectedCell(null);
         }
-        // 重新查找可用技巧
-        findTechniques();
       }
     }
   };

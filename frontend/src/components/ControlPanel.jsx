@@ -2736,7 +2736,10 @@ const ControlPanel = ({
                                     
                                     {showApplyButton && (
                                       <button 
-                                        onClick={handleApplyTechnique}
+                                        onClick={(e) => {
+                                          console.log('Apply button clicked');
+                                          handleApplyTechnique();
+                                        }}
                                         style={{
                                           width: verticalMode ? '60px' : '70px',
                                           height: verticalMode ? '18px' : '32px',

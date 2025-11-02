@@ -203,21 +203,25 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       }
     };
 
-    // 优先使用highlightType
+    // 确保isTarget属性优先应用，特别处理唯一余数技巧的目标单元格
+    if (cell.isTarget) {
+      // 增强唯一余数技巧(hiddenSingle)的目标单元格样式
+      const isHiddenSingleTechnique = cell.techniqueType && cell.techniqueType.includes('hiddenSingle');
+      
+      return {
+        ...baseStyle,
+        backgroundColor: isHiddenSingleTechnique ? 'rgba(76, 175, 80, 0.85)' : 'rgba(76, 175, 80, 0.8)', // 绿色半透明底色
+        border: `3px solid ${isHiddenSingleTechnique ? '#4CAF50' : '#4CAF50'}`,
+        zIndex: 30,
+        color: 'white' // 设置默认文本颜色为白色
+      };
+    }
+    
+    // 然后再检查highlightType
     if (cell.highlightType && highlightStyles[cell.highlightType]) {
       return {
         ...baseStyle,
         ...highlightStyles[cell.highlightType]
-      };
-    }
-
-    // 兼容旧的isTarget属性
-    if (cell.isTarget) {
-      return {
-        ...baseStyle,
-        backgroundColor: 'rgba(33, 150, 243, 0.3)', // 蓝色半透明
-        border: '3px solid #2196F3',
-        zIndex: 30
       };
     }
     
@@ -324,12 +328,19 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             {cell.number && (
               <span
                 style={{
-                  fontSize: fontSize,
-                  fontWeight: '600', // 与棋盘中的字体粗细一致
-                  color: '#2196F3', // 蓝色，与棋盘中的数字颜色风格一致
+                  // 为目标单元格设置更大的字体大小，确保与其他单元格数字大小一致
+                  fontSize: cell.isTarget ? `calc(${fontSize} * 1.35)` : fontSize, 
+                  fontWeight: cell.isTarget ? 'normal' : '600', // 目标单元格使用正常粗细字体
+                  color: cell.isTarget ? 'white' : '#2196F3', // 目标单元格使用白色字体
                   zIndex: 50,
-                  textShadow: 'none', // 移除阴影，使样式更接近棋盘
-                  fontFamily: 'inherit' // 继承父元素的字体
+                  textShadow: cell.isTarget ? 'none' : 'none', // 完全移除阴影以避免视觉上缩小字体
+                  fontFamily: 'inherit', // 继承父元素的字体
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: '1', // 确保行高不影响字体显示
+                  margin: '0', // 移除边距
+                  padding: '0' // 移除内边距
                 }}
               >
                 {cell.number}

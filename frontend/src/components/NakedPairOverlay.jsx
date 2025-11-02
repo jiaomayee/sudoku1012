@@ -42,60 +42,6 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
     overlayHeight = boardWidth;
   }
 
-  // 渲染需要删除的候选数高亮 - 为显性数对法优化显示效果
-  const renderRemovableNotes = (cell) => {
-    if (!cell.notesToRemove || !Array.isArray(cell.notesToRemove) || cell.notesToRemove.length === 0) {
-      return null;
-    }
-
-    return cell.notesToRemove.map((note) => {
-      if (typeof note !== 'number' || note < 1 || note > 9) return null;
-      
-      // 计算候选数的位置（3x3网格）
-      const noteIndex = note - 1; // 转换为0-8的索引
-      const noteRow = Math.floor(noteIndex / 3);
-      const noteCol = noteIndex % 3;
-      
-      // 计算位置偏移，使候选数在单元格中居中排列
-      const noteSize = cellWidth * 0.3; // 候选数大小
-      const offset = (cellWidth - 3 * noteSize) / 2 + noteCol * noteSize;
-      const topOffset = (cellHeight - 3 * noteSize) / 2 + noteRow * noteSize;
-      
-      return (
-        <div
-          key={`removable-note-${cell.row}-${cell.col}-${note}`}
-          style={{
-            position: 'absolute',
-            left: `${offset}px`,
-            top: `${topOffset}px`,
-            width: `${noteSize}px`,
-            height: `${noteSize}px`,
-            backgroundColor: 'rgba(255, 0, 0, 0.8)', // 半透明红色背景表示需要删除
-            borderRadius: '2px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 40,
-            fontWeight: 'bold',
-            border: '1px solid rgba(0, 0, 0, 0.3)' // 半透明黑色边框
-          }}
-        >
-          <span
-            style={{
-              fontSize: noteFontSize,
-              fontWeight: 'bold',
-              color: '#FFFFFF', // 白色文字
-              zIndex: 45,
-              textShadow: 'none'
-            }}
-          >
-            {note}
-          </span>
-        </div>
-      );
-    });
-  };
-
   // 渲染数对候选数高亮
   const renderPairNotes = (cell) => {
     if (!cell.pairNotes || !Array.isArray(cell.pairNotes) || cell.pairNotes.length === 0) {
@@ -265,8 +211,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             {/* 渲染数对候选数高亮 */}
             {renderPairNotes(cell)}
             
-            {/* 渲染需要删除的候选数高亮 */}
-            {renderRemovableNotes(cell)}
+            {/* 注意：不再渲染需要删除的候选数，避免与TechniqueOverlay.jsx重复 */}
           </div>
         );
       })}

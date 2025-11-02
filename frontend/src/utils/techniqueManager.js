@@ -2,6 +2,8 @@
 import { findNakedSingles } from './sudokuTechniques.js';
 import { findNotesSingles, findNakedPairs, findHiddenPairs, pairTechniqueNames } from './pairTechniques.js';
 import { findNakedTriples, findHiddenTriples, tripleTechniqueNames } from './tripleTechniques.js';
+// 导入显性数对指示功能
+import nakedPairIndicator from './nakedPairIndicator.js';
 
 // 技巧分类
 const TECHNIQUE_CATEGORIES = {
@@ -194,6 +196,23 @@ class TechniqueManager {
    */
   isTechniqueEnabled(techniqueId) {
     return this.techniques[techniqueId]?.enabled || false;
+  }
+
+  /**
+   * 为特定技巧设置指示器
+   * @param {string} techniqueType 技巧类型
+   * @param {Object} step 技巧步骤
+   * @returns {Object} 对应的指示器实例
+   */
+  getIndicatorForTechnique(techniqueType, step) {
+    // 为显性数对技巧使用专门的指示器
+    if (techniqueType && techniqueType.includes('nakedPair')) {
+      nakedPairIndicator.setCurrentStep(step);
+      return nakedPairIndicator;
+    }
+    
+    // 其他技巧使用默认指示器
+    return null; // 这里可以返回其他专门的指示器
   }
 
   /**

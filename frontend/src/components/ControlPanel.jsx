@@ -1492,6 +1492,11 @@ const ControlPanel = ({
         if (setSelectedCell) {
           setSelectedCell(null);
         }
+        
+        // 清除选中的技巧和步骤
+        setSelectedTechnique(null);
+        setTechniqueSteps([]);
+        setCurrentPage(0);
       }
     }
   };

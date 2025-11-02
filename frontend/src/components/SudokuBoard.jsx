@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 
-// 棋盘容器样式 - 按照导航栏风格美化
+// 棋盘容器样式 - 进一步优化，确保完全控制边界
 const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   display: grid;
   grid-template-columns: repeat(9, 1fr);
@@ -11,43 +11,20 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
   background-color: #ffffff; /* 使用纯白色背景 */
   position: relative;
   width: 100% !important;
-  aspect-ratio: 1 / 1 !important;
-  margin: 0 auto !important;
-  padding: 0; /* 移除容器内边距，改为在单元格上处理边框 */
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0;
   box-sizing: border-box;
-  overflow: visible !important;
+  overflow: hidden !important;
   z-index: 1;
   grid-gap: 0;
-  // 使用多层阴影增加立体感
-  box-shadow: 
-    0 6px 12px rgba(0, 0, 0, 0.15),
-    0 12px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 2px rgba(255, 255, 255, 0.6);
-  border: 2px solid ${props => props.theme?.border || '#3498db'};
-  transition: all 0.3s ease;
+  // 取消棋盘四周的蓝线，使用无边框设计
+  border: none;
   font-family: 'Arial', 'Microsoft YaHei', sans-serif;
   
-  // 增加悬停效果，与导航栏保持一致
+  // 移除悬停效果，避免干扰
   &:hover {
-    box-shadow: 
-      0 6px 12px rgba(0, 0, 0, 0.15),
-      0 12px 32px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  }
-  
-  // 在横屏模式下增加更深的阴影效果
-  @media (min-width: 992px) {
-    box-shadow: 
-      0 8px 24px rgba(0, 0, 0, 0.15),
-      0 16px 48px rgba(0, 0, 0, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    
-    &:hover {
-      box-shadow: 
-        0 12px 32px rgba(0, 0, 0, 0.18),
-        0 20px 64px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    }
+    border-color: ${props => props.theme?.border || '#3498db'};
   }
 `;
 
@@ -186,29 +163,25 @@ const Cell = styled.div`
     background: #ffeaa7;
   }
 
-  /* 边缘单元格处理 */
+  /* 优化边缘单元格处理，确保棋盘边缘完整 */
   ${props => props.row === 0 && `border-top: none;`}
   ${props => props.row === 8 && `border-bottom: none;`}
   ${props => props.col === 0 && `border-left: none;`}
   ${props => props.col === 8 && `border-right: none;`}
   
-  /* 四个角落单元格的特殊处理 - 与容器圆角保持一致 */
+  /* 简化角落单元格处理，仅保留基本圆角 */
   ${props => props.row === 0 && props.col === 0 && `border-radius: var(--border-radius, 8px) 0 0 0;`}
   ${props => props.row === 0 && props.col === 8 && `border-radius: 0 var(--border-radius, 8px) 0 0;`}
   ${props => props.row === 8 && props.col === 0 && `border-radius: 0 0 0 var(--border-radius, 8px);`}
   ${props => props.row === 8 && props.col === 8 && `border-radius: 0 0 var(--border-radius, 8px) 0;`}
   
-  /* 3x3子网格（宫）之间的分隔 - 使用更细的深灰色线 */
-  ${props => {
-    let borders = '';
-    if (props.col % 3 === 0 && props.col > 0) {
-      borders += 'border-left: 1px solid #888888 !important;';
-    }
-    if (props.row % 3 === 0 && props.row > 0) {
-      borders += 'border-top: 1px solid #888888 !important;';
-    }
-    return borders;
-  }}
+  /* 确保所有状态下圆角正确应用 */
+  ${props => props.row === 8 && props.col === 0 && `overflow: hidden;`}
+  ${props => props.row === 8 && props.col === 8 && `overflow: hidden;`}
+  
+  /* 3x3子网格分隔线 - 使用0.5px深色实线 */
+  ${props => (props.col === 2 || props.col === 5) && `border-right: 0.5px solid #333333;`}
+  ${props => (props.row === 2 || props.row === 5) && `border-bottom: 0.5px solid #333333;`}
   
   // 悬停效果（仅在非移动设备上）
   @media (hover: hover) {

@@ -110,12 +110,11 @@ html, body {
   padding: 0;
 }
 
-/* 数独棋盘容器样式 */
+/* 数独棋盘容器样式 - 无边框设计 */
 .board-container {
-  background-color: #ffffff;
+  background-color: #ffffff; /* 使用白色背景 */
   border-radius: var(--border-radius);
-  padding: 0 !important; /* 移除所有内边距，保持棋盘完整尺寸 */
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -124,12 +123,42 @@ html, body {
   height: var(--board-width);
   position: relative;
   box-sizing: border-box;
-  overflow: hidden; /* 防止内容溢出 */
-  transition: box-shadow 0.2s ease;
+  overflow: hidden;
+  border: none; /* 取消蓝色边框 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .board-container:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+/* 竖屏模式优化，保留容器清晰边界，解决底部问题 */
+@media (max-width: 991px) {
+  /* 优化棋盘样式，避免与容器边界冲突 */
+  .sudoku-board {
+    position: relative;
+    z-index: 1;
+    border-radius: 0; /* 移除棋盘自身圆角，由容器控制 */
+    width: 100% !important; /* 完全匹配容器宽度 */
+    height: 100% !important; /* 完全匹配容器高度 */
+    transform: none !important;
+    overflow: hidden;
+    border: none !important; /* 移除棋盘自身边框，避免重复 */
+  }
+  
+  /* 保持容器无边框设计 */
+  .board-container {
+    background-color: #ffffff;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    border: none !important;
+  }
+  
+  /* 移除包装器相关样式 */
+  .board-container-wrapper {
+    position: static;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 /* 确保数独棋盘本身占满容器空间 */
@@ -311,19 +340,19 @@ html, body {
   }
   */
 
-  /* 棋盘容器 - 作为棋盘区块 */
+  /* 棋盘容器 - 保留清晰锐利的边界 */
   .board-container {
     width: 100%; /* 完全充满父容器 */
     height: var(--board-width); /* 保持正方形比例 */
-    margin: 0 !important; /* 移除负边距 */
-    padding: 0 !important;
+    margin: 0 !important;
+    padding: 0;
     border-radius: 8px;
     overflow: hidden;
     box-sizing: border-box;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    /* 移除棋盘容器的吸附点设置，避免冲突 */
-    /* scroll-snap-align: start;
-    scroll-margin-top: 10px; */
+    background-color: #ffffff; /* 保持白色背景 */
+    border: 2px solid #3498db; /* 使用蓝色边框 */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
   }
   
   /* 操作面板在竖屏模式下自适应高度 */

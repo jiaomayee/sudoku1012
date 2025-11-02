@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 // 显性数对法高亮覆盖层组件 - 专门用于显性数对技巧的视觉指示
 const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrait = false }) => {
@@ -56,37 +56,45 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const noteRow = Math.floor(noteIndex / 3);
       const noteCol = noteIndex % 3;
       
-      // 计算位置偏移，使候选数在单元格中居中排列
-      const noteSize = cellWidth * 0.3; // 候选数大小
-      const offset = (cellWidth - 3 * noteSize) / 2 + noteCol * noteSize;
-      const topOffset = (cellHeight - 3 * noteSize) / 2 + noteRow * noteSize;
+      // 计算位置偏移，使候选数在单元格中居中排列，确保不超出单元格边界
+      const noteSize = Math.min(cellWidth, cellHeight) * 0.25; // 候选数大小为单元格的25%
+      const containerPadding = Math.min(cellWidth, cellHeight) * 0.05; // 容器内边距
+      
+      // 计算3x3网格的总大小
+      const gridSize = Math.min(cellWidth, cellHeight) - 2 * containerPadding;
+      const gridCellSize = gridSize / 3;
+      
+      // 计算候选数在网格中的位置
+      const left = containerPadding + noteCol * gridCellSize + (gridCellSize - noteSize) / 2;
+      const top = containerPadding + noteRow * gridCellSize + (gridCellSize - noteSize) / 2;
       
       return (
         <div
           key={`pair-note-${cell.row}-${cell.col}-${note}`}
           style={{
             position: 'absolute',
-            left: `${offset}px`,
-            top: `${topOffset}px`,
+            left: `${left}px`,
+            top: `${top}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
             backgroundColor: 'rgba(0, 0, 255, 0.8)', // 半透明蓝色背景表示数对候选数
-            borderRadius: '2px',
+            borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 38,
+            zIndex: 60, // 确保在单元格底色上方
             fontWeight: 'bold',
-            border: '1px solid rgba(0, 0, 0, 0.3)' // 半透明黑色边框
+            border: '1px solid rgba(255, 255, 255, 0.5)', // 白色边框
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
           }}
         >
           <span
             style={{
-              fontSize: noteFontSize,
+              fontSize: `${noteSize * 0.6}px`, // 字体大小为候选数区域的60%
               fontWeight: 'bold',
               color: '#FFFFFF', // 白色文字
-              zIndex: 43,
-              textShadow: 'none'
+              zIndex: 65,
+              textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)'
             }}
           >
             {note}

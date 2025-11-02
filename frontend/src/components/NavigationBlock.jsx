@@ -1,11 +1,11 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import DifficultySelectModal from './DifficultySelectModal';
+import ModeSwitchModal from './ModeSwitchModal';
 
 // 导入模式上下文
 import { ModeContext } from '../context/ModeContext';
@@ -33,11 +33,13 @@ const NavBlockContainer = styled.div.attrs({ className: 'nav-block' })`
   
   // 移除滚动吸附功能，允许自由滚动
   
-  // 竖屏模式下减小高度
+  // 竖屏模式下调整上下边距一致
   @media (max-width: 768px) and (orientation: portrait) {
-    padding: 4px;
-    min-height: 36px;
+    padding: 4px 4px; // 确保上下左右内边距一致
+    min-height: auto; // 让高度自适应内容
     border-bottom-width: 2px;
+    display: flex;
+    align-items: center;
   }
 `;
 
@@ -57,9 +59,10 @@ const ButtonGrid = styled.div`
   margin: 0;
   padding: 2px 0; // 进一步减小内边距以减小整体高度
   
-  // 竖屏模式下进一步减小内边距
+  // 竖屏模式下确保上下内边距一致
   @media (max-width: 768px) and (orientation: portrait) {
-    padding: 1px 0;
+    padding: 2px 0; // 上下内边距一致
+    width: 100%;
   }
 `;
 
@@ -77,10 +80,12 @@ const NavButton = styled(({ isActive, ...props }) => <button {...props} />)`
   min-height: 40px; // 减小最小高度
   height: auto; // 允许高度自适应内容
   
-  // 竖屏模式下进一步减小高度并确保居中
+  // 竖屏模式下确保按钮在容器中垂直居中
   @media (max-width: 768px) and (orientation: portrait) {
     min-height: 32px;
-    padding: 2px;
+    height: 32px; // 固定高度以确保一致性
+    padding: 0; // 移除内边距以控制高度
+    margin: 0;
   }
   font-size: 12px;
   font-family: inherit;
@@ -214,6 +219,7 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   const { startLoading, stopLoading } = useLoading();
   const [showDifficultyModal, setShowDifficultyModal] = useState(false); // 控制难度选择模态框显示
   const [isNotesButtonActive, setIsNotesButtonActive] = useState(false); // 控制候选数按钮激活状态
+  const [showModeSwitchModal, setShowModeSwitchModal] = useState(false); // 控制模式切换确认模态框显示
   
   // 添加状态用于跟踪长按功能
   const [isLongPressActive, setIsLongPressActive] = useState(false); // 控制是否处于长按状态
@@ -287,25 +293,21 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
     }
   };
 
-  // 切换模式
-  const toggleMode = () => {
+  // 打开模式切换确认窗口
+  const openModeSwitchModal = () => {
+    setShowModeSwitchModal(true);
+  };
+
+  // 处理模式切换确认
+  const handleModeSwitchConfirm = () => {
     const newMode = mode === 'game' ? 'learning' : 'game';
     setMode(newMode);
-    
-    // 显示模式切换提示（支持多语言）
-    if (newMode === 'learning') {
-      // 从游戏模式切换到学习模式
-      toast.info(t('learningModeActive'), {
-        position: 'top-right',
-        autoClose: 2000
-      });
-    } else {
-      // 从学习模式切换到游戏模式
-      toast.info(t('gameModeActive'), {
-        position: 'top-right',
-        autoClose: 2000
-      });
-    }
+    setShowModeSwitchModal(false);
+  };
+
+  // 关闭模式切换窗口
+  const handleModeSwitchClose = () => {
+    setShowModeSwitchModal(false);
   };
   
   // 处理按钮按下
@@ -519,7 +521,7 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           </NavButton>
           
           {/* 模式切换按钮 */}
-          <NavButton onClick={toggleMode} title={mode === 'game' ? (t('switchToLearningMode') || '切换到学习模式') : (t('switchToGameMode') || '切换到游戏模式')}>
+          <NavButton onClick={openModeSwitchModal} title={mode === 'game' ? (t('switchToLearningMode') || '切换到学习模式') : (t('switchToGameMode') || '切换到游戏模式')}>
             <ButtonIcon>
               {mode === 'game' ? <GameModeIcon /> : <LearningModeIcon />}
             </ButtonIcon>
@@ -533,6 +535,14 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         onClose={() => setShowDifficultyModal(false)}
         onSelectDifficulty={handleDifficultySelect}
         initialDifficulty={sudokuContext?.difficulty || DIFFICULTY_LEVELS.MEDIUM}
+      />
+      
+      {/* 模式切换确认模态框 */}
+      <ModeSwitchModal
+        isOpen={showModeSwitchModal}
+        onClose={handleModeSwitchClose}
+        currentMode={mode}
+        onConfirm={handleModeSwitchConfirm}
       />
     </>
   );

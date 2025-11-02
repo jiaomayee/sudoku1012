@@ -240,9 +240,70 @@ html, body {
   .is-portrait .main-content {
     flex-direction: column;
     align-items: center;
-    gap: 5px !important; /* 统一区块间距为5px */
+    gap: 3px !important; /* 统一区块间距为3px */
     padding: 8px;
-    --block-gap: 5px !important;
+    --block-gap: 3px !important;
+  }
+  
+  /* 确保竖屏模式下所有直接子元素边距统一 - 使用更高优先级 */
+  .sudoku-game-container.is-portrait .main-content > * {
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
+  }
+  
+  /* 更具体地指定四个主要区块的样式，确保间距统一 - 使用更高优先级 */
+  .sudoku-game-container.is-portrait .display-block,
+  .sudoku-game-container.is-portrait .nav-block,
+  .sudoku-game-container.is-portrait .board-container,
+  .sudoku-game-container.is-portrait .controls-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+    /* 移除box-shadow以避免视觉间距问题 */
+    box-shadow: none !important;
+    /* 移除边框以避免视觉间距问题 */
+    border: none !important;
+  }
+  
+  /* 确保操作面板在容器内没有额外边距 */
+  .sudoku-game-container.is-portrait .controls-container .control-panel {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* 直接控制所有相邻区块之间的间距 - 使用相邻兄弟选择器 */
+  .sudoku-game-container.is-portrait .main-content > * + * {
+    margin-top: 3px !important;
+  }
+  
+  /* 强制覆盖DisplayBlock组件的内部样式 */
+  .sudoku-game-container.is-portrait .display-block {
+    margin: 0 !important;
+    padding: 4px !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* 强制覆盖NavigationBlock组件的内部样式 */
+  .sudoku-game-container.is-portrait .nav-block {
+    margin: 0 !important;
+    padding: 4px !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* 确保棋盘容器没有额外间距 */
+  .sudoku-game-container.is-portrait .board-container {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* 确保操作控制容器没有额外间距 */
+  .sudoku-game-container.is-portrait .controls-container {
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   .top-row {

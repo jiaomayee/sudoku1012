@@ -14,13 +14,8 @@ export const LanguageProvider = ({ children }) => {
       return savedLanguage;
     }
     
-    // 检测浏览器语言，支持中文相关的语言代码（zh-CN, zh, zh-TW等）
-    const browserLang = navigator.language || navigator.userLanguage;
-    if (browserLang && browserLang.includes('zh')) {
-      return 'zh-CN'; // 所有中文变体都使用简体中文
-    }
-    
-    // 默认使用英文
+    // 重要：默认使用英文，确保网页标题栏显示英文信息
+    // 不再根据浏览器语言自动选择中文，除非用户明确设置
     return 'en-US';
   });
   

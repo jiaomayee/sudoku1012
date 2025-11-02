@@ -55,6 +55,8 @@ const Version = styled.div`
   margin-top: 10px;
 `;
 
+import { APP_VERSION } from '../config/version';
+
 const Footer = () => {
   const { theme } = useTheme();
   const { t } = useLanguage();
@@ -73,7 +75,7 @@ const Footer = () => {
           © {currentYear} {t('appName')} {t('copyright')}
         </Copyright>
         <Version theme={theme}>
-          {t('version')} 1.0.0
+          {t('version')} {APP_VERSION}
         </Version>
       </FooterContent>
     </FooterContainer>

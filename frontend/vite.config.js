@@ -5,8 +5,8 @@ import { resolve } from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // base路径配置 - 自定义域名使用根路径
-  base: '/',
+  // base路径配置 - 使用相对路径以同时适配GitHub Pages和自定义域名
+base: '',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

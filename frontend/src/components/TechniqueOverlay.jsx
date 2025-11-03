@@ -121,7 +121,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             top: `${top}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: 'rgba(173, 216, 230, 0.6)', // 更浅的蓝色背景表示需要删除
+            backgroundColor: '#FF0000', // 红色背景表示需要删除
             borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
@@ -136,9 +136,9 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             style={{
               fontSize: `${noteSize * 0.6}px`, // 字体大小为候选数区域的60%
               fontWeight: 'bold',
-              color: '#000000', // 黑色文字
+              color: '#FFFFFF', // 白色文字
               zIndex: 65, // 确保文字在候选数背景上方
-              textShadow: 'none'
+              textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)'
             }}
           >
             {note}

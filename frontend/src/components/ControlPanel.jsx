@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { toast } from 'react-toastify';
 // 移除styled-components导入
 import { useTheme } from '../context/ThemeContext';
 import { useSudoku } from '../context/SudokuContext';
@@ -1450,18 +1451,18 @@ const ControlPanel = ({
     console.log('handleApplyTechnique called', { selectedTechnique, isPencilMode, togglePencilMode });
     
     if (selectedTechnique) {
-      // 检查技巧类型，确定是否需要特殊处理
-      const isSpecialTechnique = selectedTechnique.type && (
+      // 检查技巧类型，确定是否是基础技巧
+      const isBasicTechnique = selectedTechnique.type && (
         selectedTechnique.type === 'nakedSingle' ||
         selectedTechnique.type === 'notesSingle' ||
         selectedTechnique.type.includes('hiddenSingle')
       );
       
-      console.log('Technique type check', { isSpecialTechnique, techniqueType: selectedTechnique.type });
+      console.log('Technique type check', { isBasicTechnique, techniqueType: selectedTechnique.type });
       
-      // 对于特殊技巧，直接应用
-      if (isSpecialTechnique) {
-        console.log('Applying special technique');
+      // 对于基础技巧，直接应用
+      if (isBasicTechnique) {
+        console.log('Applying basic technique');
         const success = applyTechniqueToBoard(selectedTechnique);
         if (success) {
           // 应用成功后，清除高亮
@@ -1476,31 +1477,27 @@ const ControlPanel = ({
           findTechniques();
         }
       } else {
-        console.log('Applying non-special technique');
-        // 对于其他技巧，弹窗提示用户手动删除候选数
+        console.log('Applying non-basic technique');
+        // 对于其他技巧，弹窗提示用户手动删除候选数，并退出技巧指示模式
         // 显示提示信息
         toast.info(t('manualCandidateRemovalRequired', { 
-          defaultMessage: '请手动删除相关单元格中的候选数' 
+          defaultMessage: '请手动清除选定候选数' 
         }), { 
           position: 'top-right',
           autoClose: 3000
         });
         
-        // 跳转到"键盘"标签页并切换到铅笔模式
-        setActiveTab('keyboard');
-        
-        // 切换到铅笔模式（如果当前不是铅笔模式）
-        console.log('Toggling pencil mode', { isPencilMode, togglePencilMode });
-        if (!isPencilMode && togglePencilMode) {
-          console.log('Calling togglePencilMode');
-          togglePencilMode();
+        // 退出技巧指示模式
+        // 清除高亮
+        if (setHighlightedCells) {
+          setHighlightedCells([]);
         }
-        
         // 取消单元格选中状态
         if (setSelectedCell) {
           setSelectedCell(null);
         }
-        
+        // 切换到键盘标签页
+        setActiveTab('keyboard');
         // 清除选中的技巧和步骤
         setSelectedTechnique(null);
         setTechniqueSteps([]);

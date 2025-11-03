@@ -289,7 +289,7 @@ export const translations = {
     candidatesComplete: '候选数正确完整，直接计算技巧机会！',
     candidateErrorDetected: '存在候选数删减错误，数据刷新',
     // 手动删除候选数提示
-    manualCandidateRemovalRequired: '请手动删除相关单元格中的候选数',
+    manualCandidateRemovalRequired: '请手动清除选定候选数',
     pairTechniqueIdentified: '技巧已识别，请手动移除相关候选数'
   },
   'en-US': {
@@ -545,7 +545,7 @@ export const translations = {
     removeBoxLineReductionFromTargets: 'Remove candidate {number} from target cells {targets} in box {boxNum}',
     findHiddenTripleInRegion: 'Find number groups that can only appear in three cells in {regionType} {regionNum}',
     // Manual candidate removal提示
-    manualCandidateRemovalRequired: 'Please manually remove candidates from related cells',
+    manualCandidateRemovalRequired: 'Please manually clear selected candidates',
     pairTechniqueIdentified: 'Technique identified, please manually remove related candidates'
   }
 };

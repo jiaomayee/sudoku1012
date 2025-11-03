@@ -287,7 +287,10 @@ export const translations = {
     candidatesFilled: '已为所有空白格子计算并填充候选数！',
     emptyCandidateCellsFound: '发现无候选数的空白单元格，重新计算候选数...',
     candidatesComplete: '候选数正确完整，直接计算技巧机会！',
-    candidateErrorDetected: '存在候选数删减错误，数据刷新'
+    candidateErrorDetected: '存在候选数删减错误，数据刷新',
+    // 手动删除候选数提示
+    manualCandidateRemovalRequired: '请手动清除选定候选数',
+    pairTechniqueIdentified: '技巧已识别，请手动移除相关候选数'
   },
   'en-US': {
     welcomeTitle: 'Welcome to Free Sudoku & Advanced Techniques Learning',
@@ -540,6 +543,9 @@ export const translations = {
     // Box-Line Reduction
     findBoxLineReductionInLine: 'In {lineNum} {lineType}, number {number} can only appear in box {boxNum}',
     removeBoxLineReductionFromTargets: 'Remove candidate {number} from target cells {targets} in box {boxNum}',
-    findHiddenTripleInRegion: 'Find number groups that can only appear in three cells in {regionType} {regionNum}'
+    findHiddenTripleInRegion: 'Find number groups that can only appear in three cells in {regionType} {regionNum}',
+    // Manual candidate removal提示
+    manualCandidateRemovalRequired: 'Please manually clear selected candidates',
+    pairTechniqueIdentified: 'Technique identified, please manually remove related candidates'
   }
 };

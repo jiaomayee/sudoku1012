@@ -7,6 +7,8 @@ import DisplayBlock from '../components/DisplayBlock';
 import DifficultySelectModal from '../components/DifficultySelectModal';
 import TechniqueOverlay from '../components/TechniqueOverlay';
 import TechniqueMaskOverlay from '../components/TechniqueMaskOverlay';
+// 导入新的显性数对覆盖层组件
+import NakedPairOverlay from '../components/NakedPairOverlay';
 import { useSudoku } from '../context/SudokuContext';
 import { toast } from 'react-toastify';
 import { useLoading } from '../context/LoadingContext';
@@ -584,15 +586,27 @@ const SudokuGamePage = () => {
               />
               {/* 外挂式技巧遮罩层 - 唯一余数技巧专用 */}
               <TechniqueMaskOverlay 
-                highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
+                highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
                 boardWidth={boardContainerRef.current?.offsetWidth || 450}
                 boardHeight={boardContainerRef.current?.offsetHeight || 450}
                 isPortrait={isPortrait}
               />
-              
+                
               {/* 外挂式技巧高亮层 */}
               <TechniqueOverlay 
-                highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
+                highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
+                boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                boardHeight={boardContainerRef.current?.offsetHeight || 450}
+                isPortrait={isPortrait}
+              />
+                
+              {/* 显性数对法专用覆盖层 */}
+              <NakedPairOverlay 
+                highlightedCells={highlightedCells.filter(cell => 
+                  cell.techniqueIndicator === true && 
+                  cell.techniqueType && 
+                  cell.techniqueType.includes('nakedPair')
+                )}
                 boardWidth={boardContainerRef.current?.offsetWidth || 450}
                 boardHeight={boardContainerRef.current?.offsetHeight || 450}
                 isPortrait={isPortrait}
@@ -672,6 +686,18 @@ const SudokuGamePage = () => {
                 {/* 外挂式技巧高亮层 */}
                 <TechniqueOverlay 
                   highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
+                  boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                  boardHeight={boardContainerRef.current?.offsetHeight || 450}
+                  isPortrait={isPortrait}
+                />
+                
+                {/* 显性数对法专用覆盖层 */}
+                <NakedPairOverlay 
+                  highlightedCells={highlightedCells.filter(cell => 
+                    cell.techniqueIndicator === true && 
+                    cell.techniqueType && 
+                    cell.techniqueType.includes('nakedPair')
+                  )}
                   boardWidth={boardContainerRef.current?.offsetWidth || 450}
                   boardHeight={boardContainerRef.current?.offsetHeight || 450}
                   isPortrait={isPortrait}

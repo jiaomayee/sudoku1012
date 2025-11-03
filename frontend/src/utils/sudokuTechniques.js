@@ -138,6 +138,17 @@ export const findNakedPairs = (board, pencilNotes = {}) => {
               cells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
               values: cell1.notes,
               targetCells,
+              targetCellsDetails: targetCells.map((cell, index) => {
+                const [r, c] = cell;
+                const notesKey = `${r}-${c}`;
+                const cellNotes = pencilNotes[notesKey] || [];
+                const commonNotes = cellNotes.filter(note => cell1.notes.includes(note));
+                return {
+                  row: r,
+                  col: c,
+                  notesToRemove: commonNotes
+                };
+              }),
               removableCandidates,
               message: `在第${row+1}行，单元格(${cell1.col+1})和(${cell2.col+1})形成显性数对[${cell1.notes.join(',')}]`
             });
@@ -195,6 +206,17 @@ export const findNakedPairs = (board, pencilNotes = {}) => {
               cells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
               values: cell1.notes,
               targetCells,
+              targetCellsDetails: targetCells.map((cell, index) => {
+                const [r, c] = cell;
+                const notesKey = `${r}-${c}`;
+                const cellNotes = pencilNotes[notesKey] || [];
+                const commonNotes = cellNotes.filter(note => cell1.notes.includes(note));
+                return {
+                  row: r,
+                  col: c,
+                  notesToRemove: commonNotes
+                };
+              }),
               removableCandidates,
               message: `在第${col+1}列，单元格(${cell1.row+1})和(${cell2.row+1})形成显性数对[${cell1.notes.join(',')}]`
             });
@@ -260,6 +282,17 @@ export const findNakedPairs = (board, pencilNotes = {}) => {
               cells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
               values: cell1.notes,
               targetCells,
+              targetCellsDetails: targetCells.map((cell, index) => {
+                const [r, c] = cell;
+                const notesKey = `${r}-${c}`;
+                const cellNotes = pencilNotes[notesKey] || [];
+                const commonNotes = cellNotes.filter(note => cell1.notes.includes(note));
+                return {
+                  row: r,
+                  col: c,
+                  notesToRemove: commonNotes
+                };
+              }),
               removableCandidates,
               message: `在第${boxRow*3+boxCol+1}宫，单元格(${cell1.row+1},${cell1.col+1})和(${cell2.row+1},${cell2.col+1})形成显性数对[${cell1.notes.join(',')}]`
             });

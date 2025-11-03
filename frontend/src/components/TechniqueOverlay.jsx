@@ -108,7 +108,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const gridSize = Math.min(cellWidth, cellHeight) - 2 * containerPadding;
       const gridCellSize = gridSize / 3;
       
-      // 计算候选数在网格中的位置
+      // 计算候选数在网格中的位置，确保在中心
       const left = containerPadding + noteCol * gridCellSize + (gridCellSize - noteSize) / 2;
       const top = containerPadding + noteRow * gridCellSize + (gridCellSize - noteSize) / 2;
       
@@ -121,7 +121,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             top: `${top}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: '#e74c3c', // 红色背景表示需要删除
+            backgroundColor: 'rgba(173, 216, 230, 0.6)', // 更浅的蓝色背景表示需要删除
             borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
@@ -136,9 +136,9 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             style={{
               fontSize: `${noteSize * 0.6}px`, // 字体大小为候选数区域的60%
               fontWeight: 'bold',
-              color: '#ffffff',
+              color: '#000000', // 黑色文字
               zIndex: 65, // 确保文字在候选数背景上方
-              textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)'
+              textShadow: 'none'
             }}
           >
             {note}

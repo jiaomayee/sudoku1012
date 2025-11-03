@@ -64,7 +64,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const gridSize = Math.min(cellWidth, cellHeight) - 2 * containerPadding;
       const gridCellSize = gridSize / 3;
       
-      // 计算候选数在网格中的位置
+      // 计算候选数在网格中的位置，确保在中心
       const left = containerPadding + noteCol * gridCellSize + (gridCellSize - noteSize) / 2;
       const top = containerPadding + noteRow * gridCellSize + (gridCellSize - noteSize) / 2;
       
@@ -77,7 +77,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             top: `${top}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: 'rgba(0, 0, 255, 0.8)', // 半透明蓝色背景表示数对候选数
+            backgroundColor: 'rgba(173, 216, 230, 0.6)', // 更浅的蓝色背景表示数对候选数
             borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
@@ -92,9 +92,9 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             style={{
               fontSize: `${noteSize * 0.6}px`, // 字体大小为候选数区域的60%
               fontWeight: 'bold',
-              color: '#FFFFFF', // 白色文字
+              color: '#000000', // 黑色文字
               zIndex: 65,
-              textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)'
+              textShadow: 'none'
             }}
           >
             {note}
@@ -123,30 +123,30 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
 
     // 显性数对法专用高亮样式
     const highlightStyles = {
-      // 条件单元格 - 半透明浅蓝色底色
+      // 条件单元格 - 更透明的浅蓝色底色
       'pair': {
-        backgroundColor: 'rgba(173, 216, 230, 0.6)', // 半透明浅蓝色背景
+        backgroundColor: 'rgba(173, 216, 230, 0.4)', // 降低透明度到0.4
         borderColor: 'rgba(0, 0, 0, 0.5)',
         border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 35
       },
       // 目标单元格 - 更透明的浅绿色底色
       'target': {
-        backgroundColor: 'rgba(144, 238, 144, 0.3)', // 增加透明度到0.3
+        backgroundColor: 'rgba(144, 238, 144, 0.2)', // 降低透明度到0.2
         borderColor: 'rgba(0, 0, 0, 0.5)',
         border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 30
       },
       // 需要删除候选数的单元格 - 更透明的浅绿色底色（与目标单元格相同）
       'removal': {
-        backgroundColor: 'rgba(144, 238, 144, 0.3)', // 增加透明度到0.3
+        backgroundColor: 'rgba(144, 238, 144, 0.2)', // 降低透明度到0.2
         borderColor: 'rgba(0, 0, 0, 0.5)',
         border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 25
       },
       // 默认样式
       'default': {
-        backgroundColor: 'rgba(173, 216, 230, 0.6)', // 半透明浅蓝色背景
+        backgroundColor: 'rgba(173, 216, 230, 0.4)', // 降低透明度到0.4
         borderColor: 'rgba(0, 0, 0, 0.5)',
         border: '1px solid rgba(0, 0, 0, 0.5)',
         zIndex: 35

@@ -1175,11 +1175,9 @@ const ControlPanel = ({
           // 构建一个映射，将目标单元格与其需要删除的候选数关联起来
           const removableCandidatesMap = {};
           
-          // 遍历目标单元格和可删除候选数，建立映射关系
-          // 修复：正确处理removableCandidates数组，它是一个扁平化的数组，包含了所有需要删除的候选数
-          // 我们需要根据targetCells中的单元格来分组这些候选数
+          // 如果有详细的目标单元格信息，使用它来建立映射
           if (technique.targetCellsDetails && Array.isArray(technique.targetCellsDetails)) {
-            // 如果有详细的目标单元格信息，使用它来建立映射
+            // 使用详细信息建立映射
             technique.targetCellsDetails.forEach(detail => {
               const r = detail.row;
               const c = detail.col;
@@ -1197,10 +1195,8 @@ const ControlPanel = ({
               }
             });
           } else {
-            // 如果没有详细信息，尝试从targetCells和removableCandidates重建映射
-            // 这需要重新分析显性数对法的逻辑
-            // 临时修复：为每个目标单元格添加所有可删除的候选数（这不是最优解，但能确保所有候选数都被高亮）
-            targetCells.forEach(cell => {
+            // 如果没有详细信息，使用原有的逻辑
+            targetCells.forEach((cell, index) => {
               const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
               const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
               
@@ -1210,12 +1206,13 @@ const ControlPanel = ({
                   removableCandidatesMap[key] = [];
                 }
                 
-                // 添加所有可删除的候选数到该单元格
-                removableCandidates.forEach(note => {
+                // 将对应的候选数添加到该单元格的可删除列表中
+                if (index < removableCandidates.length) {
+                  const note = removableCandidates[index];
                   if (!removableCandidatesMap[key].includes(note)) {
                     removableCandidatesMap[key].push(note);
                   }
-                });
+                }
               }
             });
           }
@@ -1244,7 +1241,7 @@ const ControlPanel = ({
               });
             } else {
               // 已有高亮的单元格，添加候选数移除信息
-              // 修复：合并已有的候选数和新的候选数，避免覆盖
+              // 合并已有的候选数和新的候选数，避免覆盖
               const existingNotes = cellsToHighlight[existingIndex].notesToRemove || [];
               const combinedNotes = [...new Set([...existingNotes, ...valuesToRemove])];
               cellsToHighlight[existingIndex].notesToRemove = combinedNotes;

@@ -1176,22 +1176,49 @@ const ControlPanel = ({
           const removableCandidatesMap = {};
           
           // 遍历目标单元格和可删除候选数，建立映射关系
-          targetCells.forEach((cell, index) => {
-            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
-            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
-            
-            if (r !== null && c !== null) {
+          // 修复：正确处理removableCandidates数组，它是一个扁平化的数组，包含了所有需要删除的候选数
+          // 我们需要根据targetCells中的单元格来分组这些候选数
+          if (technique.targetCellsDetails && Array.isArray(technique.targetCellsDetails)) {
+            // 如果有详细的目标单元格信息，使用它来建立映射
+            technique.targetCellsDetails.forEach(detail => {
+              const r = detail.row;
+              const c = detail.col;
               const key = `${r}-${c}`;
               if (!removableCandidatesMap[key]) {
                 removableCandidatesMap[key] = [];
               }
-              
-              // 将对应的候选数添加到该单元格的可删除列表中
-              if (index < removableCandidates.length) {
-                removableCandidatesMap[key].push(removableCandidates[index]);
+              // 添加该单元格需要删除的所有候选数
+              if (Array.isArray(detail.notesToRemove)) {
+                detail.notesToRemove.forEach(note => {
+                  if (!removableCandidatesMap[key].includes(note)) {
+                    removableCandidatesMap[key].push(note);
+                  }
+                });
               }
-            }
-          });
+            });
+          } else {
+            // 如果没有详细信息，尝试从targetCells和removableCandidates重建映射
+            // 这需要重新分析显性数对法的逻辑
+            // 临时修复：为每个目标单元格添加所有可删除的候选数（这不是最优解，但能确保所有候选数都被高亮）
+            targetCells.forEach(cell => {
+              const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+              const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+              
+              if (r !== null && c !== null) {
+                const key = `${r}-${c}`;
+                if (!removableCandidatesMap[key]) {
+                  removableCandidatesMap[key] = [];
+                }
+                
+                // 添加所有可删除的候选数到该单元格
+                removableCandidates.forEach(note => {
+                  if (!removableCandidatesMap[key].includes(note)) {
+                    removableCandidatesMap[key].push(note);
+                  }
+                });
+              }
+            });
+          }
           
           // 更新已高亮的单元格或添加新的高亮单元格
           Object.keys(removableCandidatesMap).forEach(key => {
@@ -1217,7 +1244,10 @@ const ControlPanel = ({
               });
             } else {
               // 已有高亮的单元格，添加候选数移除信息
-              cellsToHighlight[existingIndex].notesToRemove = valuesToRemove;
+              // 修复：合并已有的候选数和新的候选数，避免覆盖
+              const existingNotes = cellsToHighlight[existingIndex].notesToRemove || [];
+              const combinedNotes = [...new Set([...existingNotes, ...valuesToRemove])];
+              cellsToHighlight[existingIndex].notesToRemove = combinedNotes;
               cellsToHighlight[existingIndex].highlightType = 'removal';
               cellsToHighlight[existingIndex].backgroundColor = 'rgba(144, 238, 144, 0.6)'; // 半透明浅绿色背景
             }

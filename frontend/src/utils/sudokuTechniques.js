@@ -2479,7 +2479,7 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
     hiddenTriples = findHiddenTriples(board, pencilNotes);
     // 高级技巧
     xWing = findXWing(board, pencilNotes);
-    yWing = findYing(board, pencilNotes);
+    yWing = findYWing(board, pencilNotes);
     swordfish = findSwordfish(board, pencilNotes);
     xyzWing = findXYZWing(board, pencilNotes);
     

@@ -296,6 +296,10 @@ export const translations = {
     findSwordfishInWings: '在{wingType}中查找数字{number}的Swordfish结构',
     swordfishFormStructure: '数字{number}在源单元格{sourceCells}中形成三行三列的结构',
     removeSwordfishFromTargets: '从目标单元格{targets}中移除候选数{number}',
+    // XYZ-Wing
+    findXYZWingStructure: '发现XYZ-Wing结构：枢纽{anchor}，翼{xz}和{yz}',
+    xyzWingShareCandidates: '枢纽{anchor}与翼{xz}共享候选数{x}，枢纽{anchor}与翼{yz}共享候选数{y}，翼{xz}和{yz}都包含候选数{z}',
+    removeXYZWingFromTargets: '从目标单元格{targets}中移除候选数{number}',
     // 添加候选数相关的翻译键
     cellNotEmpty: '该单元格已有数字，无法填充候选数',
     cellPrefilled: '该单元格为预填数字，无法填充候选数',
@@ -578,6 +582,10 @@ export const translations = {
     findSwordfishInWings: 'Find Swordfish structure for number {number} in {wingType}',
     swordfishFormStructure: 'Number {number} forms a three-row three-column structure in source cells {sourceCells}',
     removeSwordfishFromTargets: 'Remove candidate {number} from target cells {targets}',
+    // XYZ-Wing
+    findXYZWingStructure: 'Found XYZ-Wing structure: pivot {anchor}, wings {xz} and {yz}',
+    xyzWingShareCandidates: 'Pivot {anchor} shares candidate {x} with wing {xz}, pivot {anchor} shares candidate {y} with wing {yz}, wings {xz} and {yz} both contain candidate {z}',
+    removeXYZWingFromTargets: 'Remove candidate {number} from target cells {targets}',
     // Manual candidate removal提示
     manualCandidateRemovalRequired: 'Please manually clear selected candidates',
     pairTechniqueIdentified: 'Technique identified, please manually remove related candidates'

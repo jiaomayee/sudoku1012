@@ -805,6 +805,24 @@ const ControlPanel = ({
         { step: 2, description: t('swordfishFormStructure', { sourceCells: formattedSourceCells, number: technique.number }), highlight: position },
         { step: 3, description: t('removeSwordfishFromTargets', { number: technique.number, targets: formattedTargetCells }), highlight: position }
       );
+    } else if (technique.type.includes('xyzWing') || technique.type.includes('xyz-wing')) {
+      // XYZ-Wing技巧解题步骤
+      
+      // 格式化源单元格位置显示
+      const pivotPos = `(${technique.pivotCell[0] + 1},${technique.pivotCell[1] + 1})`;
+      const xzPos = `(${technique.xzCell[0] + 1},${technique.xzCell[1] + 1})`;
+      const yzPos = `(${technique.yzCell[0] + 1},${technique.yzCell[1] + 1})`;
+      
+      // 格式化目标单元格位置显示
+      const formattedTargetCells = technique.targetCells && Array.isArray(technique.targetCells) 
+        ? technique.targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('findYWingStructure', { anchor: pivotPos, xz: xzPos, yz: yzPos }), highlight: '' },
+        { step: 2, description: t('yWingShareCandidates', { anchor: pivotPos, xz: xzPos, yz: yzPos, x: technique.x, y: technique.y, z: technique.common }), highlight: position },
+        { step: 3, description: t('removeYWingFromTargets', { number: technique.common, targets: formattedTargetCells }), highlight: position }
+      );
     } else {
         // 通用解题步骤，确保至少有内容显示
         steps.push(

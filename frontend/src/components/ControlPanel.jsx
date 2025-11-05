@@ -819,9 +819,9 @@ const ControlPanel = ({
         : t('multipleCells');
       
       steps.push(
-        { step: 1, description: t('findYWingStructure', { anchor: pivotPos, xz: xzPos, yz: yzPos }), highlight: '' },
-        { step: 2, description: t('yWingShareCandidates', { anchor: pivotPos, xz: xzPos, yz: yzPos, x: technique.x, y: technique.y, z: technique.common }), highlight: position },
-        { step: 3, description: t('removeYWingFromTargets', { number: technique.common, targets: formattedTargetCells }), highlight: position }
+        { step: 1, description: t('findXYZWingStructure', { anchor: pivotPos, xz: xzPos, yz: yzPos }), highlight: '' },
+        { step: 2, description: t('xyzWingShareCandidates', { anchor: pivotPos, xz: xzPos, yz: yzPos, x: technique.x, y: technique.y, z: technique.common }), highlight: position },
+        { step: 3, description: t('removeXYZWingFromTargets', { number: technique.common, targets: formattedTargetCells }), highlight: position }
       );
     } else {
         // 通用解题步骤，确保至少有内容显示

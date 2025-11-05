@@ -1769,7 +1769,7 @@ export const findXWing = (board, pencilNotes = {}) => {
                 targetCells,
                 targetCellsDetails, // 添加详细信息
                 removableCandidates,
-                message: `在行${row1.row + 1}和${row2.row + 1}，数字${num}形成X-Wing，可以排除列${row1.cols.map(c => c + 1).join('和')}中其他行的数字${num}候选数`
+                message: `X-Wing技巧：在第${row1.row + 1}行和第${row2.row + 1}行中，数字${num}只出现在第${row1.cols[0] + 1}列和第${row1.cols[1] + 1}列中，形成一个矩形结构。由于这个数字在这两行中只能出现在相同的两列，因此可以确定该数字在这两列的其他行中不可能存在，可以删除第${row1.cols[0] + 1}列和第${row1.cols[1] + 1}列中除这两行外其他单元格的数字${num}候选数`
               });
             }
           }
@@ -1863,7 +1863,7 @@ export const findXWing = (board, pencilNotes = {}) => {
                 targetCells,
                 targetCellsDetails, // 添加详细信息
                 removableCandidates,
-                message: `在列${col1.col + 1}和${col2.col + 1}，数字${num}形成X-Wing，可以排除行${col1.rows.map(r => r + 1).join('和')}中其他列的数字${num}候选数`
+                message: `X-Wing技巧：在第${col1.col + 1}列和第${col2.col + 1}列中，数字${num}只出现在第${col1.rows[0] + 1}行和第${col1.rows[1] + 1}行中，形成一个矩形结构。由于这个数字在这两列中只能出现在相同的两行，因此可以确定该数字在这两行的其他列中不可能存在，可以删除第${col1.rows[0] + 1}行和第${col1.rows[1] + 1}行中除这两列外其他单元格的数字${num}候选数`
               });
             }
           }
@@ -2032,7 +2032,7 @@ export const findYing = (board, pencilNotes = {}) => {
             targetCells,
             targetCellsDetails, // 添加详细信息
             removableCandidates,
-            message: `Y-Wing: 锚点(${anchorCell.row + 1},${anchorCell.col + 1})[${x},${y}], XZ单元格(${xzCell.row + 1},${xzCell.col + 1})[${x},${z}], YZ单元格(${yzCell.row + 1},${yzCell.col + 1})[${y},${z}]，可以排除交叉单元格的数字${z}候选数`
+            message: `Y-Wing技巧：这是一个由三个双候选数单元格组成的特殊结构。锚点单元格(${anchorCell.row + 1},${anchorCell.col + 1})包含候选数[${x},${y}]，XZ单元格(${xzCell.row + 1},${xzCell.col + 1})包含候选数[${x},${z}]，YZ单元格(${yzCell.row + 1},${yzCell.col + 1})包含候选数[${y},${z}]。由于锚点单元格与XZ、YZ单元格分别共享候选数x和y，且XZ和YZ单元格都包含候选数z，因此可以确定在同时受XZ和YZ单元格影响的交叉单元格中，候选数z不可能存在，可以删除这些交叉单元格中的数字${z}候选数`
           });
         }
       }

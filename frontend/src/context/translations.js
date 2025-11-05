@@ -279,6 +279,14 @@ export const translations = {
     findBoxLineReductionInLine: '在第{lineNum}{lineType}，数字{number}只能出现在第{boxNum}宫',
     removeBoxLineReductionFromTargets: '从第{boxNum}宫的目标单元格{targets}中移除候选数{number}',
     findHiddenTripleInRegion: '在{regionType}{regionNum}中查找只能出现在三个单元格中的数字组',
+    // X-Wing
+    findXWingInWings: '在{wingType}中查找数字{number}的X-Wing结构',
+    xWingFormRectangle: '数字{number}在源单元格{sourceCells}中形成矩形结构',
+    removeXWingFromTargets: '从目标单元格{targets}中移除候选数{number}',
+    // Y-Wing
+    findYWingStructure: '发现Y-Wing结构：枢纽{anchor}，翼{xy}和{yz}',
+    yWingShareCandidates: '枢纽{anchor}与翼{xy}共享候选数{x}，枢纽{anchor}与翼{yz}共享候选数{y}，翼{xy}和{yz}都包含候选数{z}',
+    removeYWingFromTargets: '从目标单元格{targets}中移除候选数{number}',
     // 添加候选数相关的翻译键
     cellNotEmpty: '该单元格已有数字，无法填充候选数',
     cellPrefilled: '该单元格为预填数字，无法填充候选数',
@@ -544,6 +552,14 @@ export const translations = {
     findBoxLineReductionInLine: 'In {lineNum} {lineType}, number {number} can only appear in box {boxNum}',
     removeBoxLineReductionFromTargets: 'Remove candidate {number} from target cells {targets} in box {boxNum}',
     findHiddenTripleInRegion: 'Find number groups that can only appear in three cells in {regionType} {regionNum}',
+    // X-Wing
+    findXWingInWings: 'Find X-Wing structure for number {number} in {wingType}',
+    xWingFormRectangle: 'Number {number} forms a rectangle structure in source cells {sourceCells}',
+    removeXWingFromTargets: 'Remove candidate {number} from target cells {targets}',
+    // Y-Wing
+    findYWingStructure: 'Found Y-Wing structure: anchor {anchor}, wings {xy} and {yz}',
+    yWingShareCandidates: 'Anchor {anchor} shares candidate {x} with wing {xy}, anchor {anchor} shares candidate {y} with wing {yz}, wings {xy} and {yz} both contain candidate {z}',
+    removeYWingFromTargets: 'Remove candidate {number} from target cells {targets}',
     // Manual candidate removal提示
     manualCandidateRemovalRequired: 'Please manually clear selected candidates',
     pairTechniqueIdentified: 'Technique identified, please manually remove related candidates'

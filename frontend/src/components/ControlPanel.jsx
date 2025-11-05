@@ -749,6 +749,43 @@ const ControlPanel = ({
         { step: 1, description: t('findBoxLineReductionInLine', { lineType: regionType, lineNum: lineNum, number: technique.number, boxNum: boxNum }), highlight: '' },
         { step: 2, description: t('removeBoxLineReductionFromTargets', { number: technique.number, targets: formattedTargetCells, boxNum: boxNum }), highlight: position }
       );
+    } else if (technique.type.includes('xWing') || technique.type.includes('x-wing')) {
+      // X-Wing技巧解题步骤
+      const wingType = technique.type.includes('Row') ? t('row') : t('col');
+      
+      // 格式化源单元格位置显示
+      const formattedSourceCells = technique.cells && Array.isArray(technique.cells) 
+        ? technique.cells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化目标单元格位置显示
+      const formattedTargetCells = technique.targetCells && Array.isArray(technique.targetCells) 
+        ? technique.targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('findXWingInWings', { wingType: wingType, number: technique.number }), highlight: '' },
+        { step: 2, description: t('xWingFormRectangle', { sourceCells: formattedSourceCells, number: technique.number }), highlight: position },
+        { step: 3, description: t('removeXWingFromTargets', { number: technique.number, targets: formattedTargetCells }), highlight: position }
+      );
+    } else if (technique.type.includes('yWing') || technique.type.includes('y-wing')) {
+      // Y-Wing技巧解题步骤
+      
+      // 格式化源单元格位置显示
+      const anchorPos = `(${technique.anchorCell[0] + 1},${technique.anchorCell[1] + 1})`;
+      const xzPos = `(${technique.xzCell[0] + 1},${technique.xzCell[1] + 1})`;
+      const yzPos = `(${technique.yzCell[0] + 1},${technique.yzCell[1] + 1})`;
+      
+      // 格式化目标单元格位置显示
+      const formattedTargetCells = technique.targetCells && Array.isArray(technique.targetCells) 
+        ? technique.targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('findYWingStructure', { anchor: anchorPos, xz: xzPos, yz: yzPos }), highlight: '' },
+        { step: 2, description: t('yWingShareCandidates', { anchor: anchorPos, xz: xzPos, yz: yzPos, x: technique.x, y: technique.y, z: technique.z }), highlight: position },
+        { step: 3, description: t('removeYWingFromTargets', { number: technique.z, targets: formattedTargetCells }), highlight: position }
+      );
     } else {
         // 通用解题步骤，确保至少有内容显示
         steps.push(

@@ -1316,42 +1316,7 @@ const findHiddenSinglesInBox = (board, boxIndex) => {
   return opportunities;
 };
 
-/**
- * 检查在指定位置填入数字是否有效
- * @param {Array<Array<number>>} board - 当前数独棋盘
- * @param {number} row - 行索引
- * @param {number} col - 列索引
- * @param {number} num - 要填入的数字
- * @returns {boolean} - 是否可以填入
- */
-const isValidMove = (board, row, col, num) => {
-  // 检查同一行
-  for (let c = 0; c < 9; c++) {
-    if (board[row][c] === num) {
-      return false;
-    }
-  }
-  
-  // 检查同一列
-  for (let r = 0; r < 9; r++) {
-    if (board[r][col] === num) {
-      return false;
-    }
-  }
-  
-  // 检查同一3x3宫
-  const boxRow = Math.floor(row / 3) * 3;
-  const boxCol = Math.floor(col / 3) * 3;
-  for (let r = boxRow; r < boxRow + 3; r++) {
-    for (let c = boxCol; c < boxCol + 3; c++) {
-      if (board[r][c] === num) {
-        return false;
-      }
-    }
-  }
-  
-  return true;
-};
+
 
 /**
  * 指向对法 (Pointing Pairs)：当一个数字在某个3x3宫格中只能出现在同一行或同一列时

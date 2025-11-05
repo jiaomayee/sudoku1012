@@ -627,6 +627,12 @@ export const findNakedTriples = (board, pencilNotes = {}) => {
                   values: allNotes,
                   targetCells,
                   removableCandidates,
+                  // 添加每个条件单元格的实际候选数信息
+                  conditionCellsDetails: [
+                    { row: cell1.row, col: cell1.col, notes: cell1.notes },
+                    { row: cell2.row, col: cell2.col, notes: cell2.notes },
+                    { row: cell3.row, col: cell3.col, notes: cell3.notes }
+                  ],
                   message: `在第${row+1}行，单元格(${cell1.col+1})、(${cell2.col+1})和(${cell3.col+1})形成显性三链数[${allNotes.join(',')}]`
                 });
               }
@@ -696,6 +702,12 @@ export const findNakedTriples = (board, pencilNotes = {}) => {
                   values: allNotes,
                   targetCells,
                   removableCandidates,
+                  // 添加每个条件单元格的实际候选数信息
+                  conditionCellsDetails: [
+                    { row: cell1.row, col: cell1.col, notes: cell1.notes },
+                    { row: cell2.row, col: cell2.col, notes: cell2.notes },
+                    { row: cell3.row, col: cell3.col, notes: cell3.notes }
+                  ],
                   message: `在第${col+1}列，单元格(${cell1.row+1})、(${cell2.row+1})和(${cell3.row+1})形成显性三链数[${allNotes.join(',')}]`
                 });
               }
@@ -773,6 +785,12 @@ export const findNakedTriples = (board, pencilNotes = {}) => {
                   values: allNotes,
                   targetCells,
                   removableCandidates,
+                  // 添加每个条件单元格的实际候选数信息
+                  conditionCellsDetails: [
+                    { row: cell1.row, col: cell1.col, notes: cell1.notes },
+                    { row: cell2.row, col: cell2.col, notes: cell2.notes },
+                    { row: cell3.row, col: cell3.col, notes: cell3.notes }
+                  ],
                   message: `在第${boxRow*3+boxCol+1}宫，单元格(${cell1.row+1},${cell1.col+1})、(${cell2.row+1},${cell2.col+1})和(${cell3.row+1},${cell3.col+1})形成显性三链数[${allNotes.join(',')}]`
                 });
               }

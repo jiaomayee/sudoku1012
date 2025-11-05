@@ -1472,8 +1472,21 @@ const ControlPanel = ({
         // 对于其他非基础技巧，仅高亮候选数，不高亮单元格
         
         // 获取条件候选数的函数
-        const getConditionCandidateValues = (technique) => {
+        const getConditionCandidateValues = (technique, cellRow, cellCol) => {
           // 处理不同类型的技巧
+          
+          // 对于显性三链数，检查是否有条件单元格的详细信息
+          if (technique.type && technique.type.includes('nakedTriple') && technique.conditionCellsDetails) {
+            // 查找当前单元格的详细信息
+            const cellDetail = technique.conditionCellsDetails.find(detail => 
+              detail.row === cellRow && detail.col === cellCol);
+            
+            // 如果找到了详细信息，返回该单元格的实际候选数
+            if (cellDetail && Array.isArray(cellDetail.notes)) {
+              return cellDetail.notes;
+            }
+          }
+          
           if (technique.type && technique.type.includes('yWing')) {
             // Y-Wing技巧：使用x和y作为条件候选数
             if (technique.x !== undefined && technique.y !== undefined) {
@@ -1517,7 +1530,7 @@ const ControlPanel = ({
                 highlightType: 'condition',
                 isTarget: false,
                 // 对于不同的技巧类型，使用不同的条件候选数来源
-                highlightedValues: getConditionCandidateValues(technique), // 条件候选数
+                highlightedValues: getConditionCandidateValues(technique, r, c), // 条件候选数
                 backgroundColor: 'transparent', // 透明背景
                 borderColor: 'transparent' // 透明边框
               });

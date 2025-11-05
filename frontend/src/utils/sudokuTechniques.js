@@ -359,6 +359,7 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
           let hasRemovableCandidates = false;
           const targetCells = [];
           const removableCandidates = [];
+          const targetCellsDetails = []; // 添加详细的目标单元格信息
           
           // 检查这两个单元格是否有除了这两个数字以外的候选数
             cols.forEach(col => {
@@ -369,6 +370,12 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
                 hasRemovableCandidates = true;
                 targetCells.push([row, col]);
                 extraNotes.forEach(note => removableCandidates.push(note));
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: row,
+                  col: col,
+                  notesToRemove: extraNotes
+                });
               }
             });
           
@@ -380,6 +387,7 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
               cells: [[row, cols[0]], [row, cols[1]]],
               values: [num1, num2],
               targetCells,
+              targetCellsDetails, // 添加详细信息
               removableCandidates,
               message: `在第${row+1}行，数字${num1}和${num2}只能出现在单元格(${cols[0]+1})和(${cols[1]+1})中`
             });
@@ -419,6 +427,7 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
           let hasRemovableCandidates = false;
           const targetCells = [];
           const removableCandidates = [];
+          const targetCellsDetails = []; // 添加详细的目标单元格信息
           
           // 检查这两个单元格是否有除了这两个数字以外的候选数
           rows.forEach(row => {
@@ -429,6 +438,12 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
               hasRemovableCandidates = true;
               targetCells.push([row, col]);
               extraNotes.forEach(note => removableCandidates.push(note));
+              // 添加详细信息，包括每个单元格需要删除的候选数
+              targetCellsDetails.push({
+                row: row,
+                col: col,
+                notesToRemove: extraNotes
+              });
             }
           });
           
@@ -440,6 +455,7 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
               cells: [[rows[0], col], [rows[1], col]],
               values: [num1, num2],
               targetCells,
+              targetCellsDetails, // 添加详细信息
               removableCandidates,
               message: `在第${col+1}列，数字${num1}和${num2}只能出现在单元格(${rows[0]+1})和(${rows[1]+1})中`
             });
@@ -486,6 +502,7 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
           let hasRemovableCandidates = false;
           const targetCells = [];
           const removableCandidates = [];
+          const targetCellsDetails = []; // 添加详细的目标单元格信息
           
           // 检查这两个单元格是否有除了这两个数字以外的候选数
           cells.forEach(cell => {
@@ -496,6 +513,12 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
               hasRemovableCandidates = true;
               targetCells.push([cell.row, cell.col]);
               extraNotes.forEach(note => removableCandidates.push(note));
+              // 添加详细信息，包括每个单元格需要删除的候选数
+              targetCellsDetails.push({
+                row: cell.row,
+                col: cell.col,
+                notesToRemove: extraNotes
+              });
             }
           });
           
@@ -507,6 +530,7 @@ export const findHiddenPairs = (board, pencilNotes = {}) => {
               cells: cells.map(p => [p.row, p.col]),
               values: [num1, num2],
               targetCells,
+              targetCellsDetails, // 添加详细信息
               removableCandidates,
               message: `在第${boxRow*3+boxCol+1}宫，数字${num1}和${num2}只能出现在单元格(${cells[0].row+1},${cells[0].col+1})和(${cells[1].row+1},${cells[1].col+1})中`
             });
@@ -825,6 +849,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
             let hasRemovableCandidates = false;
             const targetCells = [];
             const removableCandidates = [];
+            const targetCellsDetails = []; // 添加详细的目标单元格信息
             
             // 检查这三个单元格是否有除了这三个数字以外的候选数
             cols.forEach(col => {
@@ -835,6 +860,12 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 hasRemovableCandidates = true;
                 targetCells.push([row, col]);
                 extraNotes.forEach(note => removableCandidates.push(note));
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: row,
+                  col: col,
+                  notesToRemove: extraNotes
+                });
               }
             });
             
@@ -846,6 +877,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 cells: [[row, cols[0]], [row, cols[1]], [row, cols[2]]],
                 values: [num1, num2, num3],
                 targetCells,
+                targetCellsDetails, // 添加详细信息
                 removableCandidates,
                 message: `在第${row+1}行，数字${num1}、${num2}和${num3}只能出现在单元格(${cols[0]+1})、(${cols[1]+1})和(${cols[2]+1})中`
               });
@@ -894,6 +926,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
             let hasRemovableCandidates = false;
             const targetCells = [];
             const removableCandidates = [];
+            const targetCellsDetails = []; // 添加详细的目标单元格信息
             
             // 检查这三个单元格是否有除了这三个数字以外的候选数
             rows.forEach(row => {
@@ -904,6 +937,12 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 hasRemovableCandidates = true;
                 targetCells.push([row, col]);
                 extraNotes.forEach(note => removableCandidates.push(note));
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: row,
+                  col: col,
+                  notesToRemove: extraNotes
+                });
               }
             });
             
@@ -915,6 +954,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 cells: [[rows[0], col], [rows[1], col], [rows[2], col]],
                 values: [num1, num2, num3],
                 targetCells,
+                targetCellsDetails, // 添加详细信息
                 removableCandidates,
                 message: `在第${col+1}列，数字${num1}、${num2}和${num3}只能出现在单元格(${rows[0]+1})、(${rows[1]+1})和(${rows[2]+1})中`
               });
@@ -968,6 +1008,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
             let hasRemovableCandidates = false;
             const targetCells = [];
             const removableCandidates = [];
+            const targetCellsDetails = []; // 添加详细的目标单元格信息
             
             // 检查这三个单元格是否有除了这三个数字以外的候选数
             cells.forEach(cell => {
@@ -978,6 +1019,12 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 hasRemovableCandidates = true;
                 targetCells.push([cell.row, cell.col]);
                 extraNotes.forEach(note => removableCandidates.push(note));
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: cell.row,
+                  col: cell.col,
+                  notesToRemove: extraNotes
+                });
               }
             });
             
@@ -989,6 +1036,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 cells: cells.map(p => [p.row, p.col]),
                 values: [num1, num2, num3],
                 targetCells,
+                targetCellsDetails, // 添加详细信息
                 removableCandidates,
                 message: `在第${boxRow*3+boxCol+1}宫，数字${num1}、${num2}和${num3}只能出现在单元格(${cells[0].row+1},${cells[0].col+1})、(${cells[1].row+1},${cells[1].col+1})和(${cells[2].row+1},${cells[2].col+1})中`
               });
@@ -1297,6 +1345,7 @@ export const findPointingPairs = (board, pencilNotes = {}) => {
           // 找出该行中需要删除候选数的单元格（不在当前宫格中的单元格）
           const targetCells = [];
           const removableCandidates = [];
+          const targetCellsDetails = []; // 添加详细的目标单元格信息
           
           for (let col = 0; col < 9; col++) {
             // 跳过当前宫格中的列
@@ -1314,6 +1363,12 @@ export const findPointingPairs = (board, pencilNotes = {}) => {
               if (cellNotes.includes(num)) {
                 targetCells.push([actualRow, col]);
                 removableCandidates.push(num);
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: actualRow,
+                  col: col,
+                  notesToRemove: [num]
+                });
               }
             }
           }
@@ -1329,6 +1384,7 @@ export const findPointingPairs = (board, pencilNotes = {}) => {
               number: num,
               sourceCells: possiblePositions.map(pos => [pos.row, pos.col]),
               targetCells,
+              targetCellsDetails, // 添加详细信息
               removableCandidates,
               message: `在第${boxRow * 3 + boxCol + 1}宫，数字${num}只能出现在第${actualRow + 1}行，可以排除该行其他宫格中数字${num}的可能性`
             });
@@ -1341,6 +1397,7 @@ export const findPointingPairs = (board, pencilNotes = {}) => {
           // 找出该列中需要删除候选数的单元格（不在当前宫格中的单元格）
           const targetCells = [];
           const removableCandidates = [];
+          const targetCellsDetails = []; // 添加详细的目标单元格信息
           
           for (let row = 0; row < 9; row++) {
             // 跳过当前宫格中的行
@@ -1358,6 +1415,12 @@ export const findPointingPairs = (board, pencilNotes = {}) => {
               if (cellNotes.includes(num)) {
                 targetCells.push([row, actualCol]);
                 removableCandidates.push(num);
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: row,
+                  col: actualCol,
+                  notesToRemove: [num]
+                });
               }
             }
           }
@@ -1373,6 +1436,7 @@ export const findPointingPairs = (board, pencilNotes = {}) => {
               number: num,
               sourceCells: possiblePositions.map(pos => [pos.row, pos.col]),
               targetCells,
+              targetCellsDetails, // 添加详细信息
               removableCandidates,
               message: `在第${boxRow * 3 + boxCol + 1}宫，数字${num}只能出现在第${actualCol + 1}列，可以排除该列其他宫格中数字${num}的可能性`
             });
@@ -1424,6 +1488,7 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
         // 找出该宫格中需要删除候选数的单元格（不在当前行中的单元格）
         const targetCells = [];
         const removableCandidates = [];
+        const targetCellsDetails = []; // 添加详细的目标单元格信息
         
         for (let r = targetBoxRow * 3; r < (targetBoxRow + 1) * 3; r++) {
           // 跳过当前行
@@ -1442,6 +1507,12 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
               if (cellNotes.includes(num)) {
                 targetCells.push([r, c]);
                 removableCandidates.push(num);
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: r,
+                  col: c,
+                  notesToRemove: [num]
+                });
               }
             }
           }
@@ -1458,6 +1529,7 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
             number: num,
             sourceCells: possiblePositions.map(pos => [pos.row, pos.col]),
             targetCells,
+            targetCellsDetails, // 添加详细信息
             removableCandidates,
             message: `在第${row + 1}行，数字${num}只能出现在第${targetBoxRow * 3 + targetBoxCol + 1}宫，可以排除该宫中其他行数字${num}的可能性`
           });
@@ -1496,6 +1568,7 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
         // 找出该宫格中需要删除候选数的单元格（不在当前列中的单元格）
         const targetCells = [];
         const removableCandidates = [];
+        const targetCellsDetails = []; // 添加详细的目标单元格信息
         
         for (let r = targetBoxRow * 3; r < (targetBoxRow + 1) * 3; r++) {
           for (let c = targetBoxCol * 3; c < (targetBoxCol + 1) * 3; c++) {
@@ -1514,6 +1587,12 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
               if (cellNotes.includes(num)) {
                 targetCells.push([r, c]);
                 removableCandidates.push(num);
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: r,
+                  col: c,
+                  notesToRemove: [num]
+                });
               }
             }
           }
@@ -1530,6 +1609,7 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
             number: num,
             sourceCells: possiblePositions.map(pos => [pos.row, pos.col]),
             targetCells,
+            targetCellsDetails, // 添加详细信息
             removableCandidates,
             message: `在第${col + 1}列，数字${num}只能出现在第${targetBoxRow * 3 + targetBoxCol + 1}宫，可以排除该宫中其他列数字${num}的可能性`
           });
@@ -1592,6 +1672,7 @@ export const findXWing = (board, pencilNotes = {}) => {
             // 找到X-Wing，现在计算可以排除的候选数
             const targetCells = [];
             const removableCandidates = [];
+            const targetCellsDetails = []; // 添加详细的目标单元格信息
             
             // 对于这两个列，排除其他行中的该数字候选数
             row1.cols.forEach(col => {
@@ -1609,6 +1690,12 @@ export const findXWing = (board, pencilNotes = {}) => {
                 if (cellNotes.includes(num)) {
                   targetCells.push([r, col]);
                   removableCandidates.push(num);
+                  // 添加详细信息，包括每个单元格需要删除的候选数
+                  targetCellsDetails.push({
+                    row: r,
+                    col: col,
+                    notesToRemove: [num]
+                  });
                 }
               }
             });
@@ -1626,6 +1713,7 @@ export const findXWing = (board, pencilNotes = {}) => {
                   [row2.row, row2.cols[1]]
                 ],
                 targetCells,
+                targetCellsDetails, // 添加详细信息
                 removableCandidates,
                 message: `在行${row1.row + 1}和${row2.row + 1}，数字${num}形成X-Wing，可以排除列${row1.cols.map(c => c + 1).join('和')}中其他行的数字${num}候选数`
               });
@@ -1678,6 +1766,7 @@ export const findXWing = (board, pencilNotes = {}) => {
             // 找到X-Wing，现在计算可以排除的候选数
             const targetCells = [];
             const removableCandidates = [];
+            const targetCellsDetails = []; // 添加详细的目标单元格信息
             
             // 对于这两个行，排除其他列中的该数字候选数
             col1.rows.forEach(row => {
@@ -1695,6 +1784,12 @@ export const findXWing = (board, pencilNotes = {}) => {
                 if (cellNotes.includes(num)) {
                   targetCells.push([row, c]);
                   removableCandidates.push(num);
+                  // 添加详细信息，包括每个单元格需要删除的候选数
+                  targetCellsDetails.push({
+                    row: row,
+                    col: c,
+                    notesToRemove: [num]
+                  });
                 }
               }
             });
@@ -1712,6 +1807,7 @@ export const findXWing = (board, pencilNotes = {}) => {
                   [col2.rows[1], col2.col]
                 ],
                 targetCells,
+                targetCellsDetails, // 添加详细信息
                 removableCandidates,
                 message: `在列${col1.col + 1}和${col2.col + 1}，数字${num}形成X-Wing，可以排除行${col1.rows.map(r => r + 1).join('和')}中其他列的数字${num}候选数`
               });
@@ -1822,6 +1918,7 @@ export const findYing = (board, pencilNotes = {}) => {
         // 找到XZ和YZ单元格共同影响的单元格
         const targetCells = [];
         const removableCandidates = [];
+        const targetCellsDetails = []; // 添加详细的目标单元格信息
         
         // 检查所有可能的交叉单元格
         for (let row = 0; row < 9; row++) {
@@ -1853,6 +1950,12 @@ export const findYing = (board, pencilNotes = {}) => {
               if (cellNotes.includes(z)) {
                 targetCells.push([row, col]);
                 removableCandidates.push(z);
+                // 添加详细信息，包括每个单元格需要删除的候选数
+                targetCellsDetails.push({
+                  row: row,
+                  col: col,
+                  notesToRemove: [z]
+                });
               }
             }
           }
@@ -1873,6 +1976,7 @@ export const findYing = (board, pencilNotes = {}) => {
             ],
             x, y, z,
             targetCells,
+            targetCellsDetails, // 添加详细信息
             removableCandidates,
             message: `Y-Wing: 锚点(${anchorCell.row + 1},${anchorCell.col + 1})[${x},${y}], XZ单元格(${xzCell.row + 1},${xzCell.col + 1})[${x},${z}], YZ单元格(${yzCell.row + 1},${yzCell.col + 1})[${y},${z}]，可以排除交叉单元格的数字${z}候选数`
           });

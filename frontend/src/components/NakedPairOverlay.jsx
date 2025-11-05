@@ -57,7 +57,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const noteCol = noteIndex % 3;
       
       // 计算位置偏移，使候选数在单元格中居中排列，确保不超出单元格边界
-      const noteSize = Math.min(cellWidth, cellHeight) * 0.25; // 候选数大小为单元格的25%
+      const noteSize = Math.min(cellWidth, cellHeight) * 0.35; // 增大候选数大小为单元格的35%
       const containerPadding = Math.min(cellWidth, cellHeight) * 0.05; // 容器内边距
       
       // 计算3x3网格的总大小
@@ -78,7 +78,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             width: `${noteSize}px`,
             height: `${noteSize}px`,
             backgroundColor: '#00FF00', // 绿色背景表示数对候选数
-            borderRadius: '3px',
+            borderRadius: '50%', // 圆形背景
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -90,7 +90,69 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         >
           <span
             style={{
-              fontSize: `${noteSize * 0.6}px`, // 字体大小为候选数区域的60%
+              fontSize: `${noteSize * 0.7}px`, // 增大字体大小为候选数区域的70%
+              fontWeight: 'bold',
+              color: '#000000', // 黑色文字
+              zIndex: 65,
+              textShadow: '1px 1px 1px rgba(255, 255, 255, 0.5)'
+            }}
+          >
+            {note}
+          </span>
+        </div>
+      );
+    });
+  };
+
+  // 渲染需要删除的候选数高亮
+  const renderRemovableNotes = (cell) => {
+    if (!cell.notesToRemove || !Array.isArray(cell.notesToRemove) || cell.notesToRemove.length === 0) {
+      return null;
+    }
+
+    return cell.notesToRemove.map((note) => {
+      if (typeof note !== 'number' || note < 1 || note > 9) return null;
+      
+      // 计算候选数的位置（3x3网格）
+      const noteIndex = note - 1; // 转换为0-8的索引
+      const noteRow = Math.floor(noteIndex / 3);
+      const noteCol = noteIndex % 3;
+      
+      // 计算位置偏移，使候选数在单元格中居中排列，确保不超出单元格边界
+      const noteSize = Math.min(cellWidth, cellHeight) * 0.35; // 增大候选数大小为单元格的35%
+      const containerPadding = Math.min(cellWidth, cellHeight) * 0.05; // 容器内边距
+      
+      // 计算3x3网格的总大小
+      const gridSize = Math.min(cellWidth, cellHeight) - 2 * containerPadding;
+      const gridCellSize = gridSize / 3;
+      
+      // 计算候选数在网格中的位置，确保在中心
+      const left = containerPadding + noteCol * gridCellSize + (gridCellSize - noteSize) / 2;
+      const top = containerPadding + noteRow * gridCellSize + (gridCellSize - noteSize) / 2;
+      
+      return (
+        <div
+          key={`removable-note-${cell.row}-${cell.col}-${note}`}
+          style={{
+            position: 'absolute',
+            left: `${left}px`,
+            top: `${top}px`,
+            width: `${noteSize}px`,
+            height: `${noteSize}px`,
+            backgroundColor: '#FF0000', // 红色背景表示需要删除
+            borderRadius: '50%', // 圆形背景
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 60, // 确保在单元格底色上方
+            fontWeight: 'bold',
+            border: '1px solid rgba(255, 255, 255, 0.5)', // 白色边框
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+          }}
+        >
+          <span
+            style={{
+              fontSize: `${noteSize * 0.7}px`, // 增大字体大小为候选数区域的70%
               fontWeight: 'bold',
               color: '#FFFFFF', // 白色文字
               zIndex: 65,
@@ -104,7 +166,7 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
     });
   };
 
-  // 为显性数对法设置专门的高亮样式
+  // 为显性数对法设置专门的高亮样式 - 不再高亮单元格，仅用于定位候选数
   const getCellStyle = (cell) => {
     const baseStyle = {
       position: 'absolute',
@@ -121,34 +183,34 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       transition: 'all 0.2s ease'
     };
 
-    // 显性数对法专用高亮样式
+    // 显性数对法专用高亮样式 - 不再高亮单元格
     const highlightStyles = {
-      // 条件单元格 - 更透明的浅蓝色底色
+      // 条件单元格 - 透明背景
       'pair': {
-        backgroundColor: 'rgba(173, 216, 230, 0.4)', // 降低透明度到0.4
-        borderColor: 'rgba(0, 0, 0, 0.5)',
-        border: '1px solid rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'transparent', // 透明背景
+        borderColor: 'transparent', // 透明边框
+        border: 'none',
         zIndex: 35
       },
-      // 目标单元格 - 更透明的浅绿色底色
+      // 目标单元格 - 透明背景
       'target': {
-        backgroundColor: 'rgba(144, 238, 144, 0.2)', // 降低透明度到0.2
-        borderColor: 'rgba(0, 0, 0, 0.5)',
-        border: '1px solid rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'transparent', // 透明背景
+        borderColor: 'transparent', // 透明边框
+        border: 'none',
         zIndex: 30
       },
-      // 需要删除候选数的单元格 - 更透明的浅绿色底色（与目标单元格相同）
+      // 需要删除候选数的单元格 - 透明背景
       'removal': {
-        backgroundColor: 'rgba(144, 238, 144, 0.2)', // 降低透明度到0.2
-        borderColor: 'rgba(0, 0, 0, 0.5)',
-        border: '1px solid rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'transparent', // 透明背景
+        borderColor: 'transparent', // 透明边框
+        border: 'none',
         zIndex: 25
       },
-      // 默认样式
+      // 默认样式 - 透明背景
       'default': {
-        backgroundColor: 'rgba(173, 216, 230, 0.4)', // 降低透明度到0.4
-        borderColor: 'rgba(0, 0, 0, 0.5)',
-        border: '1px solid rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'transparent', // 透明背景
+        borderColor: 'transparent', // 透明边框
+        border: 'none',
         zIndex: 35
       }
     };
@@ -200,26 +262,13 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             key={`naked-pair-${cell.row}-${cell.col}-${cell.highlightType || 'default'}-${cell.isTarget ? 'target' : 'normal'}`}
             style={cellStyle}
           >
-            {/* 显示数对中的数字 */}
-            {cell.number && (
-              <span
-                style={{
-                  fontSize: fontSize,
-                  fontWeight: '600',
-                  color: '#000000', // 黑色数字
-                  zIndex: 50,
-                  textShadow: 'none',
-                  fontFamily: 'inherit'
-                }}
-              >
-                {cell.number}
-              </span>
-            )}
+            {/* 显示数对中的数字 - 不再显示 */}
             
             {/* 渲染数对候选数高亮 */}
             {renderPairNotes(cell)}
             
-            {/* 注意：不再渲染需要删除的候选数，避免与TechniqueOverlay.jsx重复 */}
+            {/* 渲染需要删除的候选数高亮 */}
+            {renderRemovableNotes(cell)}
           </div>
         );
       })}

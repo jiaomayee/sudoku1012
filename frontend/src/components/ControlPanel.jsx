@@ -1106,6 +1106,13 @@ const ControlPanel = ({
       const { cells = [], targetCells = [], values = [], removableCandidates = [], result = {} } = technique;
       const { operation } = result;
       
+      // 检查是否为基础技巧
+      const isBasicTechnique = technique.type && (
+        technique.type === 'nakedSingle' ||
+        technique.type === 'notesSingle' ||
+        technique.type.includes('hiddenSingle')
+      );
+      
       // 检查是否为显性数对技巧
       const isNakedPairTechnique = technique.type && 
                            (technique.type.includes('nakedPair') || 
@@ -1114,7 +1121,7 @@ const ControlPanel = ({
       
       // 为显性数对法使用特殊的处理逻辑
       if (isNakedPairTechnique) {
-        // 1. 高亮条件单元格（更透明的浅蓝色底色）
+        // 1. 高亮条件单元格（无底色，仅用于定位候选数）
         if (Array.isArray(cells) && cells.length > 0) {
           cells.forEach(cell => {
             const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
@@ -1129,14 +1136,14 @@ const ControlPanel = ({
                 highlightType: 'pair', // 条件单元格特殊标识
                 isTarget: false, // 条件单元格不是目标单元格
                 pairNotes: technique.values || [], // 数对中的数字
-                backgroundColor: 'rgba(173, 216, 230, 0.4)', // 更透明的浅蓝色背景
-                borderColor: 'rgba(0, 0, 0, 0.5)'
+                backgroundColor: 'transparent', // 透明背景
+                borderColor: 'transparent' // 透明边框
               });
             }
           });
         }
         
-        // 2. 高亮目标单元格（更透明的浅绿色底色）
+        // 2. 高亮目标单元格（无底色，仅用于定位候选数）
         if (Array.isArray(targetCells) && targetCells.length > 0) {
           targetCells.forEach(cell => {
             const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
@@ -1157,20 +1164,21 @@ const ControlPanel = ({
                   techniqueType: technique.type,
                   highlightType: 'target', // 目标单元格标识
                   isTarget: true,
-                  backgroundColor: 'rgba(144, 238, 144, 0.2)', // 更透明的浅绿色背景
-                  borderColor: 'rgba(0, 0, 0, 0.5)'
+                  backgroundColor: 'transparent', // 透明背景
+                  borderColor: 'transparent' // 透明边框
                 });
               } else {
                 // 如果已存在，更新类型为target
                 cellsToHighlight[existingIndex].highlightType = 'target';
                 cellsToHighlight[existingIndex].isTarget = true;
-                cellsToHighlight[existingIndex].backgroundColor = 'rgba(144, 238, 144, 0.2)'; // 更透明的浅绿色背景
+                cellsToHighlight[existingIndex].backgroundColor = 'transparent'; // 透明背景
+                cellsToHighlight[existingIndex].borderColor = 'transparent'; // 透明边框
               }
             }
           });
         }
         
-        // 3. 高亮需要删除的候选数（更浅的蓝色背景）
+        // 3. 高亮需要删除的候选数（无单元格底色）
         if (Array.isArray(removableCandidates) && removableCandidates.length > 0) {
           // 构建一个映射，将目标单元格与其需要删除的候选数关联起来
           const removableCandidatesMap = {};
@@ -1228,7 +1236,7 @@ const ControlPanel = ({
             );
             
             if (existingIndex === -1) {
-              // 新的移除候选数单元格（使用更透明的浅绿色底色）
+              // 新的移除候选数单元格（无底色，仅用于定位候选数）
               cellsToHighlight.push({
                 row: r,
                 col: c,
@@ -1236,8 +1244,8 @@ const ControlPanel = ({
                 techniqueType: technique.type,
                 highlightType: 'removal', // 删除候选数标识
                 notesToRemove: valuesToRemove,
-                backgroundColor: 'rgba(144, 238, 144, 0.2)', // 更透明的浅绿色背景
-                borderColor: 'rgba(0, 0, 0, 0.5)'
+                backgroundColor: 'transparent', // 透明背景
+                borderColor: 'transparent' // 透明边框
               });
             } else {
               // 已有高亮的单元格，添加候选数移除信息
@@ -1246,11 +1254,12 @@ const ControlPanel = ({
               const combinedNotes = [...new Set([...existingNotes, ...valuesToRemove])];
               cellsToHighlight[existingIndex].notesToRemove = combinedNotes;
               cellsToHighlight[existingIndex].highlightType = 'removal';
-              cellsToHighlight[existingIndex].backgroundColor = 'rgba(144, 238, 144, 0.2)'; // 更透明的浅绿色背景
+              cellsToHighlight[existingIndex].backgroundColor = 'transparent'; // 透明背景
+              cellsToHighlight[existingIndex].borderColor = 'transparent'; // 透明边框
             }
           });
         }
-      } else {
+      } else if (isBasicTechnique) {
         // 基础辅助函数 - 对应techniqueIndicator.js的高亮类型
         const pushPrimaryCell = (r, c, num = null, notesToRemove = []) => {
           cellsToHighlight.push({
@@ -1458,6 +1467,112 @@ const ControlPanel = ({
               }
             });
           }
+        }
+      } else {
+        // 对于其他非基础技巧，仅高亮候选数，不高亮单元格
+        // 1. 高亮条件候选数
+        if (Array.isArray(cells) && cells.length > 0) {
+          cells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
+              // 添加单元格用于定位候选数，但不应用任何视觉样式
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                techniqueType: technique.type,
+                highlightType: 'condition',
+                isTarget: false,
+                highlightedValues: technique.values || [], // 条件候选数
+                backgroundColor: 'transparent', // 透明背景
+                borderColor: 'transparent' // 透明边框
+              });
+            }
+          });
+        }
+        
+        // 2. 高亮目标单元格中的候选数
+        if (Array.isArray(targetCells) && targetCells.length > 0) {
+          // 构建一个映射，将目标单元格与其需要删除的候选数关联起来
+          const removableCandidatesMap = {};
+          
+          // 如果有详细的目标单元格信息，使用它来建立映射
+          if (technique.targetCellsDetails && Array.isArray(technique.targetCellsDetails)) {
+            // 使用详细信息建立映射
+            technique.targetCellsDetails.forEach(detail => {
+              const r = detail.row;
+              const c = detail.col;
+              const key = `${r}-${c}`;
+              if (!removableCandidatesMap[key]) {
+                removableCandidatesMap[key] = [];
+              }
+              // 添加该单元格需要删除的所有候选数
+              if (Array.isArray(detail.notesToRemove)) {
+                detail.notesToRemove.forEach(note => {
+                  if (!removableCandidatesMap[key].includes(note)) {
+                    removableCandidatesMap[key].push(note);
+                  }
+                });
+              }
+            });
+          } else {
+            // 如果没有详细信息，使用原有的逻辑
+            targetCells.forEach((cell, index) => {
+              const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+              const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+              
+              if (r !== null && c !== null) {
+                const key = `${r}-${c}`;
+                if (!removableCandidatesMap[key]) {
+                  removableCandidatesMap[key] = [];
+                }
+                
+                // 将对应的候选数添加到该单元格的可删除列表中
+                if (index < (removableCandidates?.length || 0)) {
+                  const note = removableCandidates[index];
+                  if (!removableCandidatesMap[key].includes(note)) {
+                    removableCandidatesMap[key].push(note);
+                  }
+                }
+              }
+            });
+          }
+          
+          // 更新已高亮的单元格或添加新的高亮单元格
+          Object.keys(removableCandidatesMap).forEach(key => {
+            const [r, c] = key.split('-').map(Number);
+            const valuesToRemove = Array.isArray(removableCandidatesMap[key]) ? removableCandidatesMap[key] : [];
+            
+            // 检查是否已经高亮
+            const existingIndex = cellsToHighlight.findIndex(
+              cell => cell.row === r && cell.col === c
+            );
+            
+            if (existingIndex === -1) {
+              // 新的移除候选数单元格（无底色，仅用于定位候选数）
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                techniqueType: technique.type,
+                highlightType: 'removal', // 删除候选数标识
+                notesToRemove: valuesToRemove,
+                backgroundColor: 'transparent', // 透明背景
+                borderColor: 'transparent' // 透明边框
+              });
+            } else {
+              // 已有高亮的单元格，添加候选数移除信息
+              // 合并已有的候选数和新的候选数，避免覆盖
+              const existingNotes = cellsToHighlight[existingIndex].notesToRemove || [];
+              const combinedNotes = [...new Set([...existingNotes, ...valuesToRemove])];
+              cellsToHighlight[existingIndex].notesToRemove = combinedNotes;
+              cellsToHighlight[existingIndex].highlightType = 'removal';
+              cellsToHighlight[existingIndex].backgroundColor = 'transparent'; // 透明背景
+              cellsToHighlight[existingIndex].borderColor = 'transparent'; // 透明边框
+            }
+          });
         }
       }
       

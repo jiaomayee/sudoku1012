@@ -2457,6 +2457,8 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
   // 查找所有可用技巧机会
   const nakedSingles = findNakedSingles(board);
   const hiddenSingles = findHiddenSingles(board);
+  // 添加候选数唯一法技巧识别
+  const notesSingles = includeCandidateTechniques && Object.keys(pencilNotes).length > 0 ? findNotesSingles(board, pencilNotes) : [];
   
   // 只在需要时查找候选数相关技巧
   let nakedPairs = [];
@@ -2508,7 +2510,9 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
   const result = [
     // 基础技巧（第一优先级）
     ...nakedSingles,
-    ...hiddenSingles
+    ...hiddenSingles,
+    // 候选数基础技巧（第二优先级）
+    ...notesSingles
   ];
   
   // 只在需要时添加候选数相关技巧

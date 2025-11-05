@@ -2695,6 +2695,9 @@ const ControlPanel = ({
                     if (technique.type === 'nakedSingle' || technique.type === 'naked_single') {
                       primaryType = t('nakedSingleTechnique');
                       // 候选数唯一法是一级分类，这里可以根据需要添加二级类型
+                    } else if (technique.type === 'notesSingle' || technique.type === 'singleCandidateTechnique') {
+                      primaryType = t('notesSingleTechnique');
+                      // 候选数唯一法是一级分类，这里可以根据需要添加二级类型
                     } else if (technique.type.includes('hidden_single') || technique.type.includes('hiddenSingle')) {
                       // 直接设置primaryType，不设置secondaryType避免重复
                       if (technique.type.includes('row') || technique.type.includes('Row')) {

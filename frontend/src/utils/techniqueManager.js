@@ -1,9 +1,26 @@
 // 技巧管理器：负责技巧选择、组合和管理
-import { findNakedSingles } from './sudokuTechniques.js';
-import { findNotesSingles, findNakedPairs, findHiddenPairs, pairTechniqueNames } from './pairTechniques.js';
-import { findNakedTriples, findHiddenTriples, tripleTechniqueNames } from './tripleTechniques.js';
+import { findNakedSingles, findNotesSingles } from './sudokuTechniques.js';
+// 注意：pairTechniques.js 文件不存在，相关函数应该在其他文件中定义
+import { findNakedPairs, findHiddenPairs } from './sudokuTechniques.js';
+import { findNakedTriples, findHiddenTriples } from './tripleTechniques.js';
 // 导入显性数对指示功能
 import nakedPairIndicator from './nakedPairIndicator.js';
+
+// 定义技巧名称映射，修复未定义变量的问题
+const pairTechniqueNames = {
+  notesSingle: {
+    en: 'Notes Single',
+    zh: '候选数唯一法'
+  },
+  nakedPairs: {
+    en: 'Naked Pairs',
+    zh: '显性数对法'
+  },
+  hiddenPairs: {
+    en: 'Hidden Pairs',
+    zh: '隐性数对法'
+  }
+};
 
 // 技巧分类
 const TECHNIQUE_CATEGORIES = {

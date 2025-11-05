@@ -246,6 +246,7 @@ export const translations = {
     hiddenPairBox: '宫隐性数对',
     nakedTriple: '显性三链数法',
     hiddenTriple: '隐性三链数法',
+    notesSingleTechnique: '候选数唯一法',
     // 控制面板选项卡
     keyboardTab: '键盘',
     techniquesTab: '技巧',

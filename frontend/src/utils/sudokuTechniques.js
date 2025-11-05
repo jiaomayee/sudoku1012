@@ -49,30 +49,199 @@ export const findNakedSingles = (board) => {
  */
 export const findNotesSingles = (board, pencilNotes = {}) => {
   const opportunities = [];
+  const processedCells = new Set(); // 用于跟踪已处理的单元格
   
-  // 遍历所有单元格
+  // 检查每一行中的候选数唯一法
   for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 9; col++) {
-      // 跳过已填入数字的单元格
+    const result = findNotesSinglesInRow(board, pencilNotes, row);
+    for (const item of result) {
+      const cellKey = `${item.row}-${item.col}`;
+      if (!processedCells.has(cellKey) && board[item.row][item.col] === 0) {
+        processedCells.add(cellKey);
+        opportunities.push(item);
+      }
+    }
+  }
+  
+  // 检查每一列中的候选数唯一法
+  for (let col = 0; col < 9; col++) {
+    const result = findNotesSinglesInCol(board, pencilNotes, col);
+    for (const item of result) {
+      const cellKey = `${item.row}-${item.col}`;
+      if (!processedCells.has(cellKey) && board[item.row][item.col] === 0) {
+        processedCells.add(cellKey);
+        opportunities.push(item);
+      }
+    }
+  }
+  
+  // 检查每一个3x3宫中的候选数唯一法
+  for (let box = 0; box < 9; box++) {
+    const result = findNotesSinglesInBox(board, pencilNotes, box);
+    for (const item of result) {
+      const cellKey = `${item.row}-${item.col}`;
+      if (!processedCells.has(cellKey) && board[item.row][item.col] === 0) {
+        processedCells.add(cellKey);
+        opportunities.push(item);
+      }
+    }
+  }
+  
+  return opportunities;
+};
+
+/**
+ * 在一行中查找候选数唯一法
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
+ * @param {number} rowIndex - 行索引
+ * @returns {Array} - 找到的候选数唯一法机会数组
+ */
+const findNotesSinglesInRow = (board, pencilNotes, rowIndex) => {
+  const opportunities = [];
+  
+  // 收集该行所有空单元格的候选数位置信息
+  const numPositions = {};
+  for (let num = 1; num <= 9; num++) {
+    numPositions[num] = [];
+  }
+  
+  for (let col = 0; col < 9; col++) {
+    if (board[rowIndex][col] !== 0) continue;
+    const notesKey = `${rowIndex}-${col}`;
+    const notes = pencilNotes[notesKey] || [];
+    // 对于每个候选数，记录它出现的单元格位置
+    notes.forEach(num => {
+      if (numPositions[num]) {
+        numPositions[num].push(col);
+      }
+    });
+  }
+  
+  // 检查是否存在只在单个单元格中出现的候选数
+  for (let num = 1; num <= 9; num++) {
+    if (numPositions[num].length === 1) {
+      const col = numPositions[num][0];
+      const notesKey = `${rowIndex}-${col}`;
+      const notes = pencilNotes[notesKey] || [];
+      opportunities.push({
+        type: 'notesSingle',
+        description: 'notesSingle',
+        row: rowIndex,
+        col: col,
+        value: num,
+        cells: [[rowIndex, col]],
+        notes: notes,
+        message: `在第${rowIndex+1}行中，候选数${num}只能填入单元格(${rowIndex+1},${col+1})`
+      });
+    }
+  }
+  
+  return opportunities;
+};
+
+/**
+ * 在一列中查找候选数唯一法
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
+ * @param {number} colIndex - 列索引
+ * @returns {Array} - 找到的候选数唯一法机会数组
+ */
+const findNotesSinglesInCol = (board, pencilNotes, colIndex) => {
+  const opportunities = [];
+  
+  // 收集该列所有空单元格的候选数位置信息
+  const numPositions = {};
+  for (let num = 1; num <= 9; num++) {
+    numPositions[num] = [];
+  }
+  
+  for (let row = 0; row < 9; row++) {
+    if (board[row][colIndex] !== 0) continue;
+    const notesKey = `${row}-${colIndex}`;
+    const notes = pencilNotes[notesKey] || [];
+    // 对于每个候选数，记录它出现的单元格位置
+    notes.forEach(num => {
+      if (numPositions[num]) {
+        numPositions[num].push(row);
+      }
+    });
+  }
+  
+  // 检查是否存在只在单个单元格中出现的候选数
+  for (let num = 1; num <= 9; num++) {
+    if (numPositions[num].length === 1) {
+      const row = numPositions[num][0];
+      const notesKey = `${row}-${colIndex}`;
+      const notes = pencilNotes[notesKey] || [];
+      opportunities.push({
+        type: 'notesSingle',
+        description: 'notesSingle',
+        row: row,
+        col: colIndex,
+        value: num,
+        cells: [[row, colIndex]],
+        notes: notes,
+        message: `在第${colIndex+1}列中，候选数${num}只能填入单元格(${row+1},${colIndex+1})`
+      });
+    }
+  }
+  
+  return opportunities;
+};
+
+/**
+ * 在一个3x3宫中查找候选数唯一法
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
+ * @param {number} boxIndex - 宫索引 (0-8)
+ * @returns {Array} - 找到的候选数唯一法机会数组
+ */
+const findNotesSinglesInBox = (board, pencilNotes, boxIndex) => {
+  const opportunities = [];
+  
+  // 计算宫的起始行和列
+  const startRow = Math.floor(boxIndex / 3) * 3;
+  const startCol = (boxIndex % 3) * 3;
+  
+  // 收集该宫所有空单元格的候选数位置信息
+  const numPositions = {};
+  for (let num = 1; num <= 9; num++) {
+    numPositions[num] = [];
+  }
+  
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const row = startRow + r;
+      const col = startCol + c;
       if (board[row][col] !== 0) continue;
-      
-      // 获取该单元格的候选数
       const notesKey = `${row}-${col}`;
       const notes = pencilNotes[notesKey] || [];
-      
-      // 如果候选数只有一个，找到候选数唯一法机会
-      if (notes.length === 1) {
-        opportunities.push({
-          type: 'notesSingle',
-          description: 'singleCandidateTechnique',
-          row,
-          col,
-          value: notes[0],
-          cells: [[row, col]],
-          notes: notes,
-          message: `单元格(${row+1},${col+1})的候选数中只有数字${notes[0]}`
-        });
-      }
+      // 对于每个候选数，记录它出现的单元格位置
+      notes.forEach(num => {
+        if (numPositions[num]) {
+          numPositions[num].push({ row, col, r, c });
+        }
+      });
+    }
+  }
+  
+  // 检查是否存在只在单个单元格中出现的候选数
+  for (let num = 1; num <= 9; num++) {
+    if (numPositions[num].length === 1) {
+      const { row, col } = numPositions[num][0];
+      const notesKey = `${row}-${col}`;
+      const notes = pencilNotes[notesKey] || [];
+      opportunities.push({
+        type: 'notesSingle',
+        description: 'notesSingle',
+        row: row,
+        col: col,
+        value: num,
+        cells: [[row, col]],
+        notes: notes,
+        message: `在第${boxIndex+1}宫中，候选数${num}只能填入单元格(${row+1},${col+1})`
+      });
     }
   }
   
@@ -316,13 +485,6 @@ export const findNakedPairs = (board, pencilNotes = {}) => {
   
   return opportunities;
 };
-
-/**
- * 隐性数对法 (Hidden Pairs)：在同一行、列或宫中，两个数字只能出现在两个单元格中
- * @param {Array<Array<number>>} board - 当前数独棋盘
- * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
- * @returns {Array} - 找到的隐性数对法机会数组
- */
 export const findHiddenPairs = (board, pencilNotes = {}) => {
   const opportunities = [];
   
@@ -1315,6 +1477,7 @@ const findHiddenSinglesInBox = (board, boxIndex) => {
   
   return opportunities;
 };
+
 
 
 

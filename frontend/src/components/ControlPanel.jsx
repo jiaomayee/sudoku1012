@@ -190,10 +190,10 @@ const ControlPanel = ({
     }
   }, [activeTab, findTechniques, gameStarted, currentBoard]);
   
-  // 当游戏状态变化时，重置技巧数据
+  // 当游戏重新开始时，重置技巧数据
   useEffect(() => {
     setAvailableTechniques([]);
-  }, [gameStarted, currentBoard]); // 游戏重新开始时清空技巧列表
+  }, [gameStarted]); // 只在游戏重新开始时清空技巧列表，不包括currentBoard变化
 
   // 处理技巧选择
   // 技巧选择处理函数

@@ -2085,7 +2085,7 @@ export const findSwordfish = (board, pencilNotes = {}) => {
  * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
  * @returns {Array} - 找到的Y-Wing技巧机会数组
  */
-export const findYing = (board, pencilNotes = {}) => {
+export const findYWing = (board, pencilNotes = {}) => {
   const opportunities = [];
   
   // 获取所有只有两个候选数的单元格

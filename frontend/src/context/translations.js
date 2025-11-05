@@ -290,8 +290,8 @@ export const translations = {
     xWingFormRectangle: '数字{number}在源单元格{sourceCells}中形成矩形结构',
     removeXWingFromTargets: '从目标单元格{targets}中移除候选数{number}',
     // Y-Wing
-    findYWingStructure: '发现Y-Wing结构：枢纽{anchor}，翼{xy}和{yz}',
-    yWingShareCandidates: '枢纽{anchor}与翼{xy}共享候选数{x}，枢纽{anchor}与翼{yz}共享候选数{y}，翼{xy}和{yz}都包含候选数{z}',
+    findYWingStructure: '发现Y-Wing结构：枢纽{anchor}，翼{xz}和{yz}',
+    yWingShareCandidates: '枢纽{anchor}与翼{xz}共享候选数{x}，枢纽{anchor}与翼{yz}共享候选数{y}，翼{xz}和{yz}都包含候选数{z}',
     removeYWingFromTargets: '从目标单元格{targets}中移除候选数{number}',
     // Swordfish
     findSwordfishInWings: '在{wingType}中查找数字{number}的Swordfish结构',

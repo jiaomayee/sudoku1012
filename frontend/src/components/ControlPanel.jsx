@@ -1597,6 +1597,42 @@ const ControlPanel = ({
             if (technique.x !== undefined && technique.y !== undefined) {
               return [technique.x, technique.y];
             }
+          } else if (technique.type && technique.type.includes('xyzWing')) {
+            // XYZ-Wing技巧：需要区分枢纽单元格和翼单元格
+            if (technique.x !== undefined && technique.y !== undefined && technique.z !== undefined) {
+              // 检查当前单元格是枢纽单元格还是翼单元格
+              const isPivotCell = technique.pivotCell && 
+                ((Array.isArray(technique.pivotCell) && technique.pivotCell[0] === cellRow && technique.pivotCell[1] === cellCol) ||
+                 (technique.pivotCell.row === cellRow && technique.pivotCell.col === cellCol));
+              
+              const isXZCell = technique.xzCell && 
+                ((Array.isArray(technique.xzCell) && technique.xzCell[0] === cellRow && technique.xzCell[1] === cellCol) ||
+                 (technique.xzCell.row === cellRow && technique.xzCell.col === cellCol));
+              
+              const isYZCell = technique.yzCell && 
+                ((Array.isArray(technique.yzCell) && technique.yzCell[0] === cellRow && technique.yzCell[1] === cellCol) ||
+                 (technique.yzCell.row === cellRow && technique.yzCell.col === cellCol));
+              
+              // 对于枢纽单元格，返回x、y和z候选数
+              if (isPivotCell) {
+                return [technique.x, technique.y, technique.z];
+              }
+              
+              // 对于XZ翼单元格，返回x和z候选数
+              if (isXZCell) {
+                return [technique.x, technique.z];
+              }
+              
+              // 对于YZ翼单元格，返回y和z候选数
+              if (isYZCell) {
+                return [technique.y, technique.z];
+              }
+            }
+            
+            // 默认情况下返回x、y和z候选数
+            if (technique.x !== undefined && technique.y !== undefined && technique.z !== undefined) {
+              return [technique.x, technique.y, technique.z];
+            }
           } else if (technique.type && (technique.type.includes('pointingPairs') || technique.type.includes('boxLineReduction'))) {
             // 指向对法和宫行列排除法：使用number作为条件候选数
             if (technique.number !== undefined) {
@@ -1643,6 +1679,19 @@ const ControlPanel = ({
               // 对于Y-Wing技巧，传递z值信息以便正确高亮Z候选数
               if (technique.type && technique.type.includes('yWing') && technique.z !== undefined) {
                 cellToHighlight.zValue = technique.z;
+              }
+              
+              // 对于XYZ-Wing技巧，传递z值信息以便正确高亮Z候选数
+              if (technique.type && technique.type.includes('xyzWing') && technique.z !== undefined) {
+                cellToHighlight.zValue = technique.z;
+                // 传递x和y值信息以便正确高亮X和Y候选数
+                cellToHighlight.x = technique.x;
+                cellToHighlight.y = technique.y;
+                cellToHighlight.z = technique.z;
+                // 传递单元格位置信息
+                cellToHighlight.pivotCell = technique.pivotCell;
+                cellToHighlight.xzCell = technique.xzCell;
+                cellToHighlight.yzCell = technique.yzCell;
               }
               
               cellsToHighlight.push(cellToHighlight);

@@ -194,6 +194,47 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         textColor = '#000000'; // 黑色文字
       }
       
+      // 对于XYZ-Wing技巧，如果cell.zValue等于当前note，则使用浅蓝底黑字
+      if (cell.techniqueType && cell.techniqueType.includes('xyzWing') && cell.zValue === note) {
+        backgroundColor = '#ADD8E6'; // 浅蓝色背景
+        textColor = '#000000'; // 黑色文字
+      }
+      
+      // 对于XYZ-Wing技巧，x和y候选数使用绿底黑字高亮
+      if (cell.techniqueType && cell.techniqueType.includes('xyzWing') && cell.x !== undefined && cell.y !== undefined && cell.z !== undefined) {
+        // 检查当前单元格是否是枢纽单元格
+        const isPivotCell = cell.pivotCell && 
+          ((Array.isArray(cell.pivotCell) && cell.pivotCell[0] === cell.row && cell.pivotCell[1] === cell.col) ||
+           (cell.pivotCell.row === cell.row && cell.pivotCell.col === cell.col));
+        
+        // 检查当前单元格是否是XZ或YZ翼单元格
+        const isXZCell = cell.xzCell && 
+          ((Array.isArray(cell.xzCell) && cell.xzCell[0] === cell.row && cell.xzCell[1] === cell.col) ||
+           (cell.xzCell.row === cell.row && cell.xzCell.col === cell.col));
+        
+        const isYZCell = cell.yzCell && 
+          ((Array.isArray(cell.yzCell) && cell.yzCell[0] === cell.row && cell.yzCell[1] === cell.col) ||
+           (cell.yzCell.row === cell.row && cell.yzCell.col === cell.col));
+        
+        // 对于枢纽单元格中的x和y候选数，使用绿底黑字
+        if (isPivotCell && (note === cell.x || note === cell.y)) {
+          backgroundColor = '#00FF00'; // 绿色背景
+          textColor = '#000000'; // 黑色文字
+        }
+        
+        // 对于XZ翼单元格中的x候选数，使用绿底黑字
+        if (isXZCell && note === cell.x) {
+          backgroundColor = '#00FF00'; // 绿色背景
+          textColor = '#000000'; // 黑色文字
+        }
+        
+        // 对于YZ翼单元格中的y候选数，使用绿底黑字
+        if (isYZCell && note === cell.y) {
+          backgroundColor = '#00FF00'; // 绿色背景
+          textColor = '#000000'; // 黑色文字
+        }
+      }
+      
       return (
         <div
           key={`condition-note-${cell.row}-${cell.col}-${note}`}

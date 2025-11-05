@@ -633,6 +633,18 @@ export const findNakedTriples = (board, pencilNotes = {}) => {
                     { row: cell2.row, col: cell2.col, notes: cell2.notes },
                     { row: cell3.row, col: cell3.col, notes: cell3.notes }
                   ],
+                  // 添加每个目标单元格需要删除的候选数信息
+                  targetCellsDetails: targetCells.map((cell, index) => {
+                    const [r, c] = cell;
+                    const notesKey = `${r}-${c}`;
+                    const cellNotes = pencilNotes[notesKey] || [];
+                    const commonNotes = cellNotes.filter(note => allNotes.includes(note));
+                    return {
+                      row: r,
+                      col: c,
+                      notesToRemove: commonNotes
+                    };
+                  }),
                   message: `在第${row+1}行，单元格(${cell1.col+1})、(${cell2.col+1})和(${cell3.col+1})形成显性三链数[${allNotes.join(',')}]`
                 });
               }
@@ -708,6 +720,18 @@ export const findNakedTriples = (board, pencilNotes = {}) => {
                     { row: cell2.row, col: cell2.col, notes: cell2.notes },
                     { row: cell3.row, col: cell3.col, notes: cell3.notes }
                   ],
+                  // 添加每个目标单元格需要删除的候选数信息
+                  targetCellsDetails: targetCells.map((cell, index) => {
+                    const [r, c] = cell;
+                    const notesKey = `${r}-${c}`;
+                    const cellNotes = pencilNotes[notesKey] || [];
+                    const commonNotes = cellNotes.filter(note => allNotes.includes(note));
+                    return {
+                      row: r,
+                      col: c,
+                      notesToRemove: commonNotes
+                    };
+                  }),
                   message: `在第${col+1}列，单元格(${cell1.row+1})、(${cell2.row+1})和(${cell3.row+1})形成显性三链数[${allNotes.join(',')}]`
                 });
               }
@@ -791,6 +815,18 @@ export const findNakedTriples = (board, pencilNotes = {}) => {
                     { row: cell2.row, col: cell2.col, notes: cell2.notes },
                     { row: cell3.row, col: cell3.col, notes: cell3.notes }
                   ],
+                  // 添加每个目标单元格需要删除的候选数信息
+                  targetCellsDetails: targetCells.map((cell, index) => {
+                    const [r, c] = cell;
+                    const notesKey = `${r}-${c}`;
+                    const cellNotes = pencilNotes[notesKey] || [];
+                    const commonNotes = cellNotes.filter(note => allNotes.includes(note));
+                    return {
+                      row: r,
+                      col: c,
+                      notesToRemove: commonNotes
+                    };
+                  }),
                   message: `在第${boxRow*3+boxCol+1}宫，单元格(${cell1.row+1},${cell1.col+1})、(${cell2.row+1},${cell2.col+1})和(${cell3.row+1},${cell3.col+1})形成显性三链数[${allNotes.join(',')}]`
                 });
               }

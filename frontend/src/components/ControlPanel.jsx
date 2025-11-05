@@ -1488,7 +1488,38 @@ const ControlPanel = ({
           }
           
           if (technique.type && technique.type.includes('yWing')) {
-            // Y-Wing技巧：使用x和y作为条件候选数
+            // Y-Wing技巧：需要区分枢纽单元格和翼单元格
+            if (technique.x !== undefined && technique.y !== undefined && technique.z !== undefined) {
+              // 检查当前单元格是枢纽单元格还是翼单元格
+              const isAnchorCell = technique.anchorCell && 
+                ((Array.isArray(technique.anchorCell) && technique.anchorCell[0] === cellRow && technique.anchorCell[1] === cellCol) ||
+                 (technique.anchorCell.row === cellRow && technique.anchorCell.col === cellCol));
+              
+              const isXZCell = technique.xzCell && 
+                ((Array.isArray(technique.xzCell) && technique.xzCell[0] === cellRow && technique.xzCell[1] === cellCol) ||
+                 (technique.xzCell.row === cellRow && technique.xzCell.col === cellCol));
+              
+              const isYZCell = technique.yzCell && 
+                ((Array.isArray(technique.yzCell) && technique.yzCell[0] === cellRow && technique.yzCell[1] === cellCol) ||
+                 (technique.yzCell.row === cellRow && technique.yzCell.col === cellCol));
+              
+              // 对于枢纽单元格，返回x和y候选数
+              if (isAnchorCell) {
+                return [technique.x, technique.y];
+              }
+              
+              // 对于XZ翼单元格，返回x和z候选数
+              if (isXZCell) {
+                return [technique.x, technique.z];
+              }
+              
+              // 对于YZ翼单元格，返回y和z候选数
+              if (isYZCell) {
+                return [technique.y, technique.z];
+              }
+            }
+            
+            // 默认情况下返回x和y候选数
             if (technique.x !== undefined && technique.y !== undefined) {
               return [technique.x, technique.y];
             }
@@ -1522,7 +1553,7 @@ const ControlPanel = ({
             
             if (r !== null && c !== null) {
               // 添加单元格用于定位候选数，但不应用任何视觉样式
-              cellsToHighlight.push({
+              const cellToHighlight = {
                 row: r,
                 col: c,
                 techniqueIndicator: true,
@@ -1533,7 +1564,14 @@ const ControlPanel = ({
                 highlightedValues: getConditionCandidateValues(technique, r, c), // 条件候选数
                 backgroundColor: 'transparent', // 透明背景
                 borderColor: 'transparent' // 透明边框
-              });
+              };
+              
+              // 对于Y-Wing技巧，传递z值信息以便正确高亮Z候选数
+              if (technique.type && technique.type.includes('yWing') && technique.z !== undefined) {
+                cellToHighlight.zValue = technique.z;
+              }
+              
+              cellsToHighlight.push(cellToHighlight);
             }
           });
         }

@@ -184,6 +184,16 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const left = containerPadding + noteCol * gridCellSize + (gridCellSize - noteSize) / 2;
       const top = containerPadding + noteRow * gridCellSize + (gridCellSize - noteSize) / 2;
       
+      // 检查是否是Y-Wing技巧的Z候选数
+      let backgroundColor = '#00FF00'; // 默认绿色背景表示条件候选数
+      let textColor = '#000000'; // 默认黑色文字
+      
+      // 对于Y-Wing技巧，如果cell.zValue等于当前note，则使用浅蓝底黑字
+      if (cell.techniqueType && cell.techniqueType.includes('yWing') && cell.zValue === note) {
+        backgroundColor = '#ADD8E6'; // 浅蓝色背景
+        textColor = '#000000'; // 黑色文字
+      }
+      
       return (
         <div
           key={`condition-note-${cell.row}-${cell.col}-${note}`}
@@ -193,7 +203,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             top: `${top}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: '#00FF00', // 绿色背景表示条件候选数
+            backgroundColor: backgroundColor,
             borderRadius: '50%', // 圆形背景
             display: 'flex',
             alignItems: 'center',
@@ -208,7 +218,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             style={{
               fontSize: `${noteSize * 0.7}px`, // 增大字体大小为候选数区域的70%
               fontWeight: 'bold',
-              color: '#000000', // 黑色文字
+              color: textColor,
               zIndex: 65, // 确保文字在候选数背景上方
               textShadow: '1px 1px 1px rgba(255, 255, 255, 0.5)'
             }}

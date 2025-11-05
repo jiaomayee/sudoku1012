@@ -1470,9 +1470,40 @@ const ControlPanel = ({
         }
       } else {
         // 对于其他非基础技巧，仅高亮候选数，不高亮单元格
+        
+        // 获取条件候选数的函数
+        const getConditionCandidateValues = (technique) => {
+          // 处理不同类型的技巧
+          if (technique.type && technique.type.includes('yWing')) {
+            // Y-Wing技巧：使用x和y作为条件候选数
+            if (technique.x !== undefined && technique.y !== undefined) {
+              return [technique.x, technique.y];
+            }
+          } else if (technique.type && (technique.type.includes('pointingPairs') || technique.type.includes('boxLineReduction'))) {
+            // 指向对法和宫行列排除法：使用number作为条件候选数
+            if (technique.number !== undefined) {
+              return [technique.number];
+            }
+          } else if (technique.number !== undefined) {
+            // 其他有number字段的技巧：使用number作为条件候选数
+            return [technique.number];
+          } else if (Array.isArray(technique.values) && technique.values.length > 0) {
+            // 有values数组的技巧：使用values作为条件候选数
+            return technique.values;
+          }
+          
+          // 默认返回空数组
+          return [];
+        };
+        
         // 1. 高亮条件候选数
-        if (Array.isArray(cells) && cells.length > 0) {
-          cells.forEach(cell => {
+        // 对于指向对法和宫行列排除法，使用sourceCells作为条件单元格
+        const conditionCells = (technique.type && (technique.type.includes('pointingPairs') || technique.type.includes('boxLineReduction'))) 
+          ? (technique.sourceCells || []) 
+          : cells;
+          
+        if (Array.isArray(conditionCells) && conditionCells.length > 0) {
+          conditionCells.forEach(cell => {
             const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
             const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
             
@@ -1486,7 +1517,7 @@ const ControlPanel = ({
                 highlightType: 'condition',
                 isTarget: false,
                 // 对于不同的技巧类型，使用不同的条件候选数来源
-                highlightedValues: technique.number ? [technique.number] : (technique.values || []), // 条件候选数
+                highlightedValues: getConditionCandidateValues(technique), // 条件候选数
                 backgroundColor: 'transparent', // 透明背景
                 borderColor: 'transparent' // 透明边框
               });

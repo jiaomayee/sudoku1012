@@ -1485,7 +1485,8 @@ const ControlPanel = ({
                 techniqueType: technique.type,
                 highlightType: 'condition',
                 isTarget: false,
-                highlightedValues: technique.values || [], // 条件候选数
+                // 对于不同的技巧类型，使用不同的条件候选数来源
+                highlightedValues: technique.number ? [technique.number] : (technique.values || []), // 条件候选数
                 backgroundColor: 'transparent', // 透明背景
                 borderColor: 'transparent' // 透明边框
               });
@@ -1519,25 +1520,51 @@ const ControlPanel = ({
             });
           } else {
             // 如果没有详细信息，使用原有的逻辑
-            targetCells.forEach((cell, index) => {
-              const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
-              const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
-              
-              if (r !== null && c !== null) {
-                const key = `${r}-${c}`;
-                if (!removableCandidatesMap[key]) {
-                  removableCandidatesMap[key] = [];
-                }
-                
-                // 将对应的候选数添加到该单元格的可删除列表中
-                if (index < (removableCandidates?.length || 0)) {
-                  const note = removableCandidates[index];
-                  if (!removableCandidatesMap[key].includes(note)) {
-                    removableCandidatesMap[key].push(note);
+            // 修复目标候选数显示不全的问题：正确处理removableCandidates数组
+            if (targetCells.length > 0 && removableCandidates.length > 0) {
+              // 检查removableCandidates是否是扁平化的数组
+              if (removableCandidates.length === targetCells.length) {
+                // 每个目标单元格对应一个候选数
+                targetCells.forEach((cell, index) => {
+                  const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+                  const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+                  
+                  if (r !== null && c !== null) {
+                    const key = `${r}-${c}`;
+                    if (!removableCandidatesMap[key]) {
+                      removableCandidatesMap[key] = [];
+                    }
+                    
+                    // 将对应的候选数添加到该单元格的可删除列表中
+                    const note = removableCandidates[index];
+                    if (!removableCandidatesMap[key].includes(note)) {
+                      removableCandidatesMap[key].push(note);
+                    }
                   }
-                }
+                });
+              } else {
+                // removableCandidates是扁平化的数组，包含所有目标单元格的所有候选数
+                // 需要将所有候选数分配给所有目标单元格
+                targetCells.forEach((cell) => {
+                  const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+                  const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+                  
+                  if (r !== null && c !== null) {
+                    const key = `${r}-${c}`;
+                    if (!removableCandidatesMap[key]) {
+                      removableCandidatesMap[key] = [];
+                    }
+                    
+                    // 将所有候选数添加到该单元格的可删除列表中
+                    removableCandidates.forEach(note => {
+                      if (!removableCandidatesMap[key].includes(note)) {
+                        removableCandidatesMap[key].push(note);
+                      }
+                    });
+                  }
+                });
               }
-            });
+            }
           }
           
           // 更新已高亮的单元格或添加新的高亮单元格

@@ -209,6 +209,8 @@ export const translations = {
     hiddenTripleTechnique: '隐性三链数',
     pointingPairsTechnique: '指向对',
     boxLineReductionTechnique: '宫线摒除',
+    swordfishTechnique: '剑鱼',
+    xyzWingTechnique: 'XYZ-Wing',
     // 技巧名称
     nakedSingle: '唯一数法',
     hiddenSingleRow: '隐性唯一数法(行)',
@@ -226,6 +228,9 @@ export const translations = {
     hiddenTripleRow: '隐性三链数法(行)',
     hiddenTripleCol: '隐性三链数法(列)',
     hiddenTripleBox: '隐性三链数法(宫)',
+    swordfishRow: '剑鱼法(行)',
+    swordfishCol: '剑鱼法(列)',
+    xyzWing: 'XYZ-Wing法',
     unknownTechnique: '未知技巧',
     rowSuffix: '(行)',
     colSuffix: '(列)',
@@ -287,6 +292,10 @@ export const translations = {
     findYWingStructure: '发现Y-Wing结构：枢纽{anchor}，翼{xy}和{yz}',
     yWingShareCandidates: '枢纽{anchor}与翼{xy}共享候选数{x}，枢纽{anchor}与翼{yz}共享候选数{y}，翼{xy}和{yz}都包含候选数{z}',
     removeYWingFromTargets: '从目标单元格{targets}中移除候选数{number}',
+    // Swordfish
+    findSwordfishInWings: '在{wingType}中查找数字{number}的Swordfish结构',
+    swordfishFormStructure: '数字{number}在源单元格{sourceCells}中形成三行三列的结构',
+    removeSwordfishFromTargets: '从目标单元格{targets}中移除候选数{number}',
     // 添加候选数相关的翻译键
     cellNotEmpty: '该单元格已有数字，无法填充候选数',
     cellPrefilled: '该单元格为预填数字，无法填充候选数',
@@ -491,6 +500,9 @@ export const translations = {
     hiddenTripleRow: 'Hidden Triples (Row)',
     hiddenTripleCol: 'Hidden Triples (Column)',
     hiddenTripleBox: 'Hidden Triples (Box)',
+    swordfishRow: 'Swordfish (Row)',
+    swordfishCol: 'Swordfish (Column)',
+    xyzWing: 'XYZ-Wing',
     unknownTechnique: 'Unknown Technique',
     rowSuffix: '(Row)',
     colSuffix: '(Column)',
@@ -514,6 +526,8 @@ export const translations = {
     hiddenTripleTechnique: 'Hidden Triple',
     pointingPairsTechnique: 'Pointing Pairs',
     boxLineReductionTechnique: 'Box-Line Reduction',
+    swordfishTechnique: 'Swordfish',
+    xyzWingTechnique: 'XYZ-Wing',
     // Control panel tabs
     keyboardTab: 'Keyboard',
     techniquesTab: 'Techniques',
@@ -560,6 +574,10 @@ export const translations = {
     findYWingStructure: 'Found Y-Wing structure: anchor {anchor}, wings {xy} and {yz}',
     yWingShareCandidates: 'Anchor {anchor} shares candidate {x} with wing {xy}, anchor {anchor} shares candidate {y} with wing {yz}, wings {xy} and {yz} both contain candidate {z}',
     removeYWingFromTargets: 'Remove candidate {number} from target cells {targets}',
+    // Swordfish
+    findSwordfishInWings: 'Find Swordfish structure for number {number} in {wingType}',
+    swordfishFormStructure: 'Number {number} forms a three-row three-column structure in source cells {sourceCells}',
+    removeSwordfishFromTargets: 'Remove candidate {number} from target cells {targets}',
     // Manual candidate removal提示
     manualCandidateRemovalRequired: 'Please manually clear selected candidates',
     pairTechniqueIdentified: 'Technique identified, please manually remove related candidates'

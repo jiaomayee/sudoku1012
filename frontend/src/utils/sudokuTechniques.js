@@ -2886,47 +2886,18 @@ export const findXYZWing = (board, pencilNotes = {}) => {
     const pivotCell = tripleCandidatesCells[i];
     const [x, y, z] = pivotCell.notes;
     
-    // 找到与枢纽在同一单元的双候选数单元格
-    const linkedCells = [];
-    
+    // 遍历每个可能的XZ单元格
     for (let j = 0; j < doubleCandidatesCells.length; j++) {
-      const linkedCell = doubleCandidatesCells[j];
-      if (!areInSameUnit(pivotCell, linkedCell)) {
-        continue;
-      }
-      
-      // 检查是否有共享候选数
-      const intersection = getIntersection(pivotCell.notes, linkedCell.notes);
-      if (intersection.length >= 1) {
-        linkedCells.push({ ...linkedCell, shared: intersection });
-      }
-    }
-    
-    // 现在检查所有可能的XYZ-Wing组合
-    for (let j = 0; j < linkedCells.length; j++) {
-      for (let k = j + 1; k < linkedCells.length; k++) {
-        const cell1 = linkedCells[j];
-        const cell2 = linkedCells[k];
-        
-        // 确保不是同一个单元格
-        if (cell1.row === cell2.row && cell1.col === cell2.col) continue;
-        
-        // 找到三个单元格的公共候选数
-        const commonCandidates = cell1.shared.filter(note => cell2.shared.includes(note));
-        
-        // 检查是否存在公共候选数z
-        if (commonCandidates.includes(z)) {
-          // 检查XZ和YZ是否分别包含正确的候选数
-          // XZ应该包含{X,Z}或{Y,Z}
-          // YZ应该包含{Y,Z}或{X,Z}
-          // 且XZ和YZ都包含Z
-          
-          const isXZValid = (cell1.notes.includes(x) && cell1.notes.includes(z)) || 
-                           (cell1.notes.includes(y) && cell1.notes.includes(z));
+      const cell1 = doubleCandidatesCells[j];
+      const isXZValid = (cell1.notes.includes(x) && cell1.notes.includes(z)) || 
+                       (cell1.notes.includes(y) && cell1.notes.includes(z));
+      if (isXZValid) {
+        // 遍历每个可能的YZ单元格
+        for (let k = j + 1; k < doubleCandidatesCells.length; k++) {
+          const cell2 = doubleCandidatesCells[k];
           const isYZValid = (cell2.notes.includes(x) && cell2.notes.includes(z)) || 
                            (cell2.notes.includes(y) && cell2.notes.includes(z));
-          
-          if (isXZValid && isYZValid && cell1.notes.includes(z) && cell2.notes.includes(z)) {
+          if (isXZValid && isYZValid) {
             // 找到受XYZ-Wing影响的单元格
             const targetCells = [];
             const removableCandidates = [];
@@ -2949,6 +2920,7 @@ export const findXYZWing = (board, pencilNotes = {}) => {
                 const sharesWithCell1 = areInSameUnit({row, col}, cell1);
                 const sharesWithCell2 = areInSameUnit({row, col}, cell2);
                 
+                // 同时受两个链接单元格影响的单元格才可能是目标单元格
                 if (sharesWithCell1 && sharesWithCell2) {
                   // 检查该单元格是否包含公共候选数Z
                   const notesKey = `${row}-${col}`;
@@ -2994,110 +2966,8 @@ export const findXYZWing = (board, pencilNotes = {}) => {
   }
   
   return opportunities;
-}
-
-/**
- * 识别所有可用的技巧
- * @param {Array<Array<number>>} board - 当前数独棋盘
- * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
- * @param {boolean} includeCandidateTechniques - 是否包含候选数相关技巧
- * @returns {Array} - 所有可用的技巧机会
- */
-export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateTechniques = true) => {
-  // 查找所有可用技巧机会
-  const nakedSingles = findNakedSingles(board);
-  const hiddenSingles = findHiddenSingles(board);
-  // 添加候选数唯一法技巧识别
-  const notesSingles = includeCandidateTechniques && Object.keys(pencilNotes).length > 0 ? findNotesSingles(board, pencilNotes) : [];
-  
-  // 只在需要时查找候选数相关技巧
-  let nakedPairs = [];
-  let hiddenPairs = [];
-  let pointingPairs = [];
-  let boxLineReduction = [];
-  let nakedTriples = [];
-  let hiddenTriples = [];
-  let xWing = [];
-  let yWing = [];
-  let swordfish = [];
-  let xyzWing = [];
-  let jellyfish = [];
-  
-  if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
-    nakedPairs = findNakedPairs(board, pencilNotes);
-    hiddenPairs = findHiddenPairs(board, pencilNotes);
-    pointingPairs = findPointingPairs(board, pencilNotes);
-    boxLineReduction = findBoxLineReduction(board, pencilNotes);
-    nakedTriples = findNakedTriples(board, pencilNotes);
-    hiddenTriples = findHiddenTriples(board, pencilNotes);
-    // 高级技巧
-    xWing = findXWing(board, pencilNotes);
-    yWing = findYWing(board, pencilNotes);
-    swordfish = findSwordfish(board, pencilNotes);
-    xyzWing = findXYZWing(board, pencilNotes);
-    // 添加Jellyfish技巧
-    jellyfish = findJellyfish(board, pencilNotes);
-    
-    // 创建已识别单元格的集合，避免重复识别
-    const identifiedCells = new Set();
-    
-    // 添加已识别的单元格到集合中
-    const addToIdentified = (techniques) => {
-      techniques.forEach(technique => {
-        if (technique.cells) {
-          technique.cells.forEach(([row, col]) => {
-            identifiedCells.add(`${row}-${col}`);
-          });
-        }
-      });
-    };
-    
-    // 先添加基础技巧识别的单元格
-    addToIdentified(nakedSingles);
-    addToIdentified(hiddenSingles);
-    
-  }
-
-  // 按技巧难度顺序合并所有技巧机会
-  const result = [
-    // 基础技巧（第一优先级）
-    ...nakedSingles,
-    ...hiddenSingles,
-    // 候选数基础技巧（第二优先级）
-    ...notesSingles
-  ];
-  
-  // 只在需要时添加候选数相关技巧
-  if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
-    // 中级技巧（第三优先级）
-    result.push(...nakedPairs);
-    result.push(...hiddenPairs);
-    result.push(...pointingPairs);
-    result.push(...boxLineReduction);
-    // 高级技巧（第四优先级）
-    result.push(...nakedTriples);
-    result.push(...hiddenTriples);
-    // Hodoku风格高级技巧（第五优先级）
-    result.push(...xWing);
-    result.push(...yWing);
-    result.push(...swordfish);
-    result.push(...xyzWing);
-    // 添加Jellyfish技巧
-    if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
-      result.push(...jellyfish);
-    }
-  }
-  
-  return result;
-
 };
 
-/**
- * 应用技巧
- * @param {Object} technique - 要应用的技巧对象
- * @param {Array<Array<number>>} board - 当前数独棋盘
- * @returns {Object} - 包含更新后的棋盘和操作信息
- */
 export const applyTechnique = (technique, board) => {
   // 创建棋盘副本
   const newBoard = board.map(row => [...row]);
@@ -3173,3 +3043,78 @@ export const applyTechnique = (technique, board) => {
     operation: null
   };
 }
+
+/**
+ * 识别所有可用的技巧
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
+ * @param {boolean} includeCandidateTechniques - 是否包含候选数相关技巧
+ * @returns {Array} - 所有可用的技巧机会
+ */
+export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateTechniques = true) => {
+  // 查找所有可用技巧机会
+  const nakedSingles = findNakedSingles(board);
+  const hiddenSingles = findHiddenSingles(board);
+  // 添加候选数唯一法技巧识别
+  const notesSingles = includeCandidateTechniques && Object.keys(pencilNotes).length > 0 ? findNotesSingles(board, pencilNotes) : [];
+  
+  // 只在需要时查找候选数相关技巧
+  let nakedPairs = [];
+  let hiddenPairs = [];
+  let pointingPairs = [];
+  let boxLineReduction = [];
+  let nakedTriples = [];
+  let hiddenTriples = [];
+  let xWing = [];
+  let yWing = [];
+  let swordfish = [];
+  let xyzWing = [];
+  let jellyfish = [];
+  
+  if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
+    nakedPairs = findNakedPairs(board, pencilNotes);
+    hiddenPairs = findHiddenPairs(board, pencilNotes);
+    pointingPairs = findPointingPairs(board, pencilNotes);
+    boxLineReduction = findBoxLineReduction(board, pencilNotes);
+    nakedTriples = findNakedTriples(board, pencilNotes);
+    hiddenTriples = findHiddenTriples(board, pencilNotes);
+    // 高级技巧
+    xWing = findXWing(board, pencilNotes);
+    yWing = findYWing(board, pencilNotes);
+    swordfish = findSwordfish(board, pencilNotes);
+    xyzWing = findXYZWing(board, pencilNotes);
+    // 添加Jellyfish技巧
+    jellyfish = findJellyfish(board, pencilNotes);
+  }
+  
+  // 按技巧难度顺序合并所有技巧机会
+  const result = [
+    // 基础技巧（第一优先级）
+    ...nakedSingles,
+    ...hiddenSingles,
+    // 候选数基础技巧（第二优先级）
+    ...notesSingles
+  ];
+  
+  // 只在需要时添加候选数相关技巧
+  if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
+    // 中级技巧（第三优先级）
+    result.push(...nakedPairs);
+    result.push(...hiddenPairs);
+    result.push(...pointingPairs);
+    result.push(...boxLineReduction);
+    // 高级技巧（第四优先级）
+    result.push(...nakedTriples);
+    result.push(...hiddenTriples);
+    // Hodoku风格高级技巧（第五优先级）
+    result.push(...xWing);
+    result.push(...yWing);
+    result.push(...swordfish);
+    result.push(...xyzWing);
+    // 添加Jellyfish技巧
+    result.push(...jellyfish);
+  }
+  
+  return result;
+};
+

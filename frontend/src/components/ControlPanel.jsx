@@ -3142,7 +3142,12 @@ const ControlPanel = ({
                                           e.currentTarget.style.transform = 'translateY(0)';
                                         }}
                                       >
-                                        {t('apply')}
+                                        {selectedTechnique && 
+                                          (selectedTechnique.type === 'nakedSingle' || 
+                                           selectedTechnique.type === 'notesSingle' || 
+                                           selectedTechnique.type.includes('hiddenSingle')) 
+                                          ? t('apply') 
+                                          : t('manualHandle')}
                                       </button>
                                     )}
                                   </div>

@@ -93,9 +93,85 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
       .then((registration) => {
         console.log('ServiceWorker 注册成功:', registration.scope);
+        
+        // 监听service worker更新
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // 有新版本可用
+                console.log('发现新版本，提示用户刷新');
+              }
+            });
+          }
+        });
+        
+        // 检查控制当前页面的service worker是否更新
+        if (registration.active) {
+          // 发送消息给service worker，检查是否有更新
+          registration.active.postMessage({ type: 'CHECK_FOR_UPDATE' });
+        }
       })
       .catch((error) => {
         console.log('ServiceWorker 注册失败:', error);
       });
+    
+    // 监听来自service worker的消息
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'CACHE_UPDATED') {
+        console.log('收到缓存更新通知');
+        // 显示更新提示
+        const updateNotification = document.createElement('div');
+        updateNotification.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background-color: #28a745;
+          color: white;
+          padding: 15px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        `;
+        
+        updateNotification.innerHTML = `
+          <span>发现新版本!</span>
+          <button id="refreshBtn" style="background: white; color: #28a745; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            立即刷新
+          </button>
+        `;
+        
+        document.body.appendChild(updateNotification);
+        
+        // 添加刷新按钮事件
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+          // 强制刷新，清除缓存
+          window.location.reload(true);
+        });
+        
+        // 如果用户30秒内没有点击刷新按钮，自动刷新
+        setTimeout(() => {
+          if (document.body.contains(updateNotification)) {
+            window.location.reload(true);
+          }
+        }, 30000);
+      }
+    });
+    
+    // 定期检查更新
+    setInterval(() => {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.update().then((updated) => {
+          if (updated) {
+            console.log('已更新到新版本');
+          }
+        });
+      });
+    }, 60000); // 每分钟检查一次更新
   });
 }

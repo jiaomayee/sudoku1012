@@ -1,5 +1,5 @@
 // 缓存名称 - 增加版本号以强制更新缓存
-const CACHE_NAME = 'sudoku-app-cache-v2';
+const CACHE_NAME = 'sudoku-app-cache-v3';
 
 // 需要缓存的关键资源列表
 const urlsToCache = [
@@ -23,22 +23,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// 激活并清理旧缓存
-self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('删除旧缓存:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim()) // 立即控制所有客户端
-  );
-});
+// 合并到下方的activate事件监听器中
 
 // 拦截请求并提供缓存资源 - 采用网络优先策略
 self.addEventListener('fetch', (event) => {
@@ -109,14 +94,19 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// 主动向客户端发送消息，提示更新
+// 处理来自客户端的消息
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  } else if (event.data && event.data.type === 'CHECK_FOR_UPDATE') {
+    // 客户端主动检查更新
+    console.log('收到更新检查请求，版本:', CACHE_NAME);
+    // 立即通知客户端有更新（因为我们已经更新了缓存版本号）
+    event.source.postMessage({type: 'CACHE_UPDATED'});
   }
 });
 
-// 当新的Service Worker激活时，通知所有客户端刷新页面
+// 激活并清理旧缓存，同时通知客户端更新
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -130,12 +120,13 @@ self.addEventListener('activate', (event) => {
         })
       );
     })
-    .then(() => self.clients.claim())
+    .then(() => self.clients.claim()) // 立即控制所有客户端
     .then(() => {
       // 通知所有客户端刷新以使用新版本
       return self.clients.matchAll({type: 'window'}).then((clientList) => {
         for (const client of clientList) {
           client.postMessage({type: 'CACHE_UPDATED'});
+          console.log('已通知客户端刷新页面:', client.url);
         }
       });
     })

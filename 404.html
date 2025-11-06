@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SudokuTech - Sudoku Techniques Learning Platform</title>
+    <script>
+      // GitHub Pages SPA路由修复脚本
+      // 将404页面重定向到index.html以支持客户端路由
+      const path = location.pathname.replace('/sudoku1012', '');
+      const redirectPath = '/sudoku1012/';
+      
+      // 如果当前路径已经是根路径，则不需要重定向
+      if (path !== '/') {
+        // 重定向到index.html并将原始路径存储在sessionStorage中
+        sessionStorage.setItem('redirectPath', path);
+        location.replace(redirectPath);
+      }
+    </script>
+  </head>
+  <body>
+    <!-- 如果JavaScript被禁用，显示简单的消息 -->
+    <noscript>
+      <h1>需要启用JavaScript</h1>
+      <p>请启用JavaScript以使用此应用程序。</p>
+    </noscript>
+  </body>
+</html>

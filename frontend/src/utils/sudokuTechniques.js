@@ -2884,20 +2884,46 @@ export const findXYZWing = (board, pencilNotes = {}) => {
   // 遍历每个可能的枢纽单元格（XYZ单元格）
   for (let i = 0; i < tripleCandidatesCells.length; i++) {
     const pivotCell = tripleCandidatesCells[i];
-    const [x, y, z] = pivotCell.notes;
     
-    // 遍历每个可能的XZ单元格
-    for (let j = 0; j < doubleCandidatesCells.length; j++) {
-      const cell1 = doubleCandidatesCells[j];
-      const isXZValid = (cell1.notes.includes(x) && cell1.notes.includes(z)) || 
-                       (cell1.notes.includes(y) && cell1.notes.includes(z));
-      if (isXZValid) {
-        // 遍历每个可能的YZ单元格
-        for (let k = j + 1; k < doubleCandidatesCells.length; k++) {
-          const cell2 = doubleCandidatesCells[k];
-          const isYZValid = (cell2.notes.includes(x) && cell2.notes.includes(z)) || 
-                           (cell2.notes.includes(y) && cell2.notes.includes(z));
-          if (isXZValid && isYZValid) {
+    // 尝试所有可能的x, y, z组合（枢纽单元格的三个候选数）
+    for (let xIndex = 0; xIndex < 3; xIndex++) {
+      for (let yIndex = 0; yIndex < 3; yIndex++) {
+        if (xIndex === yIndex) continue;
+        
+        // 找出zIndex，即第三个候选数的索引
+        let zIndex = 0;
+        while (zIndex === xIndex || zIndex === yIndex) {
+          zIndex++;
+        }
+        
+        const x = pivotCell.notes[xIndex];
+        const y = pivotCell.notes[yIndex];
+        const z = pivotCell.notes[zIndex];
+        
+        // 寻找XZ单元格：包含x和z，且与枢纽单元格共享行/列/宫
+        const xzCells = doubleCandidatesCells.filter(cell => 
+          cell.notes.includes(x) && cell.notes.includes(z) && 
+          areInSameUnit(cell, pivotCell)
+        );
+        
+        // 寻找YZ单元格：包含y和z，且与枢纽单元格共享行/列/宫
+        const yzCells = doubleCandidatesCells.filter(cell => 
+          cell.notes.includes(y) && cell.notes.includes(z) && 
+          areInSameUnit(cell, pivotCell)
+        );
+        
+        // 遍历所有可能的XZ和YZ单元格组合
+        for (let j = 0; j < xzCells.length; j++) {
+          const xzCell = xzCells[j];
+          
+          for (let k = 0; k < yzCells.length; k++) {
+            const yzCell = yzCells[k];
+            
+            // 确保XZ和YZ单元格不是同一个单元格
+            if (xzCell.row === yzCell.row && xzCell.col === yzCell.col) {
+              continue;
+            }
+            
             // 找到受XYZ-Wing影响的单元格
             const targetCells = [];
             const removableCandidates = [];
@@ -2911,17 +2937,17 @@ export const findXYZWing = (board, pencilNotes = {}) => {
                 
                 // 跳过枢纽和链接单元格
                 if ((row === pivotCell.row && col === pivotCell.col) ||
-                    (row === cell1.row && col === cell1.col) ||
-                    (row === cell2.row && col === cell2.col)) {
+                    (row === xzCell.row && col === xzCell.col) ||
+                    (row === yzCell.row && col === yzCell.col)) {
                   continue;
                 }
                 
-                // 检查该单元格是否同时与两个链接单元格在同一行、列或宫
-                const sharesWithCell1 = areInSameUnit({row, col}, cell1);
-                const sharesWithCell2 = areInSameUnit({row, col}, cell2);
+                // 检查该单元格是否同时与XZ和YZ单元格在同一行、列或宫
+                const sharesWithXZ = areInSameUnit({row, col}, xzCell);
+                const sharesWithYZ = areInSameUnit({row, col}, yzCell);
                 
-                // 同时受两个链接单元格影响的单元格才可能是目标单元格
-                if (sharesWithCell1 && sharesWithCell2) {
+                // 同时受XZ和YZ单元格影响的单元格才可能是目标单元格
+                if (sharesWithXZ && sharesWithYZ) {
                   // 检查该单元格是否包含公共候选数Z
                   const notesKey = `${row}-${col}`;
                   const cellNotes = pencilNotes[notesKey] || [];
@@ -2945,18 +2971,18 @@ export const findXYZWing = (board, pencilNotes = {}) => {
                 type: 'xyzWing',
                 description: 'XYZ-Wing',
                 pivotCell: [pivotCell.row, pivotCell.col],
-                xzCell: [cell1.row, cell1.col],
-                yzCell: [cell2.row, cell2.col],
+                xzCell: [xzCell.row, xzCell.col],
+                yzCell: [yzCell.row, yzCell.col],
                 cells: [
                   [pivotCell.row, pivotCell.col],
-                  [cell1.row, cell1.col],
-                  [cell2.row, cell2.col]
+                  [xzCell.row, xzCell.col],
+                  [yzCell.row, yzCell.col]
                 ],
                 x, y, z, common: z,
                 targetCells,
                 targetCellsDetails,
                 removableCandidates,
-                message: `XYZ-Wing技巧：这是一个由一个三候选数单元格和两个双候选数单元格组成的特殊结构。枢纽单元格(${pivotCell.row + 1},${pivotCell.col + 1})包含候选数[${x},${y},${z}]，XZ单元格(${cell1.row + 1},${cell1.col + 1})包含候选数[${cell1.notes.join(',')}],YZ单元格(${cell2.row + 1},${cell2.col + 1})包含候选数[${cell2.notes.join(',')}].由于枢纽单元格与XZ、YZ单元格分别共享候选数，且XZ和YZ单元格都包含候选数${z}，因此可以确定在同时受XZ和YZ单元格影响的交叉单元格中，候选数${z}不可能存在，可以删除这些交叉单元格中的数字${z}候选数`
+                message: `XYZ-Wing技巧：这是一个由一个三候选数单元格和两个双候选数单元格组成的特殊结构。枢纽单元格(${pivotCell.row + 1},${pivotCell.col + 1})包含候选数[${pivotCell.notes.join(',')}]，XZ单元格(${xzCell.row + 1},${xzCell.col + 1})包含候选数[${xzCell.notes.join(',')}], YZ单元格(${yzCell.row + 1},${yzCell.col + 1})包含候选数[${yzCell.notes.join(',')}]. 由于枢纽单元格与XZ、YZ单元格分别共享候选数，且XZ和YZ单元格都包含候选数${z}，因此可以确定在同时受XZ和YZ单元格影响的交叉单元格中，候选数${z}不可能存在，可以删除这些交叉单元格中的数字${z}候选数`
               });
             }
           }
@@ -2965,7 +2991,19 @@ export const findXYZWing = (board, pencilNotes = {}) => {
     }
   }
   
-  return opportunities;
+  // 去重：移除完全相同的XYZ-Wing机会
+  const uniqueOpportunities = opportunities.filter((opportunity, index, self) => 
+    index === self.findIndex((o) => 
+      o.pivotCell[0] === opportunity.pivotCell[0] &&
+      o.pivotCell[1] === opportunity.pivotCell[1] &&
+      o.xzCell[0] === opportunity.xzCell[0] &&
+      o.xzCell[1] === opportunity.xzCell[1] &&
+      o.yzCell[0] === opportunity.yzCell[0] &&
+      o.yzCell[1] === opportunity.yzCell[1]
+    )
+  );
+  
+  return uniqueOpportunities;
 };
 
 export const applyTechnique = (technique, board) => {

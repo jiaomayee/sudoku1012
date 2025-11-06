@@ -1,5 +1,5 @@
 // 缓存名称 - 增加版本号以强制更新缓存
-const CACHE_NAME = 'sudoku-app-cache-v3';
+const CACHE_NAME = 'sudoku-app-cache-v4';
 
 // 需要缓存的关键资源列表
 const urlsToCache = [

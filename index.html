@@ -41,25 +41,6 @@
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow, snippet" />
     
-    <!-- GitHub Pages SPA Routing Fix -->
-    <script>
-      // Handle GitHub Pages client-side routing
-      (function() {
-        var location = window.location;
-        var path = location.pathname;
-        
-        // If we're on a GitHub Pages 404 page, redirect to the correct path
-        if (path.indexOf('/?p=') === 0) {
-          var redirectPath = path.replace('/?p=', '/');
-          if (location.search) {
-            var queryParams = location.search.slice(1).replace(/~and~/g, '&');
-            redirectPath += '?' + queryParams;
-          }
-          window.history.replaceState({}, document.title, redirectPath + location.hash);
-        }
-      })();
-    </script>
-    
     <!-- Google 自动推送代码 - 极简版本，仅使用最安全的方式 -->
     <script>
     // 注意：由于网络环境限制，某些Google服务可能无法直接访问

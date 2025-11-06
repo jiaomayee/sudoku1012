@@ -54,6 +54,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // 对于旧版本用户，优先确保获取最新的HTML文件
+  if (event.request.mode === 'navigate' && event.request.url.includes('sudokutech.org.cn')) {
+    event.respondWith(
+      fetch(event.request.clone())
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.ok) {
+            // 更新缓存中的主页
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match('/');
+        })
+    );
+    return;
+  }
+  
   event.respondWith(
     // 优先尝试网络请求
     fetch(event.request.clone())
@@ -85,5 +106,38 @@ self.addEventListener('fetch', (event) => {
           return null;
         });
       })
+  );
+});
+
+// 主动向客户端发送消息，提示更新
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+// 当新的Service Worker激活时，通知所有客户端刷新页面
+self.addEventListener('activate', (event) => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('删除旧缓存:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+    .then(() => self.clients.claim())
+    .then(() => {
+      // 通知所有客户端刷新以使用新版本
+      return self.clients.matchAll({type: 'window'}).then((clientList) => {
+        for (const client of clientList) {
+          client.postMessage({type: 'CACHE_UPDATED'});
+        }
+      });
+    })
   );
 });

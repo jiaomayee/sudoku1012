@@ -87,39 +87,7 @@ root.render(
   </React.StrictMode>
 );
 
-// 添加版本信息显示
-const addVersionInfo = () => {
-  // 创建版本信息元素
-  const versionInfo = document.createElement('div');
-  versionInfo.id = 'version-info';
-  versionInfo.style.cssText = `
-    color: #666;
-    font-size: 12px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    text-align: center;
-    padding: 20px 0;
-    margin-top: 20px;
-    border-top: 1px solid #eee;
-    clear: both;
-  `;
-  
-  // 获取当前日期作为版本标识
-  const now = new Date();
-  const versionDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  
-  // 从localStorage获取版本计数器，如果不存在则初始化为1
-  let versionCount = localStorage.getItem(`version_${versionDate}_count`) || 1;
-  // 递增计数器（这里可以根据需要调整逻辑，比如只在构建时增加）
-  // 为了演示，我们暂时不自动递增，使用固定值1
-  
-  versionInfo.textContent = `版本: ${versionDate}.${versionCount}`;
-  
-  // 将版本信息添加到页面底部
-  document.body.appendChild(versionInfo);
-};
-
-// 页面加载完成后添加版本信息
-window.addEventListener('load', addVersionInfo);
+// 版本信息已移至config/version.js，并由Footer组件显示
 
 // 注册 Service Worker 以启用 PWA 功能
 if ('serviceWorker' in navigator) {

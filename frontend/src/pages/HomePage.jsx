@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
 import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
+import { useLanguage } from '../context/LanguageContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const HomeContainer = styled.div`
@@ -270,6 +271,7 @@ const HomePage = () => {
   const { userStats } = useUser();
   const { setDifficulty, startNewGame } = useSudoku();
   const { executeWithLoading, isLoading } = useLoading();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [selectedDifficulty, setSelectedDifficulty] = React.useState(DIFFICULTY_LEVELS.MEDIUM);
 
@@ -294,101 +296,101 @@ const HomePage = () => {
   return (
     <HomeContainer>
       <HeroSection>
-        <HeroTitle>欢迎来到数独学习应用</HeroTitle>
+        <HeroTitle>{t('homePage.welcomeTitle')}</HeroTitle>
         <HeroSubtitle>
-          提升您的数独技能，学习从基础到高级的解题技巧。适合各级别玩家，让您的数独之旅更加精彩！
+          {t('homePage.welcomeSubtitle')}
         </HeroSubtitle>
         <ButtonGroup>
-          <PrimaryButton to="/game">开始游戏</PrimaryButton>
-          <SecondaryButton to="/techniques">学习技巧</SecondaryButton>
+          <PrimaryButton to="/game">{t('homePage.startGame')}</PrimaryButton>
+          <SecondaryButton to="/techniques">{t('homePage.learnTechniques')}</SecondaryButton>
         </ButtonGroup>
       </HeroSection>
 
       <FeatureSection>
         <FeatureCard>
           <FeatureIcon>🧠</FeatureIcon>
-          <FeatureTitle>多种难度</FeatureTitle>
+          <FeatureTitle>{t('homePage.multiDifficulty')}</FeatureTitle>
           <FeatureDescription>
-            从简单到专家级别的数独谜题，适合不同水平的玩家，循序渐进提升您的技能。
+            {t('homePage.multiDifficultyDesc')}
           </FeatureDescription>
         </FeatureCard>
         <FeatureCard>
           <FeatureIcon>💡</FeatureIcon>
-          <FeatureTitle>技巧学习</FeatureTitle>
+          <FeatureTitle>{t('homePage.techniqueLearning')}</FeatureTitle>
           <FeatureDescription>
-            详细的解题技巧讲解，从唯一候选数到高级技巧，帮助您掌握数独的精髓。
+            {t('homePage.techniqueLearningDesc')}
           </FeatureDescription>
         </FeatureCard>
         <FeatureCard>
           <FeatureIcon>📊</FeatureIcon>
-          <FeatureTitle>进度追踪</FeatureTitle>
+          <FeatureTitle>{t('homePage.progressTracking')}</FeatureTitle>
           <FeatureDescription>
-            记录您的游戏进度和技巧掌握情况，分析您的表现，持续进步。
+            {t('homePage.progressTrackingDesc')}
           </FeatureDescription>
         </FeatureCard>
         <FeatureCard>
           <FeatureIcon>🎯</FeatureIcon>
-          <FeatureTitle>实时提示</FeatureTitle>
+          <FeatureTitle>{t('homePage.realTimeHints')}</FeatureTitle>
           <FeatureDescription>
-            遇到困难时获得智能提示，帮助您理解下一步的解题思路和技巧应用。
+            {t('homePage.realTimeHintsDesc')}
           </FeatureDescription>
         </FeatureCard>
       </FeatureSection>
 
       <QuickStartSection>
-        <SectionTitle>快速开始</SectionTitle>
+        <SectionTitle>{t('homePage.quickStart')}</SectionTitle>
         <DifficultyButtons>
           <DifficultyButton 
             selected={selectedDifficulty === DIFFICULTY_LEVELS.EASY}
             onClick={() => handleDifficultySelect(DIFFICULTY_LEVELS.EASY)}
           >
-            简单
+            {t('easy')}
           </DifficultyButton>
           <DifficultyButton 
             selected={selectedDifficulty === DIFFICULTY_LEVELS.MEDIUM}
             onClick={() => handleDifficultySelect(DIFFICULTY_LEVELS.MEDIUM)}
           >
-            中等
+            {t('medium')}
           </DifficultyButton>
           <DifficultyButton 
             selected={selectedDifficulty === DIFFICULTY_LEVELS.HARD}
             onClick={() => handleDifficultySelect(DIFFICULTY_LEVELS.HARD)}
           >
-            困难
+            {t('hard')}
           </DifficultyButton>
           <DifficultyButton 
             selected={selectedDifficulty === DIFFICULTY_LEVELS.EXPERT}
             onClick={() => handleDifficultySelect(DIFFICULTY_LEVELS.EXPERT)}
           >
-            专家
+            {t('expert')}
           </DifficultyButton>
         </DifficultyButtons>
         <StartButton 
           onClick={handleStartGame} 
           disabled={isLoading}
         >
-          {isLoading ? <LoadingSpinner showMessage={false} /> : '开始游戏'}
+          {isLoading ? <LoadingSpinner showMessage={false} /> : t('homePage.startGame')}
         </StartButton>
       </QuickStartSection>
 
       <UserStatsSection>
-        <SectionTitle>您的进度</SectionTitle>
+        <SectionTitle>{t('homePage.yourProgress')}</SectionTitle>
         <StatsGrid>
           <StatItem>
             <StatValue>{userStats.puzzlesStarted}</StatValue>
-            <StatLabel>开始的谜题</StatLabel>
+            <StatLabel>{t('homePage.puzzlesStarted')}</StatLabel>
           </StatItem>
           <StatItem>
             <StatValue>{userStats.puzzlesCompleted}</StatValue>
-            <StatLabel>完成的谜题</StatLabel>
+            <StatLabel>{t('homePage.puzzlesCompleted')}</StatLabel>
           </StatItem>
           <StatItem>
             <StatValue>{userStats.puzzlesSolved}</StatValue>
-            <StatLabel>独立解决</StatLabel>
+            <StatLabel>{t('homePage.puzzlesSolved')}</StatLabel>
           </StatItem>
           <StatItem>
             <StatValue>{Math.floor(userStats.totalTimePlayed / 60)}</StatValue>
-            <StatLabel>游戏分钟</StatLabel>
+            <StatLabel>{t('homePage.gameMinutes')}</StatLabel>
           </StatItem>
         </StatsGrid>
       </UserStatsSection>

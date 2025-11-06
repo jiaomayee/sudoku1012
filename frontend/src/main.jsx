@@ -87,6 +87,32 @@ root.render(
   </React.StrictMode>
 );
 
+// 添加版本信息显示
+const addVersionInfo = () => {
+  // 创建版本信息元素
+  const versionInfo = document.createElement('div');
+  versionInfo.id = 'version-info';
+  versionInfo.style.cssText = `
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    color: #666;
+    font-size: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    z-index: 1000;
+  `;
+  
+  // 获取当前日期作为简单版本标识
+  const now = new Date();
+  const versionDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  
+  versionInfo.textContent = `Version: ${versionDate}`;
+  document.body.appendChild(versionInfo);
+};
+
+// 页面加载完成后添加版本信息
+window.addEventListener('load', addVersionInfo);
+
 // 注册 Service Worker 以启用 PWA 功能
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -94,88 +120,88 @@ if ('serviceWorker' in navigator) {
       .then((registration) => {
         console.log('ServiceWorker 注册成功:', registration.scope);
         
-        // 监听service worker更新
+        // 监听service worker更新 - 这是真正检测新版本的地方
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // 有新版本可用
+                // 有新版本可用 - 只在真正有新版本时显示弹窗
                 console.log('发现新版本，提示用户刷新');
+                showUpdateNotification();
               }
             });
           }
         });
-        
-        // 检查控制当前页面的service worker是否更新
-        if (registration.active) {
-          // 发送消息给service worker，检查是否有更新
-          registration.active.postMessage({ type: 'CHECK_FOR_UPDATE' });
-        }
       })
       .catch((error) => {
         console.log('ServiceWorker 注册失败:', error);
       });
-    
-    // 监听来自service worker的消息
-    navigator.serviceWorker.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'CACHE_UPDATED') {
-        console.log('收到缓存更新通知');
-        // 显示更新提示
-        const updateNotification = document.createElement('div');
-        updateNotification.style.cssText = `
-          position: fixed;
-          bottom: 20px;
-          right: 20px;
-          background-color: #28a745;
-          color: white;
-          padding: 15px 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          z-index: 9999;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        `;
-        
-        updateNotification.innerHTML = `
-          <span>发现新版本!</span>
-          <button id="refreshBtn" style="background: white; color: #28a745; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-            立即刷新
-          </button>
-        `;
-        
-        document.body.appendChild(updateNotification);
-        
-        // 添加刷新按钮事件
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-          // 先移除弹窗，再刷新页面
-          if (document.body.contains(updateNotification)) {
-            document.body.removeChild(updateNotification);
-          }
-          // 强制刷新，清除缓存
-          window.location.reload(true);
-        });
-        
-        // 如果用户30秒内没有点击刷新按钮，自动刷新
-        setTimeout(() => {
-          if (document.body.contains(updateNotification)) {
-            window.location.reload(true);
-          }
-        }, 30000);
-      }
-    });
-    
-    // 定期检查更新
-    setInterval(() => {
-      navigator.serviceWorker.ready.then((registration) => {
-        registration.update().then((updated) => {
-          if (updated) {
-            console.log('已更新到新版本');
-          }
-        });
-      });
-    }, 60000); // 每分钟检查一次更新
   });
+}
+
+// 显示更新通知的函数
+function showUpdateNotification() {
+  // 检查是否已存在更新通知，避免重复创建
+  if (document.getElementById('update-notification')) {
+    console.log('更新通知已存在，不再创建');
+    return;
+  }
+  
+  // 获取当前语言设置，默认为英文
+  const currentLang = localStorage.getItem('language') || 'en';
+  const messages = {
+    en: { updateAvailable: 'New version available!', updateNow: 'Update Now' },
+    zh: { updateAvailable: '网站有新版本可用！', updateNow: '立即更新' }
+  };
+  
+  // 显示更新提示，使用蓝色背景以与用户描述一致
+  const updateNotification = document.createElement('div');
+  updateNotification.id = 'update-notification';
+  updateNotification.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4a6fa5;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  `;
+  
+  updateNotification.innerHTML = `
+    <span>${messages[currentLang].updateAvailable}</span>
+    <button id="refreshBtn" style="background: white; color: #4a6fa5; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+      ${messages[currentLang].updateNow}
+    </button>
+  `;
+  
+  document.body.appendChild(updateNotification);
+  
+  // 简单直接的按钮点击处理
+  updateNotification.querySelector('button').onclick = function() {
+    // 立即移除弹窗
+    if (updateNotification.parentNode === document.body) {
+      document.body.removeChild(updateNotification);
+    }
+    
+    // 刷新页面加载新版本
+    setTimeout(() => {
+      window.location.reload();
+    }, 10);
+  };
+  
+  // 如果用户30秒内没有点击刷新按钮，自动移除弹窗但不自动刷新
+  setTimeout(() => {
+    if (document.body.contains(updateNotification)) {
+      document.body.removeChild(updateNotification);
+      console.log('更新通知已自动移除');
+    }
+  }, 30000);
 }

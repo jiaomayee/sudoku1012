@@ -2991,17 +2991,26 @@ export const findXYZWing = (board, pencilNotes = {}) => {
     }
   }
   
-  // 去重：移除完全相同的XYZ-Wing机会
-  const uniqueOpportunities = opportunities.filter((opportunity, index, self) => 
-    index === self.findIndex((o) => 
-      o.pivotCell[0] === opportunity.pivotCell[0] &&
-      o.pivotCell[1] === opportunity.pivotCell[1] &&
-      o.xzCell[0] === opportunity.xzCell[0] &&
-      o.xzCell[1] === opportunity.xzCell[1] &&
-      o.yzCell[0] === opportunity.yzCell[0] &&
-      o.yzCell[1] === opportunity.yzCell[1]
-    )
-  );
+  // 去重：移除完全相同的XYZ-Wing机会，包括交换翼单元格位置的相同解
+  const uniqueOpportunities = [];
+  const seenOpportunities = new Set();
+  
+  for (const opportunity of opportunities) {
+    const { pivotCell, xzCell, yzCell } = opportunity;
+    
+    // 为每个机会创建两个唯一标识：一个是原始顺序，一个是交换翼单元格顺序
+    // 这样我们可以检测到交换翼单元格位置的相同解
+    const identifier1 = `${pivotCell[0]}-${pivotCell[1]}-${xzCell[0]}-${xzCell[1]}-${yzCell[0]}-${yzCell[1]}`;
+    const identifier2 = `${pivotCell[0]}-${pivotCell[1]}-${yzCell[0]}-${yzCell[1]}-${xzCell[0]}-${xzCell[1]}`;
+    
+    // 检查是否已经见过这个机会（无论是原始顺序还是交换顺序）
+    if (!seenOpportunities.has(identifier1) && !seenOpportunities.has(identifier2)) {
+      uniqueOpportunities.push(opportunity);
+      // 将两个标识都添加到已见过的集合中
+      seenOpportunities.add(identifier1);
+      seenOpportunities.add(identifier2);
+    }
+  }
   
   return uniqueOpportunities;
 };

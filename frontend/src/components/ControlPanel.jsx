@@ -823,6 +823,25 @@ const ControlPanel = ({
         { step: 2, description: t('xyzWingShareCandidates', { anchor: pivotPos, xz: xzPos, yz: yzPos, x: technique.x, y: technique.y, z: technique.common }), highlight: position },
         { step: 3, description: t('removeXYZWingFromTargets', { number: technique.common, targets: formattedTargetCells }), highlight: position }
       );
+    } else if (technique.type.includes('jellyfish')) {
+      // Jellyfish技巧解题步骤
+      const wingType = technique.type.includes('Row') ? t('row') : t('col');
+      
+      // 格式化源单元格位置显示
+      const formattedSourceCells = technique.cells && Array.isArray(technique.cells) 
+        ? technique.cells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化目标单元格位置显示
+      const formattedTargetCells = technique.targetCells && Array.isArray(technique.targetCells) 
+        ? technique.targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('findJellyfishInWings', { wingType: wingType, number: technique.number }), highlight: '' },
+        { step: 2, description: t('jellyfishFormStructure', { sourceCells: formattedSourceCells, number: technique.number }), highlight: position },
+        { step: 3, description: t('removeJellyfishFromTargets', { number: technique.number, targets: formattedTargetCells }), highlight: position }
+      );
     } else {
         // 通用解题步骤，确保至少有内容显示
         steps.push(

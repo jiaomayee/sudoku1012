@@ -1805,82 +1805,480 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
 };
 
 /**
- * X-Wing技巧：在两行（或两列）中，某个数字只出现在相同的两列（或两行）中
+ * X-Wing技巧：两行两列结构
  * @param {Array<Array<number>>} board - 当前数独棋盘
  * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
  * @returns {Array} - 找到的X-Wing技巧机会数组
  */
-export const findXWing = (board, pencilNotes = {}) => {
+export const findXWing = (board, pencilNotes) => {
   const opportunities = [];
   
-  // 检查每一行的X-Wing
+  // 检查所有数字1-9
+  for (let num = 1; num <= 9; num++) {
+    // 检查行X-Wing
+    findRowXWing(board, pencilNotes, num, opportunities);
+    
+    // 检查列X-Wing
+    findColXWing(board, pencilNotes, num, opportunities);
+  }
+  
+  return opportunities;
+};
 
-
-  const checkRowXWing = () => {
-    // 检查每个数字
-    for (let num = 1; num <= 9; num++) {
-      // 存储只有两个候选位置的行
-      const rowsWithTwoPositions = [];
-      
-      for (let row = 0; row < 9; row++) {
-        // 收集该行中该数字可能的位置（列索引）
-        const possibleCols = [];
-        for (let col = 0; col < 9; col++) {
-          // 如果单元格已有数字，跳过
-          if (board[row][col] !== 0) continue;
-          
-          // 检查该单元格是否可以填入num，或者候选数中包含num
-          const notesKey = `${row}-${col}`;
-          const cellNotes = pencilNotes[notesKey] || [];
-          if (isValidMove(board, row, col, num) && cellNotes.includes(num)) {
-            possibleCols.push(col);
-          }
-        }
-        
-        // 如果该行只有两个可能的列，将其添加到列表中
-        if (possibleCols.length === 2) {
-          rowsWithTwoPositions.push({ row, cols: possibleCols });
+/**
+ * 查找行X-Wing结构
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据
+ * @param {number} num - 要检查的数字
+ * @param {Array} opportunities - 技巧机会数组
+ */
+const findRowXWing = (board, pencilNotes, num, opportunities) => {
+  // 收集每一行中包含数字num的候选单元格
+  const rowCandidates = [];
+  for (let row = 0; row < 9; row++) {
+    const candidates = [];
+    for (let col = 0; col < 9; col++) {
+      if (board[row][col] === 0) {
+        const notesKey = `${row}-${col}`;
+        const notes = pencilNotes[notesKey] || [];
+        if (notes.includes(num)) {
+          candidates.push(col);
         }
       }
+    }
+    rowCandidates.push(candidates);
+  }
+  
+  // 查找2行的组合
+  for (let r1 = 0; r1 < 8; r1++) {
+    if (rowCandidates[r1].length !== 2) continue;
+    
+    for (let r2 = r1 + 1; r2 < 9; r2++) {
+      if (rowCandidates[r2].length !== 2) continue;
       
-      // 检查是否存在两行有相同的两个可能列
-      for (let i = 0; i < rowsWithTwoPositions.length - 1; i++) {
-        for (let j = i + 1; j < rowsWithTwoPositions.length; j++) {
-          const row1 = rowsWithTwoPositions[i];
-          const row2 = rowsWithTwoPositions[j];
+      // 检查两行是否有相同的候选列
+      if (rowCandidates[r1][0] === rowCandidates[r2][0] && 
+          rowCandidates[r1][1] === rowCandidates[r2][1]) {
+        const col1 = rowCandidates[r1][0];
+        const col2 = rowCandidates[r1][1];
+        
+        // 查找目标单元格（在相同的2列中，但不在这2行中）
+        const targetCells = [];
+        const removableCandidates = [];
+        [col1, col2].forEach(col => {
+          for (let row = 0; row < 9; row++) {
+            // 跳过源行
+            if (row === r1 || row === r2) continue;
+            
+            if (board[row][col] === 0) {
+              const notesKey = `${row}-${col}`;
+              const notes = pencilNotes[notesKey] || [];
+              if (notes.includes(num)) {
+                targetCells.push([row, col]);
+                removableCandidates.push(num);
+              }
+            }
+          }
+        });
+        
+        // 只有当有实际可删除的候选数时，才添加机会
+        if (targetCells.length > 0) {
+          opportunities.push({
+            type: 'xWingRow',
+            description: `X-Wing (Row) for number ${num}`,
+            number: num,
+            rows: [r1, r2],
+            cols: [col1, col2],
+            cells: [[r1, col1], [r1, col2], [r2, col1], [r2, col2]],
+            targetCells: targetCells,
+            removableCandidates: removableCandidates,
+            message: `X-Wing技巧（行）：在第${r1 + 1}行和第${r2 + 1}行中，数字${num}只出现在第${col1 + 1}列和第${col2 + 1}列中，形成一个两行两列的矩形结构。由于这个数字在这两行中只能出现在相同的两列，因此可以确定该数字在这两列的其他行中不可能存在，可以删除第${col1 + 1}列和第${col2 + 1}列中除第${r1 + 1}行和第${r2 + 1}行外其他单元格的数字${num}候选数`
+          });
+        }
+      }
+    }
+  }
+};
+
+/**
+ * 查找列X-Wing结构
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据
+ * @param {number} num - 要检查的数字
+ * @param {Array} opportunities - 技巧机会数组
+ */
+const findColXWing = (board, pencilNotes, num, opportunities) => {
+  // 收集每一列中包含数字num的候选单元格
+  const colCandidates = [];
+  for (let col = 0; col < 9; col++) {
+    const candidates = [];
+    for (let row = 0; row < 9; row++) {
+      if (board[row][col] === 0) {
+        const notesKey = `${row}-${col}`;
+        const notes = pencilNotes[notesKey] || [];
+        if (notes.includes(num)) {
+          candidates.push(row);
+        }
+      }
+    }
+    colCandidates.push(candidates);
+  }
+  
+  // 查找2列的组合
+  for (let c1 = 0; c1 < 8; c1++) {
+    if (colCandidates[c1].length !== 2) continue;
+    
+    for (let c2 = c1 + 1; c2 < 9; c2++) {
+      if (colCandidates[c2].length !== 2) continue;
+      
+      // 检查两列是否有相同的候选行
+      if (colCandidates[c1][0] === colCandidates[c2][0] && 
+          colCandidates[c1][1] === colCandidates[c2][1]) {
+        const row1 = colCandidates[c1][0];
+        const row2 = colCandidates[c1][1];
+        
+        // 查找目标单元格（在相同的2行中，但不在这2列中）
+        const targetCells = [];
+        const removableCandidates = [];
+        [row1, row2].forEach(row => {
+          for (let col = 0; col < 9; col++) {
+            // 跳过源列
+            if (col === c1 || col === c2) continue;
+            
+            if (board[row][col] === 0) {
+              const notesKey = `${row}-${col}`;
+              const notes = pencilNotes[notesKey] || [];
+              if (notes.includes(num)) {
+                targetCells.push([row, col]);
+                removableCandidates.push(num);
+              }
+            }
+          }
+        });
+        
+        // 只有当有实际可删除的候选数时，才添加机会
+        if (targetCells.length > 0) {
+          opportunities.push({
+            type: 'xWingCol',
+            description: `X-Wing (Col) for number ${num}`,
+            number: num,
+            rows: [row1, row2],
+            cols: [c1, c2],
+            cells: [[row1, c1], [row1, c2], [row2, c1], [row2, c2]],
+            targetCells: targetCells,
+            removableCandidates: removableCandidates,
+            message: `X-Wing技巧（列）：在第${c1 + 1}列和第${c2 + 1}列中，数字${num}只出现在第${row1 + 1}行和第${row2 + 1}行中，形成一个两行两列的矩形结构。由于这个数字在这两列中只能出现在相同的两行，因此可以确定该数字在这两行的其他列中不可能存在，可以删除第${row1 + 1}行和第${row2 + 1}行中除第${c1 + 1}列和第${c2 + 1}列外其他单元格的数字${num}候选数`
+          });
+        }
+      }
+    }
+  }
+};
+
+/**
+ * Swordfish技巧：三行三列结构
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
+ * @returns {Array} - 找到的Swordfish技巧机会数组
+ */
+export const findSwordfish = (board, pencilNotes) => {
+  const opportunities = [];
+  
+  // 检查所有数字1-9
+  for (let num = 1; num <= 9; num++) {
+    // 检查行Swordfish
+    findRowSwordfish(board, pencilNotes, num, opportunities);
+    
+    // 检查列Swordfish
+    findColSwordfish(board, pencilNotes, num, opportunities);
+  }
+  
+  return opportunities;
+};
+
+/**
+ * 查找行Swordfish结构
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据
+ * @param {number} num - 要检查的数字
+ * @param {Array} opportunities - 技巧机会数组
+ */
+const findRowSwordfish = (board, pencilNotes, num, opportunities) => {
+  // 收集每一行中包含数字num的候选单元格
+  const rowCandidates = [];
+  for (let row = 0; row < 9; row++) {
+    const candidates = [];
+    for (let col = 0; col < 9; col++) {
+      if (board[row][col] === 0) {
+        const notesKey = `${row}-${col}`;
+        const notes = pencilNotes[notesKey] || [];
+        if (notes.includes(num)) {
+          candidates.push(col);
+        }
+      }
+    }
+    rowCandidates.push(candidates);
+  }
+  
+  // 查找3行的组合
+  for (let r1 = 0; r1 < 7; r1++) {
+    if (rowCandidates[r1].length < 2 || rowCandidates[r1].length > 3) continue;
+    
+    for (let r2 = r1 + 1; r2 < 8; r2++) {
+      if (rowCandidates[r2].length < 2 || rowCandidates[r2].length > 3) continue;
+      
+      for (let r3 = r2 + 1; r3 < 9; r3++) {
+        if (rowCandidates[r3].length < 2 || rowCandidates[r3].length > 3) continue;
+        
+        // 合并所有候选列
+        const allCols = new Set([
+          ...rowCandidates[r1],
+          ...rowCandidates[r2],
+          ...rowCandidates[r3]
+        ]);
+        
+        // 如果候选列正好是3列，则找到Swordfish
+        if (allCols.size === 3) {
+          const allColsArray = Array.from(allCols).sort((a, b) => a - b);
           
-          // 检查两列是否完全相同（不考虑顺序）
-          const cols1Set = new Set(row1.cols);
-          const cols2Set = new Set(row2.cols);
+          // 收集源单元格
+          const sourceCells = [];
+          [r1, r2, r3].forEach(row => {
+            rowCandidates[row].forEach(col => {
+              if (allCols.has(col)) {
+                sourceCells.push([row, col]);
+              }
+            });
+          });
           
-          if (cols1Set.size === cols2Set.size && [...cols1Set].every(col => cols2Set.has(col))) {
-            // 找到X-Wing，现在计算可以排除的候选数
+          // 查找目标单元格（在相同的3列中，但不在这3行中）
+          const targetCells = [];
+          const removableCandidates = [];
+          allColsArray.forEach(col => {
+            for (let row = 0; row < 9; row++) {
+              // 跳过源行
+              if (row === r1 || row === r2 || row === r3) continue;
+              
+              if (board[row][col] === 0) {
+                const notesKey = `${row}-${col}`;
+                const notes = pencilNotes[notesKey] || [];
+                if (notes.includes(num)) {
+                  targetCells.push([row, col]);
+                  removableCandidates.push(num);
+                }
+              }
+            }
+          });
+          
+          // 只有当有实际可删除的候选数时，才添加机会
+          if (targetCells.length > 0) {
+            opportunities.push({
+              type: 'swordfishRow',
+              description: `Swordfish (Row) for number ${num}`,
+              number: num,
+              rows: [r1, r2, r3],
+              cols: allColsArray,
+              cells: sourceCells,
+              targetCells: targetCells,
+              removableCandidates: removableCandidates,
+              message: `Swordfish技巧（行）：在第${r1 + 1}行、第${r2 + 1}行和第${r3 + 1}行中，数字${num}只出现在第${allColsArray.map(c => c + 1).join('、')}列中，形成一个三行三列的结构。由于这个数字在这三行中只能出现在相同的三列，因此可以确定该数字在这三列的其他行中不可能存在，可以删除第${allColsArray.map(c => c + 1).join('、')}列中除这三行外其他单元格的数字${num}候选数`
+            });
+          }
+        }
+      }
+    }
+  }
+};
+
+/**
+ * 查找列Swordfish结构
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据
+ * @param {number} num - 要检查的数字
+ * @param {Array} opportunities - 技巧机会数组
+ */
+const findColSwordfish = (board, pencilNotes, num, opportunities) => {
+  // 收集每一列中包含数字num的候选单元格
+  const colCandidates = [];
+  for (let col = 0; col < 9; col++) {
+    const candidates = [];
+    for (let row = 0; row < 9; row++) {
+      if (board[row][col] === 0) {
+        const notesKey = `${row}-${col}`;
+        const notes = pencilNotes[notesKey] || [];
+        if (notes.includes(num)) {
+          candidates.push(row);
+        }
+      }
+    }
+    colCandidates.push(candidates);
+  }
+  
+  // 查找3列的组合
+  for (let c1 = 0; c1 < 7; c1++) {
+    if (colCandidates[c1].length < 2 || colCandidates[c1].length > 3) continue;
+    
+    for (let c2 = c1 + 1; c2 < 8; c2++) {
+      if (colCandidates[c2].length < 2 || colCandidates[c2].length > 3) continue;
+      
+      for (let c3 = c2 + 1; c3 < 9; c3++) {
+        if (colCandidates[c3].length < 2 || colCandidates[c3].length > 3) continue;
+        
+        // 合并所有候选行
+        const allRows = new Set([
+          ...colCandidates[c1],
+          ...colCandidates[c2],
+          ...colCandidates[c3]
+        ]);
+        
+        // 如果候选行正好是3行，则找到Swordfish
+        if (allRows.size === 3) {
+          const allRowsArray = Array.from(allRows).sort((a, b) => a - b);
+          
+          // 收集源单元格
+          const sourceCells = [];
+          [c1, c2, c3].forEach(col => {
+            colCandidates[col].forEach(row => {
+              if (allRows.has(row)) {
+                sourceCells.push([row, col]);
+              }
+            });
+          });
+          
+          // 查找目标单元格（在相同的3行中，但不在这3列中）
+          const targetCells = [];
+          const removableCandidates = [];
+          allRowsArray.forEach(row => {
+            for (let col = 0; col < 9; col++) {
+              // 跳过源列
+              if (col === c1 || col === c2 || col === c3) continue;
+              
+              if (board[row][col] === 0) {
+                const notesKey = `${row}-${col}`;
+                const notes = pencilNotes[notesKey] || [];
+                if (notes.includes(num)) {
+                  targetCells.push([row, col]);
+                  removableCandidates.push(num);
+                }
+              }
+            }
+          });
+          
+          // 只有当有实际可删除的候选数时，才添加机会
+          if (targetCells.length > 0) {
+            opportunities.push({
+              type: 'swordfishCol',
+              description: `Swordfish (Col) for number ${num}`,
+              number: num,
+              rows: allRowsArray,
+              cols: [c1, c2, c3],
+              cells: sourceCells,
+              targetCells: targetCells,
+              removableCandidates: removableCandidates,
+              message: `Swordfish技巧（列）：在第${c1 + 1}列、第${c2 + 1}列和第${c3 + 1}列中，数字${num}只出现在第${allRowsArray.map(r => r + 1).join('、')}行中，形成一个三行三列的结构。由于这个数字在这三列中只能出现在相同的三行，因此可以确定该数字在这三行的其他列中不可能存在，可以删除第${allRowsArray.map(r => r + 1).join('、')}行中除这三列外其他单元格的数字${num}候选数`
+            });
+          }
+        }
+      }
+    }
+  }
+};
+
+/**
+ * Jellyfish技巧：四行四列结构
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
+ * @returns {Array} - 找到的Jellyfish技巧机会数组
+ */
+export const findJellyfish = (board, pencilNotes) => {
+  const opportunities = [];
+  
+  // 检查所有数字1-9
+  for (let num = 1; num <= 9; num++) {
+    // 检查行Jellyfish
+    findRowJellyfish(board, pencilNotes, num, opportunities);
+    
+    // 检查列Jellyfish
+    findColJellyfish(board, pencilNotes, num, opportunities);
+  }
+  
+  return opportunities;
+};
+
+/**
+ * 查找行Jellyfish结构
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据
+ * @param {number} num - 要检查的数字
+ * @param {Array} opportunities - 技巧机会数组
+ */
+const findRowJellyfish = (board, pencilNotes, num, opportunities) => {
+  // 收集每一行中包含数字num的候选单元格
+  const rowCandidates = [];
+  for (let row = 0; row < 9; row++) {
+    const candidates = [];
+    for (let col = 0; col < 9; col++) {
+      if (board[row][col] === 0) {
+        const notesKey = `${row}-${col}`;
+        const notes = pencilNotes[notesKey] || [];
+        if (notes.includes(num)) {
+          candidates.push(col);
+        }
+      }
+    }
+    rowCandidates.push(candidates);
+  }
+  
+  // 查找4行的组合
+  for (let r1 = 0; r1 < 6; r1++) {
+    if (rowCandidates[r1].length < 2 || rowCandidates[r1].length > 4) continue;
+    
+    for (let r2 = r1 + 1; r2 < 7; r2++) {
+      if (rowCandidates[r2].length < 2 || rowCandidates[r2].length > 4) continue;
+      
+      for (let r3 = r2 + 1; r3 < 8; r3++) {
+        if (rowCandidates[r3].length < 2 || rowCandidates[r3].length > 4) continue;
+        
+        for (let r4 = r3 + 1; r4 < 9; r4++) {
+          if (rowCandidates[r4].length < 2 || rowCandidates[r4].length > 4) continue;
+          
+          // 合并所有候选列
+          const allCols = new Set([
+            ...rowCandidates[r1],
+            ...rowCandidates[r2],
+            ...rowCandidates[r3],
+            ...rowCandidates[r4]
+          ]);
+          
+          // 如果候选列正好是4列，则找到Jellyfish
+          if (allCols.size === 4) {
+            const allColsArray = Array.from(allCols).sort((a, b) => a - b);
+            
+            // 收集源单元格
+            const sourceCells = [];
+            [r1, r2, r3, r4].forEach(row => {
+              rowCandidates[row].forEach(col => {
+                if (allCols.has(col)) {
+                  sourceCells.push([row, col]);
+                }
+              });
+            });
+            
+            // 查找目标单元格（在相同的4列中，但不在这4行中）
             const targetCells = [];
             const removableCandidates = [];
-            const targetCellsDetails = []; // 添加详细的目标单元格信息
-            
-            // 对于这两个列，排除其他行中的该数字候选数
-            row1.cols.forEach(col => {
-              for (let r = 0; r < 9; r++) {
-                // 跳过X-Wing所在的行
-                if (r === row1.row || r === row2.row) continue;
+            allColsArray.forEach(col => {
+              for (let row = 0; row < 9; row++) {
+                // 跳过源行
+                if (row === r1 || row === r2 || row === r3 || row === r4) continue;
                 
-                // 跳过已填数字的单元格
-                if (board[r][col] !== 0) continue;
-                
-                const notesKey = `${r}-${col}`;
-                const cellNotes = pencilNotes[notesKey] || [];
-                
-                // 如果单元格候选数中包含该数字，将其添加为目标单元格
-                if (cellNotes.includes(num)) {
-                  targetCells.push([r, col]);
-                  removableCandidates.push(num);
-                  // 添加详细信息，包括每个单元格需要删除的候选数
-                  targetCellsDetails.push({
-                    row: r,
-                    col: col,
-                    notesToRemove: [num]
-                  });
+                if (board[row][col] === 0) {
+                  const notesKey = `${row}-${col}`;
+                  const notes = pencilNotes[notesKey] || [];
+                  if (notes.includes(num)) {
+                    targetCells.push([row, col]);
+                    removableCandidates.push(num);
+                  }
                 }
               }
             });
@@ -1888,657 +2286,370 @@ export const findXWing = (board, pencilNotes = {}) => {
             // 只有当有实际可删除的候选数时，才添加机会
             if (targetCells.length > 0) {
               opportunities.push({
-                type: 'xWingRow',
-                description: 'X-Wing(行)',
+                type: 'jellyfishRow',
+                description: `Jellyfish (Row) for number ${num}`,
                 number: num,
-                cells: [
-                  [row1.row, row1.cols[0]],
-                  [row1.row, row1.cols[1]],
-                  [row2.row, row2.cols[0]],
-                  [row2.row, row2.cols[1]]
-                ],
-                targetCells,
-                targetCellsDetails, // 添加详细信息
-                removableCandidates,
-                message: `X-Wing技巧：在第${row1.row + 1}行和第${row2.row + 1}行中，数字${num}只出现在第${row1.cols[0] + 1}列和第${row1.cols[1] + 1}列中，形成一个矩形结构。由于这个数字在这两行中只能出现在相同的两列，因此可以确定该数字在这两列的其他行中不可能存在，可以删除第${row1.cols[0] + 1}列和第${row1.cols[1] + 1}列中除这两行外其他单元格的数字${num}候选数`
+                rows: [r1, r2, r3, r4],
+                cols: allColsArray,
+                cells: sourceCells,
+                targetCells: targetCells,
+                removableCandidates: removableCandidates,
+                message: `Jellyfish技巧（行）：在第${r1 + 1}行、第${r2 + 1}行、第${r3 + 1}行和第${r4 + 1}行中，数字${num}只出现在第${allColsArray.map(c => c + 1).join('、')}列中，形成一个四行四列的结构。由于这个数字在这四行中只能出现在相同的四列，因此可以确定该数字在这四列的其他行中不可能存在，可以删除第${allColsArray.map(c => c + 1).join('、')}列中除这四行外其他单元格的数字${num}候选数`
               });
             }
           }
         }
       }
     }
-  };
-  
-  // 检查每一列的X-Wing
-  const checkColXWing = () => {
-    // 检查每个数字
-    for (let num = 1; num <= 9; num++) {
-      // 存储只有两个候选位置的列
-      const colsWithTwoPositions = [];
-      
-      for (let col = 0; col < 9; col++) {
-        // 收集该列中该数字可能的位置（行索引）
-        const possibleRows = [];
-        for (let row = 0; row < 9; row++) {
-          // 如果单元格已有数字，跳过
-          if (board[row][col] !== 0) continue;
-          
-          // 检查该单元格是否可以填入num，或者候选数中包含num
-          const notesKey = `${row}-${col}`;
-          const cellNotes = pencilNotes[notesKey] || [];
-          if (isValidMove(board, row, col, num) && cellNotes.includes(num)) {
-            possibleRows.push(row);
-          }
-        }
-        
-        // 如果该列只有两个可能的行，将其添加到列表中
-        if (possibleRows.length === 2) {
-          colsWithTwoPositions.push({ col, rows: possibleRows });
+  }
+};
+
+/**
+ * 查找列Jellyfish结构
+ * @param {Array<Array<number>>} board - 当前数独棋盘
+ * @param {Object} pencilNotes - 铅笔标注数据
+ * @param {number} num - 要检查的数字
+ * @param {Array} opportunities - 技巧机会数组
+ */
+const findColJellyfish = (board, pencilNotes, num, opportunities) => {
+  // 收集每一列中包含数字num的候选单元格
+  const colCandidates = [];
+  for (let col = 0; col < 9; col++) {
+    const candidates = [];
+    for (let row = 0; row < 9; row++) {
+      if (board[row][col] === 0) {
+        const notesKey = `${row}-${col}`;
+        const notes = pencilNotes[notesKey] || [];
+        if (notes.includes(num)) {
+          candidates.push(row);
         }
       }
+    }
+    colCandidates.push(candidates);
+  }
+  
+  // 查找4列的组合
+  for (let c1 = 0; c1 < 6; c1++) {
+    if (colCandidates[c1].length < 2 || colCandidates[c1].length > 4) continue;
+    
+    for (let c2 = c1 + 1; c2 < 7; c2++) {
+      if (colCandidates[c2].length < 2 || colCandidates[c2].length > 4) continue;
       
-      // 检查是否存在两列有相同的两个可能行
-      for (let i = 0; i < colsWithTwoPositions.length - 1; i++) {
-        for (let j = i + 1; j < colsWithTwoPositions.length; j++) {
-          const col1 = colsWithTwoPositions[i];
-          const col2 = colsWithTwoPositions[j];
+      for (let c3 = c2 + 1; c3 < 8; c3++) {
+        if (colCandidates[c3].length < 2 || colCandidates[c3].length > 4) continue;
+        
+        for (let c4 = c3 + 1; c4 < 9; c4++) {
+          if (colCandidates[c4].length < 2 || colCandidates[c4].length > 4) continue;
           
-          // 检查两行是否完全相同（不考虑顺序）
-          const rows1Set = new Set(col1.rows);
-          const rows2Set = new Set(col2.rows);
+          // 合并所有候选行
+          const allRows = new Set([
+            ...colCandidates[c1],
+            ...colCandidates[c2],
+            ...colCandidates[c3],
+            ...colCandidates[c4]
+          ]);
           
-          if (rows1Set.size === rows2Set.size && [...rows1Set].every(row => rows2Set.has(row))) {
-            // 找到X-Wing，现在计算可以排除的候选数
+          // 如果候选行正好是4行，则找到Jellyfish
+          if (allRows.size === 4) {
+            const allRowsArray = Array.from(allRows).sort((a, b) => a - b);
+            
+            // 收集源单元格
+            const sourceCells = [];
+            [c1, c2, c3, c4].forEach(col => {
+              colCandidates[col].forEach(row => {
+                if (allRows.has(row)) {
+                  sourceCells.push([row, col]);
+                }
+              });
+            });
+            
+            // 查找目标单元格（在相同的4行中，但不在这4列中）
             const targetCells = [];
             const removableCandidates = [];
-            const targetCellsDetails = []; // 添加详细的目标单元格信息
-            
-            // 对于这两个行，排除其他列中的该数字候选数
-            col1.rows.forEach(row => {
-              for (let c = 0; c < 9; c++) {
-                // 跳过X-Wing所在的列
-                if (c === col1.col || c === col2.col) continue;
+            allRowsArray.forEach(row => {
+              for (let col = 0; col < 9; col++) {
+                // 跳过源列
+                if (col === c1 || col === c2 || col === c3 || col === c4) continue;
                 
-                // 跳过已填数字的单元格
-                if (board[row][c] !== 0) continue;
-                
-                const notesKey = `${row}-${c}`;
-                const cellNotes = pencilNotes[notesKey] || [];
-                
-                // 如果单元格候选数中包含该数字，将其添加为目标单元格
-                if (cellNotes.includes(num)) {
-                  targetCells.push([row, c]);
-                  removableCandidates.push(num);
-                  // 添加详细信息，包括每个单元格需要删除的候选数
-                  targetCellsDetails.push({
-                    row: row,
-                    col: c,
-                    notesToRemove: [num]
-                  });
+                if (board[row][col] === 0) {
+                  const notesKey = `${row}-${col}`;
+                  const notes = pencilNotes[notesKey] || [];
+                  if (notes.includes(num)) {
+                    targetCells.push([row, col]);
+                    removableCandidates.push(num);
+                  }
                 }
               }
-            })
+            });
             
             // 只有当有实际可删除的候选数时，才添加机会
             if (targetCells.length > 0) {
               opportunities.push({
-                type: 'xWingCol',
-                description: 'X-Wing(列)',
+                type: 'jellyfishCol',
+                description: `Jellyfish (Col) for number ${num}`,
                 number: num,
-                cells: [
-                  [col1.rows[0], col1.col],
-                  [col1.rows[1], col1.col],
-                  [col2.rows[0], col2.col],
-                  [col2.rows[1], col2.col]
-                ],
-                targetCells,
-                targetCellsDetails, // 添加详细信息
-                removableCandidates,
-                message: `X-Wing技巧：在第${col1.col + 1}列和第${col2.col + 1}列中，数字${num}只出现在第${col1.rows[0] + 1}行和第${col1.rows[1] + 1}行中，形成一个X-Wing结构。由于这个数字在这两列中只能出现在相同的两行，因此可以确定该数字在这两行的其他列中不可能存在，可以删除第${col1.rows[0] + 1}行和第${col1.rows[1] + 1}行中除这两列外其他单元格的数字${num}候选数`
+                rows: allRowsArray,
+                cols: [c1, c2, c3, c4],
+                cells: sourceCells,
+                targetCells: targetCells,
+                removableCandidates: removableCandidates,
+                message: `Jellyfish技巧（列）：在第${c1 + 1}列、第${c2 + 1}列、第${c3 + 1}列和第${c4 + 1}列中，数字${num}只出现在第${allRowsArray.map(r => r + 1).join('、')}行中，形成一个四行四列的结构。由于这个数字在这四列中只能出现在相同的四行，因此可以确定该数字在这四行的其他列中不可能存在，可以删除第${allRowsArray.map(r => r + 1).join('、')}行中除这四列外其他单元格的数字${num}候选数`
               });
             }
           }
         }
       }
     }
-  };
-  
-  // 执行行和列的X-Wing检查
-  checkRowXWing();
-  checkColXWing();
-  
-  return opportunities;
+  }
 };
 
 /**
- * Jellyfish技巧：在四行（或四列）中，某个数字只出现在相同的四列（或四行）中
- * @param {Array<Array<number>>} board - 当前数独棋盘
- * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
- * @returns {Array} - 找到的Jellyfish技巧机会数组
+ * 生成解题步骤
+ * @param {Object} technique - 技巧对象
+ * @returns {Array} - 解题步骤数组
  */
-export const findJellyfish = (board, pencilNotes = {}) => {
-  const opportunities = [];
-  
-  // 检查每一行的Jellyfish
-  const checkRowJellyfish = () => {
-    // 检查每个数字
-    for (let num = 1; num <= 9; num++) {
-      // 存储只有2个、3个或4个候选位置的行
-      const rowsWithValidPositions = [];
-      
-      for (let row = 0; row < 9; row++) {
-        // 收集该行中该数字可能的位置（列索引）
-        const possibleCols = [];
-        for (let col = 0; col < 9; col++) {
-          // 如果单元格已有数字，跳过
-          if (board[row][col] !== 0) continue;
-          
-          // 检查该单元格是否可以填入num，或者候选数中包含num
-          const notesKey = `${row}-${col}`;
-          const cellNotes = pencilNotes[notesKey] || [];
-          if (isValidMove(board, row, col, num) && cellNotes.includes(num)) {
-            possibleCols.push(col);
-          }
-        }
-        
-        // 如果该行有2个、3个或4个可能的列，将其添加到列表中
-        if (possibleCols.length >= 2 && possibleCols.length <= 4) {
-          rowsWithValidPositions.push({ row, cols: possibleCols });
-        }
+export const generateSteps = (technique) => {
+  if (technique.type === 'hiddenSingle') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
       }
-      
-      // 检查是否存在四行有相同的四个可能列
-      for (let i = 0; i < rowsWithValidPositions.length - 3; i++) {
-        for (let j = i + 1; j < rowsWithValidPositions.length - 2; j++) {
-          for (let k = j + 1; k < rowsWithValidPositions.length - 1; k++) {
-            for (let l = k + 1; l < rowsWithValidPositions.length; l++) {
-              const row1 = rowsWithValidPositions[i];
-              const row2 = rowsWithValidPositions[j];
-              const row3 = rowsWithValidPositions[k];
-              const row4 = rowsWithValidPositions[l];
-              
-              // 检查四列是否完全相同（不考虑顺序）
-              const cols1Set = new Set(row1.cols);
-              const cols2Set = new Set(row2.cols);
-              const cols3Set = new Set(row3.cols);
-              const cols4Set = new Set(row4.cols);
-              
-              // 合并所有列
-              const allCols = new Set([...row1.cols, ...row2.cols, ...row3.cols, ...row4.cols]);
-              
-              // 检查是否只有四个不同的列
-              if (allCols.size === 4) {
-                // 检查每行都包含这四个列中的某些列
-                const isValid = [...allCols].every(col => 
-                  cols1Set.has(col) || cols2Set.has(col) || cols3Set.has(col) || cols4Set.has(col)
-                );
-                
-                if (isValid) {
-                  // 找到Jellyfish，现在计算可以排除的候选数
-                  const targetCells = [];
-                  const removableCandidates = [];
-                  const targetCellsDetails = []; // 添加详细的目标单元格信息
-                  const allColsArray = [...allCols];
-                  
-                  // 对于这四个列，排除其他行中的该数字候选数
-                  allColsArray.forEach(col => {
-                    for (let r = 0; r < 9; r++) {
-                      // 跳过Jellyfish所在的行
-                      if (r === row1.row || r === row2.row || r === row3.row || r === row4.row) continue;
-                      
-                      // 跳过已填数字的单元格
-                      if (board[r][col] !== 0) continue;
-                      
-                      const notesKey = `${r}-${col}`;
-                      const cellNotes = pencilNotes[notesKey] || [];
-                      
-                      // 如果单元格候选数中包含该数字，将其添加为目标单元格
-                      if (cellNotes.includes(num)) {
-                        targetCells.push([r, col]);
-                        removableCandidates.push(num);
-                        // 添加详细信息，包括每个单元格需要删除的候选数
-                        targetCellsDetails.push({
-                          row: r,
-                          col: col,
-                          notesToRemove: [num]
-                        });
-                      }
-                    }
-                  });
-                  
-                  // 只有当有实际可删除的候选数时，才添加机会
-                  if (targetCells.length > 0) {
-                    opportunities.push({
-                      type: 'jellyfishRow',
-                      description: 'Jellyfish(行)',
-                      number: num,
-                      cells: [
-                        ...row1.cols.map(col => [row1.row, col]),
-                        ...row2.cols.map(col => [row2.row, col]),
-                        ...row3.cols.map(col => [row3.row, col]),
-                        ...row4.cols.map(col => [row4.row, col])
-                      ],
-                      targetCells,
-                      targetCellsDetails, // 添加详细信息
-                      removableCandidates,
-                      message: `Jellyfish技巧（行）：在第${row1.row + 1}行、第${row2.row + 1}行、第${row3.row + 1}行和第${row4.row + 1}行中，数字${num}只出现在第${allColsArray.map(c => c + 1).join('、')}列中，形成一个四行四列的结构。由于这个数字在这四行中只能出现在相同的四列，因此可以确定该数字在这四列的其他行中不可能存在，可以删除第${allColsArray.map(c => c + 1).join('、')}列中除这四行外其他单元格的数字${num}候选数`
-                    });
-                  }
-                }
-              }
-            }
-          }
-        }
+    ];
+  } else if (technique.type === 'nakedSingle') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
       }
-    }
-  };
-  
-  // 检查每一列的Jellyfish
-  const checkColJellyfish = () => {
-    // 检查每个数字
-    for (let num = 1; num <= 9; num++) {
-      // 存储只有2个、3个或4个候选位置的列
-      const colsWithValidPositions = [];
-      
-      for (let col = 0; col < 9; col++) {
-        // 收集该列中该数字可能的位置（行索引）
-        const possibleRows = [];
-        for (let row = 0; row < 9; row++) {
-          // 如果单元格已有数字，跳过
-          if (board[row][col] !== 0) continue;
-          
-          // 检查该单元格是否可以填入num，或者候选数中包含num
-          const notesKey = `${row}-${col}`;
-          const cellNotes = pencilNotes[notesKey] || [];
-          if (isValidMove(board, row, col, num) && cellNotes.includes(num)) {
-            possibleRows.push(row);
-          }
-        }
-        
-        // 如果该列有2个、3个或4个可能的行，将其添加到列表中
-        if (possibleRows.length >= 2 && possibleRows.length <= 4) {
-          colsWithValidPositions.push({ col, rows: possibleRows });
-        }
+    ];
+  } else if (technique.type === 'hiddenPair') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
       }
-      
-      // 检查是否存在四列有相同的四个可能行
-      for (let i = 0; i < colsWithValidPositions.length - 3; i++) {
-        for (let j = i + 1; j < colsWithValidPositions.length - 2; j++) {
-          for (let k = j + 1; k < colsWithValidPositions.length - 1; k++) {
-            for (let l = k + 1; l < colsWithValidPositions.length; l++) {
-              const col1 = colsWithValidPositions[i];
-              const col2 = colsWithValidPositions[j];
-              const col3 = colsWithValidPositions[k];
-              const col4 = colsWithValidPositions[l];
-              
-              // 检查四行是否完全相同（不考虑顺序）
-              const rows1Set = new Set(col1.rows);
-              const rows2Set = new Set(col2.rows);
-              const rows3Set = new Set(col3.rows);
-              const rows4Set = new Set(col4.rows);
-              
-              // 合并所有行
-              const allRows = new Set([...col1.rows, ...col2.rows, ...col3.rows, ...col4.rows]);
-              
-              // 检查是否只有四个不同的行
-              if (allRows.size === 4) {
-                // 检查每列都包含这四个行中的某些行
-                const isValid = [...allRows].every(row => 
-                  rows1Set.has(row) || rows2Set.has(row) || rows3Set.has(row) || rows4Set.has(row)
-                );
-                
-                if (isValid) {
-                  // 找到Jellyfish，现在计算可以排除的候选数
-                  const targetCells = [];
-                  const removableCandidates = [];
-                  const targetCellsDetails = []; // 添加详细的目标单元格信息
-                  const allRowsArray = [...allRows];
-                  
-                  // 对于这四个行，排除其他列中的该数字候选数
-                  allRowsArray.forEach(row => {
-                    for (let c = 0; c < 9; c++) {
-                      // 跳过Jellyfish所在的列
-                      if (c === col1.col || c === col2.col || c === col3.col || c === col4.col) continue;
-                      
-                      // 跳过已填数字的单元格
-                      if (board[row][c] !== 0) continue;
-                      
-                      const notesKey = `${row}-${c}`;
-                      const cellNotes = pencilNotes[notesKey] || [];
-                      
-                      // 如果单元格候选数中包含该数字，将其添加为目标单元格
-                      if (cellNotes.includes(num)) {
-                        targetCells.push([row, c]);
-                        removableCandidates.push(num);
-                        // 添加详细信息，包括每个单元格需要删除的候选数
-                        targetCellsDetails.push({
-                          row: row,
-                          col: c,
-                          notesToRemove: [num]
-                        });
-                      }
-                    }
-                  });
-                  
-                  // 只有当有实际可删除的候选数时，才添加机会
-                  if (targetCells.length > 0) {
-                    opportunities.push({
-                      type: 'jellyfishCol',
-                      description: 'Jellyfish(列)',
-                      number: num,
-                      cells: [
-                        ...col1.rows.map(row => [row, col1.col]),
-                        ...col2.rows.map(row => [row, col2.col]),
-                        ...col3.rows.map(row => [row, col3.col]),
-                        ...col4.rows.map(row => [row, col4.col])
-                      ],
-                      targetCells,
-                      targetCellsDetails, // 添加详细信息
-                      removableCandidates,
-                      message: `Jellyfish技巧（列）：在第${col1.col + 1}列、第${col2.col + 1}列、第${col3.col + 1}列和第${col4.col + 1}列中，数字${num}只出现在第${allRowsArray.map(r => r + 1).join('、')}行中，形成一个四行四列的结构。由于这个数字在这四列中只能出现在相同的四行，因此可以确定该数字在这四行的其他列中不可能存在，可以删除第${allRowsArray.map(r => r + 1).join('、')}行中除这四列外其他单元格的数字${num}候选数`
-                    });
-                  }
-                }
-              }
-            }
-          }
-        }
+    ];
+  } else if (technique.type === 'nakedPair') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
       }
-    }
-  };
-  
-  // 执行行和列的Jellyfish检查
-  checkRowJellyfish();
-  checkColJellyfish();
-  
-  return opportunities;
-};
-
-/**
- * 生成Jellyfish技巧的详细解题步骤
- * @param {Object} jellyfishOpportunity - Jellyfish技巧机会对象
- * @returns {Array} 解题步骤数组
- */
-export const generateJellyfishSteps = (jellyfishOpportunity) => {
-  const steps = [];
-  const { type, number, cells, targetCells } = jellyfishOpportunity;
-  
-  // 第一步：识别Jellyfish结构
-  if (type === 'jellyfishRow') {
-    // 提取行和列信息
-    const rows = [...new Set(cells.map(cell => cell[0]))].map(r => r + 1).join('、');
-    const cols = [...new Set(cells.map(cell => cell[1]))].map(c => c + 1).join('、');
-    
-    steps.push({
-      step: 1,
-      description: `在第${rows}行中查找数字${number}的Jellyfish结构`
-    });
-    
-    steps.push({
-      step: 2,
-      description: `数字${number}在第${rows}行和第${cols}列中形成四行四列的结构`
-    });
-  } else if (type === 'jellyfishCol') {
-    // 提取行和列信息
-    const cols = [...new Set(cells.map(cell => cell[1]))].map(c => c + 1).join('、');
-    const rows = [...new Set(cells.map(cell => cell[0]))].map(r => r + 1).join('、');
-    
-    steps.push({
-      step: 1,
-      description: `在第${cols}列中查找数字${number}的Jellyfish结构`
-    });
-    
-    steps.push({
-      step: 2,
-      description: `数字${number}在第${cols}列和第${rows}行中形成四行四列的结构`
-    });
+    ];
+  } else if (technique.type === 'hiddenTriple') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'nakedTriple') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'hiddenQuad') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'nakedQuad') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'pointingPair') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'pointingTriple') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'boxLineReduction') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'xWingRow') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'xWingCol') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'swordfishRow') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'swordfishCol') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'jellyfishRow') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'jellyfishCol') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
+  } else if (technique.type === 'yWing') {
+    return [
+      { 
+        step: 1, 
+        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
+        highlight: ''
+      },
+      { 
+        step: 2, 
+        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
+        highlight: ''
+      }
+    ];
   }
   
-  // 第三步：说明要移除的目标候选数
-  if (targetCells && targetCells.length > 0) {
-    const targets = targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join('、');
-    steps.push({
-      step: 3,
-      description: `从目标单元格${targets}中移除候选数${number}`
-    });
-  }
-  
-  return steps;
-};
-
-
-/**
- * Swordfish技巧：在三行（或三列）中，某个数字只出现在相同的三列（或三行）中
- * @param {Array<Array<number>>} board - 当前数独棋盘
- * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
- * @returns {Array} - 找到的Swordfish技巧机会数组
- */
-export const findSwordfish = (board, pencilNotes = {}) => {
-  const opportunities = [];
-  
-  // 检查每一行的Swordfish
-  const checkRowSwordfish = () => {
-    // 检查每个数字
-    for (let num = 1; num <= 9; num++) {
-      // 存储只有2个或3个候选位置的行
-      const rowsWithValidPositions = [];
-      
-      for (let row = 0; row < 9; row++) {
-        // 收集该行中该数字可能的位置（列索引）
-        const possibleCols = [];
-        for (let col = 0; col < 9; col++) {
-          // 如果单元格已有数字，跳过
-          if (board[row][col] !== 0) continue;
-          
-          // 检查该单元格是否可以填入num，或者候选数中包含num
-          const notesKey = `${row}-${col}`;
-          const cellNotes = pencilNotes[notesKey] || [];
-          if (isValidMove(board, row, col, num) && cellNotes.includes(num)) {
-            possibleCols.push(col);
-          }
-        }
-        
-        // 如果该行有2个或3个可能的列，将其添加到列表中
-        if (possibleCols.length === 2 || possibleCols.length === 3) {
-          rowsWithValidPositions.push({ row, cols: possibleCols });
-        }
-      }
-      
-      // 检查是否存在三行有相同的三个可能列
-      for (let i = 0; i < rowsWithValidPositions.length - 2; i++) {
-        for (let j = i + 1; j < rowsWithValidPositions.length - 1; j++) {
-          for (let k = j + 1; k < rowsWithValidPositions.length; k++) {
-            const row1 = rowsWithValidPositions[i];
-            const row2 = rowsWithValidPositions[j];
-            const row3 = rowsWithValidPositions[k];
-            
-            // 检查三列是否完全相同（不考虑顺序）
-            const cols1Set = new Set(row1.cols);
-            const cols2Set = new Set(row2.cols);
-            const cols3Set = new Set(row3.cols);
-            
-            // 合并所有列
-            const allCols = new Set([...row1.cols, ...row2.cols, ...row3.cols]);
-            
-            // 检查是否只有三个不同的列
-            if (allCols.size === 3) {
-              // 检查每行都包含这三个列中的某些列
-              const isValid = [...allCols].every(col => 
-                cols1Set.has(col) || cols2Set.has(col) || cols3Set.has(col)
-              );
-              
-              if (isValid) {
-                // 找到Swordfish，现在计算可以排除的候选数
-                const targetCells = [];
-                const removableCandidates = [];
-                const targetCellsDetails = []; // 添加详细的目标单元格信息
-                const allColsArray = [...allCols];
-                
-                // 对于这三个列，排除其他行中的该数字候选数
-                allColsArray.forEach(col => {
-                  for (let r = 0; r < 9; r++) {
-                    // 跳过Swordfish所在的行
-                    if (r === row1.row || r === row2.row || r === row3.row) continue;
-                    
-                    // 跳过已填数字的单元格
-                    if (board[r][col] !== 0) continue;
-                    
-                    const notesKey = `${r}-${col}`;
-                    const cellNotes = pencilNotes[notesKey] || [];
-                    
-                    // 如果单元格候选数中包含该数字，将其添加为目标单元格
-                    if (cellNotes.includes(num)) {
-                      targetCells.push([r, col]);
-                      removableCandidates.push(num);
-                      // 添加详细信息，包括每个单元格需要删除的候选数
-                      targetCellsDetails.push({
-                        row: r,
-                        col: col,
-                        notesToRemove: [num]
-                      });
-                    }
-                  }
-                });
-                
-                // 只有当有实际可删除的候选数时，才添加机会
-                if (targetCells.length > 0) {
-                  opportunities.push({
-                    type: 'swordfishRow',
-                    description: 'Swordfish(行)',
-                    number: num,
-                    cells: [
-                      ...row1.cols.map(col => [row1.row, col]),
-                      ...row2.cols.map(col => [row2.row, col]),
-                      ...row3.cols.map(col => [row3.row, col])
-                    ],
-                    targetCells,
-                    targetCellsDetails, // 添加详细信息
-                    removableCandidates,
-                    message: `Swordfish技巧：在第${row1.row + 1}行、第${row2.row + 1}行和第${row3.row + 1}行中，数字${num}只出现在第${allColsArray.map(c => c + 1).join('、')}列中，形成一个三行三列的结构。由于这个数字在这三行中只能出现在相同的三列，因此可以确定该数字在这三列的其他行中不可能存在，可以删除第${allColsArray.map(c => c + 1).join('、')}列中除这三行外其他单元格的数字${num}候选数`
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+  // 如果执行到这里，说明技巧类型有效但缺少必要参数
+  return {
+    board: newBoard,
+    operation: null
   };
-  
-  // 检查每一列的Swordfish
-  const checkColSwordfish = () => {
-    // 检查每个数字
-    for (let num = 1; num <= 9; num++) {
-      // 存储只有2个或3个候选位置的列
-      const colsWithValidPositions = [];
-      
-      for (let col = 0; col < 9; col++) {
-        // 收集该列中该数字可能的位置（行索引）
-        const possibleRows = [];
-        for (let row = 0; row < 9; row++) {
-          // 如果单元格已有数字，跳过
-          if (board[row][col] !== 0) continue;
-          
-          // 检查该单元格是否可以填入num，或者候选数中包含num
-          const notesKey = `${row}-${col}`;
-          const cellNotes = pencilNotes[notesKey] || [];
-          if (isValidMove(board, row, col, num) && cellNotes.includes(num)) {
-            possibleRows.push(row);
-          }
-        }
-        
-        // 如果该列有2个或3个可能的行，将其添加到列表中
-        if (possibleRows.length === 2 || possibleRows.length === 3) {
-          colsWithValidPositions.push({ col, rows: possibleRows });
-        }
-      }
-      
-      // 检查是否存在三列有相同的三个可能行
-      for (let i = 0; i < colsWithValidPositions.length - 2; i++) {
-        for (let j = i + 1; j < colsWithValidPositions.length - 1; j++) {
-          for (let k = j + 1; k < colsWithValidPositions.length; k++) {
-            const col1 = colsWithValidPositions[i];
-            const col2 = colsWithValidPositions[j];
-            const col3 = colsWithValidPositions[k];
-            
-            // 检查三行是否完全相同（不考虑顺序）
-            const rows1Set = new Set(col1.rows);
-            const rows2Set = new Set(col2.rows);
-            const rows3Set = new Set(col3.rows);
-            
-            // 合并所有行
-            const allRows = new Set([...col1.rows, ...col2.rows, ...col3.rows]);
-            
-            // 检查是否只有三个不同的行
-            if (allRows.size === 3) {
-              // 检查每列都包含这三个行中的某些行
-              const isValid = [...allRows].every(row => 
-                rows1Set.has(row) || rows2Set.has(row) || rows3Set.has(row)
-              );
-              
-              if (isValid) {
-                // 找到Swordfish，现在计算可以排除的候选数
-                const targetCells = [];
-                const removableCandidates = [];
-                const targetCellsDetails = []; // 添加详细的目标单元格信息
-                const allRowsArray = [...allRows];
-                
-                // 对于这三个行，排除其他列中的该数字候选数
-                allRowsArray.forEach(row => {
-                  for (let c = 0; c < 9; c++) {
-                    // 跳过Swordfish所在的列
-                    if (c === col1.col || c === col2.col || c === col3.col) continue;
-                    
-                    // 跳过已填数字的单元格
-                    if (board[row][c] !== 0) continue;
-                    
-                    const notesKey = `${row}-${c}`;
-                    const cellNotes = pencilNotes[notesKey] || [];
-                    
-                    // 如果单元格候选数中包含该数字，将其添加为目标单元格
-                    if (cellNotes.includes(num)) {
-                      targetCells.push([row, c]);
-                      removableCandidates.push(num);
-                      // 添加详细信息，包括每个单元格需要删除的候选数
-                      targetCellsDetails.push({
-                        row: row,
-                        col: c,
-                        notesToRemove: [num]
-                      });
-                    }
-                  }
-                });
-                
-                // 只有当有实际可删除的候选数时，才添加机会
-                if (targetCells.length > 0) {
-                  opportunities.push({
-                    type: 'swordfishCol',
-                    description: 'Swordfish(列)',
-                    number: num,
-                    cells: [
-                      ...col1.rows.map(row => [row, col1.col]),
-                      ...col2.rows.map(row => [row, col2.col]),
-                      ...col3.rows.map(row => [row, col3.col])
-                    ],
-                    targetCells,
-                    targetCellsDetails, // 添加详细信息
-                    removableCandidates,
-                    message: `Swordfish技巧：在第${col1.col + 1}列、第${col2.col + 1}列和第${col3.col + 1}列中，数字${num}只出现在第${allRowsArray.map(r => r + 1).join('、')}行中，形成一个三行三列的结构。由于这个数字在这三列中只能出现在相同的三行，因此可以确定该数字在这三行的其他列中不可能存在，可以删除第${allRowsArray.map(r => r + 1).join('、')}行中除这三列外其他单元格的数字${num}候选数`
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  };
-  
-  // 执行行和列的Swordfish检查
-  checkRowSwordfish();
-  checkColSwordfish();
-  
-  return opportunities;
 }
 
 /**

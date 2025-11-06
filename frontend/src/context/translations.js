@@ -170,6 +170,9 @@ export const translations = {
     deleteProgressFailed: '删除进度失败，请稍后重试',
     clearProgressFailed: '清空进度失败，请稍后重试',
     startPractice: '开始练习{techniqueName}技巧！',
+    // 更新通知
+    updateAvailable: '网站有新版本可用！',
+    updateNow: '立即更新',
     // Footer
     aboutUs: '关于我们',
     help: '使用帮助',
@@ -415,6 +418,9 @@ export const translations = {
     error: 'Mistake',
     noProgress: 'No Game Progress',
     noFilteredProgress: 'No game progress matches the filter criteria',
+    // Update notification
+    updateAvailable: 'New version available!',
+    updateNow: 'Update Now',
     noStartedGames: 'You haven\'t started any Sudoku games yet',
     confirmClearAllProgress: 'Confirm Clear All Progress',
     confirmDeleteProgress: 'Confirm Delete Progress',

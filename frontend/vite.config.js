@@ -6,7 +6,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   // base路径配置 - 使用相对路径以同时适配GitHub Pages和自定义域名
-base: '',
+base: '/sudoku1012/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

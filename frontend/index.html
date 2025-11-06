@@ -190,6 +190,21 @@
         flex-direction: column;
       }
     </style>
+    <script>
+      // GitHub Pages SPA路由修复脚本
+      // 检查是否有存储的重定向路径
+      (function() {
+        const redirectPath = sessionStorage.getItem('redirectPath');
+        if (redirectPath) {
+          // 清除存储的路径
+          sessionStorage.removeItem('redirectPath');
+          // 使用history.replaceState更新URL而不重新加载页面
+          if (redirectPath !== '/' && redirectPath !== '/sudoku1012/') {
+            window.history.replaceState(null, '', redirectPath);
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

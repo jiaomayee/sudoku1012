@@ -150,6 +150,10 @@ if ('serviceWorker' in navigator) {
         
         // 添加刷新按钮事件
         document.getElementById('refreshBtn').addEventListener('click', () => {
+          // 先移除弹窗，再刷新页面
+          if (document.body.contains(updateNotification)) {
+            document.body.removeChild(updateNotification);
+          }
           // 强制刷新，清除缓存
           window.location.reload(true);
         });

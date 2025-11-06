@@ -100,9 +100,10 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   } else if (event.data && event.data.type === 'CHECK_FOR_UPDATE') {
     // 客户端主动检查更新
-    console.log('收到更新检查请求，版本:', CACHE_NAME);
-    // 立即通知客户端有更新（因为我们已经更新了缓存版本号）
-    event.source.postMessage({type: 'CACHE_UPDATED'});
+    console.log('收到更新检查请求，当前缓存版本:', CACHE_NAME);
+    // 不再无条件发送更新通知，而是让自然更新流程处理
+    // 这样可以避免不必要的弹窗显示
+    console.log('服务端检查已完成，更新将在下次页面访问时自动应用');
   }
 });
 
@@ -122,13 +123,9 @@ self.addEventListener('activate', (event) => {
     })
     .then(() => self.clients.claim()) // 立即控制所有客户端
     .then(() => {
-      // 通知所有客户端刷新以使用新版本
-      return self.clients.matchAll({type: 'window'}).then((clientList) => {
-        for (const client of clientList) {
-          client.postMessage({type: 'CACHE_UPDATED'});
-          console.log('已通知客户端刷新页面:', client.url);
-        }
-      });
+      // 不再在激活阶段无条件通知客户端，避免每次刷新都显示弹窗
+      // 只有在检测到真正的新版本时才会触发更新流程
+      console.log('Service Worker 已激活，缓存版本:', CACHE_NAME);
     })
   );
 });

@@ -374,6 +374,16 @@ export const translations = {
     generatePuzzleFailedRefresh: 'Failed to generate puzzle, please refresh the page and try again',
     // Technique hints
     foundRandomTechnique: 'Random technique found: ',
+    // Solution steps
+    findSingleCandidateCell: 'Find cell with only one possible number',
+    cellOnlyHasSingleCandidate: 'Cell {position} only has one possible number {value}',
+    fillNumber: 'Fill number {value}',
+    findHiddenSingleInRegion: 'Find hidden single in {regionType} {regionNum}',
+    numberOnlyInPosition: 'Number {value} can only appear in position {position} in {regionType} {regionNum}',
+    row: 'row',
+    col: 'column',
+    box: 'box',
+    multipleCells: 'Multiple cells',
     // 难度选择
     selectDifficulty: 'Select Difficulty',
     difficultyDescription: {

@@ -309,6 +309,10 @@ export const translations = {
     findJellyfishInWings: '在{wingType}中查找数字{number}的Jellyfish结构',
     jellyfishFormStructure: '数字{number}在源单元格{sourceCells}中形成四行四列的结构',
     removeJellyfishFromTargets: '从目标单元格{targets}中移除候选数{number}',
+    findJellyfishInRows: '在第{rows}行中查找数字{number}的Jellyfish结构',
+    findJellyfishInCols: '在第{cols}列中查找数字{number}的Jellyfish结构',
+    jellyfishRowFormStructure: '数字{number}在第{rows}行和第{cols}列中形成四行四列的结构',
+    jellyfishColFormStructure: '数字{number}在第{cols}列和第{rows}行中形成四行四列的结构',
 
     // 添加候选数相关的翻译键
     cellNotEmpty: '该单元格已有数字，无法填充候选数',
@@ -531,6 +535,10 @@ export const translations = {
     findJellyfishInWings: 'Find Jellyfish structure for number {number} in {wingType}',
     jellyfishFormStructure: 'Number {number} forms a 4-row 4-column structure in source cells {sourceCells}',
     removeJellyfishFromTargets: 'Remove candidate {number} from target cells {targets}',
+    findJellyfishInRows: 'Find Jellyfish structure for number {number} in rows {rows}',
+    findJellyfishInCols: 'Find Jellyfish structure for number {number} in columns {cols}',
+    jellyfishRowFormStructure: 'Number {number} forms a 4-row 4-column structure in rows {rows} and columns {cols}',
+    jellyfishColFormStructure: 'Number {number} forms a 4-row 4-column structure in columns {cols} and rows {rows}',
     // Candidate-related translation keys
     cellNotEmpty: 'Cell already has a number, cannot fill candidates',
     cellPrefilled: 'Cell is prefilled, cannot fill candidates',

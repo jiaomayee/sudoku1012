@@ -2121,7 +2121,7 @@ export const findJellyfish = (board, pencilNotes = {}) => {
                       targetCells,
                       targetCellsDetails, // 添加详细信息
                       removableCandidates,
-                      message: `Jellyfish技巧：在第${row1.row + 1}行、第${row2.row + 1}行、第${row3.row + 1}行和第${row4.row + 1}行中，数字${num}只出现在第${allColsArray.map(c => c + 1).join('、')}列中，形成一个四行四列的结构。由于这个数字在这四行中只能出现在相同的四列，因此可以确定该数字在这四列的其他行中不可能存在，可以删除第${allColsArray.map(c => c + 1).join('、')}列中除这四行外其他单元格的数字${num}候选数`
+                      message: `Jellyfish技巧（行）：在第${row1.row + 1}行、第${row2.row + 1}行、第${row3.row + 1}行和第${row4.row + 1}行中，数字${num}只出现在第${allColsArray.map(c => c + 1).join('、')}列中，形成一个四行四列的结构。由于这个数字在这四行中只能出现在相同的四列，因此可以确定该数字在这四列的其他行中不可能存在，可以删除第${allColsArray.map(c => c + 1).join('、')}列中除这四行外其他单元格的数字${num}候选数`
                     });
                   }
                 }
@@ -2235,7 +2235,7 @@ export const findJellyfish = (board, pencilNotes = {}) => {
                       targetCells,
                       targetCellsDetails, // 添加详细信息
                       removableCandidates,
-                      message: `Jellyfish技巧：在第${col1.col + 1}列、第${col2.col + 1}列、第${col3.col + 1}列和第${col4.col + 1}列中，数字${num}只出现在第${allRowsArray.map(r => r + 1).join('、')}行中，形成一个四行四列的结构。由于这个数字在这四列中只能出现在相同的四行，因此可以确定该数字在这四行的其他列中不可能存在，可以删除第${allRowsArray.map(r => r + 1).join('、')}行中除这四列外其他单元格的数字${num}候选数`
+                      message: `Jellyfish技巧（列）：在第${col1.col + 1}列、第${col2.col + 1}列、第${col3.col + 1}列和第${col4.col + 1}列中，数字${num}只出现在第${allRowsArray.map(r => r + 1).join('、')}行中，形成一个四行四列的结构。由于这个数字在这四列中只能出现在相同的四行，因此可以确定该数字在这四行的其他列中不可能存在，可以删除第${allRowsArray.map(r => r + 1).join('、')}行中除这四列外其他单元格的数字${num}候选数`
                     });
                   }
                 }
@@ -2252,6 +2252,58 @@ export const findJellyfish = (board, pencilNotes = {}) => {
   checkColJellyfish();
   
   return opportunities;
+};
+
+/**
+ * 生成Jellyfish技巧的详细解题步骤
+ * @param {Object} jellyfishOpportunity - Jellyfish技巧机会对象
+ * @returns {Array} 解题步骤数组
+ */
+export const generateJellyfishSteps = (jellyfishOpportunity) => {
+  const steps = [];
+  const { type, number, cells, targetCells } = jellyfishOpportunity;
+  
+  // 第一步：识别Jellyfish结构
+  if (type === 'jellyfishRow') {
+    // 提取行和列信息
+    const rows = [...new Set(cells.map(cell => cell[0]))].map(r => r + 1).join('、');
+    const cols = [...new Set(cells.map(cell => cell[1]))].map(c => c + 1).join('、');
+    
+    steps.push({
+      step: 1,
+      description: `在第${rows}行中查找数字${number}的Jellyfish结构`
+    });
+    
+    steps.push({
+      step: 2,
+      description: `数字${number}在第${rows}行和第${cols}列中形成四行四列的结构`
+    });
+  } else if (type === 'jellyfishCol') {
+    // 提取行和列信息
+    const cols = [...new Set(cells.map(cell => cell[1]))].map(c => c + 1).join('、');
+    const rows = [...new Set(cells.map(cell => cell[0]))].map(r => r + 1).join('、');
+    
+    steps.push({
+      step: 1,
+      description: `在第${cols}列中查找数字${number}的Jellyfish结构`
+    });
+    
+    steps.push({
+      step: 2,
+      description: `数字${number}在第${cols}列和第${rows}行中形成四行四列的结构`
+    });
+  }
+  
+  // 第三步：说明要移除的目标候选数
+  if (targetCells && targetCells.length > 0) {
+    const targets = targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join('、');
+    steps.push({
+      step: 3,
+      description: `从目标单元格${targets}中移除候选数${number}`
+    });
+  }
+  
+  return steps;
 };
 
 

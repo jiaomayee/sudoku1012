@@ -2691,6 +2691,7 @@ export const applyTechnique = (technique, board) => {
   switch (technique.type) {
     // 单一数字填入技巧
     case 'nakedSingle':
+    case 'notesSingle':
     case 'hiddenSingleRow':
     case 'hiddenSingleCol':
     case 'hiddenSingleBox':

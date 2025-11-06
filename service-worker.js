@@ -1,7 +1,7 @@
-// 缓存名称
-const CACHE_NAME = 'sudoku-app-cache-v1';
+// 缓存名称 - 增加版本号以强制更新缓存
+const CACHE_NAME = 'sudoku-app-cache-v2';
 
-// 需要缓存的资源列表
+// 需要缓存的关键资源列表
 const urlsToCache = [
   '/',
   '/index.html',
@@ -11,7 +11,7 @@ const urlsToCache = [
   '/sudoku-logo.svg'
 ];
 
-// 安装 Service Worker 并缓存资源
+// 安装 Service Worker 并缓存关键资源
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -19,7 +19,7 @@ self.addEventListener('install', (event) => {
         console.log('打开缓存');
         return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting())
+      .then(() => self.skipWaiting()) // 立即激活新版本
   );
 });
 
@@ -31,25 +31,53 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('删除旧缓存:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => self.clients.claim()) // 立即控制所有客户端
   );
 });
 
-// 拦截请求并提供缓存资源
+// 拦截请求并提供缓存资源 - 采用网络优先策略
 self.addEventListener('fetch', (event) => {
+  // 忽略非GET请求
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // 忽略浏览器扩展和Chrome DevTools请求
+  if (event.request.url.startsWith('chrome-extension://') || 
+      event.request.url.includes('extension://') || 
+      event.request.url.includes('localhost:')) {
+    return;
+  }
+  
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // 如果找到缓存资源，则返回
-        if (response) {
-          return response;
+    // 优先尝试网络请求
+    fetch(event.request.clone())
+      .then((networkResponse) => {
+        // 如果网络请求成功，更新缓存并返回响应
+        if (networkResponse && networkResponse.ok) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            // 只缓存成功的导航请求和静态资源
+            if (event.request.mode === 'navigate' || 
+                event.request.url.match(/\.(js|css|html|svg|png|jpg|jpeg|json)$/)) {
+              cache.put(event.request, responseToCache);
+            }
+          });
         }
-        // 否则发起网络请求
-        return fetch(event.request).catch(() => {
+        return networkResponse;
+      })
+      .catch(() => {
+        // 网络请求失败时，尝试从缓存获取
+        return caches.match(event.request).then((cachedResponse) => {
+          // 如果有缓存，返回缓存响应
+          if (cachedResponse) {
+            return cachedResponse;
+          }
           // 如果是导航请求，返回缓存的主页
           if (event.request.mode === 'navigate') {
             return caches.match('/');

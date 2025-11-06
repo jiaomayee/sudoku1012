@@ -3145,7 +3145,8 @@ const ControlPanel = ({
                                         {selectedTechnique && 
                                           (selectedTechnique.type === 'nakedSingle' || 
                                            selectedTechnique.type === 'notesSingle' || 
-                                           selectedTechnique.type.includes('hiddenSingle')) 
+                                           selectedTechnique.type.includes('hiddenSingle') ||
+                                           selectedTechnique.type.includes('jellyfish')) 
                                           ? t('apply') 
                                           : t('manualHandle')}
                                       </button>

@@ -103,6 +103,19 @@ const ALL_TECHNIQUES = {
     category: TECHNIQUE_CATEGORIES.INTERMEDIATE,
     function: findHiddenTriples,
     enabled: true // 默认启用
+  },
+  // 添加Jellyfish技巧
+  jellyfish: {
+    id: 'jellyfish',
+    name: '水母法',
+    name_i18n: {
+      en: 'Jellyfish',
+      zh: '水母法'
+    },
+    description: '在四行（或四列）中，某个数字只出现在相同的四列（或四行）中，删除相关区域的其他候选数',
+    category: TECHNIQUE_CATEGORIES.ADVANCED,
+    function: findJellyfish,
+    enabled: true // 默认启用
   }
   // 后续可以添加更多技巧
 };
@@ -241,7 +254,7 @@ class TechniqueManager {
    */
   findSolutionStep(board, pencilNotes = {}, solution = null) {
     // 按优先级顺序检查各技巧
-    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples'];
+    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish'];
     
     for (const techniqueId of priorityOrder) {
       if (this.isTechniqueEnabled(techniqueId)) {

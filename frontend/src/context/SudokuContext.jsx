@@ -705,6 +705,11 @@ export const SudokuContextProvider = ({ children }) => {
   const formatPuzzleData = (data) => {
     console.log('formatPuzzleData 输入:', data);
     
+    // 生成唯一id
+    const generateId = () => {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    };
+    
     // 处理API返回的数据格式
     if (data && data.puzzle) {
       // 如果是字符串格式，转换为二维数组
@@ -718,6 +723,7 @@ export const SudokuContextProvider = ({ children }) => {
         }
         // 即使没有solution，也返回谜题数据
         return { 
+          id: data.id || generateId(),
           puzzle, 
           solution: data.solution ? 
             (typeof data.solution === 'string' && data.solution.length === 81 ? 
@@ -752,14 +758,23 @@ export const SudokuContextProvider = ({ children }) => {
           );
         }
         
-        console.log('formatPuzzleData 输出:', { puzzle: validPuzzle, solution: validSolution });
-        return { puzzle: validPuzzle, solution: validSolution };
+        const result = { 
+          id: data.id || generateId(),
+          puzzle: validPuzzle, 
+          solution: validSolution 
+        };
+        console.log('formatPuzzleData 输出:', result);
+        return result;
       }
     }
     // 如果输入不完整或格式不正确，返回默认的9x9零数组
     console.warn('formatPuzzleData: 输入数据不完整或格式不正确，返回默认空数组', data);
     const defaultArray = Array(9).fill().map(() => Array(9).fill(0));
-    return { puzzle: defaultArray, solution: defaultArray };
+    return { 
+      id: generateId(),
+      puzzle: defaultArray, 
+      solution: defaultArray 
+    };
   };
 
   // 检查单元格输入是否正确

@@ -66,10 +66,11 @@ const Footer = () => {
     <FooterContainer theme={theme}>
       <FooterContent theme={theme}>
         <FooterLinks theme={theme}>
+          <Link href="/" theme={theme}>{t('home')}</Link>
+          <Link href="/game" theme={theme}>{t('startGame')}</Link>
+          <Link href="/techniques" theme={theme}>{t('techniques')}</Link>
+          <Link href="/challenges" theme={theme}>{t('difficulty')}</Link>
           <Link href="#" theme={theme}>{t('aboutUs')}</Link>
-          <Link href="#" theme={theme}>{t('help')}</Link>
-          <Link href="#" theme={theme}>{t('sudokuRules')}</Link>
-          <Link href="#" theme={theme}>{t('contactUs')}</Link>
         </FooterLinks>
         <Copyright theme={theme}>
           © {currentYear} {t('appName')} {t('copyright')}

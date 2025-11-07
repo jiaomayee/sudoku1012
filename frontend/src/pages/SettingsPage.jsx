@@ -162,14 +162,10 @@ const EditThemeButton = styled(Link)`
   }
 `;
 
-const CustomThemeStatus = styled.span`
-  font-size: 16px;
-  color: ${props => props.theme?.textSecondary || '#666666'};
-  font-style: italic;
-`;
+// 移除自定义主题相关样式
 
 const SettingsPage = () => {
-  const { theme, themeMode, setLightTheme, setDarkTheme, setSystemTheme, setCustomThemeMode, customTheme } = useTheme();
+  const { theme, themeMode, setLightTheme, setDarkTheme, setSystemTheme } = useTheme();
   const { language, changeLanguage, availableLanguages, t } = useLanguage();
   const navigate = useNavigate();
 
@@ -234,19 +230,6 @@ const SettingsPage = () => {
             {t('systemTheme')}
           </ThemeOption>
         </ThemeSelector>
-
-        <SettingItem style={{ marginTop: '20px' }}>
-          <SettingLabel theme={theme}>{t('customTheme')}</SettingLabel>
-          <CustomThemeActions>
-            <EditThemeButton to="/settings/theme-editor" theme={theme}>
-              <FontAwesomeIcon icon={faPen} size="lg" />
-              {t('editTheme')}
-            </EditThemeButton>
-            <CustomThemeStatus theme={theme}>
-              {themeMode === 'custom' && `${t('customTheme')} - ${customTheme.name}`}
-            </CustomThemeStatus>
-          </CustomThemeActions>
-        </SettingItem>
       </SettingsSection>
     </SettingsContainer>
   );

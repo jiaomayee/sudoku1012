@@ -10,7 +10,7 @@ import TechniqueLearningPage from './pages/TechniqueLearningPage';
 import ProgressPage from './pages/ProgressPage';
 import StatsPage from "./pages/StatisticsPage.jsx";
 import SettingsPage from './pages/SettingsPage';
-import ThemeEditorPage from './pages/ThemeEditorPage';
+import ChallengesPage from './pages/ChallengesPage.jsx';
 import { SudokuContextProvider } from './context/SudokuContext';
 import { UserContextProvider } from './context/UserContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -60,11 +60,13 @@ root.render(
                     <Route path="/" element={<SudokuGamePage />} />
                     <Route path="/home" element={<HomePage />} />
                     <Route path="/game" element={<SudokuGamePage />} />
+                    <Route path="/game/:puzzleId" element={<SudokuGamePage />} />
                     <Route path="/techniques" element={<TechniqueLearningPage />} />
                     <Route path="/progress" element={<ProgressPage />} />
                     <Route path="/stats" element={<StatsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/settings/theme-editor" element={<ThemeEditorPage />} />
+                    <Route path="/difficulty" element={<ChallengesPage />} />
+                    <Route path="/challenges" element={<ChallengesPage />} />
                   </Routes>
                 </App>
               </Router>

@@ -51,7 +51,33 @@ export const findNotesSingles = (board, pencilNotes = {}) => {
   const opportunities = [];
   const processedCells = new Set(); // 用于跟踪已处理的单元格
   
-  // 检查每一行中的候选数唯一法
+  // 1. 首先检查单元格候选数唯一的情况（单元格只有一个候选数）
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
+      // 跳过已有数字的单元格
+      if (board[row][col] !== 0) continue;
+      
+      const cellKey = `${row}-${col}`;
+      const notes = pencilNotes[cellKey] || [];
+      
+      // 如果单元格只有一个候选数，就是唯一候选数
+      if (notes.length === 1) {
+        processedCells.add(cellKey);
+        opportunities.push({
+          type: 'notesSingle',
+          description: 'notesSingle',
+          row: row,
+          col: col,
+          value: notes[0],
+          cells: [[row, col]],
+          notes: notes,
+          message: `单元格(${row+1},${col+1})只有一个候选数: ${notes[0]}`
+        });
+      }
+    }
+  }
+  
+  // 2. 然后检查行中的隐性唯一候选数法
   for (let row = 0; row < 9; row++) {
     const result = findNotesSinglesInRow(board, pencilNotes, row);
     for (const item of result) {
@@ -63,7 +89,7 @@ export const findNotesSingles = (board, pencilNotes = {}) => {
     }
   }
   
-  // 检查每一列中的候选数唯一法
+  // 3. 检查列中的隐性唯一候选数法
   for (let col = 0; col < 9; col++) {
     const result = findNotesSinglesInCol(board, pencilNotes, col);
     for (const item of result) {
@@ -75,7 +101,7 @@ export const findNotesSingles = (board, pencilNotes = {}) => {
     }
   }
   
-  // 检查每一个3x3宫中的候选数唯一法
+  // 4. 检查3x3宫中的隐性唯一候选数法
   for (let box = 0; box < 9; box++) {
     const result = findNotesSinglesInBox(board, pencilNotes, box);
     for (const item of result) {

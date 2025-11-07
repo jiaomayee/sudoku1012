@@ -256,6 +256,9 @@ export const SudokuContextProvider = ({ children }) => {
       setIncorrectCells(new Set()); // 重置错误单元格
       setLockedCells(new Set()); // 重置锁定单元格
       
+      // 重置刷新候选数状态
+      setHasRefreshedCandidates(false);
+      
       // 确保重置与候选数按钮相关的状态标志
       setIsFillAllCandidatesActive(false); // 重置全部候选数填充状态
       
@@ -1264,6 +1267,9 @@ export const SudokuContextProvider = ({ children }) => {
     }, 3000);
   };
 
+  // 跟踪是否已点击过刷新候选数按钮
+  const [hasRefreshedCandidates, setHasRefreshedCandidates] = useState(false);
+
   // 获取候选数
   const getCandidates = async (row, col) => {
     try {
@@ -1276,21 +1282,59 @@ export const SudokuContextProvider = ({ children }) => {
     }
   };
 
+  // 检查候选数是否完整
+  const areCandidatesComplete = useCallback(() => {
+    // 检查棋盘中每个空白单元格是否都有候选数
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        // 跳过已有数字的单元格
+        if (currentBoard[row][col] !== 0) continue;
+        
+        const cellKey = `${row}-${col}`;
+        const cellCandidates = pencilNotes[cellKey];
+        
+        // 如果空白单元格没有候选数或候选数为空数组，则候选数不完整
+        if (!cellCandidates || cellCandidates.length === 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }, [currentBoard, pencilNotes]);
+
   // 识别可应用的技巧
   const identifyTechniques = useCallback(() => {
     try {
-      // 检查pencilNotes是否为空对象，如果为空则不包含候选数技巧
+      // 检查是否可以使用依赖候选数的技巧
+      // 条件：候选数完整 或 已点击过刷新候选数按钮
+      const candidatesComplete = areCandidatesComplete();
+      const canUseCandidateTechniques = candidatesComplete || hasRefreshedCandidates;
+      
+      // 检查是否有候选数数据
       const hasPencilNotes = pencilNotes && typeof pencilNotes === 'object' && Object.keys(pencilNotes).length > 0;
       
-      // 传入currentBoard和pencilNotes参数，根据是否有候选数数据决定是否包含候选数技巧
-      const techniques = identifyAllTechniques(currentBoard, pencilNotes, hasPencilNotes);
+      // 只有在可以使用候选数技巧且有候选数数据时才启用候选数技巧
+      const includeCandidateTechniques = canUseCandidateTechniques && hasPencilNotes;
+      
+      // 如果不满足条件但尝试使用候选数技巧，显示提示
+      if (hasPencilNotes && !canUseCandidateTechniques) {
+        toast.info(t('candidatesIncomplete', { 
+          defaultMessage: '候选数不完整，请先点击"刷新候选数"按钮或确保所有空白单元格都有候选数' 
+        }), {
+          position: 'top-right',
+          autoClose: 3000
+        });
+      }
+      
+      // 传入参数，根据条件决定是否包含候选数技巧
+      const techniques = identifyAllTechniques(currentBoard, pencilNotes, includeCandidateTechniques);
       setActiveTechniques(techniques);
       return techniques;
     } catch (error) {
       console.error('识别技巧失败:', error);
       return [];
     }
-  }, [currentBoard, pencilNotes]);
+  }, [currentBoard, pencilNotes, areCandidatesComplete, hasRefreshedCandidates, t, toast]);
   
   // 应用技巧
   const applyTechniqueToBoard = useCallback((technique) => {
@@ -1488,6 +1532,9 @@ export const SudokuContextProvider = ({ children }) => {
     
     // 更新铅笔标注数据
     setPencilNotes(newPencilNotes);
+    
+    // 标记已刷新候选数
+    setHasRefreshedCandidates(true);
     
     toast.info(t('candidatesFilled', { defaultMessage: '已为所有空白格子计算并填充候选数！' }), {
       position: 'top-right',

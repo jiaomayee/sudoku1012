@@ -1,5 +1,6 @@
 // 数独技巧实现：初级技巧集合
 import { isValidMove } from './sudokuUtils.js';
+import { findALSXZ } from './alsXZTechniques.js';
 
 /**
  * 唯一数法 (Naked Single)：查找只有一个可能数字的单元格
@@ -2435,247 +2436,234 @@ const findColJellyfish = (board, pencilNotes, num, opportunities) => {
  * @returns {Array} - 解题步骤数组
  */
 export const generateSteps = (technique) => {
-  if (technique.type === 'hiddenSingle') {
+  // ALS-XZ技巧的详细步骤
+  if (technique.type === 'alsXZ') {
+    const { x, z, als1, als2, removableCandidates, highlightInfo } = technique;
+    
+    // 格式化ALS1的单元格信息
+    const als1CellsStr = als1.cells.map(([row, col]) => 
+      `第${row + 1}行第${col + 1}列`
+    ).join('、');
+    
+    // 格式化ALS2的单元格信息
+    const als2CellsStr = als2.cells.map(([row, col]) => 
+      `第${row + 1}行第${col + 1}列`
+    ).join('、');
+    
+    // 格式化可删除的候选数信息
+    const removableCellsStr = removableCandidates.map(rc => 
+      `第${rc.row + 1}行第${rc.col + 1}列的候选数${rc.value}`
+    ).join('、');
+    
+    // 获取ALS1中包含X的单元格信息
+    let als1XCellsStr = '';
+    if (highlightInfo && highlightInfo.xCells && highlightInfo.xCells.als1) {
+      als1XCellsStr = highlightInfo.xCells.als1.map(([row, col]) => `第${row + 1}行第${col + 1}列`).join('、');
+    }
+    
+    // 获取ALS2中包含X的单元格信息
+    let als2XCellsStr = '';
+    if (highlightInfo && highlightInfo.xCells && highlightInfo.xCells.als2) {
+      als2XCellsStr = highlightInfo.xCells.als2.map(([row, col]) => `第${row + 1}行第${col + 1}列`).join('、');
+    }
+    
+    // 获取ALS1中包含Z的单元格信息
+    let als1ZCellsStr = '';
+    if (highlightInfo && highlightInfo.zCells && highlightInfo.zCells.als1) {
+      als1ZCellsStr = highlightInfo.zCells.als1.map(([row, col]) => `第${row + 1}行第${col + 1}列`).join('、');
+    }
+    
+    // 获取ALS2中包含Z的单元格信息
+    let als2ZCellsStr = '';
+    if (highlightInfo && highlightInfo.zCells && highlightInfo.zCells.als2) {
+      als2ZCellsStr = highlightInfo.zCells.als2.map(([row, col]) => `第${row + 1}行第${col + 1}列`).join('、');
+    }
+    
+    // 获取目标单元格信息（用于步骤4）
+    let targetCellsStr = '';
+    if (removableCandidates.length > 0) {
+      targetCellsStr = removableCandidates.map(rc => `第${rc.row + 1}行第${rc.col + 1}列`).join('、');
+    }
+    
     return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
+      {
+        step: 1,
+        description: `步骤1：识别几乎锁定集(ALS)\n- ALS1：由${als1.cells.length}个单元格组成（${als1CellsStr}），包含${als1.candidates.length}个候选数：${als1.candidates.join(', ')}【深蓝色背景高亮区域】\n- ALS2：由${als2.cells.length}个单元格组成（${als2CellsStr}），包含${als2.candidates.length}个候选数：${als2.candidates.join(', ')}【浅蓝色背景高亮区域】\n\n重要概念解释：\n- 几乎锁定集(ALS)是指n个单元格恰好包含n+1个候选数的集合\n- ALS1满足：${als1.cells.length}个单元格，${als1.candidates.length}个候选数 → ${als1.cells.length}+1 = ${als1.candidates.length}\n- ALS2满足：${als2.cells.length}个单元格，${als2.candidates.length}个候选数 → ${als2.cells.length}+1 = ${als2.candidates.length}\n- ALS的特性：在ALS中，如果排除一个候选数，那么剩下的n个单元格恰好包含n个候选数，形成一个锁定集（必然包含这n个数字）`,
+        highlight: 'als1_als2'
       },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'nakedSingle') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
+      {
+        step: 2,
+        description: `步骤2：确定关键数字\n- 限制数X = ${x}：两个ALS共有的候选数【深绿色/绿色高亮候选数】\n- 删除数Z = ${z}：在两个ALS中都存在且用于后续排除的候选数【深蓝色/浅蓝色高亮候选数】\n\n关键数字的作用：\n- 限制数X：作为连接两个ALS的桥梁，确保它们之间存在逻辑关系\n- 删除数Z：我们最终要从某些单元格中排除的候选数\n- 重要条件：X和Z可以是相同的数字，也可以是不同的数字\n- 注意观察：高亮显示的数字${x}和${z}在两个ALS中的分布情况`,
+        highlight: 'x_z_numbers'
       },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'hiddenPair') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
+      {
+        step: 3,
+        description: `步骤3：深入分析ALS的内部逻辑\n- ALS1中包含X(${x})的单元格【深绿色高亮】：${als1XCellsStr || '无'}\n- ALS2中包含X(${x})的单元格【绿色高亮】：${als2XCellsStr || '无'}\n- ALS1中包含Z(${z})的单元格【深蓝色高亮】：${als1ZCellsStr || '无'}\n- ALS2中包含Z(${z})的单元格【浅蓝色高亮】：${als2ZCellsStr || '无'}\n\n逻辑推理过程：\n1. 在ALS1中，如果某个单元格填入X(${x})，那么根据ALS的性质，剩下的${als1.cells.length-1}个单元格必须包含剩下的${als1.candidates.length-1}个候选数，因此Z(${z})必须被排除\n2. 反之，如果ALS1中没有单元格填入X(${x})，那么X(${x})被排除，根据ALS的性质，Z(${z})必须保留在ALS1中的某个单元格中\n3. 同样的逻辑适用于ALS2\n\n这就形成了一个关键的逻辑链：无论X(${x})最终出现在哪个ALS中，总有一个ALS会保留Z(${z})`,
+        highlight: 'z_candidates'
       },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'nakedPair') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
+      {
+        step: 4,
+        description: `步骤4：确定影响范围和目标单元格\n- 目标单元格：${targetCellsStr}【红色背景高亮区域】\n- 目标单元格的定义：同时能「看到」(与...在同一行、列或宫)ALS1中所有包含Z(${z})的单元格和ALS2中所有包含Z(${z})的单元格的单元格\n\n如何确定目标单元格：\n1. 找出与ALS1中所有包含Z(${z})的单元格在同一行、列或宫的单元格\n2. 找出与ALS2中所有包含Z(${z})的单元格在同一行、列或宫的单元格\n3. 两者的交集就是目标单元格\n\n这些目标单元格的特点是：无论Z(${z})最终出现在哪个ALS中，它们都会与Z(${z})所在的单元格产生冲突`,
+        highlight: 'target_cells'
       },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'hiddenTriple') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
+      {
+        step: 5,
+        description: `步骤5：排除候选数的逻辑证明\n- 可删除的候选数【红色高亮】：${removableCellsStr}\n\n详细逻辑证明：\n情况1：如果X(${x})出现在ALS1中\n- 根据ALS1的性质，Z(${z})不能出现在ALS1中\n- 因此，Z(${z})必须出现在ALS2中的某个单元格\n- 目标单元格能看到ALS2中所有包含Z(${z})的单元格，因此Z(${z})不能出现在目标单元格中\n\n情况2：如果X(${x})出现在ALS2中\n- 根据ALS2的性质，Z(${z})不能出现在ALS2中\n- 因此，Z(${z})必须出现在ALS1中的某个单元格\n- 目标单元格能看到ALS1中所有包含Z(${z})的单元格，因此Z(${z})不能出现在目标单元格中\n\n结论：无论哪种情况，目标单元格中都不能包含Z(${z})作为候选数`,
+        highlight: 'removable_candidates'
       },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'nakedTriple') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
+      {
+        step: 6,
+        description: `步骤6：应用排除并观察结果\n- 操作：从所有目标单元格中删除候选数Z(${z})\n- 结果：${removableCandidates.length > 0 ? `成功删除${removableCandidates.length}个候选数` : '没有可删除的候选数'}\n\n实际应用建议：\n- 排除这些候选数后，检查是否产生了新的解题机会（如唯一数、数对等）\n- 记住这种逻辑推理模式，它是解决高级数独难题的关键技巧之一\n- 在实践中，尝试自己识别ALS-XZ结构，提高解题能力\n\n高级提示：ALS-XZ技巧是许多复杂技巧的基础，掌握它有助于理解更高级的技巧如ALS-XY-Wing等`,
+        highlight: 'all'
       },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'hiddenQuad') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'nakedQuad') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'pointingPair') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'pointingTriple') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'boxLineReduction') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'xWingRow') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'xWingCol') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'swordfishRow') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'swordfishCol') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'jellyfishRow') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'jellyfishCol') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
-      }
-    ];
-  } else if (technique.type === 'yWing') {
-    return [
-      { 
-        step: 1, 
-        description: `在第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列中，数字${technique.number}是唯一候选数`,
-        highlight: ''
-      },
-      { 
-        step: 2, 
-        description: `将第${technique.cell[0] + 1}行第${technique.cell[1] + 1}列填入数字${technique.number}`,
-        highlight: ''
+      {
+        step: 7,
+        description: `总结与回顾：ALS-XZ技巧深度解析\n\nALS-XZ技巧的核心思想：\n1. 利用两个几乎锁定集(ALS)之间的逻辑关系\n2. 通过限制数X建立ALS之间的联系\n3. 推导出删除数Z在目标单元格中的不可能性\n\n为什么这个技巧有效：\n- 它基于严格的逻辑推理，而非猜测\n- 它能够排除传统技巧无法发现的候选数\n- 它是连接基础技巧和超高级技巧的桥梁\n\n识别ALS-XZ的实用技巧：\n- 寻找具有n个单元格和n+1个候选数的单元格集合\n- 特别关注同一行、列或宫中的单元格组合\n- 注意观察不同ALS之间可能共享的候选数\n\n通过掌握ALS-XZ技巧，你将能够解决许多原本看似无法攻克的数独难题。`,
+        highlight: 'all'
       }
     ];
   }
   
-  // 如果执行到这里，说明技巧类型有效但缺少必要参数
-  return {
-    board: newBoard,
-    operation: null
-  };
+  // 隐藏唯一数（Hidden Single）技巧的详细步骤
+  else if (technique.type === 'hiddenSingle' || technique.type === 'hiddenSingleRow' || technique.type === 'hiddenSingleCol' || technique.type === 'hiddenSingleBox') {
+    const row = technique.row !== undefined ? technique.row : (technique.cell ? technique.cell[0] : 0);
+    const col = technique.col !== undefined ? technique.col : (technique.cell ? technique.cell[1] : 0);
+    const number = technique.number !== undefined ? technique.number : technique.value;
+    const unitType = technique.type.includes('Row') ? '行' : (technique.type.includes('Col') ? '列' : '宫');
+    const unitIndex = technique.type.includes('Row') ? row + 1 : (technique.type.includes('Col') ? col + 1 : Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
+    
+    return [
+      {
+        step: 1,
+        description: `步骤1：分析${unitType}${unitIndex}中的候选数分布\n- 在${unitType}${unitIndex}中，数字${number}只能出现在第${row + 1}行第${col + 1}列\n- 这是因为该${unitType}中的其他单元格都不能填入数字${number}`,
+        highlight: 'cell'
+      },
+      {
+        step: 2,
+        description: `步骤2：应用隐藏唯一数规则\n- 由于数字${number}在${unitType}${unitIndex}中只有一个可能的位置\n- 因此，第${row + 1}行第${col + 1}列必须填入数字${number}`,
+        highlight: 'fill'
+      },
+      {
+        step: 3,
+        description: `步骤3：更新候选数\n- 将第${row + 1}行第${col + 1}列填入数字${number}\n- 清除该单元格的所有候选数\n- 清除相关行、列、宫中所有其他单元格的数字${number}候选数`,
+        highlight: 'all'
+      }
+    ];
+  }
+  
+  // 显性唯一数（Naked Single）技巧的详细步骤
+  else if (technique.type === 'nakedSingle' || technique.type === 'notesSingle') {
+    const row = technique.row !== undefined ? technique.row : (technique.cell ? technique.cell[0] : 0);
+    const col = technique.col !== undefined ? technique.col : (technique.cell ? technique.cell[1] : 0);
+    const number = technique.number !== undefined ? technique.number : technique.value;
+    
+    return [
+      {
+        step: 1,
+        description: `步骤1：识别唯一候选数\n- 第${row + 1}行第${col + 1}列中，数字${number}是唯一的候选数\n- 这通常是因为该单元格所在的行、列、宫中已经存在其他8个数字`,
+        highlight: 'cell'
+      },
+      {
+        step: 2,
+        description: `步骤2：应用显性唯一数规则\n- 由于该单元格只有数字${number}一个候选数\n- 因此，必须将第${row + 1}行第${col + 1}列填入数字${number}`,
+        highlight: 'fill'
+      },
+      {
+        step: 3,
+        description: `步骤3：更新数独状态\n- 将第${row + 1}行第${col + 1}列填入数字${number}\n- 清除该单元格所在行、列、宫中其他单元格的数字${number}候选数\n- 这可能会在其他单元格中产生新的显性唯一数或隐藏唯一数`,
+        highlight: 'all'
+      }
+    ];
+  }
+  
+  // 显性数对（Naked Pair）技巧的详细步骤
+  else if (technique.type === 'nakedPair') {
+    const { cells, pair } = technique;
+    const cell1Str = `第${cells[0][0] + 1}行第${cells[0][1] + 1}列`;
+    const cell2Str = `第${cells[1][0] + 1}行第${cells[1][1] + 1}列`;
+    const unitType = cells[0][0] === cells[1][0] ? '行' : (cells[0][1] === cells[1][1] ? '列' : '宫');
+    const unitIndex = cells[0][0] === cells[1][0] ? cells[0][0] + 1 : 
+                      (cells[0][1] === cells[1][1] ? cells[0][1] + 1 : 
+                      Math.floor(cells[0][0] / 3) * 3 + Math.floor(cells[0][1] / 3) + 1);
+    
+    return [
+      {
+        step: 1,
+        description: `步骤1：识别显性数对\n- 在${unitType}${unitIndex}中，${cell1Str}和${cell2Str}都只包含相同的两个候选数：${pair[0]}和${pair[1]}\n- 这两个单元格形成了一个显性数对`,
+        highlight: 'pair_cells'
+      },
+      {
+        step: 2,
+        description: `步骤2：分析逻辑关系\n- 这两个单元格中的数字必然是${pair[0]}和${pair[1]}，只是顺序不确定\n- 因此，在同一${unitType}的其他单元格中，数字${pair[0]}和${pair[1]}不可能出现`,
+        highlight: 'pair_numbers'
+      },
+      {
+        step: 3,
+        description: `步骤3：排除候选数\n- 从${unitType}${unitIndex}的其他所有单元格中删除候选数${pair[0]}和${pair[1]}\n- 这可以缩小搜索范围，帮助发现其他解题线索`,
+        highlight: 'excluded_candidates'
+      }
+    ];
+  }
+  
+  // 隐藏数对（Hidden Pair）技巧的详细步骤
+  else if (technique.type === 'hiddenPair') {
+    const { cells, pair, unitType, unitIndex } = technique;
+    const cell1Str = `第${cells[0][0] + 1}行第${cells[0][1] + 1}列`;
+    const cell2Str = `第${cells[1][0] + 1}行第${cells[1][1] + 1}列`;
+    const unitTypeText = unitType === 'row' ? '行' : (unitType === 'col' ? '列' : '宫');
+    
+    return [
+      {
+        step: 1,
+        description: `步骤1：识别隐藏数对\n- 在${unitTypeText}${unitIndex + 1}中，数字${pair[0]}和${pair[1]}只出现在${cell1Str}和${cell2Str}这两个单元格中\n- 这两个单元格形成了一个隐藏数对`,
+        highlight: 'pair_cells'
+      },
+      {
+        step: 2,
+        description: `步骤2：分析逻辑关系\n- 这两个单元格必须包含数字${pair[0]}和${pair[1]}\n- 虽然这两个单元格可能还有其他候选数，但它们都可以被安全移除`,
+        highlight: 'pair_numbers'
+      },
+      {
+        step: 3,
+        description: `步骤3：清理候选数\n- 从${cell1Str}和${cell2Str}中移除除${pair[0]}和${pair[1]}之外的所有其他候选数\n- 这可以简化数独状态，帮助发现其他解题技巧`,
+        highlight: 'cleaned_candidates'
+      }
+    ];
+  }
+  
+  // X-Wing技巧的详细步骤
+  else if (technique.type === 'xWing') {
+    const { rows, cols, number } = technique;
+    const isRowXWing = rows && rows.length === 2;
+    const baseUnits = isRowXWing ? 
+      `第${rows[0] + 1}行和第${rows[1] + 1}行` : 
+      `第${cols[0] + 1}列和第${cols[1] + 1}列`;
+    const crossUnits = isRowXWing ? 
+      `第${cols[0] + 1}列和第${cols[1] + 1}列` : 
+      `第${rows[0] + 1}行和第${rows[1] + 1}行`;
+    const unitType = isRowXWing ? '行' : '列';
+    
+    return [
+      {
+        step: 1,
+        description: `步骤1：识别X-Wing结构\n- 在${baseUnits}中，数字${number}只出现在${crossUnits}中\n- 这些位置形成了一个矩形，四个角的单元格都包含候选数${number}`,
+        highlight: 'wing_cells'
+      },
+      {
+        step: 2,
+        description: `步骤2：分析逻辑关系\n- 数字${number}在${unitType}中必须出现在这两列（或两行）中的某一列\n- 由于矩形的对角线关系，无论${number}出现在对角线上的哪个位置，交叉点所在的行或列的其他单元格都不能包含${number}`,
+        highlight: 'wing_relations'
+      },
+      {
+        step: 3,
+        description: `步骤3：排除候选数\n- 从交叉点所在的${crossUnits}中，除了X-Wing的四个角之外的所有单元格中删除候选数${number}\n- 这是一个高级技巧，可以排除多个候选数`,
+        highlight: 'excluded_candidates'
+      }
+    ];
+  }
+  
+  // 默认返回空数组
+  return [];
 }
 
 /**
@@ -3068,6 +3056,23 @@ export const applyTechnique = (technique, board) => {
       }
       break;
     
+    // ALS-XZ技巧特殊处理，提供详细的高亮指示
+    case 'alsXZ':
+      // 对于ALS-XZ技巧，提供详细的高亮指示
+      return {
+        board: newBoard,
+        operation: {
+          type: 'highlight',
+          cells: technique.cells || technique.sourceCells,
+          targetCells: technique.targetCells,
+          values: technique.values || [technique.number],
+          removableCandidates: technique.removableCandidates,
+          // ALS-XZ特定的高亮信息
+          highlightType: 'alsXZ',
+          highlightInfo: technique.highlightInfo || {}
+        }
+      };
+    
     // 数对和三链数技巧（主要用于提示，暂不自动填入数字）
     case 'nakedPairRow':
     case 'nakedPairCol':
@@ -3143,6 +3148,7 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
   let swordfish = [];
   let xyzWing = [];
   let jellyfish = [];
+  let alsXZ = [];
   
   if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
     nakedPairs = findNakedPairs(board, pencilNotes);
@@ -3158,6 +3164,8 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
     xyzWing = findXYZWing(board, pencilNotes);
     // 添加Jellyfish技巧
     jellyfish = findJellyfish(board, pencilNotes);
+    // 添加ALS-XZ技巧
+    alsXZ = findALSXZ(board, pencilNotes);
   }
   
   // 按技巧难度顺序合并所有技巧机会
@@ -3180,12 +3188,14 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
     result.push(...nakedTriples);
     result.push(...hiddenTriples);
     // Hodoku风格高级技巧（第五优先级）
-    result.push(...xWing);
-    result.push(...yWing);
-    result.push(...swordfish);
-    result.push(...xyzWing);
-    // 添加Jellyfish技巧
-    result.push(...jellyfish);
+      result.push(...xWing);
+      result.push(...yWing);
+      result.push(...swordfish);
+      result.push(...xyzWing);
+      // 添加Jellyfish技巧
+      result.push(...jellyfish);
+      // 添加ALS-XZ技巧（最高优先级的高级技巧）
+      result.push(...alsXZ);
   }
   
   return result;

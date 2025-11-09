@@ -30,6 +30,7 @@ const BoardContainer = styled.div.attrs({ className: 'sudoku-board' })`
 
 // 单元格基础样式 - 优化性能，移除高消耗的磨砂玻璃效果
 const Cell = styled.div`
+  position: relative; /* 为绝对定位的子元素（HintsLayer）提供定位基准 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -315,7 +316,7 @@ const Cell = styled.div`
 `;
 
 // 原始的铅笔模式数字标注组件 - 恢复高亮功能
-const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false }) => {
+const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false, targetCandidateNumber = null }) => {
   // 确保notes是数组且不为null或undefined
   const activeNotes = Array.isArray(notes) ? notes : [];
   
@@ -358,6 +359,22 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false })
     padding: '0' // 重置内边距，确保居中效果
   };
   
+  // 候选数唯一法的绿色圆形高亮样式
+  const targetCandidateStyle = {
+    backgroundColor: '#4CAF50', // 绿色背景
+    color: 'white', // 白色字体
+    borderRadius: '50%', // 圆形背景
+    fontWeight: 'bold',
+    width: '80%',
+    height: '80%',
+    aspectRatio: '1', // 确保是正圆
+    margin: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0'
+  };
+  
   return (
     <div style={containerStyle}>
       {/* 渲染所有9个位置的固定容器，确保位置固定不变 */}
@@ -372,6 +389,9 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false })
         // 判断是否需要高亮此候选数
         const isHighlighted = highlightedNumber && number === highlightedNumber;
         
+        // 判断是否为候选数唯一法的目标候选数（绿色圆形高亮）
+        const isTargetCandidate = targetCandidateNumber && number === targetCandidateNumber;
+        
         return (
           <div
             key={number}
@@ -385,8 +405,10 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false })
               paddingBottom: row === 2 ? (window.innerHeight > window.innerWidth ? '3px' : '2px') : '1px', // 第三行(789)增大下边距
               paddingLeft: col === 0 ? '2px' : '1px', // 第一列(147)增大左边距
               paddingRight: col === 2 ? '2px' : '1px', // 第三列(369)增大右边距
-              // 如果是高亮数字且是活跃候选数，应用高亮样式
-              ...(isActive && isHighlighted && highlightedItemStyle),
+              // 优先应用候选数唯一法的绿色圆形高亮
+              ...(isActive && isTargetCandidate ? targetCandidateStyle : 
+                  // 其次应用普通高亮样式
+                  isActive && isHighlighted ? highlightedItemStyle : {}),
               // 非活跃候选数的透明度设为0，保持布局但不显示
               opacity: isActive ? 1 : 0
             }}
@@ -414,10 +436,10 @@ const HintsLayer = ({ highlightedNumber = null }) => {
     width: '100%',
     height: '100%',
     pointerEvents: 'none', // 确保不影响原有交互
-    zIndex: 10
+    zIndex: 100 // 提高zIndex确保在最上层
   };
   
-  // 高亮圆圈样式 - 更合适的尺寸和样式
+  // 数字显示样式 - 白色大字体，与棋盘预填数字相同大小
   const hintStyle = {
     position: 'absolute',
     left: '50%',
@@ -426,16 +448,11 @@ const HintsLayer = ({ highlightedNumber = null }) => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '0.9rem',
-    fontWeight: 'bold',
-    color: '#ffffff',
-    backgroundColor: '#e74c3c',
-    borderRadius: '50%',
-    width: '25%',
-    height: '25%',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
-    border: '1px solid #ffffff',
-    zIndex: 100
+    fontSize: 'calc(var(--board-width) * 0.08)', // 与棋盘数字大小一致
+    fontWeight: '400', // 与预填数字相同字重
+    color: '#FFFFFF', // 白色字体
+    zIndex: 101 // 确保数字在最前面
+    // 不使用阴影和背景，按用户要求
   };
   
   return (
@@ -509,8 +526,13 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
     
     // 检查是否在高亮单元格列表中
     if (!selectedCell && highlightedCells && Array.isArray(highlightedCells)) {
-      const isHighlighted = highlightedCells.some(cell => cell.row === row && cell.col === col);
-      if (isHighlighted) {
+      const currentCellData = highlightedCells.find(cell => cell.row === row && cell.col === col);
+      
+      // 如果是区域高亮单元格，添加same-region样式
+      if (currentCellData && currentCellData.regionHighlight) {
+        classes.push('same-region');
+      } else if (currentCellData) {
+        // 其他高亮单元格
         classes.push('highlighted');
       }
     }
@@ -575,10 +597,31 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
           const hasNotes = cellNotes.length > 0;
           
           // 计算是否需要高亮数字（单元格数字和候选数）
-          let highlightedNumber = null;
+          let highlightedNumber = null; // 用于高亮候选数
+          let targetCandidateNumber = null; // 候选数唯一法的目标候选数
+          let displayTargetNumber = null; // 技巧指示要显示的数字
+          let isTechniqueTarget = false; // 是否为技巧目标单元格
           
-          // 逻辑1：选中预填入和用户填入正确数字的单元格时，相同数字的单元格和相同数字的候选数高亮
-          if (selectedCell && 
+          // 逻辑1：检查是否为技巧指示的目标单元格（优先级最高）
+          if (highlightedCells && Array.isArray(highlightedCells) && highlightedCells.length > 0) {
+            // 查找当前单元格在highlightedCells中的数据
+            const currentCellData = highlightedCells.find(cell => cell.row === rowIndex && cell.col === colIndex);
+            
+            // 如果当前单元格是目标单元格且有targetNumber，显示该数字
+            if (currentCellData && currentCellData.isTarget && currentCellData.targetNumber) {
+              displayTargetNumber = currentCellData.targetNumber;
+              isTechniqueTarget = true;
+              
+              // 如果是候选数唯一法，记录目标候选数用于绿色圆形高亮
+              if (currentCellData.techniqueType === 'notesSingle') {
+                targetCandidateNumber = currentCellData.targetNumber;
+              }
+            }
+          }
+          
+          // 逻辑2：选中预填入和用户填入正确数字的单元格时，相同数字的单元格和相同数字的候选数高亮
+          // 只有在不是技巧目标单元格时才应用此逻辑
+          if (!isTechniqueTarget && selectedCell && 
               selectedCell.row !== undefined && 
               selectedCell.col !== undefined && 
               displayBoard[selectedCell.row] && 
@@ -589,22 +632,6 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
             // 如果选中单元格有有效数字
             if (selectedCellValue !== 0 && selectedCellValue !== 'error') {
               highlightedNumber = selectedCellValue;
-            }
-          }
-          
-          // 逻辑2：没有单元格被选中时，点击数字按钮，与其相同的数字和候选数高亮
-          if (!highlightedNumber && highlightedCells && Array.isArray(highlightedCells) && highlightedCells.length > 0) {
-            // 检查highlightedCells数组中是否包含数字信息
-            // 优先查找有数字的目标单元格
-            const targetCell = highlightedCells.find(cell => cell.number && cell.number !== 0 && cell.number !== 'error');
-            if (targetCell) {
-              highlightedNumber = targetCell.number;
-            } else {
-              // 如果没有找到有数字的单元格，检查第一个单元格
-              const firstHighlighted = highlightedCells[0];
-              if (firstHighlighted && firstHighlighted.number && firstHighlighted.number !== 0 && firstHighlighted.number !== 'error') {
-                highlightedNumber = firstHighlighted.number;
-              }
             }
           }
           
@@ -628,11 +655,23 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
               >
                 {value && value !== 0 && value !== 'error' ? (
                   value
-                ) : hasNotes ? (
-                  // 原有候选数系统 - 传递highlightedNumber和选中状态以支持候选数高亮和白色显示
-                  <PencilNotes notes={cellNotes} highlightedNumber={highlightedNumber} selected={selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex} />
                 ) : (
-                  ''
+                  // 单元格内容渲染
+                  <>
+                    {/* 候选数系统 */}
+                    {hasNotes && (
+                      <PencilNotes 
+                        notes={cellNotes} 
+                        highlightedNumber={highlightedNumber} 
+                        selected={selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex}
+                        targetCandidateNumber={targetCandidateNumber}
+                      />
+                    )}
+                    {/* 技巧指示数字 - 用白色显示 */}
+                    {displayTargetNumber && (
+                      <HintsLayer highlightedNumber={displayTargetNumber} />
+                    )}
+                  </>
                 )}
               </Cell>
             );

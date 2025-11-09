@@ -578,7 +578,7 @@ const SudokuGamePage = () => {
                 board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
                 originalPuzzle={originalPuzzle}
                 selectedCell={selectedCell}
-                highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => !cell.techniqueIndicator)}
+                highlightedCells={sudokuContext?.highlightedCells || []}
                 incorrectCells={sudokuContext?.incorrectCells || new Set()}
                 onCellClick={handleCellClick}
                 isPencilMode={isPencilMode}
@@ -669,7 +669,7 @@ const SudokuGamePage = () => {
                   board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
                   originalPuzzle={originalPuzzle}
                   selectedCell={selectedCell}
-                  highlightedCells={highlightedCells.filter(cell => !cell.techniqueIndicator)}
+                  highlightedCells={highlightedCells}
                   incorrectCells={sudokuContext?.incorrectCells || new Set()}
                   onCellClick={handleCellClick}
                   isPencilMode={isPencilMode}

@@ -9,6 +9,8 @@ import { ModeContext } from '../context/ModeContext';
 
 // 添加对显性数对指示功能的支持
 import nakedPairIndicator from '../utils/nakedPairIndicator';
+// 添加对ALS-XZ指示功能的支持
+import alsXZIndicator from '../utils/alsXZIndicator';
 
 // 添加清除按钮图标的CSS样式
 const clearCellIconStyles = `
@@ -103,7 +105,7 @@ const ControlPanel = ({
   
   // 从上下文获取技巧和应用技巧的方法
   const sudokuContext = useSudoku();
-  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells, setSelectedCell, selectedCell } = sudokuContext || {};
+  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells, setSelectedCell, selectedCell, pencilNotes } = sudokuContext || {};
   
   // 退出技巧模式的函数
   const exitTechniqueMode = useCallback(() => {
@@ -842,6 +844,47 @@ const ControlPanel = ({
         { step: 2, description: t('jellyfishFormStructure', { sourceCells: formattedSourceCells, number: technique.number }), highlight: position },
         { step: 3, description: t('removeJellyfishFromTargets', { number: technique.number, targets: formattedTargetCells }), highlight: position }
       );
+    } else if (technique.type.includes('alsXZ') || technique.type.includes('ALS-XZ')) {
+      // ALS-XZ技巧解题步骤
+      
+      // 格式化ALS1单元格位置显示
+      const formattedALS1Cells = technique.als1 && technique.als1.cells && Array.isArray(technique.als1.cells)
+        ? technique.als1.cells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化ALS2单元格位置显示
+      const formattedALS2Cells = technique.als2 && technique.als2.cells && Array.isArray(technique.als2.cells)
+        ? technique.als2.cells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化目标单元格位置显示
+      const formattedTargetCells = technique.targetCells && Array.isArray(technique.targetCells)
+        ? technique.targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 获取ALS的候选数
+      const als1Candidates = technique.als1 && technique.als1.candidates
+        ? technique.als1.candidates.join(',')
+        : '';
+      const als2Candidates = technique.als2 && technique.als2.candidates
+        ? technique.als2.candidates.join(',')
+        : '';
+      
+      steps.push(
+        { step: 1, description: t('alsXZIdentifyRegions', { 
+          als1Cells: formattedALS1Cells,
+          als1Candidates: als1Candidates,
+          als2Cells: formattedALS2Cells,
+          als2Candidates: als2Candidates,
+          x: technique.x,
+          z: technique.z
+        }), highlight: '' },
+        { step: 2, description: t('alsXZIdentifyKeyNumbers', { x: technique.x, z: technique.z }), highlight: position },
+        { step: 3, description: t('alsXZAnalyzeDistribution', { x: technique.x, z: technique.z }), highlight: position },
+        { step: 4, description: t('alsXZDetermineScope', { z: technique.z, targetCells: formattedTargetCells }), highlight: position },
+        { step: 5, description: t('alsXZEliminateCandidates', { x: technique.x, z: technique.z, targetCells: formattedTargetCells }), highlight: position },
+        { step: 6, description: t('alsXZVerifyResult', { targetCells: formattedTargetCells, z: technique.z }), highlight: position }
+      );
     } else {
         // 通用解题步骤，确保至少有内容显示
         steps.push(
@@ -977,146 +1020,51 @@ const ControlPanel = ({
     console.log('坐标有效性 - row:', isValidRow, 'col:', isValidCol);
     console.log('=== 调试信息结束 ===');
     
-    // 对于候选数唯一法、隐性唯一数法和唯一数法，在不同页面显示不同的高亮效果
+    // 对于候选数唯一法、隐性唯一数法和唯一数法，重新设计技巧指示功能
     if (setHighlightedCells && selectedTechnique && hasSingleCell && 
         ['nakedSingle', 'hiddenSingleRow', 'hiddenSingleCol', 'hiddenSingleBox', 'notesSingle'].includes(selectedTechnique.type)) {
       
       const cellsToHighlight = [];
       
-      // 第一页：显示相关区域（行、列、宫）但不显示目标数字
-      if (newPage === 0) {
-        // 添加目标单元格（不显示数字）
+      // 只在第二页（点击"下一步"后）显示技巧指示
+      if (newPage === 1) {
+        // 添加目标单元格（显示数字，使用新的数据结构）
         cellsToHighlight.push({
           row: row,
           col: col,
           techniqueIndicator: true,
-          isTarget: true,
-          techniqueType: selectedTechnique.type
-          // 第一页不设置number属性，确保不显示数字
-        });
-        
-        // 根据技巧类型确定高亮区域
-        if (selectedTechnique.type === 'hiddenSingleRow') {
-          // 行隐性唯一数法：仅高亮目标单元格的行
-          for (let c = 0; c < 9; c++) {
-            if (c !== col) {
-              cellsToHighlight.push({
-                row: row,
-                col: c,
-                techniqueIndicator: true,
-                highlightType: 'row'
-              });
-            }
-          }
-        } else if (selectedTechnique.type === 'hiddenSingleCol') {
-          // 列隐性唯一数法：仅高亮目标单元格的列
-          for (let r = 0; r < 9; r++) {
-            if (r !== row) {
-              cellsToHighlight.push({
-                row: r,
-                col: col,
-                techniqueIndicator: true,
-                highlightType: 'col'
-              });
-            }
-          }
-        } else if (selectedTechnique.type === 'hiddenSingleBox') {
-          // 宫隐性唯一数法：仅高亮目标单元格的宫
-          const boxRow = Math.floor(row / 3);
-          const boxCol = Math.floor(col / 3);
-          for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
-            for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
-              if (r !== row || c !== col) {
-                cellsToHighlight.push({
-                  row: r,
-                  col: c,
-                  techniqueIndicator: true,
-                  highlightType: 'box'
-                });
-              }
-            }
-          }
-        } else {
-          // 候选数唯一法和唯一数法：保持原有逻辑，高亮所有区域
-          // 添加目标单元格所在的整行
-          for (let c = 0; c < 9; c++) {
-            if (c !== col) {
-              cellsToHighlight.push({
-                row: row,
-                col: c,
-                techniqueIndicator: true,
-                highlightType: 'row'
-              });
-            }
-          }
-          
-          // 添加目标单元格所在的整列
-          for (let r = 0; r < 9; r++) {
-            if (r !== row) {
-              cellsToHighlight.push({
-                row: r,
-                col: col,
-                techniqueIndicator: true,
-                highlightType: 'col'
-              });
-            }
-          }
-          
-          // 添加目标单元格所在的整宫
-          const boxRow = Math.floor(row / 3);
-          const boxCol = Math.floor(col / 3);
-          for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
-            for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
-              if (r !== row || c !== col) {
-                cellsToHighlight.push({
-                  row: r,
-                  col: c,
-                  techniqueIndicator: true,
-                  highlightType: 'box'
-                });
-              }
-            }
-          }
-        }
-      } else if (newPage === 1) {
-        // 第二页（点击"下一步"后）：显示目标数字和相关区域
-        // 首先添加目标单元格（显示数字）
-        cellsToHighlight.push({
-          row: row,
-          col: col,
-          techniqueIndicator: true,
-          number: value,
+          targetNumber: value, // 使用targetNumber表示要填入的数字
           isTarget: true,
           techniqueType: selectedTechnique.type
         });
         
-        // 根据技巧类型确定高亮区域
+        // 根据技巧类型添加区域高亮单元格
         if (selectedTechnique.type === 'hiddenSingleRow') {
-          // 行隐性唯一数法：仅高亮目标单元格的行
+          // 行隐性唯一数法：高亮目标单元格的行
           for (let c = 0; c < 9; c++) {
             if (c !== col) {
               cellsToHighlight.push({
                 row: row,
                 col: c,
                 techniqueIndicator: true,
-                highlightType: 'row'
+                regionHighlight: true // 标记为区域高亮
               });
             }
           }
         } else if (selectedTechnique.type === 'hiddenSingleCol') {
-          // 列隐性唯一数法：仅高亮目标单元格的列
+          // 列隐性唯一数法：高亮目标单元格的列
           for (let r = 0; r < 9; r++) {
             if (r !== row) {
               cellsToHighlight.push({
                 row: r,
                 col: col,
                 techniqueIndicator: true,
-                highlightType: 'col'
+                regionHighlight: true
               });
             }
           }
         } else if (selectedTechnique.type === 'hiddenSingleBox') {
-          // 宫隐性唯一数法：仅高亮目标单元格的宫
+          // 宫隐性唯一数法：高亮目标单元格的宫
           const boxRow = Math.floor(row / 3);
           const boxCol = Math.floor(col / 3);
           for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
@@ -1126,63 +1074,114 @@ const ControlPanel = ({
                   row: r,
                   col: c,
                   techniqueIndicator: true,
-                  highlightType: 'box'
+                  regionHighlight: true
                 });
               }
             }
           }
-        } else {
-          // 候选数唯一法和唯一数法：保持原有逻辑，高亮所有区域
-          // 添加目标单元格所在的整行
+        } else if (selectedTechnique.type === 'nakedSingle') {
+          // 唯一余数：高亮所有区域（行、列、宫）
+          // 使用Set来去重
+          const addedCells = new Set();
+          addedCells.add(`${row}-${col}`); // 目标单元格
+          
+          // 添加整行
           for (let c = 0; c < 9; c++) {
-            if (c !== col) {
+            const key = `${row}-${c}`;
+            if (!addedCells.has(key)) {
               cellsToHighlight.push({
                 row: row,
                 col: c,
                 techniqueIndicator: true,
-                highlightType: 'row'
+                regionHighlight: true
               });
+              addedCells.add(key);
             }
           }
           
-          // 添加目标单元格所在的整列
+          // 添加整列
           for (let r = 0; r < 9; r++) {
-            if (r !== row) {
+            const key = `${r}-${col}`;
+            if (!addedCells.has(key)) {
               cellsToHighlight.push({
                 row: r,
                 col: col,
                 techniqueIndicator: true,
-                highlightType: 'col'
+                regionHighlight: true
               });
+              addedCells.add(key);
             }
           }
           
-          // 添加目标单元格所在的整宫
+          // 添加整宫
           const boxRow = Math.floor(row / 3);
           const boxCol = Math.floor(col / 3);
           for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
             for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
-              if (r !== row || c !== col) {
+              const key = `${r}-${c}`;
+              if (!addedCells.has(key)) {
                 cellsToHighlight.push({
                   row: r,
                   col: c,
                   techniqueIndicator: true,
-                  highlightType: 'box'
+                  regionHighlight: true
                 });
+                addedCells.add(key);
+              }
+            }
+          }
+        } else if (selectedTechnique.type === 'notesSingle') {
+          // 候选数唯一法：高亮所有区域（行、列、宫）
+          // 使用Set来去重
+          const addedCells = new Set();
+          addedCells.add(`${row}-${col}`); // 目标单元格
+          
+          // 添加整行
+          for (let c = 0; c < 9; c++) {
+            const key = `${row}-${c}`;
+            if (!addedCells.has(key)) {
+              cellsToHighlight.push({
+                row: row,
+                col: c,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+              addedCells.add(key);
+            }
+          }
+          
+          // 添加整列
+          for (let r = 0; r < 9; r++) {
+            const key = `${r}-${col}`;
+            if (!addedCells.has(key)) {
+              cellsToHighlight.push({
+                row: r,
+                col: col,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+              addedCells.add(key);
+            }
+          }
+          
+          // 添加整宫
+          const boxRow = Math.floor(row / 3);
+          const boxCol = Math.floor(col / 3);
+          for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+            for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+              const key = `${r}-${c}`;
+              if (!addedCells.has(key)) {
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  regionHighlight: true
+                });
+                addedCells.add(key);
               }
             }
           }
         }
-      } else {
-        // 第三页：保持原有逻辑，只高亮目标单元格
-        cellsToHighlight.push({
-          row: row,
-          col: col,
-          techniqueIndicator: true,
-          number: value,
-          isTarget: true,
-          techniqueType: selectedTechnique.type
-        });
       }
       
       setHighlightedCells(cellsToHighlight);
@@ -1206,11 +1205,180 @@ const ControlPanel = ({
         technique.type.includes('hiddenSingle')
       );
       
+      // 基础技巧使用特殊的高亮逻辑（与 handlePageChange 中的新逻辑一致）
+      if (isBasicTechnique) {
+        const hasSingleCell = typeof technique.row === 'number' && typeof technique.col === 'number';
+        if (!hasSingleCell) {
+          return cellsToHighlight; // 如果没有单元格信息，返回空数组
+        }
+        
+        const row = technique.row;
+        const col = technique.col;
+        let value = technique.value || technique.number || '';
+        
+        // 添加目标单元格
+        cellsToHighlight.push({
+          row: row,
+          col: col,
+          techniqueIndicator: true,
+          targetNumber: value,
+          isTarget: true,
+          techniqueType: technique.type
+        });
+        
+        // 根据技巧类型添加区域高亮单元格
+        if (technique.type === 'hiddenSingleRow') {
+          for (let c = 0; c < 9; c++) {
+            if (c !== col) {
+              cellsToHighlight.push({
+                row: row,
+                col: c,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+            }
+          }
+        } else if (technique.type === 'hiddenSingleCol') {
+          for (let r = 0; r < 9; r++) {
+            if (r !== row) {
+              cellsToHighlight.push({
+                row: r,
+                col: col,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+            }
+          }
+        } else if (technique.type === 'hiddenSingleBox') {
+          const boxRow = Math.floor(row / 3);
+          const boxCol = Math.floor(col / 3);
+          for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+            for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+              if (r !== row || c !== col) {
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  regionHighlight: true
+                });
+              }
+            }
+          }
+        } else if (technique.type === 'nakedSingle') {
+          // 唯一余数：高亮所有区域（行、列、宫）
+          // 使用Set来去重
+          const addedCells = new Set();
+          addedCells.add(`${row}-${col}`); // 目标单元格
+          
+          // 添加整行
+          for (let c = 0; c < 9; c++) {
+            const key = `${row}-${c}`;
+            if (!addedCells.has(key)) {
+              cellsToHighlight.push({
+                row: row,
+                col: c,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+              addedCells.add(key);
+            }
+          }
+          
+          // 添加整列
+          for (let r = 0; r < 9; r++) {
+            const key = `${r}-${col}`;
+            if (!addedCells.has(key)) {
+              cellsToHighlight.push({
+                row: r,
+                col: col,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+              addedCells.add(key);
+            }
+          }
+          
+          // 添加整宫
+          const boxRow = Math.floor(row / 3);
+          const boxCol = Math.floor(col / 3);
+          for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+            for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+              const key = `${r}-${c}`;
+              if (!addedCells.has(key)) {
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  regionHighlight: true
+                });
+                addedCells.add(key);
+              }
+            }
+          }
+        } else if (technique.type === 'notesSingle') {
+          // 候选数唯一法：高亮所有区域（行、列、宫）
+          // 使用Set来去重
+          const addedCells = new Set();
+          addedCells.add(`${row}-${col}`); // 目标单元格
+          
+          // 添加整行
+          for (let c = 0; c < 9; c++) {
+            const key = `${row}-${c}`;
+            if (!addedCells.has(key)) {
+              cellsToHighlight.push({
+                row: row,
+                col: c,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+              addedCells.add(key);
+            }
+          }
+          
+          // 添加整列
+          for (let r = 0; r < 9; r++) {
+            const key = `${r}-${col}`;
+            if (!addedCells.has(key)) {
+              cellsToHighlight.push({
+                row: r,
+                col: col,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+              addedCells.add(key);
+            }
+          }
+          
+          // 添加整宫
+          const boxRow = Math.floor(row / 3);
+          const boxCol = Math.floor(col / 3);
+          for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+            for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+              const key = `${r}-${c}`;
+              if (!addedCells.has(key)) {
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  regionHighlight: true
+                });
+                addedCells.add(key);
+              }
+            }
+          }
+        }
+        
+        return cellsToHighlight; // 返回基础技巧的高亮数据
+      }
+      
       // 检查是否为显性数对技巧
       const isNakedPairTechnique = technique.type && 
                            (technique.type.includes('nakedPair') || 
                             technique.type.includes('naked_pairs') || 
                             technique.type === 'nakedPairs');
+      
+      // 检查是否为ALS-XZ技巧
+      const isALSXZTechnique = technique.type && technique.type.includes('alsXZ');
       
       // 为显性数对法使用特殊的处理逻辑
       if (isNakedPairTechnique) {
@@ -1248,6 +1416,186 @@ const ControlPanel = ({
                 cell => cell.row === r && cell.col === c
               );
               
+              if (existingIndex === -1) {
+                // 新的目标单元格
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  techniqueType: technique.type,
+                  highlightType: 'target',
+                  isTarget: true,
+                  backgroundColor: 'transparent',
+                  borderColor: 'transparent'
+                });
+              } else {
+                // 如果已存在，更新为目标单元格
+                cellsToHighlight[existingIndex].isTarget = true;
+              }
+            }
+          });
+        }
+      } else if (isALSXZTechnique) {
+        // 对于ALS-XZ技巧，使用ALS-XZ指示器生成高亮信息，但不直接调用指示器的方法
+        // 确保ALS-XZ技巧的高亮处理是独立的，不影响其他技巧
+        // ALS-XZ技巧只高亮候选数，不高亮单元格背景
+        
+        // 确保pencilNotes存在
+        const currentPencilNotes = pencilNotes || {};
+        
+        // 收集所有ALS单元格，用于候选数高亮
+        const alsXZCellsInfo = new Map();
+        
+        // 处理ALS1中的单元格及其候选数
+        if (technique.als1 && Array.isArray(technique.als1.cells)) {
+          technique.als1.cells.forEach(([row, col]) => {
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            // 只处理实际存在的候选数
+            if (candidates.length > 0) {
+              // 分类候选数：X候选数 vs 其他候选数
+              const xCandidates = candidates.filter(c => c === technique.x);
+              const otherCandidates = candidates.filter(c => c !== technique.x);
+              
+              if (!alsXZCellsInfo.has(cellKey)) {
+                alsXZCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  xCandidates: [],
+                  als1Candidates: [],
+                  als2Candidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = alsXZCellsInfo.get(cellKey);
+              // 只添加实际存在的候选数
+              if (xCandidates.length > 0) {
+                cellInfo.xCandidates.push(...xCandidates);
+              }
+              if (otherCandidates.length > 0) {
+                cellInfo.als1Candidates.push(...otherCandidates);
+              }
+            }
+          });
+        }
+        
+        // 处理ALS2中的单元格及其候选数
+        if (technique.als2 && Array.isArray(technique.als2.cells)) {
+          technique.als2.cells.forEach(([row, col]) => {
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            // 只处理实际存在的候选数
+            if (candidates.length > 0) {
+              // 分类候选数：X候选数 vs 其他候选数
+              const xCandidates = candidates.filter(c => c === technique.x);
+              const otherCandidates = candidates.filter(c => c !== technique.x);
+              
+              if (!alsXZCellsInfo.has(cellKey)) {
+                alsXZCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  xCandidates: [],
+                  als1Candidates: [],
+                  als2Candidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = alsXZCellsInfo.get(cellKey);
+              // 只添加实际存在的候选数
+              if (xCandidates.length > 0) {
+                cellInfo.xCandidates.push(...xCandidates);
+              }
+              if (otherCandidates.length > 0) {
+                cellInfo.als2Candidates.push(...otherCandidates);
+              }
+            }
+          });
+        }
+        
+        // 处理可删除的目标候选数
+        if (Array.isArray(technique.removableCandidates)) {
+          technique.removableCandidates.forEach(candidate => {
+            const { row, col, value } = candidate;
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            // 只处理实际存在的候选数
+            if (candidates.includes(value)) {
+              if (!alsXZCellsInfo.has(cellKey)) {
+                alsXZCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  xCandidates: [],
+                  als1Candidates: [],
+                  als2Candidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = alsXZCellsInfo.get(cellKey);
+              cellInfo.removableCandidates.push(value);
+            }
+          });
+        }
+        
+        // 将所有单元格信息转换为高亮单元格
+        alsXZCellsInfo.forEach((cellInfo, cellKey) => {
+          cellsToHighlight.push({
+            row: cellInfo.row,
+            col: cellInfo.col,
+            techniqueIndicator: true,
+            techniqueType: technique.type,
+            highlightType: 'alsXZ',
+            isTarget: false,
+            backgroundColor: 'transparent', // 不高亮单元格背景
+            borderColor: 'transparent',
+            // ALS-XZ特定的候选数信息
+            alsXZCandidates: {
+              xCandidates: cellInfo.xCandidates,
+              als1Candidates: cellInfo.als1Candidates,
+              als2Candidates: cellInfo.als2Candidates,
+              removableCandidates: cellInfo.removableCandidates
+            }
+          });
+        });
+      } else {
+        // 对于其他技巧，使用统一的高亮逻辑
+        // 高亮条件单元格
+        if (Array.isArray(cells) && cells.length > 0) {
+          cells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                techniqueType: technique.type,
+                highlightType: 'condition',
+                isTarget: false,
+                backgroundColor: 'rgba(255, 182, 193, 0.3)', // 浅粉色
+                borderColor: 'transparent'
+              });
+            }
+          });
+        }
+        
+        // 高亮目标单元格
+        if (Array.isArray(targetCells) && targetCells.length > 0) {
+          targetCells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
+              // 检查是否已经作为条件单元格高亮
+              const existingIndex = cellsToHighlight.findIndex(
+                cell => cell.row === r && cell.col === c
+              );
               if (existingIndex === -1) {
                 // 新的目标单元格
                 cellsToHighlight.push({
@@ -1352,13 +1700,17 @@ const ControlPanel = ({
             }
           });
         }
-      } else if (isBasicTechnique) {
+      }
+      
+      // 基础技巧的特殊处理
+      if (isBasicTechnique) {
         // 基础辅助函数 - 对应techniqueIndicator.js的高亮类型
         const pushPrimaryCell = (r, c, num = null, notesToRemove = []) => {
           cellsToHighlight.push({
             row: r,
             col: c,
             techniqueIndicator: true,
+            techniqueType: technique.type, // 添加techniqueType
             highlightType: 'primary',
             number: num,
             notesToRemove: notesToRemove,
@@ -1373,6 +1725,7 @@ const ControlPanel = ({
             row: r,
             col: c,
             techniqueIndicator: true,
+            techniqueType: technique.type, // 添加techniqueType
             highlightType: 'secondary',
             number: num,
             isTarget: true,
@@ -1386,6 +1739,7 @@ const ControlPanel = ({
             row: r,
             col: c,
             techniqueIndicator: true,
+            techniqueType: technique.type, // 添加techniqueType
             highlightType: 'removal',
             notesToRemove: notes,
             isTarget: false,
@@ -1403,7 +1757,7 @@ const ControlPanel = ({
             
             if (r !== null && c !== null) {
               // 检查是否已经高亮
-              const exists = cellsToHighlight.some(c => c.row === r && c.col === c);
+              const exists = cellsToHighlight.some(cell => cell.row === r && cell.col === c);
               if (!exists) {
                 pushPrimaryCell(r, c, cell.value || technique.number, cell.notes || []);
               }
@@ -1419,7 +1773,7 @@ const ControlPanel = ({
             
             if (r !== null && c !== null) {
               // 检查是否已经高亮
-              const exists = cellsToHighlight.some(c => c.row === r && c.col === c);
+              const exists = cellsToHighlight.some(cell => cell.row === r && cell.col === c);
               if (!exists) {
                 pushSecondaryCell(r, c, technique.number);
               }
@@ -1552,7 +1906,7 @@ const ControlPanel = ({
             technique.sourceCells.forEach(cell => {
               const r = Array.isArray(cell) ? cell[0] : cell.row;
               const c = Array.isArray(cell) ? cell[1] : cell.col;
-              const existingIndex = cellsToHighlight.findIndex(c => c.row === r && c.col === c);
+              const existingIndex = cellsToHighlight.findIndex(hCell => hCell.row === r && hCell.col === c);
               
               if (existingIndex !== -1) {
                 cellsToHighlight[existingIndex].highlightType = 'primary';
@@ -2875,6 +3229,11 @@ const ControlPanel = ({
                       } else if (technique.type.includes('Col')) {
                         secondaryType = t('colSuffix');
                       }
+                    } else if (technique.type.includes('alsXZ') || technique.type.includes('ALS-XZ')) {
+                      // ALS-XZ技巧
+                      primaryType = t('alsXZTechnique');
+                      // ALS-XZ通常不需要二级类型
+                      secondaryType = '';
                     } else {
                       // 检查是否是应该保持英文的技巧
                       let foundEnglishTechnique = false;

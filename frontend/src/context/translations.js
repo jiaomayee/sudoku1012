@@ -5,6 +5,16 @@ export const translations = {
     home: '首页',
     game: '游戏',
     techniques: '技巧',
+    
+    // ALS-XZ技巧相关翻译
+    alsXZIdentifyRegions: 'Almost Locked Set XZ-Rule: ALS1={als1Cells} {als1Candidates}, ALS2={als2Cells} {als2Candidates}, X={x}, Z={z}',
+    alsXZIdentifyKeyNumbers: '关键数字：限制候选数X={x}是两个ALS区域共享的唯一候选数，而消除候选数Z={z}在两个区域中都存在。',
+    alsXZAnalyzeDistribution: '在ALS区域1中，数字{x}只出现一次，而数字{z}可能出现在多个单元格；在ALS区域2中，数字{x}也只出现一次，数字{z}同样存在于多个单元格中。',
+    alsXZDetermineScope: '影响范围：找出同时与两个ALS区域中的{z}相关的单元格，即{targetCells}。',
+    alsXZEliminateCandidates: '逻辑推理：无论限制候选数X={x}出现在哪个ALS区域，都会导致对应的ALS区域中的Z={z}必须出现，因此目标单元格{targetCells}中不可能存在Z={z}。',
+    alsXZVerifyResult: '从目标单元格{targetCells}中移除候选数{z}。',
+    alsXZSummary: 'Almost Locked Set XZ-Rule: ALS1={als1Cells} {als1Candidates}, ALS2={als2Cells} {als2Candidates}, X={x}, Z={z} => 从{targetCells}中移除候选数{z}',
+    alsXZTechnique: 'ALS-XZ技巧',
     // 首页相关
     homePage: {
       welcomeTitle: '欢迎来到数独学习应用',
@@ -237,6 +247,8 @@ export const translations = {
     swordfishTechnique: '剑鱼',
     xyzWingTechnique: 'XYZ-Wing',
     jellyfishTechnique: '水母法',
+    alsXZTechnique: 'ALS-XZ技巧',
+    alsXZ: 'ALS-XZ技巧',
     // 技巧名称
     nakedSingle: '唯一数法',
     hiddenSingleRow: '隐性唯一数法(行)',
@@ -399,7 +411,7 @@ export const translations = {
     boxLineReductionStep4: '则可以从该3x3宫格的其他格子中排除该数字',
     boxLineReductionExample: '例如：在某一行中，数字8只能出现在该行的前三个格子（属于第一个3x3宫格）。这意味着在第一个3x3宫格中，数字8只能出现在这三个格子中，可以从该宫格的其他六个格子中排除数字8。',
 
-    // 添加候选数相关的翻译键
+    // Candidate-related translation keys
     cellNotEmpty: '该单元格已有数字，无法填充候选数',
     cellPrefilled: '该单元格为预填数字，无法填充候选数',
     cellCandidatesFilled: '已为单元格({row},{col})计算并填充候选数！',
@@ -413,7 +425,21 @@ export const translations = {
     pairTechniqueIdentified: '技巧已识别，请手动移除相关候选数'
   },
   'en-US': {
-    welcomeTitle: 'Welcome to Free Sudoku & Advanced Techniques Learning',
+    // Common
+    home: 'Home',
+    game: 'Game',
+    techniques: 'Techniques',
+    
+    // ALS-XZ Technique related translations
+    alsXZIdentifyRegions: 'Almost Locked Set XZ-Rule: ALS1={als1Cells} {als1Candidates}, ALS2={als2Cells} {als2Candidates}, X={x}, Z={z}',
+    alsXZIdentifyKeyNumbers: 'Key numbers: Restricted candidate X={x} is the only candidate shared by both ALS regions, while elimination candidate Z={z} exists in both regions.',
+    alsXZAnalyzeDistribution: 'In ALS Region 1, number {x} appears only once, while number {z} may appear in multiple cells; in ALS Region 2, number {x} also appears only once, and number {z} also exists in multiple cells.',
+    alsXZDetermineScope: 'Scope of influence: Identify cells related to {z} in both ALS regions, which are {targetCells}.',
+    alsXZEliminateCandidates: 'Logical reasoning: Regardless of which ALS region the restricted candidate X={x} appears in, it will lead to Z={z} must appear in the corresponding ALS region, so Z={z} cannot exist in the target cell {targetCells}.',
+    alsXZVerifyResult: 'Remove candidate {z} from target cell {targetCells}.',
+    alsXZSummary: 'Almost Locked Set XZ-Rule: ALS1={als1Cells} {als1Candidates}, ALS2={als2Cells} {als2Candidates}, X={x}, Z={z} => Remove candidate {z} from {targetCells}',
+    alsXZTechnique: 'ALS-XZ Rule',
+    
     // 首页相关
     homePage: {
       welcomeTitle: 'Welcome to Sudoku Learning App',
@@ -480,9 +506,6 @@ export const translations = {
     // Game completion message
     gameCompletedMessage: 'Congratulations! You have successfully completed this Sudoku!',
     // Puzzle generation error messages
-    generatePuzzleFailed: 'Failed to generate puzzle, please try again',
-    generatePuzzleFailedRefresh: 'Failed to generate puzzle, please refresh the page and try again',
-    // Technique hints
     foundRandomTechnique: 'Random technique found: ',
     // Solution steps
     findSingleCandidateCell: 'Find cell with only one possible number',
@@ -566,6 +589,8 @@ export const translations = {
     swordfishTechnique: 'Swordfish',
     xyzWingTechnique: 'XYZ-Wing',
     jellyfishTechnique: 'Jellyfish',
+    alsXZTechnique: 'ALS-XZ Rule',
+    alsXZ: 'ALS-XZ Rule',
     // Technique names
     nakedSingle: 'Naked Single',
     hiddenSingleRow: 'Hidden Single (Row)',

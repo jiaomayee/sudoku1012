@@ -3,6 +3,8 @@ import { findNakedSingles, findNotesSingles } from './sudokuTechniques.js';
 // 注意：pairTechniques.js 文件不存在，相关函数应该在其他文件中定义
 import { findNakedPairs, findHiddenPairs } from './sudokuTechniques.js';
 import { findNakedTriples, findHiddenTriples } from './tripleTechniques.js';
+import { findJellyfish } from './sudokuTechniques.js';
+import { findALSXZ } from './alsXZTechniques.js';
 // 导入显性数对指示功能
 import nakedPairIndicator from './nakedPairIndicator.js';
 
@@ -115,6 +117,18 @@ const ALL_TECHNIQUES = {
     description: '在四行（或四列）中，某个数字只出现在相同的四列（或四行）中，删除相关区域的其他候选数',
     category: TECHNIQUE_CATEGORIES.ADVANCED,
     function: findJellyfish,
+    enabled: true // 默认启用
+  },
+  alsXZ: {
+    id: 'alsXZ',
+    name: 'ALS-XZ技巧',
+    name_i18n: {
+      en: 'ALS-XZ Rule',
+      zh: 'ALS-XZ技巧'
+    },
+    description: 'ALS-XZ技巧：通过两个 ALS 和一个限制数字 Z 来消除候选数',
+    category: TECHNIQUE_CATEGORIES.ADVANCED,
+    function: findALSXZ,
     enabled: true // 默认启用
   }
   // 后续可以添加更多技巧
@@ -254,7 +268,7 @@ class TechniqueManager {
    */
   findSolutionStep(board, pencilNotes = {}, solution = null) {
     // 按优先级顺序检查各技巧
-    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish'];
+    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish', 'alsXZ'];
     
     for (const techniqueId of priorityOrder) {
       if (this.isTechniqueEnabled(techniqueId)) {

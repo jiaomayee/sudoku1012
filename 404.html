@@ -6,8 +6,8 @@
     <script>
       // GitHub Pages SPA路由修复脚本
       // 将404页面重定向到index.html以支持客户端路由
-      const path = location.pathname.replace('/sudoku1012', '');
-      const redirectPath = '/sudoku1012/';
+      const path = location.pathname;
+      const redirectPath = '/';
       
       // 如果当前路径已经是根路径，则不需要重定向
       if (path !== '/') {

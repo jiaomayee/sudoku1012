@@ -160,8 +160,8 @@ root.render(
 // 注册 Service Worker 以启用 PWA 功能
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // GitHub Pages始终在/sudoku1012/子目录部署
-    const swPath = '/sudoku1012/service-worker.js';
+    // 自定义域名部署在根目录
+    const swPath = '/service-worker.js';
     
     navigator.serviceWorker.register(swPath)
       .then((registration) => {

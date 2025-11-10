@@ -5,10 +5,9 @@ import { resolve } from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // base路径配置 - 使用GitHub仓库名作为子目录
-  // 由于仓库名为sudoku1012，GitHub Pages会在/sudoku1012/下部署
-  // 即使使用了自定义域名CNAME，gh-pages库仍会发布到/sudoku1012/
-  base: '/sudoku1012/',
+  // base路径配置 - 使用自定义域名时，使gh-pages会直接部署到根目录
+  // CNAME文件会使用自定义域名，此时不需要子路径
+  base: '/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

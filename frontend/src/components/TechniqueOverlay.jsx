@@ -478,80 +478,12 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       cell.techniqueType.includes('nakedTriple')
     );
     
-    if (isAdvancedTechnique && cell.highlightType === 'removal') {
-      return null; // 跳过removal类型的单元格高亮
+    if (isAdvancedTechnique) {
+      return null; // 所有高级技巧：不高亮单元格
     }
     
-    // 基础样式
-    let backgroundColor = 'transparent';
-    let border = '1px solid rgba(0, 0, 0, 0.1)';
-    let zIndex = 10;
-    
-    // 根据高亮类型设置不同的样式（可覆盖上面的默认设置）
-    if (cell.highlightType === 'primary') {
-      backgroundColor = 'rgba(255, 255, 0, 0.4)'; // 亮黄色半透明背景
-      border = '2px solid #FFFF00'; // 黄色边框
-      zIndex = 20;
-    } else if (cell.highlightType === 'secondary') {
-      backgroundColor = 'rgba(0, 255, 255, 0.3)'; // 亮青色半透明背景
-      border = '2px solid #00FFFF'; // 青色边框
-      zIndex = 15;
-    } else if (cell.highlightType === 'removal') {
-      backgroundColor = 'rgba(255, 0, 0, 0.3)'; // 红色半透明背景
-      border = '2px solid #FF0000'; // 红色边框
-      zIndex = 25;
-    } else if (cell.highlightType === 'pivot') {
-      backgroundColor = 'rgba(255, 165, 0, 0.4)'; // 橙色半透明背景
-      border = '2px solid #FFA500'; // 橙色边框
-      zIndex = 30;
-    } else if (cell.highlightType === 'wing') {
-      backgroundColor = 'rgba(144, 238, 144, 0.4)'; // 浅绿色半透明背景
-      border = '2px solid #90EE90'; // 浅绿色边框
-      zIndex = 20;
-    }
-    
-    // 对于X-Wing和Swordfish技巧的处理
-    if (cell.techniqueType && (cell.techniqueType.includes('xWing') || cell.techniqueType.includes('swordfish'))) {
-      if (cell.highlightType === 'primary') {
-        backgroundColor = 'rgba(255, 165, 0, 0.4)'; // 橙色半透明背景
-        border = '2px solid #FFA500'; // 橙色边框
-      } else if (cell.highlightType === 'secondary') {
-        backgroundColor = 'rgba(144, 238, 144, 0.4)'; // 浅绿色半透明背景
-        border = '2px solid #90EE90'; // 浅绿色边框
-      }
-    }
-    
-    // 对于数对、三链数、四链数的处理
-    if (cell.techniqueType && (cell.techniqueType.includes('pair') || cell.techniqueType.includes('triple') || cell.techniqueType.includes('quad'))) {
-      if (cell.highlightType === 'primary') {
-        backgroundColor = 'rgba(255, 255, 0, 0.4)'; // 亮黄色半透明背景
-        border = '2px solid #FFFF00'; // 黄色边框
-      }
-    }
-    
-    // 对于Y-Wing和XYZ-Wing技巧的处理
-    if (cell.techniqueType && (cell.techniqueType.includes('yWing') || cell.techniqueType.includes('xyzWing'))) {
-      if (cell.highlightType === 'pivot') {
-        backgroundColor = 'rgba(255, 165, 0, 0.4)'; // 橙色半透明背景
-        border = '2px solid #FFA500'; // 橙色边框
-      } else if (cell.highlightType === 'wing') {
-        backgroundColor = 'rgba(144, 238, 144, 0.4)'; // 浅绿色半透明背景
-        border = '2px solid #90EE90'; // 浅绿色边框
-      }
-    }
-    
-    return {
-      position: 'absolute',
-      left: `${cell.col * cellWidth}px`,
-      top: `${cell.row * cellHeight}px`,
-      width: `${cellWidth}px`,
-      height: `${cellHeight}px`,
-      backgroundColor: backgroundColor,
-      border: border,
-      borderRadius: '4px',
-      zIndex: zIndex,
-      pointerEvents: 'none' // 确保不影响用户交互
-    };
+    // 所有其他技巧（显性数寸、昔性数寸、指向对法、宫行列排除法等）：不高亮单元格
+    return null;
   };
 
   // 渲染单个单元格

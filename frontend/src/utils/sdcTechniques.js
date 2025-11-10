@@ -24,7 +24,6 @@
  * @returns {Array} - 找到的SDC技巧机会数组
  */
 export const findSDC = (board, pencilNotes = {}) => {
-  console.log('[SDC] 开始查找SDC机会, 候选数数量:', Object.keys(pencilNotes).length);
   const opportunities = [];
   
   // 遍历每个宫
@@ -32,9 +31,6 @@ export const findSDC = (board, pencilNotes = {}) => {
     for (let boxCol = 0; boxCol < 3; boxCol++) {
       // 在每个宫中查找SDC模式
       const sdcInBox = findSDCInBox(board, pencilNotes, boxRow, boxCol);
-      if (sdcInBox.length > 0) {
-        console.log(`[SDC] 在宫(${boxRow},${boxCol})找到${sdcInBox.length}个机会`);
-      }
       opportunities.push(...sdcInBox);
       
       // 限制机会数量，避免过多计算
@@ -44,7 +40,6 @@ export const findSDC = (board, pencilNotes = {}) => {
     }
   }
   
-  console.log(`[SDC] 总共找到${opportunities.length}个SDC机会`);
   return opportunities;
 };
 
@@ -71,8 +66,6 @@ const findSDCInBox = (board, pencilNotes, boxRow, boxCol) => {
       }
     }
   }
-  
-  console.log(`[SDC] 宫(${boxRow},${boxCol}) 有${emptyCellsInBox.length}个空单元格`);
   
   // SDC需要至少2个空单元格
   if (emptyCellsInBox.length < 2) {
@@ -101,9 +94,6 @@ const findSDCInBox = (board, pencilNotes, boxRow, boxCol) => {
         continue;
       }
       
-      const nPlus = sdcCandidates.length - 2;
-      console.log(`[SDC] 检查单元格(${cell1.row},${cell1.col})和(${cell2.row},${cell2.col}), 候选数:${sdcCandidates.join(',')}, nPlus=${nPlus}`);
-      
       // 分析SDC模式
       const sdcPattern = analyzeSDCPattern(
         board, 
@@ -117,7 +107,6 @@ const findSDCInBox = (board, pencilNotes, boxRow, boxCol) => {
       );
       
       if (sdcPattern && sdcPattern.removableCandidates.length > 0) {
-        console.log(`[SDC] 找到有效SDC，可删除${sdcPattern.removableCandidates.length}个候选数`);
         opportunities.push(sdcPattern);
       }
     }
@@ -141,7 +130,6 @@ const analyzeSDCPattern = (board, pencilNotes, cell1, cell2, sdcCandidates, same
   
   const nPlus = sdcCandidates.length - sdcCells.length;
   if (nPlus < 2) {
-    console.log(`[SDC] nPlus=${nPlus} < 2, 跳过`);
     return null;
   }
   
@@ -149,21 +137,15 @@ const analyzeSDCPattern = (board, pencilNotes, cell1, cell2, sdcCandidates, same
   const lineCells = getLineCellsInOtherBoxes(board, pencilNotes, lineIndex, isRow, boxRow, boxCol);
   const boxCells = getBoxCellsInOtherLines(board, pencilNotes, lineIndex, isRow, boxRow, boxCol);
   
-  console.log(`[SDC] 组A有${lineCells.length}个单元格, 组B有${boxCells.length}个单元格`);
-  
   if (lineCells.length === 0 || boxCells.length === 0) {
-    console.log('[SDC] 组A或组B为空，跳过');
     return null;
   }
   
   // 将SDC候选数转换为位掩码形式（优化性能）
   const sdcCandMask = candidatesToMask(sdcCandidates);
   
-  console.log(`[SDC] 开始搜索nPlus=${nPlus}的组合`);
-  
   // 递归搜索行/列中的nPlus个单元格组合
   const lineResults = searchCombinations(lineCells, nPlus, sdcCandMask);
-  console.log(`[SDC] 行/列组合数量: ${lineResults.length}`);
   
   // 对每个行/列组合，搜索匹配的宫组合
   for (const lineCombo of lineResults) {
@@ -173,16 +155,11 @@ const analyzeSDCPattern = (board, pencilNotes, cell1, cell2, sdcCandidates, same
     // 搜索宫中的nPlus个单元格组合
     const boxResults = searchCombinations(boxCells, nPlus, boxAllowedMask);
     
-    console.log(`[SDC] 宫组合数量: ${boxResults.length}`);
-    
     for (const boxCombo of boxResults) {
       // 检查两组候选数是否有交集
       if ((lineCombo.candMask & boxCombo.candMask) !== 0) {
-        console.log('[SDC] 两组有交集，跳过');
         continue; // 有交集，跳过
       }
-      
-      console.log('[SDC] 找到无交集的组合，检查可删除候选数');
       
       // 找到有效的SDC！现在检查可删除的候选数
       const removable = findRemovableCandidates(
@@ -302,8 +279,6 @@ const searchCombinations = (cells, nPlus, allowedMask) => {
   // 预计算每个单元格的候选数掩码
   const cellMasks = cells.map(cell => candidatesToMask(cell.candidates));
   
-  console.log(`[SDC-Search] 搜索${nPlus}个单元格, 允许掩码=${allowedMask.toString(2)}, 总单元格数=${cells.length}`);
-  
   // 递归搜索
   const search = (startIdx, selectedIndices, combinedMask, depth) => {
     if (depth === nPlus) {
@@ -329,7 +304,6 @@ const searchCombinations = (cells, nPlus, allowedMask) => {
       
       // 检查该单元格是否有任何候选数在allowedMask中
       if ((cellMask & allowedMask) === 0) {
-        console.log(`[SDC-Search] 跳过单元格${i}: 无交集`);
         continue; // 该单元格没有允许的候选数，跳过
       }
       
@@ -341,7 +315,6 @@ const searchCombinations = (cells, nPlus, allowedMask) => {
   };
   
   search(0, [], 0, 0);
-  console.log(`[SDC-Search] 找到${results.length}个组合`);
   return results;
 };
 

@@ -3250,6 +3250,11 @@ const ControlPanel = ({
                       primaryType = t('alsXZTechnique');
                       // ALS-XZ通常不需要二级类型
                       secondaryType = '';
+                    } else if (technique.type === 'sdc' || technique.type.includes('Sue De Coq')) {
+                      // SDC技巧
+                      primaryType = t('sdc');
+                      // SDC通常不需要二级类型
+                      secondaryType = '';
                     } else {
                       // 检查是否是应该保持英文的技巧
                       let foundEnglishTechnique = false;

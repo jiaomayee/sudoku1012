@@ -193,6 +193,7 @@ export const translations = {
     alS_Wing: 'ALS-Wing',
     deathBlossom: '死亡绽放',
     sueDeCoq: 'Sue De Coq',
+    sdc: 'Sue De Coq',  // SDC技巧别名
     wXYZ_Wing: 'WXYZ-Wing',
     remotePairs: '远程数对',
     bivalueUniversalGrave: '双值格全墓地',

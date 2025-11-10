@@ -18,32 +18,98 @@ import { LanguageProvider } from './context/LanguageContext';
 import { LoadingProvider } from './context/LoadingContext';
 import './styles/global.css'; // 全局样式
 
-// 硬编码英文标题，直接覆盖原生document.title属性
-Object.defineProperty(document, 'title', {
-  get: function() {
-    return 'Sudoku Advanced Techniques - Open Source Sudoku Game | Expert Sudoku Challenges';
+// 页面标题和元数据映射配置
+const pageMetadata = {
+  '/': {
+    title: 'Sudoku Advanced Techniques - Learn & Master Expert Sudoku Strategies',
+    description: 'Free open-source Sudoku game platform focused on advanced techniques. Learn X-Wing, XY-Wing, Swordfish, and expert puzzle solving.',
+    keywords: 'sudoku,advanced sudoku techniques,X-Wing solution,XY-Wing sudoku,expert sudoku'
   },
-  set: function(newValue) {
-    // 忽略任何尝试修改标题的操作
-    console.log('标题修改尝试已阻止');
+  '/home': {
+    title: 'Sudoku Learning Platform - Advanced Techniques & Expert Challenges',
+    description: 'Master advanced Sudoku solving techniques with interactive tutorials and practice challenges.',
+    keywords: 'sudoku learning,sudoku techniques,sudoku tutorial,expert sudoku'
   },
-  configurable: true
-});
-
-// 立即设置OG和Twitter标题元标签
-const setOgAndTwitterTitles = () => {
-  const ogTitle = document.querySelector('meta[property="og:title"]');
-  const twitterTitle = document.querySelector('meta[name="twitter:title"]');
-  if (ogTitle) ogTitle.content = 'SudokuTech - Sudoku Techniques Learning Platform';
-  if (twitterTitle) twitterTitle.content = 'SudokuTech - Sudoku Techniques Learning Platform';
+  '/game': {
+    title: 'Play Sudoku - Advanced Techniques Learning Game | SudokuTech',
+    description: 'Play challenging Sudoku puzzles and learn advanced solving techniques in real-time.',
+    keywords: 'play sudoku,sudoku game,sudoku puzzle solver,sudoku strategies'
+  },
+  '/techniques': {
+    title: 'Sudoku Advanced Techniques Tutorial - X-Wing, Swordfish & More',
+    description: 'Complete guide to advanced Sudoku techniques including X-Wing, XY-Wing, Swordfish, BUG+1, and ALS-XZ solving strategies.',
+    keywords: 'sudoku techniques,X-Wing,XY-Wing,Swordfish,BUG+1,ALS-XZ,sudoku solving'
+  },
+  '/challenges': {
+    title: 'Expert Sudoku Challenges - Master & Expert Difficulty Puzzles',
+    description: 'Challenge yourself with expert and master level Sudoku puzzles. Test your skills and improve your solving speed.',
+    keywords: 'sudoku challenges,expert sudoku,master sudoku,difficult sudoku puzzles'
+  },
+  '/progress': {
+    title: 'Your Sudoku Progress - Track Learning & Mastery | SudokuTech',
+    description: 'Monitor your Sudoku solving progress and track your technique mastery levels.',
+    keywords: 'sudoku progress,learning tracker,sudoku statistics'
+  },
+  '/stats': {
+    title: 'Sudoku Statistics - Analyze Your Solving Performance',
+    description: 'Detailed statistics and analytics of your Sudoku solving performance and technique usage.',
+    keywords: 'sudoku stats,solving analysis,technique statistics'
+  },
+  '/settings': {
+    title: 'Settings - Customize Your Sudoku Experience',
+    description: 'Configure your preferences for the Sudoku learning platform.',
+    keywords: 'sudoku settings,preferences,configuration'
+  }
 };
 
-// 立即执行设置元标签
-setOgAndTwitterTitles();
+// 获取当前路由对应的元数据
+const getMetadataForPath = (pathname) => {
+  // 精确匹配
+  if (pageMetadata[pathname]) {
+    return pageMetadata[pathname];
+  }
+  // 路径前缀匹配
+  for (const [path, metadata] of Object.entries(pageMetadata)) {
+    if (pathname.startsWith(path) && path !== '/') {
+      return metadata;
+    }
+  }
+  // 默认返回首页元数据
+  return pageMetadata['/'];
+};
 
-// 页面加载完成后再次确认
-window.addEventListener('DOMContentLoaded', setOgAndTwitterTitles);
-window.addEventListener('load', setOgAndTwitterTitles);
+// 更新页面标题和Meta标签的函数
+const updatePageMetadata = (pathname) => {
+  const metadata = getMetadataForPath(pathname);
+  
+  // 更新页面标题
+  document.title = metadata.title;
+  
+  // 更新description Meta标签
+  let descriptionMeta = document.querySelector('meta[name="description"]');
+  if (descriptionMeta) descriptionMeta.content = metadata.description;
+  
+  // 更新keywords Meta标签
+  let keywordsMeta = document.querySelector('meta[name="keywords"]');
+  if (keywordsMeta) keywordsMeta.content = metadata.keywords;
+  
+  // 更新Open Graph标签
+  let ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.content = metadata.title.split(' |')[0].trim();
+  
+  let ogDescription = document.querySelector('meta[property="og:description"]');
+  if (ogDescription) ogDescription.content = metadata.description;
+  
+  // 更新Twitter Card标签
+  let twitterTitle = document.querySelector('meta[name="twitter:title"]');
+  if (twitterTitle) twitterTitle.content = metadata.title.split(' |')[0].trim();
+  
+  let twitterDescription = document.querySelector('meta[name="twitter:description"]');
+  if (twitterDescription) twitterDescription.content = metadata.description;
+};
+
+// 初始化元数据
+updatePageMetadata(window.location.pathname);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

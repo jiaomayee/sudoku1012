@@ -3,17 +3,25 @@
   <!-- 主页 -->
   <url>
     <loc>https://sudokutech.org.cn/</loc>
-    <lastmod>2024-10-12</lastmod>
+    <lastmod>2025-01-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://sudokutech.org.cn/" />
     <xhtml:link rel="alternate" hreflang="zh-CN" href="https://sudokutech.org.cn/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://sudokutech.org.cn/en/" />
+  </url>
+  
+  <!-- 首页 -->
+  <url>
+    <loc>https://sudokutech.org.cn/home</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   
   <!-- 游戏页面 -->
   <url>
     <loc>https://sudokutech.org.cn/game</loc>
-    <lastmod>2024-10-12</lastmod>
+    <lastmod>2025-01-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -21,61 +29,71 @@
   <!-- 高级技巧教程页面 -->
   <url>
     <loc>https://sudokutech.org.cn/techniques</loc>
-    <lastmod>2024-10-12</lastmod>
+    <lastmod>2025-01-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   
+  <!-- 难度挑战页面 -->
+  <url>
+    <loc>https://sudokutech.org.cn/challenges</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <!-- 学习进度页面 -->
+  <url>
+    <loc>https://sudokutech.org.cn/progress</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- 统计数据页面 -->
+  <url>
+    <loc>https://sudokutech.org.cn/stats</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- 设置页面 -->
+  <url>
+    <loc>https://sudokutech.org.cn/settings</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
   <!-- 特定技巧页面 -->
   <url>
-    <loc>https://sudokutech.org.cn/techniques/x-wing</loc>
-    <lastmod>2024-10-12</lastmod>
+    <loc>https://sudokutech.org.cn/techniques</loc>
+    <lastmod>2025-01-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://sudokutech.org.cn/techniques/xy-wing</loc>
-    <lastmod>2024-10-12</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://sudokutech.org.cn/game</loc>
+    <lastmod>2025-01-12</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   
-  <url>
-    <loc>https://sudokutech.org.cn/techniques/swordfish</loc>
-    <lastmod>2024-10-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- 难度等级页面 -->
+  <!-- 专家难度页面 -->
   <url>
     <loc>https://sudokutech.org.cn/challenges/expert</loc>
-    <lastmod>2024-10-12</lastmod>
+    <lastmod>2025-01-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   
+  <!-- 大师难度页面 -->
   <url>
     <loc>https://sudokutech.org.cn/challenges/master</loc>
-    <lastmod>2024-10-12</lastmod>
+    <lastmod>2025-01-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-  </url>
-  
-  <!-- 关于页面 -->
-  <url>
-    <loc>https://sudokutech.org.cn/about</loc>
-    <lastmod>2024-10-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- 联系页面 -->
-  <url>
-    <loc>https://sudokutech.org.cn/contact</loc>
-    <lastmod>2024-10-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
 </urlset>

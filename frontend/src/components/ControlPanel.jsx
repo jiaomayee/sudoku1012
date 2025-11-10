@@ -895,6 +895,92 @@ const ControlPanel = ({
         { step: 5, description: t('alsXZEliminateCandidates', { x: technique.x, z: technique.z, targetCells: formattedTargetCells }), highlight: position },
         { step: 6, description: t('alsXZVerifyResult', { targetCells: formattedTargetCells, z: technique.z }), highlight: position }
       );
+    } else if (technique.type === 'sdc' || technique.type.includes('Sue De Coq')) {
+      // SDC技巧解题步骤
+      
+      // 格式化SDC单元格位置显示
+      const formattedSDCCells = technique.sdcCells && Array.isArray(technique.sdcCells)
+        ? technique.sdcCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化组A单元格位置显示
+      const formattedGroupACells = technique.groupA && technique.groupA.cells && Array.isArray(technique.groupA.cells)
+        ? technique.groupA.cells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化组B单元格位置显示
+      const formattedGroupBCells = technique.groupB && technique.groupB.cells && Array.isArray(technique.groupB.cells)
+        ? technique.groupB.cells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 获取候选数
+      const sdcCandidates = technique.sdcCandidates ? technique.sdcCandidates.join(',') : '';
+      const groupACandidates = technique.groupA && technique.groupA.candidates ? technique.groupA.candidates.join(',') : '';
+      const groupBCandidates = technique.groupB && technique.groupB.candidates ? technique.groupB.candidates.join(',') : '';
+      const allCandidates = technique.sdcCandidates ? `{${technique.sdcCandidates.join(',')}}` : '';
+      
+      // 获取行/列信息
+      const lineType = technique.lineType === 'row' ? t('row') : t('col');
+      const lineIndex = (technique.lineIndex !== undefined ? technique.lineIndex + 1 : '');
+      const boxIndex = (technique.boxIndex !== undefined ? technique.boxIndex + 1 : '');
+      
+      // 格式化目标单元格 - 区分行/列和宫的目标单元格
+      const lineTargets = [];
+      const boxTargets = [];
+      
+      if (technique.removableCandidates && Array.isArray(technique.removableCandidates)) {
+        technique.removableCandidates.forEach(rc => {
+          if (rc.reason === 'boxOnly') {
+            lineTargets.push(`(${rc.row + 1},${rc.col + 1})`);
+          } else if (rc.reason === 'lineOnly') {
+            boxTargets.push(`(${rc.row + 1},${rc.col + 1})`);
+          }
+        });
+      }
+      
+      const formattedLineTargets = lineTargets.length > 0 ? lineTargets.join(' ') : t('multipleCells');
+      const formattedBoxTargets = boxTargets.length > 0 ? boxTargets.join(' ') : t('multipleCells');
+      const totalCount = (technique.removableCandidates && technique.removableCandidates.length) || 0;
+      
+      steps.push(
+        { step: 1, description: t('sdcIdentifySDCCells', {
+          sdcCells: formattedSDCCells,
+          sdcCandidates: sdcCandidates
+        }), highlight: '' },
+        { step: 2, description: t('sdcIdentifyGroups', {
+          lineType: lineType,
+          lineIndex: lineIndex,
+          groupACells: formattedGroupACells,
+          groupACandidates: groupACandidates,
+          boxIndex: boxIndex,
+          groupBCells: formattedGroupBCells,
+          groupBCandidates: groupBCandidates
+        }), highlight: position },
+        { step: 3, description: t('sdcAnalyzeIntersection', {
+          groupACandidates: groupACandidates,
+          lineType: lineType,
+          lineIndex: lineIndex,
+          groupBCandidates: groupBCandidates,
+          boxIndex: boxIndex
+        }), highlight: position },
+        { step: 4, description: t('sdcVerifySeparation', {
+          allCandidates: allCandidates
+        }), highlight: position },
+        { step: 5, description: lineTargets.length > 0 ? t('sdcEliminateFromLine', {
+          boxCandidates: groupBCandidates,
+          targetCells: formattedLineTargets,
+          lineType: lineType,
+          lineIndex: lineIndex
+        }) : t('analysisCompleted'), highlight: position },
+        { step: 6, description: boxTargets.length > 0 ? t('sdcEliminateFromBox', {
+          lineCandidates: groupACandidates,
+          targetCells: formattedBoxTargets,
+          boxIndex: boxIndex
+        }) : t('analysisCompleted'), highlight: position },
+        { step: 7, description: t('sdcVerifyResult', {
+          count: totalCount
+        }), highlight: position }
+      );
     } else {
         // 通用解题步骤，确保至少有内容显示
         steps.push(

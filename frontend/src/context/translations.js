@@ -254,6 +254,14 @@ export const translations = {
     alsXZ: 'ALS-XZ技巧',
     sdcTechnique: 'Sue De Coq技巧',
     sdc: 'Sue De Coq技巧',
+    // SDC技巧解题步骤
+    sdcIdentifySDCCells: 'Sue De Coq: SDC单元格={sdcCells}，候选数={sdcCandidates}',
+    sdcIdentifyGroups: '组A（{lineType}{lineIndex}）={groupACells} 候选数{groupACandidates}，组B（第{boxIndex}宫）={groupBCells} 候选数{groupBCandidates}',
+    sdcAnalyzeIntersection: '分析候选数分布：组A的候选数{groupACandidates}只能出现在{lineType}{lineIndex}的其他宫中，组B的候选数{groupBCandidates}只能出现在第{boxIndex}宫的其他{lineType}中。',
+    sdcVerifySeparation: '验证候选数分离：组A和组B的候选数无交集，它们的并集{allCandidates}完全覆盖SDC单元格的候选数。',
+    sdcEliminateFromLine: '从{lineType}{lineIndex}的目标单元格{targetCells}中删除组B的候选数{boxCandidates}。',
+    sdcEliminateFromBox: '从第{boxIndex}宫的目标单元格{targetCells}中删除组A的候选数{lineCandidates}。',
+    sdcVerifyResult: '完成删除，共从{count}个单元格中删除候选数。',
     // 技巧名称
     nakedSingle: '唯一数法',
     hiddenSingleRow: '隐性唯一数法(行)',
@@ -665,6 +673,14 @@ export const translations = {
     alsXZ: 'ALS-XZ Rule',
     sdcTechnique: 'Sue De Coq',
     sdc: 'Sue De Coq',
+    // SDC technique solving steps
+    sdcIdentifySDCCells: 'Sue De Coq: SDC cells={sdcCells}, candidates={sdcCandidates}',
+    sdcIdentifyGroups: 'Group A ({lineType} {lineIndex})={groupACells} candidates {groupACandidates}, Group B (box {boxIndex})={groupBCells} candidates {groupBCandidates}',
+    sdcAnalyzeIntersection: 'Analyze candidate distribution: Group A candidates {groupACandidates} can only appear in other boxes of {lineType} {lineIndex}, Group B candidates {groupBCandidates} can only appear in other {lineType}s of box {boxIndex}.',
+    sdcVerifySeparation: 'Verify candidate separation: Group A and Group B candidates have no intersection, their union {allCandidates} completely covers the SDC cells\' candidates.',
+    sdcEliminateFromLine: 'Remove Group B candidates {boxCandidates} from target cells {targetCells} in {lineType} {lineIndex}.',
+    sdcEliminateFromBox: 'Remove Group A candidates {lineCandidates} from target cells {targetCells} in box {boxIndex}.',
+    sdcVerifyResult: 'Elimination complete, removed candidates from {count} cells in total.',
     // Technique names
     nakedSingle: 'Naked Single',
     hiddenSingleRow: 'Hidden Single (Row)',

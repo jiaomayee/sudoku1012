@@ -1588,7 +1588,7 @@ const ControlPanel = ({
                 techniqueType: technique.type,
                 highlightType: 'condition',
                 isTarget: false,
-                backgroundColor: 'rgba(255, 182, 193, 0.3)', // 浅粉色
+                backgroundColor: 'transparent', // 非基础技巧不高亮单元格背景
                 borderColor: 'transparent'
               });
             }

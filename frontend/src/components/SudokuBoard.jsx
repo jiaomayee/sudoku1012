@@ -81,6 +81,15 @@ const Cell = styled.div`
     box-shadow: inset 0 0 0 2px white; /* 创建2px宽的内部白边 */
   }
   
+  /* 非基础技巧水标 - 浅化错务 */
+  &.advanced-technique-highlight {
+    background: rgba(200, 230, 245, 0.08) !important; /* 非常浅蓝色，仅8%透明度 */
+    color: #666666 !important;
+    opacity: 1;
+    box-sizing: border-box !important;
+    /* 不设置边框，保持元有的香港线显示 */
+  }
+  
 
   
   /* 基础选中状态样式 - 确保在所有设备上的高对比度和可见性 */
@@ -532,8 +541,19 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
       if (currentCellData && currentCellData.regionHighlight) {
         classes.push('same-region');
       } else if (currentCellData) {
-        // 其他高亮单元格
-        classes.push('highlighted');
+        // 判断是否为基础技巧
+        const isBasicTechnique = currentCellData.techniqueType && (
+          currentCellData.techniqueType === 'nakedSingle' ||
+          currentCellData.techniqueType === 'notesSingle' ||
+          currentCellData.techniqueType.includes('hiddenSingle')
+        );
+        
+        // 基础技巧使用原始 highlighted 类，非基础技巧使用 advanced-technique-highlight 类
+        if (isBasicTechnique) {
+          classes.push('highlighted');
+        } else {
+          classes.push('advanced-technique-highlight');
+        }
       }
     }
     

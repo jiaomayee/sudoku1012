@@ -133,24 +133,33 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             top: `${top}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: '#FF0000', // 红色背景表示需要删除
-            borderRadius: '50%', // 圆形背景
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 60, // 提高z-index确保在所有单元格底色上方
-            fontWeight: 'bold',
-            border: '1px solid rgba(255, 255, 255, 0.5)', // 白色边框
-            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+            zIndex: 60
           }}
         >
+          <div
+            style={{
+              position: 'absolute',
+              width: `${noteSize * 0.75}px`,
+              height: `${noteSize * 0.75}px`,
+              backgroundColor: '#FF0000',
+              borderRadius: '50%',
+              zIndex: 60,
+              fontWeight: 'bold',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+            }}
+          />
           <span
             style={{
-              fontSize: `${noteSize * 0.7}px`, // 增大字体大小为候选数区域的70%
+              fontSize: `${noteSize * 0.7}px`,
               fontWeight: 'bold',
-              color: '#FFFFFF', // 白色文字
-              zIndex: 65, // 确保文字在候选数背景上方
-              textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)'
+              color: '#FFFFFF',
+              zIndex: 65,
+              textShadow: '1px 1px 1px rgba(0, 0, 0, 0.5)',
+              position: 'relative'
             }}
           >
             {note}
@@ -236,26 +245,35 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
               top: `${top}px`,
               width: `${noteSize}px`,
               height: `${noteSize}px`,
-              backgroundColor: backgroundColor,
-              borderRadius: borderRadius,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              zIndex: zIndex,
-              fontWeight: 'bold',
-              border: 'none',
-              boxShadow: boxShadow,
-              transform: 'scale(1)',
-              transition: 'all 0.2s ease'
+              zIndex: zIndex
             }}
           >
+            <div
+              style={{
+                position: 'absolute',
+                width: `${noteSize * 0.75}px`,
+                height: `${noteSize * 0.75}px`,
+                backgroundColor: backgroundColor,
+                borderRadius: borderRadius,
+                zIndex: zIndex - 1, // 背景 zIndex 比数字低一层
+                fontWeight: 'bold',
+                border: 'none',
+                boxShadow: boxShadow,
+                transform: 'scale(1)',
+                transition: 'all 0.2s ease'
+              }}
+            />
             <span
               style={{
                 fontSize: `${noteSize * 0.7}px`,
                 fontWeight: 'bold',
                 color: textColor,
-                zIndex: 75,
-                fontFamily: 'Arial, sans-serif'
+                zIndex: zIndex, // 数字 zIndex 比背景高
+                fontFamily: 'Arial, sans-serif',
+                position: 'relative'
               }}
             >
               {note}
@@ -411,19 +429,29 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             top: `${top}px`,
             width: `${noteSize}px`,
             height: `${noteSize}px`,
-            backgroundColor: backgroundColor,
-            borderRadius: borderRadius, // 使用动态设置的圆角
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 50,
-            fontWeight: 'bold',
-            border: `${borderWidth} solid ${borderColor}`,
-            boxShadow: boxShadow,
-            transform: 'scale(1)',
-            transition: 'all 0.2s ease'
+            zIndex: 50
           }}
         >
+          {/* 背景圆形 - 住数里面，每小一点 */}
+          <div
+            style={{
+              position: 'absolute',
+              width: `${noteSize * 0.75}px`, // 减小背景大小为75%
+              height: `${noteSize * 0.75}px`,
+              backgroundColor: backgroundColor,
+              borderRadius: borderRadius,
+              zIndex: 50,
+              fontWeight: 'bold',
+              border: `${borderWidth} solid ${borderColor}`,
+              boxShadow: boxShadow,
+              transform: 'scale(1)',
+              transition: 'all 0.2s ease'
+            }}
+          />
+          {/* 数字，大小不变 */}
           <span
             style={{
               fontSize: `${noteSize * 0.7}px`,
@@ -431,7 +459,8 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
               color: textColor,
               zIndex: 55,
               fontFamily: 'Arial, sans-serif',
-              textShadow: textShadow
+              textShadow: textShadow,
+              position: 'relative'
             }}
           >
             {note}

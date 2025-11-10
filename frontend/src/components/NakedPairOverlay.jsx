@@ -185,12 +185,19 @@ const NakedPairOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
 
     // 显性数对法专用高亮样式 - 不再高亮单元格
     const highlightStyles = {
-      // 条件单元格 - 透明背景
+      // 条件单元格（数对）- 透明背景，仅高亮候选数
       'pair': {
         backgroundColor: 'transparent', // 透明背景
         borderColor: 'transparent', // 透明边框
         border: 'none',
-        zIndex: 35
+        zIndex: 20
+      },
+      // 条件单元格（整数停顿）- 透明背景
+      'condition': {
+        backgroundColor: 'transparent', // 透明背景
+        borderColor: 'transparent', // 透明边框
+        border: 'none',
+        zIndex: 25
       },
       // 目标单元格 - 透明背景
       'target': {

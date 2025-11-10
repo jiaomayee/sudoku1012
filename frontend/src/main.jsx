@@ -160,7 +160,12 @@ root.render(
 // 注册 Service Worker 以启用 PWA 功能
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    // 根据部署环境确定Service Worker路径
+    const swPath = window.location.pathname.includes('/sudoku1012/') 
+      ? '/sudoku1012/service-worker.js' 
+      : '/service-worker.js';
+    
+    navigator.serviceWorker.register(swPath)
       .then((registration) => {
         console.log('ServiceWorker 注册成功:', registration.scope);
         

@@ -7,9 +7,8 @@ export default defineConfig({
   plugins: [react()],
   // base路径配置 - 使用GitHub仓库名作为子目录
   // 由于仓库名为sudoku1012，GitHub Pages会在/sudoku1012/下部署
-  // 但由于使用了自定义域名CNAME，实际应该部署在根目录
-  // 使用相对路径以适配所有场景
-  base: '/',
+  // 即使使用了自定义域名CNAME，gh-pages库仍会发布到/sudoku1012/
+  base: '/sudoku1012/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

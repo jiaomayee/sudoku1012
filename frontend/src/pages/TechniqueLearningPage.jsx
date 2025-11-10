@@ -281,10 +281,22 @@ const TechniqueLearningPage = () => {
           examples: t('nakedSingleExample'),
           diagram: {
             type: 'nakedSingle',
-            highlightedCells: [[0, 0]],
-            filledCells: [],
+            grid: [
+              [5, 3, 0, 0, 7, 0, 0, 0, 0],
+              [6, 0, 0, 1, 9, 5, 0, 0, 0],
+              [0, 9, 8, 0, 0, 0, 0, 6, 0],
+              [8, 0, 0, 0, 6, 0, 0, 0, 3],
+              [4, 0, 0, 8, 0, 3, 0, 0, 1],
+              [7, 0, 0, 0, 2, 0, 0, 0, 6],
+              [0, 6, 0, 0, 0, 0, 2, 8, 0],
+              [0, 0, 0, 4, 1, 9, 0, 0, 5],
+              [0, 0, 0, 0, 8, 0, 0, 7, 9]
+            ],
+            highlightedCells: [[0, 2]],
+            cellValues: { '0,2': '2' },
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '第(0,2)位为2（该行缺少数字2）' }
             ]
           }
         }
@@ -304,10 +316,22 @@ const TechniqueLearningPage = () => {
           examples: t('hiddenSingleExample'),
           diagram: {
             type: 'hiddenSingle',
+            grid: [
+              [5, 3, 4, 6, 7, 8, 9, 1, 2],
+              [6, 7, 2, 1, 9, 5, 3, 4, 8],
+              [1, 9, 8, 3, 4, 2, 5, 6, 7],
+              [8, 5, 9, 7, 6, 1, 4, 2, 3],
+              [4, 2, 6, 8, 5, 3, 7, 9, 1],
+              [7, 1, 3, 9, 2, 4, 8, 5, 6],
+              [9, 6, 1, 5, 3, 7, 2, 8, 4],
+              [2, 8, 7, 4, 1, 9, 6, 3, 5],
+              [3, 4, 5, 2, 8, 6, 1, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 1]],
-            filledCells: [],
+            cellValues: { },
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '数块5的候选数仅在第一行的(0,0)的位置' }
             ]
           }
         }
@@ -326,11 +350,22 @@ const TechniqueLearningPage = () => {
           examples: t('nakedPairExample'),
           diagram: {
             type: 'nakedPair',
+            grid: [
+              [5, 3, 0, 0, 7, 0, 0, 0, 0],
+              [6, 0, 0, 1, 9, 5, 0, 0, 0],
+              [0, 9, 8, 0, 0, 0, 0, 6, 0],
+              [8, 0, 0, 0, 6, 0, 0, 0, 3],
+              [4, 0, 0, 8, 0, 3, 0, 0, 1],
+              [7, 0, 0, 0, 2, 0, 0, 0, 6],
+              [0, 6, 0, 0, 0, 0, 2, 8, 0],
+              [0, 0, 0, 4, 1, 9, 0, 0, 5],
+              [0, 0, 0, 0, 8, 0, 0, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 1]],
-            filledCells: [],
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { color: 'rgba(255, 152, 0, 0.3)', label: t('relatedCell') || '相关单元格' }
+              { color: 'rgba(255, 152, 0, 0.3)', label: t('relatedCell') || '相关单元格' },
+              { label: '(0,0)和(0,1)两个格子的候选数仅有{3,7}' }
             ]
           }
         }
@@ -349,10 +384,21 @@ const TechniqueLearningPage = () => {
           examples: t('hiddenPairExample'),
           diagram: {
             type: 'hiddenPair',
+            grid: [
+              [5, 3, 0, 0, 7, 0, 0, 0, 0],
+              [6, 0, 0, 1, 9, 5, 0, 0, 0],
+              [0, 9, 8, 0, 0, 0, 0, 6, 0],
+              [8, 0, 0, 0, 6, 0, 0, 0, 3],
+              [4, 0, 0, 8, 0, 3, 0, 0, 1],
+              [7, 0, 0, 0, 2, 0, 0, 0, 6],
+              [0, 6, 0, 0, 0, 0, 2, 8, 0],
+              [0, 0, 0, 4, 1, 9, 0, 0, 5],
+              [0, 0, 0, 0, 8, 0, 0, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 1]],
-            filledCells: [],
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '数块4和6仅出现在(0,0)和(0,1)两个格子' }
             ]
           }
         }
@@ -372,10 +418,21 @@ const TechniqueLearningPage = () => {
           examples: t('pointingPairsExample'),
           diagram: {
             type: 'pointingPairs',
+            grid: [
+              [5, 3, 4, 6, 7, 8, 9, 1, 2],
+              [6, 7, 2, 1, 9, 5, 3, 4, 8],
+              [1, 9, 8, 3, 4, 2, 5, 6, 7],
+              [8, 5, 9, 7, 6, 1, 4, 2, 3],
+              [4, 2, 6, 8, 5, 3, 7, 9, 1],
+              [7, 1, 3, 9, 2, 4, 8, 5, 6],
+              [9, 6, 1, 5, 3, 7, 2, 8, 4],
+              [2, 8, 7, 4, 1, 9, 6, 3, 5],
+              [3, 4, 5, 2, 8, 6, 1, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 1], [1, 0], [1, 1]],
-            filledCells: [],
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '数块8在第一个宫格中仅出现在第1行' }
             ]
           }
         }
@@ -395,10 +452,21 @@ const TechniqueLearningPage = () => {
           examples: t('boxLineReductionExample'),
           diagram: {
             type: 'boxLineReduction',
+            grid: [
+              [5, 3, 4, 6, 7, 8, 9, 1, 2],
+              [6, 7, 2, 1, 9, 5, 3, 4, 8],
+              [1, 9, 8, 3, 4, 2, 5, 6, 7],
+              [8, 5, 9, 7, 6, 1, 4, 2, 3],
+              [4, 2, 6, 8, 5, 3, 7, 9, 1],
+              [7, 1, 3, 9, 2, 4, 8, 5, 6],
+              [9, 6, 1, 5, 3, 7, 2, 8, 4],
+              [2, 8, 7, 4, 1, 9, 6, 3, 5],
+              [3, 4, 5, 2, 8, 6, 1, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 1], [0, 2]],
-            filledCells: [],
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '数块8在第1行仅出现在第一个宫格' }
             ]
           }
         }
@@ -417,10 +485,21 @@ const TechniqueLearningPage = () => {
           examples: t('nakedTripleExample'),
           diagram: {
             type: 'nakedTriple',
+            grid: [
+              [5, 3, 4, 6, 7, 8, 9, 1, 2],
+              [6, 7, 2, 1, 9, 5, 3, 4, 8],
+              [1, 9, 8, 3, 4, 2, 5, 6, 7],
+              [8, 5, 9, 7, 6, 1, 4, 2, 3],
+              [4, 2, 6, 8, 5, 3, 7, 9, 1],
+              [7, 1, 3, 9, 2, 4, 8, 5, 6],
+              [9, 6, 1, 5, 3, 7, 2, 8, 4],
+              [2, 8, 7, 4, 1, 9, 6, 3, 5],
+              [3, 4, 5, 2, 8, 6, 1, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 1], [0, 2]],
-            filledCells: [],
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '3个格子的候选数仅有{2,3,4}' }
             ]
           }
         }
@@ -439,10 +518,21 @@ const TechniqueLearningPage = () => {
           examples: t('hiddenTripleExample'),
           diagram: {
             type: 'hiddenTriple',
+            grid: [
+              [5, 3, 4, 6, 7, 8, 9, 1, 2],
+              [6, 7, 2, 1, 9, 5, 3, 4, 8],
+              [1, 9, 8, 3, 4, 2, 5, 6, 7],
+              [8, 5, 9, 7, 6, 1, 4, 2, 3],
+              [4, 2, 6, 8, 5, 3, 7, 9, 1],
+              [7, 1, 3, 9, 2, 4, 8, 5, 6],
+              [9, 6, 1, 5, 3, 7, 2, 8, 4],
+              [2, 8, 7, 4, 1, 9, 6, 3, 5],
+              [3, 4, 5, 2, 8, 6, 1, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 1], [0, 2]],
-            filledCells: [],
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '数字3、5、7仅出现在三个格子中' }
             ]
           }
         }
@@ -462,10 +552,21 @@ const TechniqueLearningPage = () => {
           examples: t('xWingExample'),
           diagram: {
             type: 'xWing',
+            grid: [
+              [5, 3, 4, 6, 7, 8, 9, 1, 2],
+              [6, 7, 2, 1, 9, 5, 3, 4, 8],
+              [1, 9, 8, 3, 4, 2, 5, 6, 7],
+              [8, 5, 9, 7, 6, 1, 4, 2, 3],
+              [4, 2, 6, 8, 5, 3, 7, 9, 1],
+              [7, 1, 3, 9, 2, 4, 8, 5, 6],
+              [9, 6, 1, 5, 3, 7, 2, 8, 4],
+              [2, 8, 7, 4, 1, 9, 6, 3, 5],
+              [3, 4, 5, 2, 8, 6, 1, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 4], [7, 0], [7, 4]],
-            filledCells: [],
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '数字6在第0行和第7行中都仅出现在第0列和第4列位置' }
             ]
           }
         }
@@ -485,10 +586,21 @@ const TechniqueLearningPage = () => {
           examples: t('yWingExample'),
           diagram: {
             type: 'yWing',
+            grid: [
+              [5, 3, 4, 6, 7, 8, 9, 1, 2],
+              [6, 7, 2, 1, 9, 5, 3, 4, 8],
+              [1, 9, 8, 3, 4, 2, 5, 6, 7],
+              [8, 5, 9, 7, 6, 1, 4, 2, 3],
+              [4, 2, 6, 8, 5, 3, 7, 9, 1],
+              [7, 1, 3, 9, 2, 4, 8, 5, 6],
+              [9, 6, 1, 5, 3, 7, 2, 8, 4],
+              [2, 8, 7, 4, 1, 9, 6, 3, 5],
+              [3, 4, 5, 2, 8, 6, 1, 7, 9]
+            ],
             highlightedCells: [[0, 0], [0, 3], [3, 0]],
-            filledCells: [],
             legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { label: '枢纽(0,0)与两个Y-翼共享候选数' }
             ]
           }
         }
@@ -576,8 +688,11 @@ const TechniqueLearningPage = () => {
                       {Array.from({ length: 81 }).map((_, index) => {
                         const row = Math.floor(index / 9);
                         const col = index % 9;
-                        const isHighlighted = selectedTechnique.details.diagram.highlightedCells.some(cell => cell[0] === row && cell[1] === col);
-                        const isFilled = selectedTechnique.details.diagram.filledCells.some(cell => cell[0] === row && cell[1] === col);
+                        const diagram = selectedTechnique.details.diagram;
+                        const isHighlighted = diagram.highlightedCells && diagram.highlightedCells.some(cell => cell[0] === row && cell[1] === col);
+                        const cellValue = diagram.grid ? diagram.grid[row][col] : 0;
+                        const cellKey = `${row},${col}`;
+                        const displayValue = diagram.cellValues && diagram.cellValues[cellKey] ? diagram.cellValues[cellKey] : cellValue;
                         return (
                           <GridCell
                             key={index}
@@ -585,9 +700,9 @@ const TechniqueLearningPage = () => {
                             $row={row}
                             $col={col}
                             $highlighted={isHighlighted}
-                            $filled={isFilled}
+                            $filled={cellValue !== 0}
                           >
-                            {isFilled && (5)}
+                            {displayValue !== 0 && displayValue}
                           </GridCell>
                         );
                       })}
@@ -596,7 +711,7 @@ const TechniqueLearningPage = () => {
                       <LegendContainer theme={theme}>
                         {selectedTechnique.details.diagram.legend.map((item, index) => (
                           <LegendItem key={index}>
-                            <LegendColor theme={theme} $color={item.color} />
+                            {item.color && <LegendColor theme={theme} $color={item.color} />}
                             <LegendText theme={theme}>{item.label}</LegendText>
                           </LegendItem>
                         ))}

@@ -296,7 +296,7 @@ const TechniqueLearningPage = () => {
             cellValues: { '0,2': '2' },
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '第(0,2)位为2（该行缺少数字2）' }
+              { label: '第1行第3列有候选数2（该行只欠扐2）' }
             ]
           }
         }
@@ -331,7 +331,7 @@ const TechniqueLearningPage = () => {
             cellValues: { },
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块5的候选数仅在第一行的(0,0)的位置' }
+              { label: '数块5的候选数仅在第1行第1列的位置' }
             ]
           }
         }
@@ -365,7 +365,7 @@ const TechniqueLearningPage = () => {
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
               { color: 'rgba(255, 152, 0, 0.3)', label: t('relatedCell') || '相关单元格' },
-              { label: '(0,0)和(0,1)两个格子的候选数仅有{3,7}' }
+              { label: '第1行第1列和第1行第2列的候选数仅有{3,7}' }
             ]
           }
         }
@@ -398,7 +398,7 @@ const TechniqueLearningPage = () => {
             highlightedCells: [[0, 0], [0, 1]],
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块4和6仅出现在(0,0)和(0,1)两个格子' }
+              { label: '数块4和6仅出现在第1行第1列和第1行第2列' }
             ]
           }
         }
@@ -432,7 +432,7 @@ const TechniqueLearningPage = () => {
             highlightedCells: [[0, 0], [0, 1], [1, 0], [1, 1]],
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块8在第一个宫格中仅出现在第1行' }
+              { label: '数块8在第1个宫格中仅出现在第1行' }
             ]
           }
         }
@@ -466,7 +466,7 @@ const TechniqueLearningPage = () => {
             highlightedCells: [[0, 0], [0, 1], [0, 2]],
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块8在第1行仅出现在第一个宫格' }
+              { label: '数块8在第1行仅出现在第1个宫格' }
             ]
           }
         }
@@ -499,7 +499,7 @@ const TechniqueLearningPage = () => {
             highlightedCells: [[0, 0], [0, 1], [0, 2]],
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '3个格子的候选数仅有{2,3,4}' }
+              { label: '第1行的第1列、第2列、第3列的候选数仅有{2,3,4}' }
             ]
           }
         }
@@ -532,7 +532,7 @@ const TechniqueLearningPage = () => {
             highlightedCells: [[0, 0], [0, 1], [0, 2]],
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数字3、5、7仅出现在三个格子中' }
+              { label: '数块3、5、7仅出现在第1行的第1列、第2列、第3列' }
             ]
           }
         }
@@ -566,7 +566,7 @@ const TechniqueLearningPage = () => {
             highlightedCells: [[0, 0], [0, 4], [7, 0], [7, 4]],
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数字6在第0行和第7行中都仅出现在第0列和第4列位置' }
+              { label: '数块6在第1行第1列、第8行第1列以及第1行第5列、第8行第5列' }
             ]
           }
         }
@@ -600,7 +600,7 @@ const TechniqueLearningPage = () => {
             highlightedCells: [[0, 0], [0, 3], [3, 0]],
             legend: [
               { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '枢纽(0,0)与两个Y-翼共享候选数' }
+              { label: '枢纽(1,1)与两个Y-翼共享候选数' }
             ]
           }
         }

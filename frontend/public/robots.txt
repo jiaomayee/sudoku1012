@@ -1,29 +1,57 @@
 User-agent: *
 Allow: /
-
-# 允许所有搜索引擎抓取主要内容
-Allow: /api/
-Allow: /images/
-Allow: /styles/
-Allow: /scripts/
-
-# 禁止抓取不必要的页面
 Disallow: /private/
 Disallow: /admin/
 Disallow: /tmp/
+Disallow: /*.json$
+Disallow: /node_modules/
+Disallow: /.git/
+
+# 优化程度
+# Google
+User-agent: Googlebot
+Allow: /
+Disallow: /private/
+Disallow: /admin/
+Crawl-delay: 0
+
+# Baidu
+User-agent: Baiduspider
+Allow: /
+Disallow: /private/
+Disallow: /admin/
+Crawl-delay: 1
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /private/
+Disallow: /admin/
+Crawl-delay: 0
+
+# Yandex
+User-agent: YandexBot
+Allow: /
+Disallow: /private/
+Disallow: /admin/
+
+# 网上格子算法粗佋的网綜（遵尊 robots.txt规法）
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Allow: /
+
+# 不需要抽取爲了
+Disallow: /*.pdf$
+Disallow: /*.doc$
+Disallow: /*.xls$
 
 # 网站地图
 Sitemap: https://sudokutech.org.cn/sitemap.xml
-
-# 针对不同搜索引擎的优化
-User-agent: Googlebot
-Allow: /
-
-User-agent: Baiduspider
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: YandexBot
-Allow: /
+# 流量分析配置
+# Google Analytics
+Allow: /ga.js

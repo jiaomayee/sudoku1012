@@ -278,6 +278,9 @@ const maskToCandidates = (mask) => {
  * 递归搜索单元格组合，找到所有可能的nPlus个单元格的组合
  * 其候选数是allowedMask的子集
  * 
+ * 注意：HoDoKu允许单元格有额外的候选数，但需要额外的单元格来容纳。
+ * 这里我们先实现简化版本：允许单元格有任何候选数，只要它们的交集在allowedMask中
+ * 
  * @param {Array} cells 候选单元格数组
  * @param {number} nPlus 需要选择的单元格数量
  * @param {number} allowedMask 允许的候选数位掩码
@@ -299,15 +302,19 @@ const searchCombinations = (cells, nPlus, allowedMask) => {
   // 预计算每个单元格的候选数掩码
   const cellMasks = cells.map(cell => candidatesToMask(cell.candidates));
   
+  console.log(`[SDC-Search] 搜索${nPlus}个单元格, 允许掩码=${allowedMask.toString(2)}, 总单元格数=${cells.length}`);
+  
   // 递归搜索
   const search = (startIdx, selectedIndices, combinedMask, depth) => {
     if (depth === nPlus) {
       // 找到了nPlus个单元格
-      // 检查候选数是否都在allowedMask中
-      if ((combinedMask & ~allowedMask) === 0) {
+      // 检查组合的候选数与allowedMask的交集
+      const intersection = combinedMask & allowedMask;
+      if (intersection !== 0) {
+        // 至少有一些候选数在允许范围内
         results.push({
           cells: [...selectedIndices],
-          candMask: combinedMask
+          candMask: intersection  // 只保留在allowedMask中的候选数
         });
       }
       return;
@@ -320,9 +327,10 @@ const searchCombinations = (cells, nPlus, allowedMask) => {
     for (let i = startIdx; i <= cells.length - remaining; i++) {
       const cellMask = cellMasks[i];
       
-      // 检查该单元格的候选数是否都在allowedMask中
-      if ((cellMask & ~allowedMask) !== 0) {
-        continue; // 跨过不符合条件的单元格
+      // 检查该单元格是否有任何候选数在allowedMask中
+      if ((cellMask & allowedMask) === 0) {
+        console.log(`[SDC-Search] 跳过单元格${i}: 无交集`);
+        continue; // 该单元格没有允许的候选数，跳过
       }
       
       // 选择该单元格，继续递归
@@ -333,6 +341,7 @@ const searchCombinations = (cells, nPlus, allowedMask) => {
   };
   
   search(0, [], 0, 0);
+  console.log(`[SDC-Search] 找到${results.length}个组合`);
   return results;
 };
 

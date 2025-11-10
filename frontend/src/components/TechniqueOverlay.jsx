@@ -172,57 +172,57 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         const noteCol = noteIndex % 3;
         
         // 计算位置偏移，使候选数在单元格中居中排列
-        const noteSize = Math.min(cellWidth, cellHeight) * 0.45;
-        const containerPadding = Math.min(cellWidth, cellHeight) * 0.02;
+        const noteSize = Math.min(cellWidth, cellHeight) * 0.35; // 统一使用0.35比例
+        const containerPadding = Math.min(cellWidth, cellHeight) * 0.05; // 统一使用0.05比例
         const gridSize = Math.min(cellWidth, cellHeight) - 2 * containerPadding;
         const gridCellSize = gridSize / 3;
         const left = containerPadding + noteCol * gridCellSize + (gridCellSize - noteSize) / 2;
         const top = containerPadding + noteRow * gridCellSize + (gridCellSize - noteSize) / 2;
         
-        // 根据类型设置样式
+        // 根据类型设置样式，统一使用圆形背景和相同字体大小
         let backgroundColor, textColor, boxShadow, borderRadius, zIndex;
         
         switch (group.type) {
           case 'alsXZ-x':
             backgroundColor = '#ADD8E6'; // 浅蓝底，用于X候选数
             textColor = '#000000'; // 黑色文字
-            boxShadow = '0 0 8px rgba(173, 216, 230, 0.7)';
-            borderRadius = '6px';
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
             zIndex = 85;
             break;
           case 'alsXZ-als1-other':
             backgroundColor = '#90EE90'; // 浅绿底，用于ALS1中的其他候选数
             textColor = '#000000'; // 黑色文字
-            boxShadow = '0 0 8px rgba(144, 238, 144, 0.7)';
-            borderRadius = '6px';
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
             zIndex = 80;
             break;
           case 'alsXZ-als2-other':
             backgroundColor = '#DDA0DD'; // 浅紫底，用于ALS2中的其他候选数
             textColor = '#000000'; // 黑色文字
-            boxShadow = '0 0 8px rgba(221, 160, 221, 0.7)';
-            borderRadius = '6px';
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
             zIndex = 75;
             break;
           case 'alsXZ-z':
             backgroundColor = '#1E90FF'; // 深蓝底，用于Z候选数
             textColor = '#FFFFFF'; // 白色文字
-            boxShadow = '0 0 8px rgba(30, 144, 255, 0.7)';
-            borderRadius = '6px';
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
             zIndex = 85;
             break;
           case 'alsXZ-removeable':
             backgroundColor = '#FF0000'; // 红底，用于可删除的候选数
             textColor = '#FFFFFF'; // 白色文字
-            boxShadow = '0 0 12px rgba(255, 0, 0, 0.8)';
-            borderRadius = '8px';
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
             zIndex = 90; // 最高层级
             break;
           default:
             backgroundColor = '#FFFFFF';
             textColor = '#000000';
-            boxShadow = '0 2px 4px rgba(0,0,0,0.25)';
-            borderRadius = '6px';
+            boxShadow = '0 1px 2px rgba(0,0,0,0.3)';
+            borderRadius = '50%'; // 圆形背景
             zIndex = 70;
             break;
         }
@@ -251,7 +251,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
           >
             <span
               style={{
-                fontSize: `${noteSize * 0.9}px`,
+                fontSize: `${noteSize * 0.7}px`,
                 fontWeight: 'bold',
                 color: textColor,
                 zIndex: 75,
@@ -346,13 +346,14 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       const left = containerPadding + noteCol * gridCellSize + (gridCellSize - noteSize) / 2;
       const top = containerPadding + noteRow * gridCellSize + (gridCellSize - noteSize) / 2;
       
-      // 默认绿色背景表示条件候选数
+      // 默认绿色背景表示条件候选数，统一使用圆形背景和相同字体大小
       let backgroundColor = '#00FF00'; // 默认绿色背景
       let textColor = '#000000'; // 默认黑色文字
       let borderWidth = '1px';
-      let borderColor = 'rgba(0, 0, 0, 0.3)';
+      let borderColor = 'rgba(255, 255, 255, 0.5)'; // 白色边框
       let boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
       let textShadow = '1px 1px 1px rgba(255, 255, 255, 0.5)';
+      let borderRadius = '50%'; // 圆形背景
       
       // 对于Y-Wing技巧，如果cell.zValue等于当前note，则使用浅蓝底黑字
       if (cell.techniqueType && cell.techniqueType.includes('yWing') && cell.zValue === note) {
@@ -411,7 +412,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             width: `${noteSize}px`,
             height: `${noteSize}px`,
             backgroundColor: backgroundColor,
-            borderRadius: '6px',
+            borderRadius: borderRadius, // 使用动态设置的圆角
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -425,7 +426,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         >
           <span
             style={{
-              fontSize: `${noteSize * 0.8}px`,
+              fontSize: `${noteSize * 0.7}px`,
               fontWeight: 'bold',
               color: textColor,
               zIndex: 55,
@@ -467,13 +468,14 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       return null;
     }
     
-    // 对于X-Wing、Swordfish、Y-Wing、XYZ-Wing技巧，不高亮removal类型的单元格
+    // 对于X-Wing、Swordfish、Y-Wing、XYZ-Wing、显性三链数等技巧，不高亮removal类型的单元格
     // 这些技巧只需要在候选数级别高亮删除目标，不需要单元格级别的红底高亮
     const isAdvancedTechnique = cell.techniqueType && (
       cell.techniqueType.includes('xWing') ||
       cell.techniqueType.includes('swordfish') ||
       cell.techniqueType.includes('yWing') ||
-      cell.techniqueType.includes('xyzWing')
+      cell.techniqueType.includes('xyzWing') ||
+      cell.techniqueType.includes('nakedTriple')
     );
     
     if (isAdvancedTechnique && cell.highlightType === 'removal') {

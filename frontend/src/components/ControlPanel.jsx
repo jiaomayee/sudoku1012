@@ -200,6 +200,16 @@ const ControlPanel = ({
   // 处理技巧选择
   // 技巧选择处理函数
   const handleTechniqueSelect = (technique) => {
+    // 清除上一个技巧的指示功能
+    // 无条件清除ALS-XZ技巧的DOM高亮（避免候选数高亮遗留）
+    // 即使上一个技巧不是ALS-XZ，也要清除以防有遗留的ALS-XZ高亮
+    alsXZIndicator.clearHighlights();
+    
+    // 清除通用的高亮（基于setHighlightedCells）
+    if (setHighlightedCells) {
+      setHighlightedCells([]);
+    }
+    
     setSelectedTechnique(technique);
     const steps = [];
     
@@ -2212,6 +2222,9 @@ const ControlPanel = ({
         console.log('Applying basic technique');
         const success = applyTechniqueToBoard(selectedTechnique);
         if (success) {
+          // 彻底清除ALS-XZ的DOM样式（避免高亮遗留）
+          alsXZIndicator.clearHighlights();
+          
           // 应用成功后，清除高亮
           if (setHighlightedCells) {
             setHighlightedCells([]);
@@ -2235,6 +2248,9 @@ const ControlPanel = ({
         });
         
         // 退出技巧指示模式
+        // 彻底清除ALS-XZ的DOM样式（避免高亮遗留）
+        alsXZIndicator.clearHighlights();
+        
         // 清除高亮
         if (setHighlightedCells) {
           setHighlightedCells([]);

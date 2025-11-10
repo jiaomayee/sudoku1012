@@ -7,6 +7,8 @@ import { findJellyfish } from './sudokuTechniques.js';
 import { findALSXZ } from './alsXZTechniques.js';
 // 导入显性数对指示功能
 import nakedPairIndicator from './nakedPairIndicator.js';
+// 导入ALS-XZ指示功能
+import alsXZIndicator from './alsXZIndicator.js';
 
 // 定义技巧名称映射，修复未定义变量的问题
 const pairTechniqueNames = {
@@ -21,6 +23,18 @@ const pairTechniqueNames = {
   hiddenPairs: {
     en: 'Hidden Pairs',
     zh: '隐性数对法'
+  }
+};
+
+// 定义三链数技巧名称映射，修复未定义变量的问题
+const tripleTechniqueNames = {
+  nakedTriples: {
+    en: 'Naked Triples',
+    zh: '显性三链数法'
+  },
+  hiddenTriples: {
+    en: 'Hidden Triples',
+    zh: '隐性三链数法'
   }
 };
 
@@ -253,6 +267,12 @@ class TechniqueManager {
     if (techniqueType && techniqueType.includes('nakedPair')) {
       nakedPairIndicator.setCurrentStep(step);
       return nakedPairIndicator;
+    }
+    
+    // 为ALS-XZ技巧使用专门的指示器
+    if (techniqueType && techniqueType.includes('alsXZ')) {
+      alsXZIndicator.setCurrentStep(step);
+      return alsXZIndicator;
     }
     
     // 其他技巧使用默认指示器

@@ -1,5 +1,5 @@
 // 三链数技巧模块
-import { getRowCells, getColCells, getBoxCells, getCellKey } from './sudokuUtils';
+import { getBoxCells } from './sudokuUtils';
 
 /**
  * 显性三链数法 - 检查行中的显性三链数

@@ -180,25 +180,41 @@ class ALSXZIndicator {
       element.style.borderWidth = originalStyle.borderWidth || '';
     });
     
-    // 清除数值高亮
-    const valueElements = document.querySelectorAll('.cell .value[data-original-color]');
+    // 清除数值高亮 - 包括有data-original-color属性的和没有的
+    const valueElements = document.querySelectorAll('.cell .value');
     valueElements.forEach(element => {
-      element.style.color = element.dataset.originalColor || '';
-      element.style.fontWeight = element.dataset.originalFontWeight || '';
-      delete element.dataset.originalColor;
-      delete element.dataset.originalFontWeight;
+      // 如果有原始颜色记录，恢复；否则清除高亮样式
+      if (element.dataset.originalColor) {
+        element.style.color = element.dataset.originalColor || '';
+        element.style.fontWeight = element.dataset.originalFontWeight || '';
+        delete element.dataset.originalColor;
+        delete element.dataset.originalFontWeight;
+      } else {
+        // 清除任何可能的高亮颜色（粉色、红色等）
+        element.style.color = '';
+        element.style.fontWeight = '';
+      }
     });
     
-    // 清除候选数高亮
-    const noteElements = document.querySelectorAll('.cell .notes .note[data-original-color]');
+    // 清除候选数高亮 - 彻底清除所有可能的ALS-XZ相关样式
+    const noteElements = document.querySelectorAll('.cell .notes .note');
     noteElements.forEach(element => {
-      element.style.color = element.dataset.originalColor || '';
-      element.style.backgroundColor = element.dataset.originalBackgroundColor || '';
-      element.style.fontWeight = element.dataset.originalFontWeight || '';
-      element.style.textDecoration = '';
-      delete element.dataset.originalColor;
-      delete element.dataset.originalBackgroundColor;
-      delete element.dataset.originalFontWeight;
+      // 如果有原始样式记录，恢复
+      if (element.dataset.originalColor) {
+        element.style.color = element.dataset.originalColor || '';
+        element.style.backgroundColor = element.dataset.originalBackgroundColor || '';
+        element.style.fontWeight = element.dataset.originalFontWeight || '';
+        element.style.textDecoration = '';
+        delete element.dataset.originalColor;
+        delete element.dataset.originalBackgroundColor;
+        delete element.dataset.originalFontWeight;
+      } else {
+        // 无条件清除所有可能的高亮样式（粉色背景、红色背景、删除线等）
+        element.style.color = '';
+        element.style.backgroundColor = '';
+        element.style.fontWeight = '';
+        element.style.textDecoration = '';
+      }
     });
     
     // 清空高亮记录

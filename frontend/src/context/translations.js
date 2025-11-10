@@ -242,6 +242,8 @@ export const translations = {
     hiddenPairTechnique: '隐性数对',
     nakedTripleTechnique: '显性三链数',
     hiddenTripleTechnique: '隐性三链数',
+    xWingTechnique: 'X-Wing',
+    yWingTechnique: 'Y-Wing',
     pointingPairsTechnique: '指向对',
     boxLineReductionTechnique: '宫线摒除',
     swordfishTechnique: '剑鱼',
@@ -358,6 +360,10 @@ export const translations = {
     techniqueDescription: '技巧说明',
     techniqueSteps: '使用步骤',
     techniqueExamples: '示例',
+    techniqueDiagram: '图例',
+    highlightedCell: '高亮单元格',
+    filledCell: '已填充单元格',
+    relatedCell: '相关单元格',
     startPracticeButton: '开始练习',
     mastered: '已掌握',
     learning: '学习中',
@@ -410,6 +416,40 @@ export const translations = {
     boxLineReductionStep3: '如果这些位置全部位于同一个3x3宫格中',
     boxLineReductionStep4: '则可以从该3x3宫格的其他格子中排除该数字',
     boxLineReductionExample: '例如：在某一行中，数字8只能出现在该行的前三个格子（属于第一个3x3宫格）。这意味着在第一个3x3宫格中，数字8只能出现在这三个格子中，可以从该宫格的其他六个格子中排除数字8。',
+    
+    // 显性三链数技巧翻译
+    nakedTripleTechniqueDescription: '当同一行、列或3x3宫格中的三个格子恰好有相同的三个候选数时，可以排除该区域其他格子中这三个候选数。',
+    nakedTripleTechniqueDetail: '显性三链数是显性数对的扩展。当在同一行、列或3x3宫格中，三个格子的候选数恰好是三个相同的数字时（可以是两个数字的组合），就可以从该区域其他格子中删除这三个数字的候选数。',
+    nakedTripleStep1: '在同一行、列或3x3宫格中寻找三个格子',
+    nakedTripleStep2: '确认这三个格子的候选数恰好是相同的三个数字',
+    nakedTripleStep3: '从该区域的其他格子的候选数中排除这三个数字',
+    nakedTripleExample: '例如：在同一行中，三个格子的候选数分别为{2,3,4}、{2,3}、{2,4}。这意味着这三个数字（2、3、4）必须分别填入这三个格子，可以从该行的其他格子中排除数字2、3、4。',
+    
+    // 隐性三链数技巧翻译
+    hiddenTripleTechniqueDescription: '当三个数字只能出现在同一区域的三个特定格子中时，可以排除这三个格子中其他候选数。',
+    hiddenTripleTechniqueDetail: '隐性三链数是隐性数对的扩展。当在同一行、列或3x3宫格中，三个特定的数字只能出现在三个特定的格子中时，这三个格子必须包含这三个数字，可以从这三个格子中删除所有其他候选数。',
+    hiddenTripleStep1: '在同一行、列或3x3宫格中选择三个数字',
+    hiddenTripleStep2: '检查这三个数字是否只能出现在该区域的三个特定格子中',
+    hiddenTripleStep3: '如果是，则可以从这三个格子中排除所有其他候选数，只保留这三个数字',
+    hiddenTripleExample: '例如：在同一列中，数字3、5、7只能出现在三个特定的格子中。这三个格子可能有其他候选数，但这三个格子必须包含数字3、5、7，所以可以从这三个格子中删除其他候选数。',
+    
+    // X-Wing技巧翻译
+    xWingTechniqueDescription: '当某个数字在两行（或两列）中只出现在相同的两列（或两行）中时，可以排除这四个格子交集外的该数字。',
+    xWingTechniqueDetail: 'X-Wing是一种高级消除技巧。当在两行中，某个数字都只出现在相同的两列中，这四个格子形成矩形时，可以排除这两列中其他行的该数字候选数。',
+    xWingStep1: '选择某个数字，检查两行中该数字的位置分布',
+    xWingStep2: '如果该数字在两行中都只出现在相同的两列中',
+    xWingStep3: '则这四个格子形成了X-Wing结构',
+    xWingStep4: '可以从这两列中的其他行排除该数字',
+    xWingExample: '例如：数字6在第1行只出现在第2列和第5列，在第8行也只出现在第2列和第5列，形成了一个矩形。那么在第2列和第5列的其他行中，都可以排除数字6。',
+    
+    // Y-Wing技巧翻译
+    yWingTechniqueDescription: '由三个双候选数格子组成的结构，通过它们的关联关系可以排除某些候选数。',
+    yWingTechniqueDetail: 'Y-Wing（也叫XZ-Wing）是由三个格子组成的高级技巧。其中一个格子（称为枢纽）与另外两个格子各共享一个候选数，而这两个格子共享第三个候选数。根据这个结构的逻辑，可以从某些格子中排除候选数。',
+    yWingStep1: '寻找一个格子（枢纽），它有两个候选数X和Y',
+    yWingStep2: '在与枢纽相关的其他格子中，找到有候选数X和Z的格子（称为X-翼）',
+    yWingStep3: '找到有候选数Y和Z的格子（称为Y-翼）',
+    yWingStep4: '从所有同时与X-翼和Y-翼相关的格子中排除候选数Z',
+    yWingExample: '例如：格子A有候选数{1,2}，格子B有候选数{1,3}，格子C有候选数{2,3}。如果A和B在同一区域，A和C在同一区域，但B和C不在同一区域，则可以从同时与B和C相关的格子中排除候选数3。',
 
     // Candidate-related translation keys
     cellNotEmpty: '该单元格已有数字，无法填充候选数',
@@ -584,6 +624,8 @@ export const translations = {
     hiddenPairTechnique: 'Hidden Pair',
     nakedTripleTechnique: 'Naked Triple',
     hiddenTripleTechnique: 'Hidden Triple',
+    xWingTechnique: 'X-Wing',
+    yWingTechnique: 'Y-Wing',
     pointingPairsTechnique: 'Pointing Pairs',
     boxLineReductionTechnique: 'Box-Line Reduction',
     swordfishTechnique: 'Swordfish',
@@ -707,6 +749,10 @@ export const translations = {
     techniqueDescription: 'Technique Description',
     techniqueSteps: 'Usage Steps',
     techniqueExamples: 'Examples',
+    techniqueDiagram: 'Diagram',
+    highlightedCell: 'Highlighted Cell',
+    filledCell: 'Filled Cell',
+    relatedCell: 'Related Cell',
     startPracticeButton: 'Start Practice',
     mastered: 'Mastered',
     learning: 'Learning',
@@ -759,6 +805,40 @@ export const translations = {
     boxLineReductionStep3: 'If these positions are all in the same 3x3 box',
     boxLineReductionStep4: 'Eliminate that number from other cells in that 3x3 box',
     boxLineReductionExample: 'Example: In a row, number 8 can only appear in the first three cells (belonging to the first 3x3 box). This means that in the first 3x3 box, number 8 can only appear in these three cells, and can be eliminated from the other six cells in that box.',
+    
+    // Naked Triple technique translations
+    nakedTripleTechniqueDescription: 'When three cells in the same area have exactly the same three candidates, these three numbers can be eliminated from other cells in that area.',
+    nakedTripleTechniqueDetail: 'Naked Triple is an extension of Naked Pair. When three cells in the same row, column, or 3x3 box have exactly the same three candidates (possibly containing subsets), these three numbers must be placed in these three cells, and can be eliminated from other cells in that area.',
+    nakedTripleStep1: 'Find three cells in the same row, column, or 3x3 box',
+    nakedTripleStep2: 'Confirm that these three cells have exactly the same three candidates',
+    nakedTripleStep3: 'Eliminate these three numbers from the candidates of other cells in that area',
+    nakedTripleExample: 'Example: In the same row, three cells have candidates {2,3,4}, {2,3}, and {2,4} respectively. This means these three numbers (2, 3, 4) must be placed in these three cells, and can be eliminated from other cells in that row.',
+    
+    // Hidden Triple technique translations
+    hiddenTripleTechniqueDescription: 'When three numbers can only appear in three specific cells within the same area, other candidates can be eliminated from these three cells.',
+    hiddenTripleTechniqueDetail: 'Hidden Triple is an extension of Hidden Pair. When three specific numbers can only appear in three specific cells within the same row, column, or 3x3 box, those three cells must contain those three numbers, and other candidates can be eliminated from these three cells.',
+    hiddenTripleStep1: 'Select three numbers in the same row, column, or 3x3 box',
+    hiddenTripleStep2: 'Check if these three numbers can only appear in three specific cells in that area',
+    hiddenTripleStep3: 'If yes, eliminate all other candidates from these three cells, leaving only these three numbers',
+    hiddenTripleExample: 'Example: In the same column, numbers 3, 5, and 7 can only appear in three specific cells. Even though these cells might have other candidates, they must contain numbers 3, 5, and 7, so other candidates can be removed from these cells.',
+    
+    // X-Wing technique translations
+    xWingTechniqueDescription: 'When a number appears in only two cells in each of two rows (or columns), and these cells form a rectangle with the same two columns (or rows), the number can be eliminated from other cells in those columns (or rows).',
+    xWingTechniqueDetail: 'X-Wing is an advanced elimination technique. When a number appears in exactly two cells in two different rows, and these cells are in the same two columns, a rectangle is formed. In this case, the number can be eliminated from other cells in those two columns.',
+    xWingStep1: 'Select a number and check its distribution in two rows',
+    xWingStep2: 'If the number appears only in two cells in each row, and these cells are in the same two columns',
+    xWingStep3: 'Then these four cells form an X-Wing structure',
+    xWingStep4: 'The number can be eliminated from other rows in those two columns',
+    xWingExample: 'Example: Number 6 appears only in columns 2 and 5 in row 1, and also only in columns 2 and 5 in row 8, forming a rectangle. Then in columns 2 and 5, number 6 can be eliminated from all other rows.',
+    
+    // Y-Wing technique translations
+    yWingTechniqueDescription: 'A structure of three cells with two candidates each that are related through shared candidates can be used to eliminate candidates.',
+    yWingTechniqueDetail: 'Y-Wing (also called XZ-Wing) is an advanced technique formed by three cells with two candidates each. One cell (called the anchor) shares one candidate with each of the other two cells, and those two cells share a third candidate. Through this structure, certain candidates can be eliminated from related cells.',
+    yWingStep1: 'Find a cell (anchor) that has two candidates X and Y',
+    yWingStep2: 'In related cells, find a cell with candidates X and Z (called the X-wing)',
+    yWingStep3: 'Find a cell with candidates Y and Z (called the Y-wing)',
+    yWingStep4: 'Eliminate candidate Z from all cells that are related to both the X-wing and Y-wing',
+    yWingExample: 'Example: Cell A has candidates {1,2}, Cell B has candidates {1,3}, Cell C has candidates {2,3}. If A and B share a region, A and C share a region, but B and C do not, then candidate 3 can be eliminated from all cells related to both B and C.',
 
     // Candidate-related translation keys
     cellNotEmpty: 'Cell already has a number, cannot fill candidates',

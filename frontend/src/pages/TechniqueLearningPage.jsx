@@ -156,6 +156,87 @@ const StepItem = styled.li`
   line-height: 1.6;
 `;
 
+const DiagramSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+`;
+
+const DiagramContainer = styled.div`
+  background-color: ${props => props.theme.background};
+  border-radius: 8px;
+  padding: 30px;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid ${props => props.theme.border};
+`;
+
+const SudokuGridSmall = styled.div`
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 400px;
+  border: 2px solid ${props => props.theme.text};
+  margin-bottom: 20px;
+`;
+
+const GridCell = styled.div`
+  border: 1px solid ${props => props.theme.textSecondary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  background-color: ${props => {
+    if (props.$highlighted) return 'rgba(100, 181, 246, 0.3)';
+    if (props.$filled) return props.theme.surface;
+    return 'white';
+  }};
+  color: ${props => props.$filled ? props.theme.text : props.theme.textSecondary};
+  border-right: ${props => (props.$col + 1) % 3 === 0 && props.$col !== 8 ? '2px solid ' + props.theme.text : '1px solid ' + props.theme.textSecondary};
+  border-bottom: ${props => (props.$row + 1) % 3 === 0 && props.$row !== 8 ? '2px solid ' + props.theme.text : '1px solid ' + props.theme.textSecondary};
+`;
+
+const LegendContainer = styled.div`
+  background-color: ${props => props.theme.background};
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 15px;
+  width: 100%;
+  max-width: 600px;
+`;
+
+const LegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 12px;
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const LegendColor = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  background-color: ${props => props.$color};
+  border: 1px solid ${props => props.theme.border};
+  flex-shrink: 0;
+`;
+
+const LegendText = styled.span`
+  font-size: 14px;
+  color: ${props => props.theme.text};
+`;
+
 const PracticeButton = styled.button`
   background-color: ${props => props.theme.primary};
   color: white;
@@ -197,7 +278,15 @@ const TechniqueLearningPage = () => {
             t('nakedSingleStep4'),
             t('nakedSingleStep5')
           ],
-          examples: t('nakedSingleExample')
+          examples: t('nakedSingleExample'),
+          diagram: {
+            type: 'nakedSingle',
+            highlightedCells: [[0, 0]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
         }
       },
       {
@@ -212,7 +301,15 @@ const TechniqueLearningPage = () => {
             t('hiddenSingleStep3'),
             t('hiddenSingleStep4')
           ],
-          examples: t('hiddenSingleExample')
+          examples: t('hiddenSingleExample'),
+          diagram: {
+            type: 'hiddenSingle',
+            highlightedCells: [[0, 0], [0, 1]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
         }
       },
       {
@@ -226,7 +323,16 @@ const TechniqueLearningPage = () => {
             t('nakedPairStep2'),
             t('nakedPairStep3')
           ],
-          examples: t('nakedPairExample')
+          examples: t('nakedPairExample'),
+          diagram: {
+            type: 'nakedPair',
+            highlightedCells: [[0, 0], [0, 1]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
+              { color: 'rgba(255, 152, 0, 0.3)', label: t('relatedCell') || '相关单元格' }
+            ]
+          }
         }
       },
       {
@@ -240,7 +346,15 @@ const TechniqueLearningPage = () => {
             t('hiddenPairStep2'),
             t('hiddenPairStep3')
           ],
-          examples: t('hiddenPairExample')
+          examples: t('hiddenPairExample'),
+          diagram: {
+            type: 'hiddenPair',
+            highlightedCells: [[0, 0], [0, 1]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
         }
       },
       {
@@ -255,7 +369,15 @@ const TechniqueLearningPage = () => {
             t('pointingPairsStep3'),
             t('pointingPairsStep4')
           ],
-          examples: t('pointingPairsExample')
+          examples: t('pointingPairsExample'),
+          diagram: {
+            type: 'pointingPairs',
+            highlightedCells: [[0, 0], [0, 1], [1, 0], [1, 1]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
         }
       },
       {
@@ -270,7 +392,105 @@ const TechniqueLearningPage = () => {
             t('boxLineReductionStep3'),
             t('boxLineReductionStep4')
           ],
-          examples: t('boxLineReductionExample')
+          examples: t('boxLineReductionExample'),
+          diagram: {
+            type: 'boxLineReduction',
+            highlightedCells: [[0, 0], [0, 1], [0, 2]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
+        }
+      },
+      {
+        id: 'nakedTriples',
+        name: t('nakedTripleTechnique'),
+        description: t('nakedTripleTechniqueDescription'),
+        details: {
+          description: t('nakedTripleTechniqueDetail'),
+          steps: [
+            t('nakedTripleStep1'),
+            t('nakedTripleStep2'),
+            t('nakedTripleStep3')
+          ],
+          examples: t('nakedTripleExample'),
+          diagram: {
+            type: 'nakedTriple',
+            highlightedCells: [[0, 0], [0, 1], [0, 2]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
+        }
+      },
+      {
+        id: 'hiddenTriples',
+        name: t('hiddenTripleTechnique'),
+        description: t('hiddenTripleTechniqueDescription'),
+        details: {
+          description: t('hiddenTripleTechniqueDetail'),
+          steps: [
+            t('hiddenTripleStep1'),
+            t('hiddenTripleStep2'),
+            t('hiddenTripleStep3')
+          ],
+          examples: t('hiddenTripleExample'),
+          diagram: {
+            type: 'hiddenTriple',
+            highlightedCells: [[0, 0], [0, 1], [0, 2]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
+        }
+      },
+      {
+        id: 'xWing',
+        name: t('xWingTechnique'),
+        description: t('xWingTechniqueDescription'),
+        details: {
+          description: t('xWingTechniqueDetail'),
+          steps: [
+            t('xWingStep1'),
+            t('xWingStep2'),
+            t('xWingStep3'),
+            t('xWingStep4')
+          ],
+          examples: t('xWingExample'),
+          diagram: {
+            type: 'xWing',
+            highlightedCells: [[0, 0], [0, 4], [7, 0], [7, 4]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
+        }
+      },
+      {
+        id: 'yWing',
+        name: t('yWingTechnique'),
+        description: t('yWingTechniqueDescription'),
+        details: {
+          description: t('yWingTechniqueDetail'),
+          steps: [
+            t('yWingStep1'),
+            t('yWingStep2'),
+            t('yWingStep3'),
+            t('yWingStep4')
+          ],
+          examples: t('yWingExample'),
+          diagram: {
+            type: 'yWing',
+            highlightedCells: [[0, 0], [0, 3], [3, 0]],
+            filledCells: [],
+            legend: [
+              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' }
+            ]
+          }
         }
       }
     ];
@@ -346,6 +566,46 @@ const TechniqueLearningPage = () => {
                 </p>
               </ExampleContainer>
             </div>
+            
+            {selectedTechnique.details.diagram && (
+              <div>
+                <SectionTitle theme={theme}>{t('techniqueDiagram') || '图例'}</SectionTitle>
+                <DiagramSection theme={theme}>
+                  <DiagramContainer theme={theme}>
+                    <SudokuGridSmall theme={theme}>
+                      {Array.from({ length: 81 }).map((_, index) => {
+                        const row = Math.floor(index / 9);
+                        const col = index % 9;
+                        const isHighlighted = selectedTechnique.details.diagram.highlightedCells.some(cell => cell[0] === row && cell[1] === col);
+                        const isFilled = selectedTechnique.details.diagram.filledCells.some(cell => cell[0] === row && cell[1] === col);
+                        return (
+                          <GridCell
+                            key={index}
+                            theme={theme}
+                            $row={row}
+                            $col={col}
+                            $highlighted={isHighlighted}
+                            $filled={isFilled}
+                          >
+                            {isFilled && (5)}
+                          </GridCell>
+                        );
+                      })}
+                    </SudokuGridSmall>
+                    {selectedTechnique.details.diagram.legend && selectedTechnique.details.diagram.legend.length > 0 && (
+                      <LegendContainer theme={theme}>
+                        {selectedTechnique.details.diagram.legend.map((item, index) => (
+                          <LegendItem key={index}>
+                            <LegendColor theme={theme} $color={item.color} />
+                            <LegendText theme={theme}>{item.label}</LegendText>
+                          </LegendItem>
+                        ))}
+                      </LegendContainer>
+                    )}
+                  </DiagramContainer>
+                </DiagramSection>
+              </div>
+            )}
             
             <PracticeButton 
               onClick={() => handlePracticeTechnique(selectedTechnique.id)} 

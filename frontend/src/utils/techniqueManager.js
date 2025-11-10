@@ -5,10 +5,13 @@ import { findNakedPairs, findHiddenPairs } from './sudokuTechniques.js';
 import { findNakedTriples, findHiddenTriples } from './tripleTechniques.js';
 import { findJellyfish } from './sudokuTechniques.js';
 import { findALSXZ } from './alsXZTechniques.js';
+import { findSDC } from './sdcTechniques.js';
 // 导入显性数对指示功能
 import nakedPairIndicator from './nakedPairIndicator.js';
 // 导入ALS-XZ指示功能
 import alsXZIndicator from './alsXZIndicator.js';
+// 导入SDC指示功能
+import sdcIndicator from './sdcIndicator.js';
 
 // 定义技巧名称映射，修复未定义变量的问题
 const pairTechniqueNames = {
@@ -144,6 +147,18 @@ const ALL_TECHNIQUES = {
     category: TECHNIQUE_CATEGORIES.ADVANCED,
     function: findALSXZ,
     enabled: true // 默认启用
+  },
+  sdc: {
+    id: 'sdc',
+    name: 'Sue De Coq技巧',
+    name_i18n: {
+      en: 'Sue De Coq',
+      zh: 'Sue De Coq技巧'
+    },
+    description: 'Sue De Coq技巧：通过分析宫与行/列的交叉单元格中的候选数分布来消除候选数',
+    category: TECHNIQUE_CATEGORIES.ADVANCED,
+    function: findSDC,
+    enabled: true // 默认启用
   }
   // 后续可以添加更多技巧
 };
@@ -275,6 +290,12 @@ class TechniqueManager {
       return alsXZIndicator;
     }
     
+    // 为SDC技巧使用专门的指示器
+    if (techniqueType && techniqueType.includes('sdc')) {
+      sdcIndicator.setCurrentStep(step);
+      return sdcIndicator;
+    }
+    
     // 其他技巧使用默认指示器
     return null; // 这里可以返回其他专门的指示器
   }
@@ -288,7 +309,7 @@ class TechniqueManager {
    */
   findSolutionStep(board, pencilNotes = {}, solution = null) {
     // 按优先级顺序检查各技巧
-    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish', 'alsXZ'];
+    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish', 'alsXZ', 'sdc'];
     
     for (const techniqueId of priorityOrder) {
       if (this.isTechniqueEnabled(techniqueId)) {

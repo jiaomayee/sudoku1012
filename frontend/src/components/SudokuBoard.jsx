@@ -174,24 +174,24 @@ const Cell = styled.div`
   }
 
   /* 优化边缘单元格处理，确保棋盘边缘完整 */
-  ${props => props.row === 0 && `border-top: none;`}
-  ${props => props.row === 8 && `border-bottom: none;`}
-  ${props => props.col === 0 && `border-left: none;`}
-  ${props => props.col === 8 && `border-right: none;`}
+  ${props => props.$row === 0 && `border-top: none;`}
+  ${props => props.$row === 8 && `border-bottom: none;`}
+  ${props => props.$col === 0 && `border-left: none;`}
+  ${props => props.$col === 8 && `border-right: none;`}
   
   /* 简化角落单元格处理，仅保留基本圆角 */
-  ${props => props.row === 0 && props.col === 0 && `border-radius: var(--border-radius, 8px) 0 0 0;`}
-  ${props => props.row === 0 && props.col === 8 && `border-radius: 0 var(--border-radius, 8px) 0 0;`}
-  ${props => props.row === 8 && props.col === 0 && `border-radius: 0 0 0 var(--border-radius, 8px);`}
-  ${props => props.row === 8 && props.col === 8 && `border-radius: 0 0 var(--border-radius, 8px) 0;`}
+  ${props => props.$row === 0 && props.$col === 0 && `border-radius: var(--border-radius, 8px) 0 0 0;`}
+  ${props => props.$row === 0 && props.$col === 8 && `border-radius: 0 var(--border-radius, 8px) 0 0;`}
+  ${props => props.$row === 8 && props.$col === 0 && `border-radius: 0 0 0 var(--border-radius, 8px);`}
+  ${props => props.$row === 8 && props.$col === 8 && `border-radius: 0 0 var(--border-radius, 8px) 0;`}
   
   /* 确保所有状态下圆角正确应用 */
-  ${props => props.row === 8 && props.col === 0 && `overflow: hidden;`}
-  ${props => props.row === 8 && props.col === 8 && `overflow: hidden;`}
+  ${props => props.$row === 8 && props.$col === 0 && `overflow: hidden;`}
+  ${props => props.$row === 8 && props.$col === 8 && `overflow: hidden;`}
   
   /* 3x3子网格分隔线 - 使用0.5px深色实线 */
-  ${props => (props.col === 2 || props.col === 5) && `border-right: 0.5px solid #333333;`}
-  ${props => (props.row === 2 || props.row === 5) && `border-bottom: 0.5px solid #333333;`}
+  ${props => (props.$col === 2 || props.$col === 5) && `border-right: 0.5px solid #333333;`}
+  ${props => (props.$row === 2 || props.$row === 5) && `border-bottom: 0.5px solid #333333;`}
   
   // 悬停效果（仅在非移动设备上）
   @media (hover: hover) {
@@ -661,8 +661,8 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
           return (
               <Cell
                 key={cellKey}
-                row={rowIndex}
-                col={colIndex}
+                $row={rowIndex}
+                $col={colIndex}
                 className={cellClasses}
                 onClick={interactionHandler}
                 onTouchStart={interactionHandler}

@@ -1,6 +1,7 @@
 // 数独技巧实现：初级技巧集合
 import { isValidMove } from './sudokuUtils.js';
 import { findALSXZ } from './alsXZTechniques.js';
+import { findSDC } from './sdcTechniques.js';
 
 /**
  * 唯一数法 (Naked Single)：查找只有一个可能数字的单元格
@@ -3174,6 +3175,23 @@ export const applyTechnique = (technique, board) => {
         }
       };
     
+    // SDC技巧特殊处理，提供详细的高亮指示
+    case 'sdc':
+      // 对于SDC技巧，提供详细的高亮指示
+      return {
+        board: newBoard,
+        operation: {
+          type: 'highlight',
+          cells: technique.cells || technique.sourceCells,
+          targetCells: technique.targetCells,
+          values: technique.values || [technique.number],
+          removableCandidates: technique.removableCandidates,
+          // SDC特定的高亮信息
+          highlightType: 'sdc',
+          highlightInfo: technique.highlightInfo || {}
+        }
+      };
+    
     // 数对和三链数技巧（主要用于提示，暂不自动填入数字）
     case 'nakedPairRow':
     case 'nakedPairCol':
@@ -3250,6 +3268,7 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
   let xyzWing = [];
   let jellyfish = [];
   let alsXZ = [];
+  let sdc = [];
   
   if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
     nakedPairs = findNakedPairs(board, pencilNotes);
@@ -3267,6 +3286,8 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
     jellyfish = findJellyfish(board, pencilNotes);
     // 添加ALS-XZ技巧
     alsXZ = findALSXZ(board, pencilNotes);
+    // 添加SDC技巧
+    sdc = findSDC(board, pencilNotes);
   }
   
   // 按技巧难度顺序合并所有技巧机会
@@ -3297,6 +3318,8 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
       result.push(...jellyfish);
       // 添加ALS-XZ技巧（最高优先级的高级技巧）
       result.push(...alsXZ);
+      // 添加SDC技巧
+      result.push(...sdc);
   }
   
   return result;

@@ -251,6 +251,8 @@ export const translations = {
     jellyfishTechnique: '水母法',
     alsXZTechnique: 'ALS-XZ技巧',
     alsXZ: 'ALS-XZ技巧',
+    sdcTechnique: 'Sue De Coq技巧',
+    sdc: 'Sue De Coq技巧',
     // 技巧名称
     nakedSingle: '唯一数法',
     hiddenSingleRow: '隐性唯一数法(行)',
@@ -447,6 +449,18 @@ export const translations = {
     hiddenTripleStep2: '检查这三个数字是否只能出现在该区域的三个特定格子中',
     hiddenTripleStep3: '如果是，则可以从这三个格子中排除所有其他候选数，只保留这三个数字',
     hiddenTripleExample: '例如：在同一列中，数字3、5、7只能出现在三个特定的格子中。这三个格子可能有其他候选数，但这三个格子必须包含数字3、5、7，所以可以从这三个格子中删除其他候选数。',
+    
+    // Sue De Coq技巧翻译
+    sdcTechniqueDescription: '通过分析宫与行/列的交叉单元格中的候选数分布来消除候选数。',
+    sdcTechniqueDetail: 'Sue De Coq是一种高级技巧，结合了宫和行/列的关系。当在一个宫中，同一行或同一列的两个单元格的候选数合集可以被分为两组时，一组只能出现在该行/列的其他宫中，另一组只能出现在该宫的其他行/列中，就可以删除相关的候选数。',
+    sdcStep1: '在一个宫中找到2个空单元格，它们在同一行或同一列',
+    sdcStep2: '计算这两个单元格的候选数并集（N个数字，N>=3）',
+    sdcStep3: '分析该行/列在其他宫中的候选数（组A）',
+    sdcStep4: '分析该宫在其他行/列中的候选数（组B）',
+    sdcStep5: '如果组A和组B的并集恰好覆盖SDC单元格的所有候选数，则可以删除相关候选数',
+    sdcStep6: '从组A单元格中删除只在组B中出现的数字',
+    sdcStep7: '从组B单元格中删除只在组A中出现的数字',
+    sdcExample: '例如：在第1宫的第1行中，两个单元格的候选数合集为{2,3,4,5}。第1行的其他宫中包含候选数{2,3}（组A），第1宫的其他行中包含候选数{4,5}（组B）。因为组A和组B的并集{2,3,4,5}恰好覆盖SDC单元格的所有候选数，所以可以从组A中删除{4,5}，从组B中删除{2,3}。',
     
     // X-Wing技巧翻译
     xWingTechniqueDescription: '当某个数字在两行（或两列）中只出现在相同的两列（或两行）中时，可以排除这四个格子交集外的该数字。',
@@ -648,6 +662,8 @@ export const translations = {
     jellyfishTechnique: 'Jellyfish',
     alsXZTechnique: 'ALS-XZ Rule',
     alsXZ: 'ALS-XZ Rule',
+    sdcTechnique: 'Sue De Coq',
+    sdc: 'Sue De Coq',
     // Technique names
     nakedSingle: 'Naked Single',
     hiddenSingleRow: 'Hidden Single (Row)',
@@ -851,6 +867,18 @@ export const translations = {
     hiddenTripleStep2: 'Check if these three numbers can only appear in three specific cells in that area',
     hiddenTripleStep3: 'If yes, eliminate all other candidates from these three cells, leaving only these three numbers',
     hiddenTripleExample: 'Example: In the same column, numbers 3, 5, and 7 can only appear in three specific cells. Even though these cells might have other candidates, they must contain numbers 3, 5, and 7, so other candidates can be removed from these cells.',
+    
+    // Sue De Coq technique translations
+    sdcTechniqueDescription: 'Eliminate candidates by analyzing the distribution of candidates in cells at the intersection of a box and a row/column.',
+    sdcTechniqueDetail: 'Sue De Coq is an advanced technique that combines the relationships between boxes and rows/columns. When in a box, two cells in the same row or column have a candidate set that can be divided into two groups, one group can only appear in other boxes of that row/column, and the other group can only appear in other rows/columns of that box, then related candidates can be eliminated.',
+    sdcStep1: 'Find 2 empty cells in a box that are in the same row or column',
+    sdcStep2: 'Calculate the union of candidates for these two cells (N numbers, N>=3)',
+    sdcStep3: 'Analyze the candidates of that row/column in other boxes (Group A)',
+    sdcStep4: 'Analyze the candidates of that box in other rows/columns (Group B)',
+    sdcStep5: 'If the union of Group A and Group B exactly covers all candidates of the SDC cells, candidates can be eliminated',
+    sdcStep6: 'Remove numbers that only appear in Group B from Group A cells',
+    sdcStep7: 'Remove numbers that only appear in Group A from Group B cells',
+    sdcExample: 'Example: In box 1, row 1, two cells have a candidate set of {2,3,4,5}. Other boxes in row 1 contain candidates {2,3} (Group A), and other rows in box 1 contain candidates {4,5} (Group B). Since the union of Group A and Group B {2,3,4,5} exactly covers all candidates of the SDC cells, {4,5} can be removed from Group A and {2,3} can be removed from Group B.',
     
     // X-Wing technique translations
     xWingTechniqueDescription: 'When a number appears in only two cells in each of two rows (or columns), and these cells form a rectangle with the same two columns (or rows), the number can be eliminated from other cells in those columns (or rows).',

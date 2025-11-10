@@ -163,6 +163,15 @@ const DiagramSection = styled.div`
   align-items: center;
 `;
 
+const DiagramImage = styled.img`
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid ${props => props.theme.border};
+  object-fit: contain;
+`;
+
 const DiagramContainer = styled.div`
   background-color: ${props => props.theme.background};
   border-radius: 8px;
@@ -174,67 +183,6 @@ const DiagramContainer = styled.div`
   align-items: center;
   justify-content: center;
   border: 2px solid ${props => props.theme.border};
-`;
-
-const SudokuGridSmall = styled.div`
-  display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  gap: 0;
-  width: 100%;
-  aspect-ratio: 1;
-  max-width: 400px;
-  border: 2px solid ${props => props.theme.text};
-  margin-bottom: 20px;
-`;
-
-const GridCell = styled.div`
-  border: 1px solid ${props => props.theme.textSecondary};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 14px;
-  background-color: ${props => {
-    if (props.$highlighted) return 'rgba(100, 181, 246, 0.3)';
-    if (props.$filled) return props.theme.surface;
-    return 'white';
-  }};
-  color: ${props => props.$filled ? props.theme.text : props.theme.textSecondary};
-  border-right: ${props => (props.$col + 1) % 3 === 0 && props.$col !== 8 ? '2px solid ' + props.theme.text : '1px solid ' + props.theme.textSecondary};
-  border-bottom: ${props => (props.$row + 1) % 3 === 0 && props.$row !== 8 ? '2px solid ' + props.theme.text : '1px solid ' + props.theme.textSecondary};
-`;
-
-const LegendContainer = styled.div`
-  background-color: ${props => props.theme.background};
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 15px;
-  width: 100%;
-  max-width: 600px;
-`;
-
-const LegendItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 12px;
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const LegendColor = styled.div`
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
-  background-color: ${props => props.$color};
-  border: 1px solid ${props => props.theme.border};
-  flex-shrink: 0;
-`;
-
-const LegendText = styled.span`
-  font-size: 14px;
-  color: ${props => props.theme.text};
 `;
 
 const PracticeButton = styled.button`
@@ -280,24 +228,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('nakedSingleExample'),
           diagram: {
-            type: 'nakedSingle',
-            grid: [
-              [5, 3, 0, 0, 7, 0, 0, 0, 0],
-              [6, 0, 0, 1, 9, 5, 0, 0, 0],
-              [0, 9, 8, 0, 0, 0, 0, 6, 0],
-              [8, 0, 0, 0, 6, 0, 0, 0, 3],
-              [4, 0, 0, 8, 0, 3, 0, 0, 1],
-              [7, 0, 0, 0, 2, 0, 0, 0, 6],
-              [0, 6, 0, 0, 0, 0, 2, 8, 0],
-              [0, 0, 0, 4, 1, 9, 0, 0, 5],
-              [0, 0, 0, 0, 8, 0, 0, 7, 9]
-            ],
-            highlightedCells: [[0, 2]],
-            cellValues: { '0,2': '2' },
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '第1行第3列有候选数2（该行只欠扐2）' }
-            ]
+            type: 'nakedSingle'
           }
         }
       },
@@ -315,24 +246,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('hiddenSingleExample'),
           diagram: {
-            type: 'hiddenSingle',
-            grid: [
-              [5, 3, 4, 6, 7, 8, 9, 1, 2],
-              [6, 7, 2, 1, 9, 5, 3, 4, 8],
-              [1, 9, 8, 3, 4, 2, 5, 6, 7],
-              [8, 5, 9, 7, 6, 1, 4, 2, 3],
-              [4, 2, 6, 8, 5, 3, 7, 9, 1],
-              [7, 1, 3, 9, 2, 4, 8, 5, 6],
-              [9, 6, 1, 5, 3, 7, 2, 8, 4],
-              [2, 8, 7, 4, 1, 9, 6, 3, 5],
-              [3, 4, 5, 2, 8, 6, 1, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 1]],
-            cellValues: { },
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块5的候选数仅在第1行第1列的位置' }
-            ]
+            type: 'hiddenSingle'
           }
         }
       },
@@ -349,24 +263,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('nakedPairExample'),
           diagram: {
-            type: 'nakedPair',
-            grid: [
-              [5, 3, 0, 0, 7, 0, 0, 0, 0],
-              [6, 0, 0, 1, 9, 5, 0, 0, 0],
-              [0, 9, 8, 0, 0, 0, 0, 6, 0],
-              [8, 0, 0, 0, 6, 0, 0, 0, 3],
-              [4, 0, 0, 8, 0, 3, 0, 0, 1],
-              [7, 0, 0, 0, 2, 0, 0, 0, 6],
-              [0, 6, 0, 0, 0, 0, 2, 8, 0],
-              [0, 0, 0, 4, 1, 9, 0, 0, 5],
-              [0, 0, 0, 0, 8, 0, 0, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 1]],
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { color: 'rgba(255, 152, 0, 0.3)', label: t('relatedCell') || '相关单元格' },
-              { label: '第1行第1列和第1行第2列的候选数仅有{3,7}' }
-            ]
+            type: 'nakedPair'
           }
         }
       },
@@ -383,23 +280,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('hiddenPairExample'),
           diagram: {
-            type: 'hiddenPair',
-            grid: [
-              [5, 3, 0, 0, 7, 0, 0, 0, 0],
-              [6, 0, 0, 1, 9, 5, 0, 0, 0],
-              [0, 9, 8, 0, 0, 0, 0, 6, 0],
-              [8, 0, 0, 0, 6, 0, 0, 0, 3],
-              [4, 0, 0, 8, 0, 3, 0, 0, 1],
-              [7, 0, 0, 0, 2, 0, 0, 0, 6],
-              [0, 6, 0, 0, 0, 0, 2, 8, 0],
-              [0, 0, 0, 4, 1, 9, 0, 0, 5],
-              [0, 0, 0, 0, 8, 0, 0, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 1]],
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块4和6仅出现在第1行第1列和第1行第2列' }
-            ]
+            type: 'hiddenPair'
           }
         }
       },
@@ -417,23 +298,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('pointingPairsExample'),
           diagram: {
-            type: 'pointingPairs',
-            grid: [
-              [5, 3, 4, 6, 7, 8, 9, 1, 2],
-              [6, 7, 2, 1, 9, 5, 3, 4, 8],
-              [1, 9, 8, 3, 4, 2, 5, 6, 7],
-              [8, 5, 9, 7, 6, 1, 4, 2, 3],
-              [4, 2, 6, 8, 5, 3, 7, 9, 1],
-              [7, 1, 3, 9, 2, 4, 8, 5, 6],
-              [9, 6, 1, 5, 3, 7, 2, 8, 4],
-              [2, 8, 7, 4, 1, 9, 6, 3, 5],
-              [3, 4, 5, 2, 8, 6, 1, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 1], [1, 0], [1, 1]],
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块8在第1个宫格中仅出现在第1行' }
-            ]
+            type: 'pointingPairs'
           }
         }
       },
@@ -451,23 +316,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('boxLineReductionExample'),
           diagram: {
-            type: 'boxLineReduction',
-            grid: [
-              [5, 3, 4, 6, 7, 8, 9, 1, 2],
-              [6, 7, 2, 1, 9, 5, 3, 4, 8],
-              [1, 9, 8, 3, 4, 2, 5, 6, 7],
-              [8, 5, 9, 7, 6, 1, 4, 2, 3],
-              [4, 2, 6, 8, 5, 3, 7, 9, 1],
-              [7, 1, 3, 9, 2, 4, 8, 5, 6],
-              [9, 6, 1, 5, 3, 7, 2, 8, 4],
-              [2, 8, 7, 4, 1, 9, 6, 3, 5],
-              [3, 4, 5, 2, 8, 6, 1, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 1], [0, 2]],
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块8在第1行仅出现在第1个宫格' }
-            ]
+            type: 'boxLineReduction'
           }
         }
       },
@@ -484,23 +333,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('nakedTripleExample'),
           diagram: {
-            type: 'nakedTriple',
-            grid: [
-              [5, 3, 4, 6, 7, 8, 9, 1, 2],
-              [6, 7, 2, 1, 9, 5, 3, 4, 8],
-              [1, 9, 8, 3, 4, 2, 5, 6, 7],
-              [8, 5, 9, 7, 6, 1, 4, 2, 3],
-              [4, 2, 6, 8, 5, 3, 7, 9, 1],
-              [7, 1, 3, 9, 2, 4, 8, 5, 6],
-              [9, 6, 1, 5, 3, 7, 2, 8, 4],
-              [2, 8, 7, 4, 1, 9, 6, 3, 5],
-              [3, 4, 5, 2, 8, 6, 1, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 1], [0, 2]],
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '第1行的第1列、第2列、第3列的候选数仅有{2,3,4}' }
-            ]
+            type: 'nakedTriple'
           }
         }
       },
@@ -517,23 +350,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('hiddenTripleExample'),
           diagram: {
-            type: 'hiddenTriple',
-            grid: [
-              [5, 3, 4, 6, 7, 8, 9, 1, 2],
-              [6, 7, 2, 1, 9, 5, 3, 4, 8],
-              [1, 9, 8, 3, 4, 2, 5, 6, 7],
-              [8, 5, 9, 7, 6, 1, 4, 2, 3],
-              [4, 2, 6, 8, 5, 3, 7, 9, 1],
-              [7, 1, 3, 9, 2, 4, 8, 5, 6],
-              [9, 6, 1, 5, 3, 7, 2, 8, 4],
-              [2, 8, 7, 4, 1, 9, 6, 3, 5],
-              [3, 4, 5, 2, 8, 6, 1, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 1], [0, 2]],
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块3、5、7仅出现在第1行的第1列、第2列、第3列' }
-            ]
+            type: 'hiddenTriple'
           }
         }
       },
@@ -551,23 +368,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('xWingExample'),
           diagram: {
-            type: 'xWing',
-            grid: [
-              [5, 3, 4, 6, 7, 8, 9, 1, 2],
-              [6, 7, 2, 1, 9, 5, 3, 4, 8],
-              [1, 9, 8, 3, 4, 2, 5, 6, 7],
-              [8, 5, 9, 7, 6, 1, 4, 2, 3],
-              [4, 2, 6, 8, 5, 3, 7, 9, 1],
-              [7, 1, 3, 9, 2, 4, 8, 5, 6],
-              [9, 6, 1, 5, 3, 7, 2, 8, 4],
-              [2, 8, 7, 4, 1, 9, 6, 3, 5],
-              [3, 4, 5, 2, 8, 6, 1, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 4], [7, 0], [7, 4]],
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '数块6在第1行第1列、第8行第1列以及第1行第5列、第8行第5列' }
-            ]
+            type: 'xWing'
           }
         }
       },
@@ -585,23 +386,7 @@ const TechniqueLearningPage = () => {
           ],
           examples: t('yWingExample'),
           diagram: {
-            type: 'yWing',
-            grid: [
-              [5, 3, 4, 6, 7, 8, 9, 1, 2],
-              [6, 7, 2, 1, 9, 5, 3, 4, 8],
-              [1, 9, 8, 3, 4, 2, 5, 6, 7],
-              [8, 5, 9, 7, 6, 1, 4, 2, 3],
-              [4, 2, 6, 8, 5, 3, 7, 9, 1],
-              [7, 1, 3, 9, 2, 4, 8, 5, 6],
-              [9, 6, 1, 5, 3, 7, 2, 8, 4],
-              [2, 8, 7, 4, 1, 9, 6, 3, 5],
-              [3, 4, 5, 2, 8, 6, 1, 7, 9]
-            ],
-            highlightedCells: [[0, 0], [0, 3], [3, 0]],
-            legend: [
-              { color: 'rgba(100, 181, 246, 0.3)', label: t('highlightedCell') || '高亮单元格' },
-              { label: '枢纽(1,1)与两个Y-翼共享候选数' }
-            ]
+            type: 'yWing'
           }
         }
       }
@@ -684,39 +469,17 @@ const TechniqueLearningPage = () => {
                 <SectionTitle theme={theme}>{t('techniqueDiagram') || '图例'}</SectionTitle>
                 <DiagramSection theme={theme}>
                   <DiagramContainer theme={theme}>
-                    <SudokuGridSmall theme={theme}>
-                      {Array.from({ length: 81 }).map((_, index) => {
-                        const row = Math.floor(index / 9);
-                        const col = index % 9;
-                        const diagram = selectedTechnique.details.diagram;
-                        const isHighlighted = diagram.highlightedCells && diagram.highlightedCells.some(cell => cell[0] === row && cell[1] === col);
-                        const cellValue = diagram.grid ? diagram.grid[row][col] : 0;
-                        const cellKey = `${row},${col}`;
-                        const displayValue = diagram.cellValues && diagram.cellValues[cellKey] ? diagram.cellValues[cellKey] : cellValue;
-                        return (
-                          <GridCell
-                            key={index}
-                            theme={theme}
-                            $row={row}
-                            $col={col}
-                            $highlighted={isHighlighted}
-                            $filled={cellValue !== 0}
-                          >
-                            {displayValue !== 0 && displayValue}
-                          </GridCell>
-                        );
-                      })}
-                    </SudokuGridSmall>
-                    {selectedTechnique.details.diagram.legend && selectedTechnique.details.diagram.legend.length > 0 && (
-                      <LegendContainer theme={theme}>
-                        {selectedTechnique.details.diagram.legend.map((item, index) => (
-                          <LegendItem key={index}>
-                            {item.color && <LegendColor theme={theme} $color={item.color} />}
-                            <LegendText theme={theme}>{item.label}</LegendText>
-                          </LegendItem>
-                        ))}
-                      </LegendContainer>
-                    )}
+                    {/* 使用图片显示技巧图例 */}
+                    <DiagramImage 
+                      src={`/technique-diagrams/${selectedTechnique.id}.png`}
+                      alt={selectedTechnique.name}
+                      theme={theme}
+                      onError={(e) => {
+                        // 图片加载失败时的处理
+                        console.warn(`图例图片加载失败: ${selectedTechnique.id}.png`);
+                        e.target.style.display = 'none';
+                      }}
+                    />
                   </DiagramContainer>
                 </DiagramSection>
               </div>

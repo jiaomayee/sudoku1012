@@ -1070,8 +1070,11 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
       });
     }
     
-    // 检查是否存在三个数字，它们的位置集合完全相同且大小为3
-    const nums = Object.keys(numPositions).map(Number).filter(num => numPositions[num].length === 3);
+    // 修正：找出所有出现在2-3个单元格中的数字（隐性三链数中每个数字可能出现2-3次）
+    const nums = Object.keys(numPositions).map(Number).filter(num => {
+      const len = numPositions[num].length;
+      return len >= 2 && len <= 3;
+    });
     
     // 生成所有可能的三数字组合
     for (let i = 0; i < nums.length - 2; i++) {
@@ -1081,19 +1084,24 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
           const num2 = nums[j];
           const num3 = nums[k];
           
-          // 检查这三个数字的位置集合是否完全相同（不考虑顺序）
-          const pos1 = numPositions[num1].sort().join(',');
-          const pos2 = numPositions[num2].sort().join(',');
-          const pos3 = numPositions[num3].sort().join(',');
+          // 合并这三个数字的所有位置（去重）
+          const allPositions = [...new Set([
+            ...numPositions[num1],
+            ...numPositions[num2],
+            ...numPositions[num3]
+          ])];
           
-          if (pos1 === pos2 && pos2 === pos3) {
-            const cols = numPositions[num1];
+          // 检查：这三个数字的并集是否恰好是3个单元格
+          if (allPositions.length === 3) {
+            // 检查：这三个单元格中是否只包含这三个数字（可能还有其他候选数）
+            // 即：这三个数字不能出现在这三个单元格之外的地方
+            const cols = allPositions.sort((a, b) => a - b);
             
             // 检查是否有可删除的候选数
             let hasRemovableCandidates = false;
             const targetCells = [];
             const removableCandidates = [];
-            const targetCellsDetails = []; // 添加详细的目标单元格信息
+            const targetCellsDetails = [];
             
             // 检查这三个单元格是否有除了这三个数字以外的候选数
             cols.forEach(col => {
@@ -1104,7 +1112,6 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 hasRemovableCandidates = true;
                 targetCells.push([row, col]);
                 extraNotes.forEach(note => removableCandidates.push(note));
-                // 添加详细信息，包括每个单元格需要删除的候选数
                 targetCellsDetails.push({
                   row: row,
                   col: col,
@@ -1121,7 +1128,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 cells: [[row, cols[0]], [row, cols[1]], [row, cols[2]]],
                 values: [num1, num2, num3],
                 targetCells,
-                targetCellsDetails, // 添加详细信息
+                targetCellsDetails,
                 removableCandidates,
                 message: `在第${row+1}行，数字${num1}、${num2}和${num3}只能出现在单元格(${cols[0]+1})、(${cols[1]+1})和(${cols[2]+1})中`
               });
@@ -1150,7 +1157,11 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
       });
     }
     
-    const nums = Object.keys(numPositions).map(Number).filter(num => numPositions[num].length === 3);
+    // 修正：找出所有出现在2-3个单元格中的数字
+    const nums = Object.keys(numPositions).map(Number).filter(num => {
+      const len = numPositions[num].length;
+      return len >= 2 && len <= 3;
+    });
     
     for (let i = 0; i < nums.length - 2; i++) {
       for (let j = i + 1; j < nums.length - 1; j++) {
@@ -1159,18 +1170,22 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
           const num2 = nums[j];
           const num3 = nums[k];
           
-          const pos1 = numPositions[num1].sort().join(',');
-          const pos2 = numPositions[num2].sort().join(',');
-          const pos3 = numPositions[num3].sort().join(',');
+          // 合并这三个数字的所有位置（去重）
+          const allPositions = [...new Set([
+            ...numPositions[num1],
+            ...numPositions[num2],
+            ...numPositions[num3]
+          ])];
           
-          if (pos1 === pos2 && pos2 === pos3) {
-            const rows = numPositions[num1];
+          // 检查：这三个数字的并集是否恰好是3个单元格
+          if (allPositions.length === 3) {
+            const rows = allPositions.sort((a, b) => a - b);
             
             // 检查是否有可删除的候选数
             let hasRemovableCandidates = false;
             const targetCells = [];
             const removableCandidates = [];
-            const targetCellsDetails = []; // 添加详细的目标单元格信息
+            const targetCellsDetails = [];
             
             // 检查这三个单元格是否有除了这三个数字以外的候选数
             rows.forEach(row => {
@@ -1181,7 +1196,6 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 hasRemovableCandidates = true;
                 targetCells.push([row, col]);
                 extraNotes.forEach(note => removableCandidates.push(note));
-                // 添加详细信息，包括每个单元格需要删除的候选数
                 targetCellsDetails.push({
                   row: row,
                   col: col,
@@ -1198,7 +1212,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 cells: [[rows[0], col], [rows[1], col], [rows[2], col]],
                 values: [num1, num2, num3],
                 targetCells,
-                targetCellsDetails, // 添加详细信息
+                targetCellsDetails,
                 removableCandidates,
                 message: `在第${col+1}列，数字${num1}、${num2}和${num3}只能出现在单元格(${rows[0]+1})、(${rows[1]+1})和(${rows[2]+1})中`
               });
@@ -1231,7 +1245,11 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
       }
     }
     
-    const nums = Object.keys(numPositions).map(Number).filter(num => numPositions[num].length === 3);
+    // 修正：找出所有出现在2-3个单元格中的数字
+    const nums = Object.keys(numPositions).map(Number).filter(num => {
+      const len = numPositions[num].length;
+      return len >= 2 && len <= 3;
+    });
     
     for (let i = 0; i < nums.length - 2; i++) {
       for (let j = i + 1; j < nums.length - 1; j++) {
@@ -1240,19 +1258,27 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
           const num2 = nums[j];
           const num3 = nums[k];
           
-          // 比较位置对象数组
-          const pos1 = numPositions[num1].map(p => `${p.row}-${p.col}`).sort().join(',');
-          const pos2 = numPositions[num2].map(p => `${p.row}-${p.col}`).sort().join(',');
-          const pos3 = numPositions[num3].map(p => `${p.row}-${p.col}`).sort().join(',');
+          // 合并这三个数字的所有位置（去重）
+          const allPositions = [];
+          const posSet = new Set();
           
-          if (pos1 === pos2 && pos2 === pos3) {
-            const cells = numPositions[num1];
+          [...numPositions[num1], ...numPositions[num2], ...numPositions[num3]].forEach(p => {
+            const key = `${p.row}-${p.col}`;
+            if (!posSet.has(key)) {
+              posSet.add(key);
+              allPositions.push(p);
+            }
+          });
+          
+          // 检查：这三个数字的并集是否恰好是3个单元格
+          if (allPositions.length === 3) {
+            const cells = allPositions;
             
             // 检查是否有可删除的候选数
             let hasRemovableCandidates = false;
             const targetCells = [];
             const removableCandidates = [];
-            const targetCellsDetails = []; // 添加详细的目标单元格信息
+            const targetCellsDetails = [];
             
             // 检查这三个单元格是否有除了这三个数字以外的候选数
             cells.forEach(cell => {
@@ -1263,7 +1289,6 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 hasRemovableCandidates = true;
                 targetCells.push([cell.row, cell.col]);
                 extraNotes.forEach(note => removableCandidates.push(note));
-                // 添加详细信息，包括每个单元格需要删除的候选数
                 targetCellsDetails.push({
                   row: cell.row,
                   col: cell.col,
@@ -1280,7 +1305,7 @@ export const findHiddenTriples = (board, pencilNotes = {}) => {
                 cells: cells.map(p => [p.row, p.col]),
                 values: [num1, num2, num3],
                 targetCells,
-                targetCellsDetails, // 添加详细信息
+                targetCellsDetails,
                 removableCandidates,
                 message: `在第${boxRow*3+boxCol+1}宫，数字${num1}、${num2}和${num3}只能出现在单元格(${cells[0].row+1},${cells[0].col+1})、(${cells[1].row+1},${cells[1].col+1})和(${cells[2].row+1},${cells[2].col+1})中`
               });
@@ -2488,37 +2513,113 @@ export const generateSteps = (technique) => {
     return [
       {
         step: 1,
-        description: `步骤1：识别几乎锁定集(ALS)\n- ALS1：由${als1.cells.length}个单元格组成（${als1CellsStr}），包含${als1.candidates.length}个候选数：${als1.candidates.join(', ')}【深蓝色背景高亮区域】\n- ALS2：由${als2.cells.length}个单元格组成（${als2CellsStr}），包含${als2.candidates.length}个候选数：${als2.candidates.join(', ')}【浅蓝色背景高亮区域】\n\n重要概念解释：\n- 几乎锁定集(ALS)是指n个单元格恰好包含n+1个候选数的集合\n- ALS1满足：${als1.cells.length}个单元格，${als1.candidates.length}个候选数 → ${als1.cells.length}+1 = ${als1.candidates.length}\n- ALS2满足：${als2.cells.length}个单元格，${als2.candidates.length}个候选数 → ${als2.cells.length}+1 = ${als2.candidates.length}\n- ALS的特性：在ALS中，如果排除一个候选数，那么剩下的n个单元格恰好包含n个候选数，形成一个锁定集（必然包含这n个数字）`,
+        description: `步骤1：识别几乎锁定集(ALS)
+- ALS1：由${als1.cells.length}个单元格组成（${als1CellsStr}），包含${als1.candidates.length}个候选数：${als1.candidates.join(', ')}【深蓝色背景高亮区域】
+- ALS2：由${als2.cells.length}个单元格组成（${als2CellsStr}），包含${als2.candidates.length}个候选数：${als2.candidates.join(', ')}【浅蓝色背景高亮区域】
+
+重要概念解释：
+- 几乎锁定集(ALS)是指n个单元格恰好包含n+1个候选数的集合
+- ALS1满足：${als1.cells.length}个单元格，${als1.candidates.length}个候选数 → ${als1.cells.length}+1 = ${als1.candidates.length}
+- ALS2满足：${als2.cells.length}个单元格，${als2.candidates.length}个候选数 → ${als2.cells.length}+1 = ${als2.candidates.length}
+- ALS的特性：在ALS中，如果排除一个候选数，那么剩下的n个单元格恰好包含n个候选数，形成一个锁定集（必然包含这n个数字）`,
         highlight: 'als1_als2'
       },
       {
         step: 2,
-        description: `步骤2：确定关键数字\n- 限制数X = ${x}：两个ALS共有的候选数【深绿色/绿色高亮候选数】\n- 删除数Z = ${z}：在两个ALS中都存在且用于后续排除的候选数【深蓝色/浅蓝色高亮候选数】\n\n关键数字的作用：\n- 限制数X：作为连接两个ALS的桥梁，确保它们之间存在逻辑关系\n- 删除数Z：我们最终要从某些单元格中排除的候选数\n- 重要条件：X和Z可以是相同的数字，也可以是不同的数字\n- 注意观察：高亮显示的数字${x}和${z}在两个ALS中的分布情况`,
+        description: `步骤2：确定关键数字
+- 限制数X = ${x}：两个ALS共有的候选数【深绿色/绿色高亮候选数】
+- 删除数Z = ${z}：在两个ALS中都存在且用于后续排除的候选数【深蓝色/浅蓝色高亮候选数】
+
+关键数字的作用：
+- 限制数X：作为连接两个ALS的桥梁，确保它们之间存在逻辑关系
+- 删除数Z：我们最终要从某些单元格中排除的候选数
+- 重要条件：X和Z可以是相同的数字，也可以是不同的数字
+- 注意观察：高亮显示的数字${x}和${z}在两个ALS中的分布情况`,
         highlight: 'x_z_numbers'
       },
       {
         step: 3,
-        description: `步骤3：深入分析ALS的内部逻辑\n- ALS1中包含X(${x})的单元格【深绿色高亮】：${als1XCellsStr || '无'}\n- ALS2中包含X(${x})的单元格【绿色高亮】：${als2XCellsStr || '无'}\n- ALS1中包含Z(${z})的单元格【深蓝色高亮】：${als1ZCellsStr || '无'}\n- ALS2中包含Z(${z})的单元格【浅蓝色高亮】：${als2ZCellsStr || '无'}\n\n逻辑推理过程：\n1. 在ALS1中，如果某个单元格填入X(${x})，那么根据ALS的性质，剩下的${als1.cells.length-1}个单元格必须包含剩下的${als1.candidates.length-1}个候选数，因此Z(${z})必须被排除\n2. 反之，如果ALS1中没有单元格填入X(${x})，那么X(${x})被排除，根据ALS的性质，Z(${z})必须保留在ALS1中的某个单元格中\n3. 同样的逻辑适用于ALS2\n\n这就形成了一个关键的逻辑链：无论X(${x})最终出现在哪个ALS中，总有一个ALS会保留Z(${z})`,
+        description: `步骤3：深入分析ALS的内部逻辑
+- ALS1中包含X(${x})的单元格【深绿色高亮】：${als1XCellsStr || '无'}
+- ALS2中包含X(${x})的单元格【绿色高亮】：${als2XCellsStr || '无'}
+- ALS1中包含Z(${z})的单元格【深蓝色高亮】：${als1ZCellsStr || '无'}
+- ALS2中包含Z(${z})的单元格【浅蓝色高亮】：${als2ZCellsStr || '无'}
+
+逻辑推理过程：
+1. 在ALS1中，如果某个单元格填入X(${x})，那么根据ALS的性质，剩下的${als1.cells.length-1}个单元格必须包含剩下的${als1.candidates.length-1}个候选数，因此Z(${z})必须被排除
+2. 反之，如果ALS1中没有单元格填入X(${x})，那么X(${x})被排除，根据ALS的性质，Z(${z})必须保留在ALS1中的某个单元格中
+3. 同样的逻辑适用于ALS2
+
+这就形成了一个关键的逻辑链：无论X(${x})最终出现在哪个ALS中，总有一个ALS会保留Z(${z})`,
         highlight: 'z_candidates'
       },
       {
         step: 4,
-        description: `步骤4：确定影响范围和目标单元格\n- 目标单元格：${targetCellsStr}【红色背景高亮区域】\n- 目标单元格的定义：同时能「看到」(与...在同一行、列或宫)ALS1中所有包含Z(${z})的单元格和ALS2中所有包含Z(${z})的单元格的单元格\n\n如何确定目标单元格：\n1. 找出与ALS1中所有包含Z(${z})的单元格在同一行、列或宫的单元格\n2. 找出与ALS2中所有包含Z(${z})的单元格在同一行、列或宫的单元格\n3. 两者的交集就是目标单元格\n\n这些目标单元格的特点是：无论Z(${z})最终出现在哪个ALS中，它们都会与Z(${z})所在的单元格产生冲突`,
+        description: `步骤4：确定影响范围和目标单元格
+- 目标单元格：${targetCellsStr}【红色背景高亮区域】
+- 目标单元格的定义：同时能「看到」(与...在同一行、列或宫)ALS1中所有包含Z(${z})的单元格和ALS2中所有包含Z(${z})的单元格的单元格
+
+如何确定目标单元格：
+1. 找出与ALS1中所有包含Z(${z})的单元格在同一行、列或宫的单元格
+2. 找出与ALS2中所有包含Z(${z})的单元格在同一行、列或宫的单元格
+3. 两者的交集就是目标单元格
+
+这些目标单元格的特点是：无论Z(${z})最终出现在哪个ALS中，它们都会与Z(${z})所在的单元格产生冲突`,
         highlight: 'target_cells'
       },
       {
         step: 5,
-        description: `步骤5：排除候选数的逻辑证明\n- 可删除的候选数【红色高亮】：${removableCellsStr}\n\n详细逻辑证明：\n情况1：如果X(${x})出现在ALS1中\n- 根据ALS1的性质，Z(${z})不能出现在ALS1中\n- 因此，Z(${z})必须出现在ALS2中的某个单元格\n- 目标单元格能看到ALS2中所有包含Z(${z})的单元格，因此Z(${z})不能出现在目标单元格中\n\n情况2：如果X(${x})出现在ALS2中\n- 根据ALS2的性质，Z(${z})不能出现在ALS2中\n- 因此，Z(${z})必须出现在ALS1中的某个单元格\n- 目标单元格能看到ALS1中所有包含Z(${z})的单元格，因此Z(${z})不能出现在目标单元格中\n\n结论：无论哪种情况，目标单元格中都不能包含Z(${z})作为候选数`,
+        description: `步骤5：排除候选数的逻辑证明
+- 可删除的候选数【红色高亮】：${removableCellsStr}
+
+详细逻辑证明：
+情况1：如果X(${x})出现在ALS1中
+- 根据ALS1的性质，Z(${z})不能出现在ALS1中
+- 因此，Z(${z})必须出现在ALS2中的某个单元格
+- 目标单元格能看到ALS2中所有包含Z(${z})的单元格，因此Z(${z})不能出现在目标单元格中
+
+情况2：如果X(${x})出现在ALS2中
+- 根据ALS2的性质，Z(${z})不能出现在ALS2中
+- 因此，Z(${z})必须出现在ALS1中的某个单元格
+- 目标单元格能看到ALS1中所有包含Z(${z})的单元格，因此Z(${z})不能出现在目标单元格中
+
+结论：无论哪种情况，目标单元格中都不能包含Z(${z})作为候选数`,
         highlight: 'removable_candidates'
       },
       {
         step: 6,
-        description: `步骤6：应用排除并观察结果\n- 操作：从所有目标单元格中删除候选数Z(${z})\n- 结果：${removableCandidates.length > 0 ? `成功删除${removableCandidates.length}个候选数` : '没有可删除的候选数'}\n\n实际应用建议：\n- 排除这些候选数后，检查是否产生了新的解题机会（如唯一数、数对等）\n- 记住这种逻辑推理模式，它是解决高级数独难题的关键技巧之一\n- 在实践中，尝试自己识别ALS-XZ结构，提高解题能力\n\n高级提示：ALS-XZ技巧是许多复杂技巧的基础，掌握它有助于理解更高级的技巧如ALS-XY-Wing等`,
+        description: `步骤6：应用排除并观察结果
+- 操作：从所有目标单元格中删除候选数Z(${z})
+- 结果：${removableCandidates.length > 0 ? `成功删除${removableCandidates.length}个候选数` : '没有可删除的候选数'}
+
+实际应用建议：
+- 排除这些候选数后，检查是否产生了新的解题机会（如唯一数、数对等）
+- 记住这种逻辑推理模式，它是解决高级数独难题的关键技巧之一
+- 在实践中，尝试自己识别ALS-XZ结构，提高解题能力
+
+高级提示：ALS-XZ技巧是许多复杂技巧的基础，掌握它有助于理解更高级的技巧如ALS-XY-Wing等`,
         highlight: 'all'
       },
       {
         step: 7,
-        description: `总结与回顾：ALS-XZ技巧深度解析\n\nALS-XZ技巧的核心思想：\n1. 利用两个几乎锁定集(ALS)之间的逻辑关系\n2. 通过限制数X建立ALS之间的联系\n3. 推导出删除数Z在目标单元格中的不可能性\n\n为什么这个技巧有效：\n- 它基于严格的逻辑推理，而非猜测\n- 它能够排除传统技巧无法发现的候选数\n- 它是连接基础技巧和超高级技巧的桥梁\n\n识别ALS-XZ的实用技巧：\n- 寻找具有n个单元格和n+1个候选数的单元格集合\n- 特别关注同一行、列或宫中的单元格组合\n- 注意观察不同ALS之间可能共享的候选数\n\n通过掌握ALS-XZ技巧，你将能够解决许多原本看似无法攻克的数独难题。`,
+        description: `总结与回顾：ALS-XZ技巧深度解析
+
+ALS-XZ技巧的核心思想：
+1. 利用两个几乎锁定集(ALS)之间的逻辑关系
+2. 通过限制数X建立ALS之间的联系
+3. 推导出删除数Z在目标单元格中的不可能性
+
+为什么这个技巧有效：
+- 它基于严格的逻辑推理，而非猜测
+- 它能够排除传统技巧无法发现的候选数
+- 它是连接基础技巧和超高级技巧的桥梁
+
+识别ALS-XZ的实用技巧：
+- 寻找具有n个单元格和n+1个候选数的单元格集合
+- 特别关注同一行、列或宫中的单元格组合
+- 注意观察不同ALS之间可能共享的候选数
+
+通过掌握ALS-XZ技巧，你将能够解决许多原本看似无法攻克的数独难题。`,
         highlight: 'all'
       }
     ];

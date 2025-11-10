@@ -1,9 +1,14 @@
-// SDC (Sue De Coq) 技巧实现（部分实现）
+// SDC (Sue De Coq) 技巧实现
+// 基于HoDoKu的完整实现
 // Sue De Coq技巧是一种高级数独技巧，用于删除候选数
 // 它结合了行/列与宫的交叉，通过分析候选数的分布来消除不可能的候选数
-// 
-// 注意：当前版本为简化实现，仅能检测候选数有明确分离的情况
-// 完整实现需要组合搜索算法，能够尝试所有可能的候选数分配方案
+//
+// 算法流程：
+// 1. 找到行/列与宫的交叉点（2-3个空单元格）
+// 2. 检查交叉点候选数是否比单元格数多至少2个（nPlus >= 2）
+// 3. 递归搜索：在行/列和宫中各找nPlus个单元格
+// 4. 验证：两组单元格的候选数不能有交集
+// 5. 删除：从相应位置删除候选数
 
 /**
  * 查找SDC技巧机会
@@ -111,164 +116,263 @@ const findSDCInBox = (board, pencilNotes, boxRow, boxCol) => {
 };
 
 /**
- * 分析SDC模式
- * 根据HoDoKu的实现逻辑：
- * 1. SDC单元格（C）是宫和行/列交叉的单元格
- * 2. V是C中的所有候选数，|V| >= |C| + 2
- * 3. 在宫中找到单元格CB，在行/列中找到单元格CR
- * 4. CB和CR的候选数VB和VR必须从 V 中抽取
- * 5. 关键：VB和VR不能有交集！
- * 6. 可以从宫中删除V\VB，从行/列中删除V\VR
+ * 分析SDC模式（基于HoDoKu的完整实现）
+ * 核心逻辑：
+ * 1. 需要在行/列和宫中各找nPlus个单元格
+ * 2. 这些单元格的候选数必须是SDC候选数的子集
+ * 3. 两组候选数不能有交集
+ * 4. 需要搜索所有可能的单元格组合
  */
 const analyzeSDCPattern = (board, pencilNotes, cell1, cell2, sdcCandidates, sameRow, boxRow, boxCol) => {
   const sdcCells = [cell1, cell2];
-  const lineIndex = sameRow ? cell1.row : cell1.col; // 行号或列号
+  const lineIndex = sameRow ? cell1.row : cell1.col;
   const isRow = sameRow;
   
-  // 候选数必须比单元格数多至少2个
   const nPlus = sdcCandidates.length - sdcCells.length;
   if (nPlus < 2) {
     return null;
   }
   
-  // 获取该行/列在其他宫中的单元格（组A - 行/列方向）
-  const lineCellsInOtherBoxes = getLineCellsInOtherBoxes(
-    board, 
-    pencilNotes, 
-    lineIndex, 
-    isRow, 
-    boxRow, 
-    boxCol
-  );
+  // 获取可用的单元格集合
+  const lineCells = getLineCellsInOtherBoxes(board, pencilNotes, lineIndex, isRow, boxRow, boxCol);
+  const boxCells = getBoxCellsInOtherLines(board, pencilNotes, lineIndex, isRow, boxRow, boxCol);
   
-  // 获取该宫中其他行/列的单元格（组B - 宫方向）
-  const boxCellsInOtherLines = getBoxCellsInOtherLines(
-    board, 
-    pencilNotes, 
-    lineIndex, 
-    isRow, 
-    boxRow, 
-    boxCol
-  );
-  
-  // 如果两组都为空，无法形成SDC
-  if (lineCellsInOtherBoxes.length === 0 || boxCellsInOtherLines.length === 0) {
+  if (lineCells.length === 0 || boxCells.length === 0) {
     return null;
   }
   
-  // 收集组A和组B的所有候选数
-  const allLineCandidates = collectCandidates(lineCellsInOtherBoxes);
-  const allBoxCandidates = collectCandidates(boxCellsInOtherLines);
-  const onlyInLine = sdcCandidates.filter(c => 
-    allLineCandidates.includes(c) && !allBoxCandidates.includes(c)
-  );
-  // 找到只在组B中的候选数（且在SDC中）
-  const onlyInBox = sdcCandidates.filter(c => 
-    !allLineCandidates.includes(c) && allBoxCandidates.includes(c)
-  );
-  // 同时在两组中的候选数
-  const inBoth = sdcCandidates.filter(c => 
-    allLineCandidates.includes(c) && allBoxCandidates.includes(c)
-  );
-  // 只在SDC中的候选数
-  const onlyInSDC = sdcCandidates.filter(c => 
-    !allLineCandidates.includes(c) && !allBoxCandidates.includes(c)
-  );
+  // 将SDC候选数转换为位掩码形式（优化性能）
+  const sdcCandMask = candidatesToMask(sdcCandidates);
   
-  // SDC条件：必须有只在一组中的候选数，否则无法删除
-  if (onlyInLine.length === 0 && onlyInBox.length === 0) {
-    return null;
+  // 递归搜索行/列中的nPlus个单元格组合
+  const lineResults = searchCombinations(lineCells, nPlus, sdcCandMask);
+  
+  // 对每个行/列组合，搜索匹配的宫组合
+  for (const lineCombo of lineResults) {
+    // 宫中允许的候选数 = SDC候选数 - 行/列组合的候选数
+    const boxAllowedMask = sdcCandMask & ~lineCombo.candMask;
+    
+    // 搜索宫中的nPlus个单元格组合
+    const boxResults = searchCombinations(boxCells, nPlus, boxAllowedMask);
+    
+    for (const boxCombo of boxResults) {
+      // 检查两组候选数是否有交集
+      if ((lineCombo.candMask & boxCombo.candMask) !== 0) {
+        continue; // 有交集，跳过
+      }
+      
+      // 找到有效的SDC！现在检查可删除的候选数
+      const removable = findRemovableCandidates(
+        pencilNotes,
+        lineCells,
+        boxCells,
+        lineCombo,
+        boxCombo,
+        sdcCandidates
+      );
+      
+      if (removable.length > 0) {
+        // 构建SDC机会对象
+        const lineCandidates = maskToCandidates(lineCombo.candMask);
+        const boxCandidates = maskToCandidates(boxCombo.candMask);
+        
+        return {
+          type: 'sdc',
+          description: `Sue De Coq技巧`,
+          sdcCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
+          sdcCandidates: sdcCandidates,
+          lineType: isRow ? 'row' : 'col',
+          lineIndex: lineIndex,
+          boxIndex: boxRow * 3 + boxCol,
+          groupA: {
+            cells: lineCombo.cells.map(idx => {
+              const cell = lineCells[idx];
+              return [cell.row, cell.col];
+            }),
+            candidates: lineCandidates
+          },
+          groupB: {
+            cells: boxCombo.cells.map(idx => {
+              const cell = boxCells[idx];
+              return [cell.row, cell.col];
+            }),
+            candidates: boxCandidates
+          },
+          removableCandidates: removable,
+          cells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
+          sourceCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
+          targetCells: removable.map(rc => [rc.row, rc.col]),
+          values: sdcCandidates,
+          highlightInfo: {
+            sdcCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
+            groupACells: lineCombo.cells.map(idx => {
+              const cell = lineCells[idx];
+              return [cell.row, cell.col];
+            }),
+            groupBCells: boxCombo.cells.map(idx => {
+              const cell = boxCells[idx];
+              return [cell.row, cell.col];
+            }),
+            sdcCandidates: sdcCandidates,
+            groupACandidates: lineCandidates,
+            groupBCandidates: boxCandidates,
+            targetCandidates: removable
+          },
+          message: generateSDCMessage(isRow, lineIndex, boxRow * 3 + boxCol, sdcCandidates, removable.length)
+        };
+      }
+    }
   }
   
-  // 现在我们需要分配那些“同时在两组中”的候选数
-  // 最简单的方法：将它们分配给组A或组B，使得两组没有交集
-  // 我们不分配，直接检查是否能删除候选数
+  return null;
+};
+
+/**
+ * 将候选数数组转换为位掩码
+ */
+const candidatesToMask = (candidates) => {
+  let mask = 0;
+  for (const cand of candidates) {
+    mask |= (1 << (cand - 1));
+  }
+  return mask;
+};
+
+/**
+ * 将位掩码转换为候选数数组
+ */
+const maskToCandidates = (mask) => {
+  const candidates = [];
+  for (let i = 0; i < 9; i++) {
+    if (mask & (1 << i)) {
+      candidates.push(i + 1);
+    }
+  }
+  return candidates;
+};
+
+/**
+ * 递归搜索单元格组合，找到所有可能的nPlus个单元格的组合
+ * 其候选数是allowedMask的子集
+ * 
+ * @param {Array} cells 候选单元格数组
+ * @param {number} nPlus 需要选择的单元格数量
+ * @param {number} allowedMask 允许的候选数位掩码
+ * @returns {Array} 组合数组，每个元素包含{cells: [索引], candMask: 候选数掩码}
+ */
+const searchCombinations = (cells, nPlus, allowedMask) => {
+  const results = [];
   
-  const lineCandidates = [...onlyInLine, ...inBoth];
-  const boxCandidates = [...onlyInBox, ...inBoth];
+  // 如果nPlus为0，返回空组合
+  if (nPlus === 0) {
+    return [{ cells: [], candMask: 0 }];
+  }
   
-  // 检查覆盖性
-  const covered = [...new Set([...lineCandidates, ...boxCandidates])];
-  const notCovered = sdcCandidates.filter(c => !covered.includes(c));
+  // 如果可用单元格不足，返回空
+  if (cells.length < nPlus) {
+    return [];
+  }
   
-  // 找出可以删除的候选数
-  const removableCandidates = [];
+  // 预计算每个单元格的候选数掩码
+  const cellMasks = cells.map(cell => candidatesToMask(cell.candidates));
   
-  // 从行/列的其他单元格中删除“只在组B中”的候选数
-  lineCellsInOtherBoxes.forEach(cell => {
+  // 递归搜索
+  const search = (startIdx, selectedIndices, combinedMask, depth) => {
+    if (depth === nPlus) {
+      // 找到了nPlus个单元格
+      // 检查候选数是否都在allowedMask中
+      if ((combinedMask & ~allowedMask) === 0) {
+        results.push({
+          cells: [...selectedIndices],
+          candMask: combinedMask
+        });
+      }
+      return;
+    }
+    
+    // 计算还需要选择的单元格数
+    const remaining = nPlus - depth;
+    
+    // 遍历剩余的单元格
+    for (let i = startIdx; i <= cells.length - remaining; i++) {
+      const cellMask = cellMasks[i];
+      
+      // 检查该单元格的候选数是否都在allowedMask中
+      if ((cellMask & ~allowedMask) !== 0) {
+        continue; // 跨过不符合条件的单元格
+      }
+      
+      // 选择该单元格，继续递归
+      selectedIndices.push(i);
+      search(i + 1, selectedIndices, combinedMask | cellMask, depth + 1);
+      selectedIndices.pop();
+    }
+  };
+  
+  search(0, [], 0, 0);
+  return results;
+};
+
+/**
+ * 查找可删除的候选数
+ */
+const findRemovableCandidates = (pencilNotes, lineCells, boxCells, lineCombo, boxCombo, sdcCandidates) => {
+  const removable = [];
+  
+  // 获取两组的候选数
+  const lineCandidates = maskToCandidates(lineCombo.candMask);
+  const boxCandidates = maskToCandidates(boxCombo.candMask);
+  
+  // 从行/列的其他单元格中删除“只在宫中”的候选数
+  for (let i = 0; i < lineCells.length; i++) {
+    if (lineCombo.cells.includes(i)) {
+      continue; // 跳过已选择的单元格
+    }
+    
+    const cell = lineCells[i];
     const cellKey = `${cell.row}-${cell.col}`;
     const cellCandidates = pencilNotes[cellKey] || [];
-    onlyInBox.forEach(num => {
+    
+    for (const num of boxCandidates) {
       if (cellCandidates.includes(num)) {
-        removableCandidates.push({
+        removable.push({
           row: cell.row,
           col: cell.col,
           value: num,
-          reason: 'onlyInBox'
+          reason: 'boxOnly'
         });
       }
-    });
-  });
+    }
+  }
   
-  // 从宫的其他单元格中删除“只在组A中”的候选数
-  boxCellsInOtherLines.forEach(cell => {
+  // 从宫的其他单元格中删除“只在行/列中”的候选数
+  for (let i = 0; i < boxCells.length; i++) {
+    if (boxCombo.cells.includes(i)) {
+      continue; // 跳过已选择的单元格
+    }
+    
+    const cell = boxCells[i];
     const cellKey = `${cell.row}-${cell.col}`;
     const cellCandidates = pencilNotes[cellKey] || [];
-    onlyInLine.forEach(num => {
+    
+    for (const num of lineCandidates) {
       if (cellCandidates.includes(num)) {
-        removableCandidates.push({
+        removable.push({
           row: cell.row,
           col: cell.col,
           value: num,
-          reason: 'onlyInLine'
+          reason: 'lineOnly'
         });
       }
-    });
-  });
+    }
+  }
   
   // 去重
-  const uniqueRemovable = removableCandidates.filter((item, index, self) => 
+  const unique = removable.filter((item, index, self) => 
     index === self.findIndex(t => t.row === item.row && t.col === item.col && t.value === item.value)
   );
   
-  if (uniqueRemovable.length === 0) {
-    return null;
-  }
-  
-  // 构建SDC机会对象
-  return {
-    type: 'sdc',
-    description: `Sue De Coq技巧`,
-    sdcCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
-    sdcCandidates: sdcCandidates,
-    lineType: isRow ? 'row' : 'col',
-    lineIndex: lineIndex,
-    boxIndex: boxRow * 3 + boxCol,
-    groupA: {
-      cells: lineCellsInOtherBoxes.map(c => [c.row, c.col]),
-      candidates: onlyInLine
-    },
-    groupB: {
-      cells: boxCellsInOtherLines.map(c => [c.row, c.col]),
-      candidates: onlyInBox
-    },
-    removableCandidates: uniqueRemovable,
-    cells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
-    sourceCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
-    targetCells: uniqueRemovable.map(rc => [rc.row, rc.col]),
-    values: sdcCandidates,
-    // 为高亮指示添加额外信息
-    highlightInfo: {
-      sdcCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
-      groupACells: lineCellsInOtherBoxes.map(c => [c.row, c.col]),
-      groupBCells: boxCellsInOtherLines.map(c => [c.row, c.col]),
-      sdcCandidates: sdcCandidates,
-      groupACandidates: onlyInLine,
-      groupBCandidates: onlyInBox,
-      targetCandidates: uniqueRemovable
-    },
-    message: generateSDCMessage(isRow, lineIndex, boxRow * 3 + boxCol, sdcCandidates, uniqueRemovable.length)
-  };
+  return unique;
 };
 
 /**

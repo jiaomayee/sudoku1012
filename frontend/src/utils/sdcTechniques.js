@@ -1,421 +1,378 @@
-// SDC (Sue De Coq) 技巧实现
-// 基于HoDoKu的完整实现
-// Sue De Coq技巧是一种高级数独技巧，用于删除候选数
-// 它结合了行/列与宫的交叉，通过分析候选数的分布来消除不可能的候选数
-//
-// 算法流程：
-// 1. 找到行/列与宫的交叉点（2-3个空单元格）
-// 2. 检查交叉点候选数是否比单元格数多至少2个（nPlus >= 2）
-// 3. 递归搜索：在行/列和宫中各找nPlus个单元格
-// 4. 验证：两组单元格的候选数不能有交集
-// 5. 删除：从相应位置删除候选数
+/**
+ * Sue de Coq (SDC) 技巧实现
+ * 基于HoDoKu的原始实现进行移植
+ * 
+ * 原始定义（来自Player's Forum）：
+ * Consider the set of unfilled cells C that lies at the intersection of Box B and Row (or Column) R.
+ * Suppose |C|>=2. Let V be the set of candidate values to occur in C. Suppose |V|>= |C|+2.
+ * The pattern requires that we find |V|-|C| cells in B and R, with at least one cell in each,
+ * with candidates drawn entirely from V. Label the sets of cells CB and CR and their candidates VB and VR.
+ * Crucially, no candidate is allowed to appear in VB and VR. Then C must contain V\(VB U VR) [possibly empty],
+ * |VB|-|CB| elements of VB and |VR|-|CR| elements of VR.
+ * 
+ * 扩展：
+ * - C不必包含intersection的所有单元格
+ * - VB和VR可以包含额外候选数，但每个额外候选数需要一个额外单元格
+ */
 
 /**
- * 查找SDC技巧机会
- * Sue De Coq技巧规则：
- * 1. 在一个宫中找到2个空单元格（称为SDC单元格），它们在同一行或同一列
- * 2. 这2个单元格的候选数并集为N个数字（N>=3）
- * 3. 将这N个数字分为两组：组A（在该行/列的其他宫中的单元格）和组B（在该宫的其他行/列中的单元格）
- * 4. 如果组A的候选数恰好覆盖SDC单元格的部分候选数，组B的候选数恰好覆盖SDC单元格的另一部分候选数
- * 5. 那么可以从相关单元格中删除这些候选数
- * 
- * @param {Array<Array<number>>} board - 当前数独棋盘
- * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
- * @returns {Array} - 找到的SDC技巧机会数组
+ * 主入口：查找所有SDC机会
  */
-export const findSDC = (board, pencilNotes = {}) => {
+export const findSDC = (board, pencilNotes = {}, solution = null) => {
   const opportunities = [];
   
-  // 遍历每个宫
-  for (let boxRow = 0; boxRow < 3; boxRow++) {
-    for (let boxCol = 0; boxCol < 3; boxCol++) {
-      // 在每个宫中查找SDC模式
-      const sdcInBox = findSDCInBox(board, pencilNotes, boxRow, boxCol);
-      opportunities.push(...sdcInBox);
-      
-      // 限制机会数量，避免过多计算
-      if (opportunities.length >= 5) {
-        return opportunities.slice(0, 5);
+  // 获取所有空单元格
+  const emptyCells = [];
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
+      if (board[row][col] === 0) {
+        emptyCells.push({ row, col });
       }
     }
   }
   
-  return opportunities;
+  // 检查每一行与每个宫的交叉
+  for (let row = 0; row < 9; row++) {
+    const boxRow = Math.floor(row / 3);
+    for (let boxCol = 0; boxCol < 3; boxCol++) {
+      const boxIndex = boxRow * 3 + boxCol;
+      const result = checkRowBoxIntersection(board, pencilNotes, row, boxIndex, emptyCells, solution);
+      if (result.length > 0) {
+        opportunities.push(...result);
+      }
+    }
+  }
+  
+  // 检查每一列与每个宫的交叉
+  for (let col = 0; col < 9; col++) {
+    const boxCol = Math.floor(col / 3);
+    for (let boxRow = 0; boxRow < 3; boxRow++) {
+      const boxIndex = boxRow * 3 + boxCol;
+      const result = checkColBoxIntersection(board, pencilNotes, col, boxIndex, emptyCells, solution);
+      if (result.length > 0) {
+        opportunities.push(...result);
+      }
+    }
+  }
+  
+  console.log(`SDC原始结果: ${opportunities.length}条`);
+  
+  // 去重
+  const uniqueOpportunities = deduplicateSDC(opportunities);
+  console.log(`去重后: ${uniqueOpportunities.length}条`);
+  
+  // 按删除数量排序
+  uniqueOpportunities.sort((a, b) => b.removableCandidates.length - a.removableCandidates.length);
+  
+  return uniqueOpportunities;
 };
 
 /**
- * 在指定宫中查找SDC模式
+ * 检查行与宫的交叉
  */
-const findSDCInBox = (board, pencilNotes, boxRow, boxCol) => {
+function checkRowBoxIntersection(board, pencilNotes, row, boxIndex, emptyCells, solution) {
   const opportunities = [];
-  const boxStartRow = boxRow * 3;
+  const boxRow = Math.floor(boxIndex / 3);
+  const boxCol = boxIndex % 3;
   const boxStartCol = boxCol * 3;
   
-  // 收集该宫中的所有空单元格
-  const emptyCellsInBox = [];
+  // 获取交叉点的空单元格
+  const intersection = [];
+  for (let c = 0; c < 3; c++) {
+    const col = boxStartCol + c;
+    if (board[row][col] === 0) {
+      const cellKey = `${row}-${col}`;
+      const candidates = pencilNotes[cellKey] || [];
+      if (candidates.length >= 2) {
+        intersection.push({ row, col, candidates });
+      }
+    }
+  }
+  
+  if (intersection.length < 2) {
+    return opportunities;
+  }
+  
+  // 检查所有intersection的组合（2个或3个单元格）
+  checkIntersectionCombinations(board, pencilNotes, intersection, row, boxIndex, true, emptyCells, solution, opportunities);
+  
+  return opportunities;
+}
+
+/**
+ * 检查列与宫的交叉
+ */
+function checkColBoxIntersection(board, pencilNotes, col, boxIndex, emptyCells, solution) {
+  const opportunities = [];
+  const boxRow = Math.floor(boxIndex / 3);
+  const boxCol = boxIndex % 3;
+  const boxStartRow = boxRow * 3;
+  
+  // 获取交叉点的空单元格
+  const intersection = [];
   for (let r = 0; r < 3; r++) {
-    for (let c = 0; c < 3; c++) {
-      const row = boxStartRow + r;
-      const col = boxStartCol + c;
-      if (board[row][col] === 0) {
-        const cellKey = `${row}-${col}`;
-        const candidates = pencilNotes[cellKey] || [];
-        if (candidates.length >= 2) {
-          emptyCellsInBox.push({ row, col, candidates });
+    const row = boxStartRow + r;
+    if (board[row][col] === 0) {
+      const cellKey = `${row}-${col}`;
+      const candidates = pencilNotes[cellKey] || [];
+      if (candidates.length >= 2) {
+        intersection.push({ row, col, candidates });
+      }
+    }
+  }
+  
+  if (intersection.length < 2) {
+    return opportunities;
+  }
+  
+  // 检查所有intersection的组合（2个或3个单元格）
+  checkIntersectionCombinations(board, pencilNotes, intersection, col, boxIndex, false, emptyCells, solution, opportunities);
+  
+  return opportunities;
+}
+
+/**
+ * 检查intersection的所有组合
+ * 根据Hodoku: 可以是2个单元格或3个单元格
+ */
+function checkIntersectionCombinations(board, pencilNotes, intersection, lineIndex, boxIndex, isRow, emptyCells, solution, opportunities) {
+  const max = intersection.length;
+  
+  // 检查2个单元格的组合
+  for (let i = 0; i < max - 1; i++) {
+    for (let j = i + 1; j < max; j++) {
+      const cells = [intersection[i], intersection[j]];
+      const cands = getCandidateUnion(cells);
+      const nPlus = cands.length - cells.length;
+      
+      if (nPlus >= 2) {
+        // 可能的SDC
+        checkSDCPattern(board, pencilNotes, cells, cands, lineIndex, boxIndex, isRow, emptyCells, solution, opportunities);
+      }
+    }
+  }
+  
+  // 检查3个单元格的组合
+  if (max >= 3) {
+    for (let i = 0; i < max - 2; i++) {
+      for (let j = i + 1; j < max - 1; j++) {
+        for (let k = j + 1; k < max; k++) {
+          const cells = [intersection[i], intersection[j], intersection[k]];
+          const cands = getCandidateUnion(cells);
+          const nPlus = cands.length - cells.length;
+          
+          if (nPlus >= 2) {
+            // 可能的SDC
+            checkSDCPattern(board, pencilNotes, cells, cands, lineIndex, boxIndex, isRow, emptyCells, solution, opportunities);
+          }
         }
       }
     }
   }
-  
-  // SDC需要至少2个空单元格
-  if (emptyCellsInBox.length < 2) {
-    return opportunities;
-  }
-  
-  // 检查所有2单元格组合（SDC单元格对）
-  for (let i = 0; i < emptyCellsInBox.length - 1; i++) {
-    for (let j = i + 1; j < emptyCellsInBox.length; j++) {
-      const cell1 = emptyCellsInBox[i];
-      const cell2 = emptyCellsInBox[j];
-      
-      // SDC要求两个单元格在同一行或同一列
-      const sameRow = cell1.row === cell2.row;
-      const sameCol = cell1.col === cell2.col;
-      
-      if (!sameRow && !sameCol) {
-        continue; // 不在同一行或列，跳过
-      }
-      
-      // 合并两个单元格的候选数
-      const sdcCandidates = [...new Set([...cell1.candidates, ...cell2.candidates])];
-      
-      // SDC候选数至少需要3个数字
-      if (sdcCandidates.length < 3) {
-        continue;
-      }
-      
-      // 分析SDC模式
-      const sdcPattern = analyzeSDCPattern(
-        board, 
-        pencilNotes, 
-        cell1, 
-        cell2, 
-        sdcCandidates,
-        sameRow,
-        boxRow,
-        boxCol
-      );
-      
-      if (sdcPattern && sdcPattern.removableCandidates.length > 0) {
-        opportunities.push(sdcPattern);
-      }
-    }
-  }
-  
-  return opportunities;
-};
+}
 
 /**
- * 分析SDC模式（基于HoDoKu的完整实现）
- * 核心逻辑：
- * 1. 需要在行/列和宫中各找nPlus个单元格
- * 2. 这些单元格的候选数必须是SDC候选数的子集
- * 3. 两组候选数不能有交集
- * 4. 需要搜索所有可能的单元格组合
+ * 获取候选数并集
  */
-const analyzeSDCPattern = (board, pencilNotes, cell1, cell2, sdcCandidates, sameRow, boxRow, boxCol) => {
-  const sdcCells = [cell1, cell2];
-  const lineIndex = sameRow ? cell1.row : cell1.col;
-  const isRow = sameRow;
-  
-  const nPlus = sdcCandidates.length - sdcCells.length;
-  if (nPlus < 2) {
-    return null;
+function getCandidateUnion(cells) {
+  const union = new Set();
+  for (const cell of cells) {
+    for (const cand of cell.candidates) {
+      union.add(cand);
+    }
   }
+  return Array.from(union).sort((a, b) => a - b);
+}
+
+/**
+ * 检查SDC模式
+ * 这是核心逻辑，对应Hodoku的checkHouses方法
+ */
+function checkSDCPattern(board, pencilNotes, intersectionCells, intersectionCands, lineIndex, boxIndex, isRow, emptyCells, solution, opportunities) {
+  const nPlus = intersectionCands.length - intersectionCells.length;
+  const intersectionCandSet = arrayToMask(intersectionCands);
   
-  // 获取可用的单元格集合
-  const lineCells = getLineCellsInOtherBoxes(board, pencilNotes, lineIndex, isRow, boxRow, boxCol);
-  const boxCells = getBoxCellsInOtherLines(board, pencilNotes, lineIndex, isRow, boxRow, boxCol);
+  // 获取行/列中可用的单元格（不在intersection中）
+  const lineCells = getLineCells(board, pencilNotes, lineIndex, isRow, intersectionCells, boxIndex);
+  
+  // 获取宫中可用的单元格（不在intersection中）
+  const boxCells = getBoxCells(board, pencilNotes, boxIndex, isRow, intersectionCells, lineIndex);
   
   if (lineCells.length === 0 || boxCells.length === 0) {
-    return null;
+    return;
   }
   
-  // 将SDC候选数转换为位掩码形式（优化性能）
-  const sdcCandMask = candidatesToMask(sdcCandidates);
+  // 第一次搜索：在行/列中找单元格组合
+  searchLineCombinations(board, pencilNotes, lineCells, boxCells, intersectionCells, intersectionCandSet, nPlus, isRow, lineIndex, boxIndex, solution, opportunities);
+}
+
+/**
+ * 在行/列中搜索单元格组合
+ * 对应Hodoku的checkHouses第一次调用（secondCheck=false）
+ */
+function searchLineCombinations(board, pencilNotes, lineCells, boxCells, intersectionCells, intersectionCandSet, nPlus, isRow, lineIndex, boxIndex, solution, opportunities) {
+  const maxCells = lineCells.length;
   
-  // 递归搜索行/列中的nPlus个单元格组合
-  const lineResults = searchCombinations(lineCells, nPlus, sdcCandMask);
-  
-  // 对每个行/列组合，搜索匹配的宫组合
-  for (const lineCombo of lineResults) {
-    // 宫中允许的候选数 = SDC候选数 - 行/列组合的候选数
-    const boxAllowedMask = sdcCandMask & ~lineCombo.candMask;
+  // 使用递归搜索所有可能的单元格组合
+  function search(startIndex, selectedIndices, selectedCandMask, depth) {
+    // 计算当前组合的有效候选数和额外候选数
+    const containedCands = selectedCandMask & intersectionCandSet; // 来自intersection的候选数
+    const extraCands = selectedCandMask & ~intersectionCandSet; // 额外候选数
+    const anzContained = countBits(containedCands);
+    const anzExtra = countBits(extraCands);
     
-    // 搜索宫中的nPlus个单元格组合
-    const boxResults = searchCombinations(boxCells, nPlus, boxAllowedMask);
+    // Hodoku的关键判断：
+    // - anzContained > 0：必须包含intersection的候选数
+    // - depth > anzExtra：单元格数必须大于额外候选数（确保有效）
+    // - depth - anzExtra < nPlus：有效单元格数必须小于nPlus（还要给box留空间）
+    if (anzContained > 0 && depth > anzExtra && depth - anzExtra < nPlus) {
+      // 找到有效的line组合，现在搜索box组合
+      const lineActSet = selectedIndices;
+      const lineActCandSet = selectedCandMask;
+      
+      // box中不允许line组合的候选数（除了额外候选数，它们可以在两边都有）
+      let blockAllowedCandSet = ~lineActCandSet;
+      blockAllowedCandSet |= extraCands; // 允许额外候选数
+      
+      // 搜索box组合
+      const remainingNPlus = nPlus - (depth - anzExtra);
+      searchBoxCombinations(board, pencilNotes, boxCells, lineCells, lineActSet, lineActCandSet, intersectionCells, intersectionCandSet, remainingNPlus, blockAllowedCandSet, isRow, lineIndex, boxIndex, solution, opportunities);
+    }
     
-    for (const boxCombo of boxResults) {
-      // 检查两组候选数是否有交集
-      if ((lineCombo.candMask & boxCombo.candMask) !== 0) {
-        continue; // 有交集，跳过
-      }
-      
-      // 找到有效的SDC！现在检查可删除的候选数
-      const removable = findRemovableCandidates(
-        pencilNotes,
-        lineCells,
-        boxCells,
-        lineCombo,
-        boxCombo,
-        sdcCandidates
-      );
-      
-      if (removable.length > 0) {
-        // 构建SDC机会对象
-        const lineCandidates = maskToCandidates(lineCombo.candMask);
-        const boxCandidates = maskToCandidates(boxCombo.candMask);
+    // 继续搜索下一层
+    if (startIndex < maxCells) {
+      for (let i = startIndex; i < maxCells; i++) {
+        const cell = lineCells[i];
+        const cellCandMask = arrayToMask(cell.candidates);
+        const newIndices = [...selectedIndices, i];
+        const newCandMask = selectedCandMask | cellCandMask;
         
-        return {
-          type: 'sdc',
-          description: `Sue De Coq技巧`,
-          sdcCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
-          sdcCandidates: sdcCandidates,
-          lineType: isRow ? 'row' : 'col',
-          lineIndex: lineIndex,
-          boxIndex: boxRow * 3 + boxCol,
-          groupA: {
-            cells: lineCombo.cells.map(idx => {
-              const cell = lineCells[idx];
-              return [cell.row, cell.col];
-            }),
-            candidates: lineCandidates
-          },
-          groupB: {
-            cells: boxCombo.cells.map(idx => {
-              const cell = boxCells[idx];
-              return [cell.row, cell.col];
-            }),
-            candidates: boxCandidates
-          },
-          removableCandidates: removable,
-          cells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
-          sourceCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
-          targetCells: removable.map(rc => [rc.row, rc.col]),
-          values: sdcCandidates,
-          highlightInfo: {
-            sdcCells: [[cell1.row, cell1.col], [cell2.row, cell2.col]],
-            groupACells: lineCombo.cells.map(idx => {
-              const cell = lineCells[idx];
-              return [cell.row, cell.col];
-            }),
-            groupBCells: boxCombo.cells.map(idx => {
-              const cell = boxCells[idx];
-              return [cell.row, cell.col];
-            }),
-            sdcCandidates: sdcCandidates,
-            groupACandidates: lineCandidates,
-            groupBCandidates: boxCandidates,
-            targetCandidates: removable
-          },
-          message: generateSDCMessage(isRow, lineIndex, boxRow * 3 + boxCol, sdcCandidates, removable.length)
-        };
+        //只搜索候选数在intersectionCandSet中或有少量额外候选数的组合
+        if ((newCandMask & ~intersectionCandSet) === newCandMask) {
+          // 所有候选数都不在intersection中，跳过
+          continue;
+        }
+        
+        search(i + 1, newIndices, newCandMask, depth + 1);
       }
     }
   }
-  
-  return null;
-};
-
-/**
- * 将候选数数组转换为位掩码
- */
-const candidatesToMask = (candidates) => {
-  let mask = 0;
-  for (const cand of candidates) {
-    mask |= (1 << (cand - 1));
-  }
-  return mask;
-};
-
-/**
- * 将位掩码转换为候选数数组
- */
-const maskToCandidates = (mask) => {
-  const candidates = [];
-  for (let i = 0; i < 9; i++) {
-    if (mask & (1 << i)) {
-      candidates.push(i + 1);
-    }
-  }
-  return candidates;
-};
-
-/**
- * 递归搜索单元格组合，找到所有可能的nPlus个单元格的组合
- * 其候选数是allowedMask的子集
- * 
- * 注意：HoDoKu允许单元格有额外的候选数，但需要额外的单元格来容纳。
- * 这里我们先实现简化版本：允许单元格有任何候选数，只要它们的交集在allowedMask中
- * 
- * @param {Array} cells 候选单元格数组
- * @param {number} nPlus 需要选择的单元格数量
- * @param {number} allowedMask 允许的候选数位掩码
- * @returns {Array} 组合数组，每个元素包含{cells: [索引], candMask: 候选数掩码}
- */
-const searchCombinations = (cells, nPlus, allowedMask) => {
-  const results = [];
-  
-  // 如果nPlus为0，返回空组合
-  if (nPlus === 0) {
-    return [{ cells: [], candMask: 0 }];
-  }
-  
-  // 如果可用单元格不足，返回空
-  if (cells.length < nPlus) {
-    return [];
-  }
-  
-  // 预计算每个单元格的候选数掩码
-  const cellMasks = cells.map(cell => candidatesToMask(cell.candidates));
-  
-  // 递归搜索
-  const search = (startIdx, selectedIndices, combinedMask, depth) => {
-    if (depth === nPlus) {
-      // 找到了nPlus个单元格
-      // 检查组合的候选数与allowedMask的交集
-      const intersection = combinedMask & allowedMask;
-      if (intersection !== 0) {
-        // 至少有一些候选数在允许范围内
-        results.push({
-          cells: [...selectedIndices],
-          candMask: intersection  // 只保留在allowedMask中的候选数
-        });
-      }
-      return;
-    }
-    
-    // 计算还需要选择的单元格数
-    const remaining = nPlus - depth;
-    
-    // 遍历剩余的单元格
-    for (let i = startIdx; i <= cells.length - remaining; i++) {
-      const cellMask = cellMasks[i];
-      
-      // 检查该单元格是否有任何候选数在allowedMask中
-      if ((cellMask & allowedMask) === 0) {
-        continue; // 该单元格没有允许的候选数，跳过
-      }
-      
-      // 选择该单元格，继续递归
-      selectedIndices.push(i);
-      search(i + 1, selectedIndices, combinedMask | cellMask, depth + 1);
-      selectedIndices.pop();
-    }
-  };
   
   search(0, [], 0, 0);
-  return results;
-};
+}
 
 /**
- * 查找可删除的候选数
+ * 在宯中搜索单元格组合
+ * 对应Hodoku的checkHouses第二次调用（secondCheck=true）
  */
-const findRemovableCandidates = (pencilNotes, lineCells, boxCells, lineCombo, boxCombo, sdcCandidates) => {
-  const removable = [];
+function searchBoxCombinations(board, pencilNotes, boxCells, lineCells, lineActSet, lineActCandSet, intersectionCells, intersectionCandSet, nPlus, allowedCandSet, isRow, lineIndex, boxIndex, solution, opportunities) {
+  const maxCells = boxCells.length;
   
-  // 获取两组的候选数
-  const lineCandidates = maskToCandidates(lineCombo.candMask);
-  const boxCandidates = maskToCandidates(boxCombo.candMask);
-  
-  // 从行/列的其他单元格中删除“只在宫中”的候选数
-  for (let i = 0; i < lineCells.length; i++) {
-    if (lineCombo.cells.includes(i)) {
-      continue; // 跳过已选择的单元格
+  function search(startIndex, selectedIndices, selectedCandMask, depth) {
+    const containedCands = selectedCandMask & intersectionCandSet;
+    const extraCands = selectedCandMask & ~intersectionCandSet;
+    const anzContained = countBits(containedCands);
+    const anzExtra = countBits(extraCands);
+    
+    // Hodoku的关键判断：
+    // - anzContained > 0：必须包含intersection的候选数
+    // - depth - anzExtra == nPlus：有效单元格数必须正好等于nPlus
+    if (anzContained > 0 && depth - anzExtra === nPlus) {
+      // 找到有效的SDC！检查是否可以删除候选数
+      const blockActSet = selectedIndices;
+      const blockActCandSet = selectedCandMask;
+      
+      // 检查VR和VB是否有交集（关键约束！）
+      const lineOnlyCands = lineActCandSet & intersectionCandSet;
+      const blockOnlyCands = blockActCandSet & intersectionCandSet;
+      if ((lineOnlyCands & blockOnlyCands) !== 0) {
+        // 有交集，不是有效的SDC
+        return;
+      }
+      
+      // 计算可删除的候选数
+      const result = findRemovableCandidates(
+        board,
+        pencilNotes,
+        intersectionCells,
+        intersectionCandSet,
+        lineActSet,
+        lineActCandSet,
+        blockActSet,
+        blockActCandSet,
+        lineCells,
+        boxCells,
+        isRow,
+        lineIndex,
+        boxIndex,
+        solution
+      );
+      
+      if (result && result.removableCandidates.length > 0) {
+        opportunities.push(result);
+      }
     }
     
-    const cell = lineCells[i];
-    const cellKey = `${cell.row}-${cell.col}`;
-    const cellCandidates = pencilNotes[cellKey] || [];
-    
-    for (const num of boxCandidates) {
-      if (cellCandidates.includes(num)) {
-        removable.push({
-          row: cell.row,
-          col: cell.col,
-          value: num,
-          reason: 'boxOnly'
-        });
+    // 继续搜索
+    if (startIndex < maxCells) {
+      for (let i = startIndex; i < maxCells; i++) {
+        const cell = boxCells[i];
+        const cellCandMask = arrayToMask(cell.candidates);
+        
+        // 候选数必须符合allowedCandSet的约束
+        if ((cellCandMask & ~allowedCandSet) !== 0) {
+          // 包含不允许的候选数，跳过
+          continue;
+        }
+        
+        const newIndices = [...selectedIndices, i];
+        const newCandMask = selectedCandMask | cellCandMask;
+        
+        search(i + 1, newIndices, newCandMask, depth + 1);
       }
     }
   }
   
-  // 从宫的其他单元格中删除“只在行/列中”的候选数
-  for (let i = 0; i < boxCells.length; i++) {
-    if (boxCombo.cells.includes(i)) {
-      continue; // 跳过已选择的单元格
-    }
-    
-    const cell = boxCells[i];
-    const cellKey = `${cell.row}-${cell.col}`;
-    const cellCandidates = pencilNotes[cellKey] || [];
-    
-    for (const num of lineCandidates) {
-      if (cellCandidates.includes(num)) {
-        removable.push({
-          row: cell.row,
-          col: cell.col,
-          value: num,
-          reason: 'lineOnly'
-        });
-      }
-    }
-  }
-  
-  // 去重
-  const unique = removable.filter((item, index, self) => 
-    index === self.findIndex(t => t.row === item.row && t.col === item.col && t.value === item.value)
-  );
-  
-  return unique;
-};
+  search(0, [], 0, 0);
+}
 
 /**
- * 获取该行/列在其他宫中的空单元格（组A）
+ * 获取行/列中的可用单元格
  */
-const getLineCellsInOtherBoxes = (board, pencilNotes, lineIndex, isRow, currentBoxRow, currentBoxCol) => {
+function getLineCells(board, pencilNotes, lineIndex, isRow, intersectionCells, boxIndex) {
   const cells = [];
+  const intersectionSet = new Set(intersectionCells.map(c => `${c.row}-${c.col}`));
   
   if (isRow) {
-    // 遍历该行的其他宫
-    for (let boxCol = 0; boxCol < 3; boxCol++) {
-      if (boxCol === currentBoxCol) continue; // 跳过当前宫
+    const row = lineIndex;
+    const currentBoxCol = boxIndex % 3; // 当前宯的列索引
+    for (let col = 0; col < 9; col++) {
+      const boxCol = Math.floor(col / 3);
+      if (boxCol === currentBoxCol) continue; // 跳过当前宯
       
-      const boxStartCol = boxCol * 3;
-      for (let c = 0; c < 3; c++) {
-        const col = boxStartCol + c;
-        if (board[lineIndex][col] === 0) {
-          const cellKey = `${lineIndex}-${col}`;
+      if (board[row][col] === 0) {
+        const cellKey = `${row}-${col}`;
+        if (!intersectionSet.has(cellKey)) {
           const candidates = pencilNotes[cellKey] || [];
           if (candidates.length > 0) {
-            cells.push({ row: lineIndex, col, candidates });
+            cells.push({ row, col, candidates });
           }
         }
       }
     }
   } else {
-    // 遍历该列的其他宫
-    for (let boxRow = 0; boxRow < 3; boxRow++) {
-      if (boxRow === currentBoxRow) continue; // 跳过当前宫
+    const col = lineIndex;
+    const currentBoxRow = Math.floor(boxIndex / 3); // 当前宯的行索引
+    for (let row = 0; row < 9; row++) {
+      const boxRow = Math.floor(row / 3);
+      if (boxRow === currentBoxRow) continue; // 跳过当前宯
       
-      const boxStartRow = boxRow * 3;
-      for (let r = 0; r < 3; r++) {
-        const row = boxStartRow + r;
-        if (board[row][lineIndex] === 0) {
-          const cellKey = `${row}-${lineIndex}`;
+      if (board[row][col] === 0) {
+        const cellKey = `${row}-${col}`;
+        if (!intersectionSet.has(cellKey)) {
           const candidates = pencilNotes[cellKey] || [];
           if (candidates.length > 0) {
-            cells.push({ row, col: lineIndex, candidates });
+            cells.push({ row, col, candidates });
           }
         }
       }
@@ -423,13 +380,17 @@ const getLineCellsInOtherBoxes = (board, pencilNotes, lineIndex, isRow, currentB
   }
   
   return cells;
-};
+}
 
 /**
- * 获取该宫中其他行/列的空单元格（组B）
+ * 获取宫中的可用单元格
  */
-const getBoxCellsInOtherLines = (board, pencilNotes, lineIndex, isRow, boxRow, boxCol) => {
+function getBoxCells(board, pencilNotes, boxIndex, isRow, intersectionCells, lineIndex) {
   const cells = [];
+  const intersectionSet = new Set(intersectionCells.map(c => `${c.row}-${c.col}`));
+  
+  const boxRow = Math.floor(boxIndex / 3);
+  const boxCol = boxIndex % 3;
   const boxStartRow = boxRow * 3;
   const boxStartCol = boxCol * 3;
   
@@ -438,58 +399,223 @@ const getBoxCellsInOtherLines = (board, pencilNotes, lineIndex, isRow, boxRow, b
       const row = boxStartRow + r;
       const col = boxStartCol + c;
       
-      // 跳过SDC单元格所在的行/列
+      // 跳过intersection所在的行/列
       if (isRow && row === lineIndex) continue;
       if (!isRow && col === lineIndex) continue;
       
       if (board[row][col] === 0) {
         const cellKey = `${row}-${col}`;
-        const candidates = pencilNotes[cellKey] || [];
-        if (candidates.length > 0) {
-          cells.push({ row, col, candidates });
+        if (!intersectionSet.has(cellKey)) {
+          const candidates = pencilNotes[cellKey] || [];
+          if (candidates.length > 0) {
+            cells.push({ row, col, candidates });
+          }
         }
       }
     }
   }
   
   return cells;
-};
+}
 
 /**
- * 收集单元格数组的所有候选数（去重）
+ * 查找可删除的候选数
  */
-const collectCandidates = (cells) => {
-  const allCandidates = new Set();
-  cells.forEach(cell => {
-    cell.candidates.forEach(num => allCandidates.add(num));
-  });
-  return Array.from(allCandidates).sort((a, b) => a - b);
-};
-
-/**
- * 生成SDC提示消息
- */
-const generateSDCMessage = (isRow, lineIndex, boxIndex, sdcCandidates, removableCount) => {
-  const lineType = isRow ? '行' : '列';
-  const lineNumber = lineIndex + 1;
-  const boxNumber = boxIndex + 1;
-  const candidatesStr = sdcCandidates.join(',');
+function findRemovableCandidates(board, pencilNotes, intersectionCells, intersectionCandSet, lineActSet, lineActCandSet, blockActSet, blockActCandSet, lineCells, boxCells, isRow, lineIndex, boxIndex, solution) {
+  const removable = [];
   
-  return `Sue De Coq技巧：在第${boxNumber}宫的第${lineNumber}${lineType}中，候选数${candidatesStr}形成SDC模式，可以从${removableCount}个单元格中删除相关候选数。`;
-};
+  // 获取额外候选数（在line和block中都有的）
+  const extraCands = lineActCandSet & blockActCandSet;
+  
+  // 从宫中删除：(intersectionCandSet | blockActCandSet) & ~lineActCandSet | extraCands
+  const blockDeleteCands = ((intersectionCandSet | blockActCandSet) & ~lineActCandSet) | extraCands;
+  
+  // 从行/列中删除：(intersectionCandSet | lineActCandSet) & ~blockActCandSet | extraCands
+  const lineDeleteCands = ((intersectionCandSet | lineActCandSet) & ~blockActCandSet) | extraCands;
+  
+  // 在宫中查找可删除的候选数
+  const blockActCellSet = new Set(blockActSet.map(i => `${boxCells[i].row}-${boxCells[i].col}`));
+  const intersectionCellSet = new Set(intersectionCells.map(c => `${c.row}-${c.col}`));
+  
+  const boxRow = Math.floor(boxIndex / 3);
+  const boxCol = boxIndex % 3;
+  const boxStartRow = boxRow * 3;
+  const boxStartCol = boxCol * 3;
+  
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      const row = boxStartRow + r;
+      const col = boxStartCol + c;
+      const cellKey = `${row}-${col}`;
+      
+      if (blockActCellSet.has(cellKey) || intersectionCellSet.has(cellKey)) {
+        continue;
+      }
+      
+      if (board[row][col] === 0) {
+        const candidates = pencilNotes[cellKey] || [];
+        for (const cand of candidates) {
+          if ((1 << (cand - 1)) & blockDeleteCands) {
+            // 保护机制：检查是否是正确答案
+            if (solution && solution[row][col] === cand) {
+              continue;
+            }
+            removable.push({ row, col, value: cand });
+          }
+        }
+      }
+    }
+  }
+  
+  // 在行/列中查找可删除的候选数
+  const lineActCellSet = new Set(lineActSet.map(i => `${lineCells[i].row}-${lineCells[i].col}`));
+  
+  if (isRow) {
+    const row = lineIndex;
+    for (let col = 0; col < 9; col++) {
+      const cellKey = `${row}-${col}`;
+      if (lineActCellSet.has(cellKey) || intersectionCellSet.has(cellKey)) {
+        continue;
+      }
+      
+      if (board[row][col] === 0) {
+        const candidates = pencilNotes[cellKey] || [];
+        for (const cand of candidates) {
+          if ((1 << (cand - 1)) & lineDeleteCands) {
+            // 保护机制
+            if (solution && solution[row][col] === cand) {
+              continue;
+            }
+            removable.push({ row, col, value: cand });
+          }
+        }
+      }
+    }
+  } else {
+    const col = lineIndex;
+    for (let row = 0; row < 9; row++) {
+      const cellKey = `${row}-${col}`;
+      if (lineActCellSet.has(cellKey) || intersectionCellSet.has(cellKey)) {
+        continue;
+      }
+      
+      if (board[row][col] === 0) {
+        const candidates = pencilNotes[cellKey] || [];
+        for (const cand of candidates) {
+          if ((1 << (cand - 1)) & lineDeleteCands) {
+            // 保护机制
+            if (solution && solution[row][col] === cand) {
+              continue;
+            }
+            removable.push({ row, col, value: cand });
+          }
+        }
+      }
+    }
+  }
+  
+  if (removable.length === 0) {
+    return null;
+  }
+  
+  // 构建SDC机会对象
+  const lineCandidates = maskToArray(lineActCandSet & intersectionCandSet);
+  const boxCandidates = maskToArray(blockActCandSet & intersectionCandSet);
+  
+  return {
+    type: 'sdc',
+    description: 'Sue De Coq技巧',
+    sdcCells: intersectionCells.map(c => [c.row, c.col]),
+    sdcCandidates: maskToArray(intersectionCandSet),
+    lineType: isRow ? 'row' : 'col',
+    lineIndex: lineIndex,
+    boxIndex: boxIndex,
+    groupA: {
+      cells: lineActSet.map(i => [lineCells[i].row, lineCells[i].col]),
+      candidates: lineCandidates
+    },
+    groupB: {
+      cells: blockActSet.map(i => [boxCells[i].row, boxCells[i].col]),
+      candidates: boxCandidates
+    },
+    removableCandidates: removable,
+    cells: intersectionCells.map(c => [c.row, c.col]),
+    sourceCells: intersectionCells.map(c => [c.row, c.col]),
+    targetCells: removable.map(r => [r.row, r.col]),
+    values: maskToArray(intersectionCandSet),
+    message: `Sue De Coq技巧：${removable.length}个候选数可删除`
+  };
+}
+
+/**
+ * 去重
+ */
+function deduplicateSDC(opportunities) {
+  const seen = new Set();
+  const unique = [];
+  
+  for (const opp of opportunities) {
+    const key = JSON.stringify({
+      sdc: opp.sdcCells.sort(),
+      v: opp.sdcCandidates.sort(),
+      cr: opp.groupA.cells.sort(),
+      cb: opp.groupB.cells.sort(),
+      rm: opp.removableCandidates.map(r => `${r.row}-${r.col}-${r.value}`).sort()
+    });
+    
+    if (!seen.has(key)) {
+      seen.add(key);
+      unique.push(opp);
+    }
+  }
+  
+  return unique;
+}
+
+/**
+ * 工具函数：数组转位掩码
+ */
+function arrayToMask(arr) {
+  let mask = 0;
+  for (const num of arr) {
+    mask |= (1 << (num - 1));
+  }
+  return mask;
+}
+
+/**
+ * 工具函数：位掩码转数组
+ */
+function maskToArray(mask) {
+  const arr = [];
+  for (let i = 0; i < 9; i++) {
+    if (mask & (1 << i)) {
+      arr.push(i + 1);
+    }
+  }
+  return arr;
+}
+
+/**
+ * 工具函数：计算位掩码中1的个数
+ */
+function countBits(mask) {
+  let count = 0;
+  while (mask) {
+    count += mask & 1;
+    mask >>= 1;
+  }
+  return count;
+}
 
 /**
  * 应用SDC技巧
- * @param {Object} sdcOpportunity SDC机会对象
- * @param {Object} pencilNotes 候选数对象
- * @returns {Object} 更新后的候选数对象和删除的候选数列表
  */
 export const applySDC = (sdcOpportunity, pencilNotes) => {
   const updatedNotes = { ...pencilNotes };
   const removedCandidates = [];
   
-  // 删除所有可删除的候选数
-  sdcOpportunity.removableCandidates.forEach(({ row, col, value }) => {
+  for (const { row, col, value } of sdcOpportunity.removableCandidates) {
     const cellKey = `${row}-${col}`;
     if (updatedNotes[cellKey]) {
       const originalCandidates = [...updatedNotes[cellKey]];
@@ -499,7 +625,7 @@ export const applySDC = (sdcOpportunity, pencilNotes) => {
         removedCandidates.push({ row, col, value });
       }
     }
-  });
+  }
   
   return {
     pencilNotes: updatedNotes,

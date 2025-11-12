@@ -1342,14 +1342,15 @@ export const SudokuContextProvider = ({ children }) => {
       }
       
       // 传入参数，根据条件决定是否包含候选数技巧
-      const techniques = identifyAllTechniques(currentBoard, pencilNotes, includeCandidateTechniques);
+      // 传入solution参数用于候选数保护验证（调试模式）
+      const techniques = identifyAllTechniques(currentBoard, pencilNotes, includeCandidateTechniques, solution);
       setActiveTechniques(techniques);
       return techniques;
     } catch (error) {
       console.error('识别技巧失败:', error);
       return [];
     }
-  }, [currentBoard, pencilNotes, areCandidatesComplete, hasRefreshedCandidates, t, toast]);
+  }, [currentBoard, pencilNotes, areCandidatesComplete, hasRefreshedCandidates, solution, t, toast]);
   
   // 应用技巧
   const applyTechniqueToBoard = useCallback((technique) => {

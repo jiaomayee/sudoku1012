@@ -192,6 +192,34 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         let backgroundColor, textColor, boxShadow, borderRadius, zIndex;
         
         switch (group.type) {
+          case 'sdc-core':
+            backgroundColor = '#FFD700'; // 金色底，用于SDC核心候选数
+            textColor = '#000000'; // 黑色文字
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
+            zIndex = 85;
+            break;
+          case 'sdc-groupA':
+            backgroundColor = '#ADD8E6'; // 浅蓝底，用于组A候选数
+            textColor = '#000000'; // 黑色文字
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
+            zIndex = 80;
+            break;
+          case 'sdc-groupB':
+            backgroundColor = '#90EE90'; // 浅绿底，用于组B候选数
+            textColor = '#000000'; // 黑色文字
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
+            zIndex = 75;
+            break;
+          case 'sdc-removeable':
+            backgroundColor = '#FF0000'; // 红底，用于可删除的候选数
+            textColor = '#FFFFFF'; // 白色文字
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
+            zIndex = 90; // 最高层级
+            break;
           case 'alsXZ-x':
             backgroundColor = '#ADD8E6'; // 浅蓝底，用于X候选数
             textColor = '#000000'; // 黑色文字
@@ -286,6 +314,56 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
   
   // 渲染条件候选数高亮
   const renderConditionNotes = (cell) => {
+    // 优先检查是否为SDC技巧，使用新的sdcCandidates属性
+    if (cell.techniqueType && cell.techniqueType.includes('sdc') && cell.sdcCandidates) {
+      const highlightGroups = [];
+      const { sdcCandidates, groupACandidates, groupBCandidates, removableCandidates } = cell.sdcCandidates;
+      
+      // 1. SDC候选数（金色底黑字）
+      if (sdcCandidates && sdcCandidates.length > 0) {
+        highlightGroups.push({
+          notes: sdcCandidates,
+          type: 'sdc-core'
+        });
+      }
+      
+      // 2. 组A候选数（浅蓝底黑字）
+      if (groupACandidates && groupACandidates.length > 0) {
+        highlightGroups.push({
+          notes: groupACandidates,
+          type: 'sdc-groupA'
+        });
+      }
+      
+      // 3. 组B候选数（浅绿底黑字）
+      if (groupBCandidates && groupBCandidates.length > 0) {
+        highlightGroups.push({
+          notes: groupBCandidates,
+          type: 'sdc-groupB'
+        });
+      }
+      
+      // 4. 可删除的目标候选数（红底白字）- 优先级最高
+      if (removableCandidates && removableCandidates.length > 0) {
+        highlightGroups.push({
+          notes: removableCandidates,
+          type: 'sdc-removeable'
+        });
+      }
+      
+      // 渲染所有高亮组
+      if (highlightGroups.length > 0) {
+        return renderHighlightGroups(highlightGroups, cell);
+      }
+      
+      return null;
+    }
+    
+    // 如果是SDC技巧，不执行常规高亮（已在上面处理）
+    if (cell.techniqueType && cell.techniqueType.includes('sdc')) {
+      return null;
+    }
+    
     // 优先检查是否为ALS-XZ技巧，使用新的alsXZCandidates属性
     if (cell.techniqueType && cell.techniqueType.includes('alsXZ') && cell.alsXZCandidates) {
       const highlightGroups = [];

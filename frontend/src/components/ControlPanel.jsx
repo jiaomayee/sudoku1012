@@ -11,6 +11,8 @@ import { ModeContext } from '../context/ModeContext';
 import nakedPairIndicator from '../utils/nakedPairIndicator';
 // 添加对ALS-XZ指示功能的支持
 import alsXZIndicator from '../utils/alsXZIndicator';
+// 添加对SDC指示功能的支持
+import sdcIndicator from '../utils/sdcIndicator';
 
 // 添加清除按钮图标的CSS样式
 const clearCellIconStyles = `
@@ -115,6 +117,9 @@ const ControlPanel = ({
     if (setHighlightedCells) {
       setHighlightedCells([]);
     }
+    // 清除所有专用指示器
+    alsXZIndicator.clearHighlights();
+    sdcIndicator.clearHighlights();
     // 清除选中的技巧和步骤
     setSelectedTechnique(null);
     // 重置分页
@@ -204,6 +209,9 @@ const ControlPanel = ({
     // 无条件清除ALS-XZ技巧的DOM高亮（避免候选数高亮遗留）
     // 即使上一个技巧不是ALS-XZ，也要清除以防有遗留的ALS-XZ高亮
     alsXZIndicator.clearHighlights();
+    
+    // 清除SDC技巧的DOM高亮（避免高亮遗留）
+    sdcIndicator.clearHighlights();
     
     // 清除通用的高亮（基于setHighlightedCells）
     if (setHighlightedCells) {
@@ -1476,61 +1484,150 @@ const ControlPanel = ({
       // 检查是否为ALS-XZ技巧
       const isALSXZTechnique = technique.type && technique.type.includes('alsXZ');
       
-      // 为显性数对法使用特殊的处理逻辑
-      if (isNakedPairTechnique) {
-        // 1. 高亮条件单元格（无底色，仅用于定位候选数）
-        if (Array.isArray(cells) && cells.length > 0) {
-          cells.forEach(cell => {
-            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
-            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
-            
-            if (r !== null && c !== null) {
-              cellsToHighlight.push({
-                row: r,
-                col: c,
-                techniqueIndicator: true,
-                techniqueType: technique.type,
-                highlightType: 'pair', // 条件单元格特殊标识
-                isTarget: false, // 条件单元格不是目标单元格
-                pairNotes: technique.values || [], // 数对中的数字
-                backgroundColor: 'transparent', // 透明背景
-                borderColor: 'transparent' // 透明边框
-              });
-            }
-          });
-        }
+      // 检查是否为SDC技巧
+      const isSDCTechnique = technique.type && (technique.type === 'sdc' || technique.type.includes('Sue De Coq'));
+      
+      // SDC技巧使用类似ALS-XZ的方式，通过highlightedCells传递数据给TechniqueOverlay进行React渲染
+      if (isSDCTechnique) {
+        // 确保pencilNotes存在
+        const currentPencilNotes = pencilNotes || {};
         
-        // 2. 高亮目标单元格（无底色，仅用于定位候选数）
-        if (Array.isArray(targetCells) && targetCells.length > 0) {
-          targetCells.forEach(cell => {
-            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
-            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+        // 收集所有SDC相关单元格
+        const sdcCellsInfo = new Map();
+        
+        // 处理SDC单元格（交叉单元格）
+        if (technique.sdcCells && Array.isArray(technique.sdcCells)) {
+          technique.sdcCells.forEach(([row, col]) => {
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
             
-            if (r !== null && c !== null) {
-              // 检查是否已经作为条件单元格高亮
-              const existingIndex = cellsToHighlight.findIndex(
-                cell => cell.row === r && cell.col === c
-              );
+            if (candidates.length > 0) {
+              // 提取SDC候选数
+              const sdcCandidates = technique.sdcCandidates || [];
+              const cellSDCCandidates = candidates.filter(c => sdcCandidates.includes(c));
               
-              if (existingIndex === -1) {
-                // 新的目标单元格
-                cellsToHighlight.push({
-                  row: r,
-                  col: c,
-                  techniqueIndicator: true,
-                  techniqueType: technique.type,
-                  highlightType: 'target',
-                  isTarget: true,
-                  backgroundColor: 'transparent',
-                  borderColor: 'transparent'
+              if (!sdcCellsInfo.has(cellKey)) {
+                sdcCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  sdcCandidates: [],
+                  groupACandidates: [],
+                  groupBCandidates: [],
+                  removableCandidates: []
                 });
-              } else {
-                // 如果已存在，更新为目标单元格
-                cellsToHighlight[existingIndex].isTarget = true;
+              }
+              
+              const cellInfo = sdcCellsInfo.get(cellKey);
+              if (cellSDCCandidates.length > 0) {
+                cellInfo.sdcCandidates.push(...cellSDCCandidates);
               }
             }
           });
         }
+        
+        // 处理组A单元格
+        if (technique.groupA && technique.groupA.cells && Array.isArray(technique.groupA.cells)) {
+          technique.groupA.cells.forEach(([row, col]) => {
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            if (candidates.length > 0) {
+              const groupACandidates = technique.groupA.candidates || [];
+              const cellGroupACandidates = candidates.filter(c => groupACandidates.includes(c));
+              
+              if (!sdcCellsInfo.has(cellKey)) {
+                sdcCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  sdcCandidates: [],
+                  groupACandidates: [],
+                  groupBCandidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = sdcCellsInfo.get(cellKey);
+              if (cellGroupACandidates.length > 0) {
+                cellInfo.groupACandidates.push(...cellGroupACandidates);
+              }
+            }
+          });
+        }
+        
+        // 处理组B单元格
+        if (technique.groupB && technique.groupB.cells && Array.isArray(technique.groupB.cells)) {
+          technique.groupB.cells.forEach(([row, col]) => {
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            if (candidates.length > 0) {
+              const groupBCandidates = technique.groupB.candidates || [];
+              const cellGroupBCandidates = candidates.filter(c => groupBCandidates.includes(c));
+              
+              if (!sdcCellsInfo.has(cellKey)) {
+                sdcCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  sdcCandidates: [],
+                  groupACandidates: [],
+                  groupBCandidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = sdcCellsInfo.get(cellKey);
+              if (cellGroupBCandidates.length > 0) {
+                cellInfo.groupBCandidates.push(...cellGroupBCandidates);
+              }
+            }
+          });
+        }
+        
+        // 处理可删除的目标候选数
+        if (Array.isArray(technique.removableCandidates)) {
+          technique.removableCandidates.forEach(candidate => {
+            const { row, col, value } = candidate;
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            if (candidates.includes(value)) {
+              if (!sdcCellsInfo.has(cellKey)) {
+                sdcCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  sdcCandidates: [],
+                  groupACandidates: [],
+                  groupBCandidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = sdcCellsInfo.get(cellKey);
+              cellInfo.removableCandidates.push(value);
+            }
+          });
+        }
+        
+        // 将所有单元格信息转换为高亮单元格
+        sdcCellsInfo.forEach((cellInfo, cellKey) => {
+          cellsToHighlight.push({
+            row: cellInfo.row,
+            col: cellInfo.col,
+            techniqueIndicator: true,
+            techniqueType: technique.type,
+            highlightType: 'sdc',
+            isTarget: false,
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
+            // SDC特定的候选数信息
+            sdcCandidates: {
+              sdcCandidates: cellInfo.sdcCandidates,
+              groupACandidates: cellInfo.groupACandidates,
+              groupBCandidates: cellInfo.groupBCandidates,
+              removableCandidates: cellInfo.removableCandidates
+            }
+          });
+        });
       } else if (isALSXZTechnique) {
         // 对于ALS-XZ技巧，使用ALS-XZ指示器生成高亮信息，但不直接调用指示器的方法
         // 确保ALS-XZ技巧的高亮处理是独立的，不影响其他技巧
@@ -2308,8 +2405,9 @@ const ControlPanel = ({
         console.log('Applying basic technique');
         const success = applyTechniqueToBoard(selectedTechnique);
         if (success) {
-          // 彻底清除ALS-XZ的DOM样式（避免高亮遗留）
+          // 彻底清除ALS-XZ和SDC的DOM样式（避免高亮遗留）
           alsXZIndicator.clearHighlights();
+          sdcIndicator.clearHighlights();
           
           // 应用成功后，清除高亮
           if (setHighlightedCells) {
@@ -2334,8 +2432,9 @@ const ControlPanel = ({
         });
         
         // 退出技巧指示模式
-        // 彻底清除ALS-XZ的DOM样式（避免高亮遗留）
+        // 彻底清除ALS-XZ和SDC的DOM样式（避免高亮遗留）
         alsXZIndicator.clearHighlights();
+        sdcIndicator.clearHighlights();
         
         // 清除高亮
         if (setHighlightedCells) {

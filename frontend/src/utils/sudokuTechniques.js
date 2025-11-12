@@ -3248,7 +3248,7 @@ export const applyTechnique = (technique, board) => {
  * @param {boolean} includeCandidateTechniques - 是否包含候选数相关技巧
  * @returns {Array} - 所有可用的技巧机会
  */
-export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateTechniques = true) => {
+export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateTechniques = true, solution = null) => {
   // 查找所有可用技巧机会
   const nakedSingles = findNakedSingles(board);
   const hiddenSingles = findHiddenSingles(board);
@@ -3285,9 +3285,9 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
     // 添加Jellyfish技巧
     jellyfish = findJellyfish(board, pencilNotes);
     // 添加ALS-XZ技巧
-    alsXZ = findALSXZ(board, pencilNotes);
+    alsXZ = findALSXZ(board, pencilNotes, solution);
     // 添加SDC技巧
-    sdc = findSDC(board, pencilNotes);
+    sdc = findSDC(board, pencilNotes, solution);
   }
   
   // 按技巧难度顺序合并所有技巧机会

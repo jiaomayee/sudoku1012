@@ -21,6 +21,7 @@
  */
 export const findSDC = (board, pencilNotes = {}, solution = null) => {
   const opportunities = [];
+  let reachedLimit = false; // 标记是否达到限制
   
   // 获取所有空单元格
   const emptyCells = [];
@@ -33,6 +34,7 @@ export const findSDC = (board, pencilNotes = {}, solution = null) => {
   }
   
   // 检查每一行与每个宫的交叉
+  outerLoop: // 使用标签以便从内层循环跳出
   for (let row = 0; row < 9; row++) {
     const boxRow = Math.floor(row / 3);
     for (let boxCol = 0; boxCol < 3; boxCol++) {
@@ -43,32 +45,39 @@ export const findSDC = (board, pencilNotes = {}, solution = null) => {
         
         // 限制解题机会数量，当达到5条时停止求解
         if (opportunities.length >= 5) {
-          console.log(`SDC原始结果: ${opportunities.length}条（已达到限制）`);
-          return opportunities;
+          reachedLimit = true;
+          break outerLoop;
         }
       }
     }
   }
   
-  // 检查每一列与每个宫的交叉
-  for (let col = 0; col < 9; col++) {
-    const boxCol = Math.floor(col / 3);
-    for (let boxRow = 0; boxRow < 3; boxRow++) {
-      const boxIndex = boxRow * 3 + boxCol;
-      const result = checkColBoxIntersection(board, pencilNotes, col, boxIndex, emptyCells, solution);
-      if (result.length > 0) {
-        opportunities.push(...result);
-        
-        // 限制解题机会数量，当达到5条时停止求解
-        if (opportunities.length >= 5) {
-          console.log(`SDC原始结果: ${opportunities.length}条（已达到限制）`);
-          return opportunities;
+  // 如果还未达到限制，继续检查每一列与每个宫的交叉
+  if (!reachedLimit) {
+    outerLoop2:
+    for (let col = 0; col < 9; col++) {
+      const boxCol = Math.floor(col / 3);
+      for (let boxRow = 0; boxRow < 3; boxRow++) {
+        const boxIndex = boxRow * 3 + boxCol;
+        const result = checkColBoxIntersection(board, pencilNotes, col, boxIndex, emptyCells, solution);
+        if (result.length > 0) {
+          opportunities.push(...result);
+          
+          // 限制解题机会数量，当达到5条时停止求解
+          if (opportunities.length >= 5) {
+            reachedLimit = true;
+            break outerLoop2;
+          }
         }
       }
     }
   }
   
-  console.log(`SDC原始结果: ${opportunities.length}条`);
+  if (reachedLimit) {
+    console.log(`SDC原始结果: ${opportunities.length}条（已达到限制）`);
+  } else {
+    console.log(`SDC原始结果: ${opportunities.length}条`);
+  }
   
   // 去重
   const uniqueOpportunities = deduplicateSDC(opportunities);
@@ -77,7 +86,10 @@ export const findSDC = (board, pencilNotes = {}, solution = null) => {
   // 按删除数量排序
   uniqueOpportunities.sort((a, b) => b.removableCandidates.length - a.removableCandidates.length);
   
-  return uniqueOpportunities;
+  // 限制最多返回5条
+  const limitedOpportunities = uniqueOpportunities.slice(0, 5);
+  
+  return limitedOpportunities;
 };
 
 /**

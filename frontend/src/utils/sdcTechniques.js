@@ -17,6 +17,7 @@
 
 /**
  * 主入口：查找所有SDC机会
+ * 限制最多返回5条机会，防止程序卡顿
  */
 export const findSDC = (board, pencilNotes = {}, solution = null) => {
   const opportunities = [];
@@ -39,6 +40,12 @@ export const findSDC = (board, pencilNotes = {}, solution = null) => {
       const result = checkRowBoxIntersection(board, pencilNotes, row, boxIndex, emptyCells, solution);
       if (result.length > 0) {
         opportunities.push(...result);
+        
+        // 限制解题机会数量，当达到5条时停止求解
+        if (opportunities.length >= 5) {
+          console.log(`SDC原始结果: ${opportunities.length}条（已达到限制）`);
+          return opportunities;
+        }
       }
     }
   }
@@ -51,6 +58,12 @@ export const findSDC = (board, pencilNotes = {}, solution = null) => {
       const result = checkColBoxIntersection(board, pencilNotes, col, boxIndex, emptyCells, solution);
       if (result.length > 0) {
         opportunities.push(...result);
+        
+        // 限制解题机会数量，当达到5条时停止求解
+        if (opportunities.length >= 5) {
+          console.log(`SDC原始结果: ${opportunities.length}条（已达到限制）`);
+          return opportunities;
+        }
       }
     }
   }

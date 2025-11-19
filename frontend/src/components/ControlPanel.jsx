@@ -973,19 +973,35 @@ const ControlPanel = ({
         }), highlight: position },
         { step: 4, description: t('sdcVerifySeparation', {
           allCandidates: allCandidates
-        }), highlight: position },
-        { step: 5, description: lineTargets.length > 0 ? t('sdcEliminateFromLine', {
-          boxCandidates: groupBCandidates,
-          targetCells: formattedLineTargets,
-          lineType: lineType,
-          lineIndex: lineIndex
-        }) : t('analysisCompleted'), highlight: position },
-        { step: 6, description: boxTargets.length > 0 ? t('sdcEliminateFromBox', {
-          lineCandidates: groupACandidates,
-          targetCells: formattedBoxTargets,
-          boxIndex: boxIndex
-        }) : t('analysisCompleted'), highlight: position },
-        { step: 7, description: t('sdcVerifyResult', {
+        }), highlight: position }
+      );
+      
+      // 仅在有可删除的候选数时，添加删除相关的步骤
+      let stepNumber = 5;
+      if (lineTargets.length > 0) {
+        steps.push(
+          { step: stepNumber++, description: t('sdcEliminateFromLine', {
+            boxCandidates: groupBCandidates,
+            targetCells: formattedLineTargets,
+            lineType: lineType,
+            lineIndex: lineIndex
+          }), highlight: position }
+        );
+      }
+      
+      if (boxTargets.length > 0) {
+        steps.push(
+          { step: stepNumber++, description: t('sdcEliminateFromBox', {
+            lineCandidates: groupACandidates,
+            targetCells: formattedBoxTargets,
+            boxIndex: boxIndex
+          }), highlight: position }
+        );
+      }
+      
+      // 最后添加验证结果步骤
+      steps.push(
+        { step: stepNumber, description: t('sdcVerifyResult', {
           count: totalCount
         }), highlight: position }
       );

@@ -1005,6 +1005,40 @@ const ControlPanel = ({
           count: totalCount
         }), highlight: position }
       );
+    } else if (technique.type === 'arType1' || technique.type.includes('Avoidable Rectangle')) {
+      // Avoidable Rectangle Type 1技巧解题步骤
+      
+      // 格式化矩形单元格位置显示
+      const formattedARCells = technique.arCells && Array.isArray(technique.arCells)
+        ? technique.arCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化基础数寸
+      const basePair = technique.basePair ? `{${technique.basePair.join(',')}}}` : '{}';
+      
+      // 格式化含有额外候选数的单元格
+      const formattedWithExtra = technique.cellsWithExtra && Array.isArray(technique.cellsWithExtra)
+        ? technique.cellsWithExtra.map(c => `(${c.row + 1},${c.col + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化没有额外候选数的单元格
+      const formattedWithoutExtra = technique.cellsWithoutExtra && Array.isArray(technique.cellsWithoutExtra)
+        ? technique.cellsWithoutExtra.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      // 格式化欅臺候选数位置显示
+      const formattedTargetCells = technique.targetCells && Array.isArray(technique.targetCells)
+        ? technique.targetCells.map(cell => `(${cell[0] + 1},${cell[1] + 1})`).join(' ')
+        : t('multipleCells');
+      
+      const totalCount = (technique.removableCandidates && technique.removableCandidates.length) || 0;
+      
+      steps.push(
+        { step: 1, description: `可避免矩形 Type 1: 矩形单元格=${formattedARCells}，基础数寸=${basePair}`, highlight: '' },
+        { step: 2, description: `单元格${formattedWithExtra}含有额外候选数`, highlight: position },
+        { step: 3, description: `单元格${formattedWithoutExtra}仅含有基础数寸`, highlight: position },
+        { step: 4, description: `从${formattedTargetCells}中删除${totalCount}个候选数`, highlight: position }
+      );
     } else {
         // 通用解题步骤，确保至少有内容显示
         steps.push(

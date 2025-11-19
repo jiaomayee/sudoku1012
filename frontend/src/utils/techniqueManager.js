@@ -6,6 +6,7 @@ import { findNakedTriples, findHiddenTriples } from './tripleTechniques.js';
 import { findJellyfish } from './sudokuTechniques.js';
 import { findALSXZ } from './alsXZTechniques.js';
 import { findSDC } from './sdcTechniques.js';
+import { findARType1 } from './arTechniques.js';
 // 导入显性数对指示功能
 import nakedPairIndicator from './nakedPairIndicator.js';
 // 导入ALS-XZ指示功能
@@ -158,6 +159,18 @@ const ALL_TECHNIQUES = {
     description: 'Sue De Coq技巧：通过分析宫与行/列的交叉单元格中的候选数分布来消除候选数',
     category: TECHNIQUE_CATEGORIES.ADVANCED,
     function: findSDC,
+    enabled: true // 默认启用
+  },
+  arType1: {
+    id: 'arType1',
+    name: 'Avoidable Rectangle Type 1',
+    name_i18n: {
+      en: 'Avoidable Rectangle Type 1',
+      zh: '可避免矩形 Type 1'
+    },
+    description: 'Avoidable Rectangle Type 1：通过识别形成矩形的四个单元格，消除导致多重解的候选数',
+    category: TECHNIQUE_CATEGORIES.ADVANCED,
+    function: findARType1,
     enabled: true // 默认启用
   }
   // 后续可以添加更多技巧

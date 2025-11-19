@@ -262,7 +262,12 @@ export const translations = {
     sdcEliminateFromLine: '从{lineType}{lineIndex}的目标单元格{targetCells}中删除组B的候选数{boxCandidates}。',
     sdcEliminateFromBox: '从第{boxIndex}宫的目标单元格{targetCells}中删除组A的候选数{lineCandidates}。',
     sdcVerifyResult: '完成删除，共从{count}个单元格中删除候选数。',
-    // 技巧名称
+    // AR Type 1技巧解题步骤
+    arType1Technique: '可避免矩形 Type 1',
+    arType1IdentifyRectangle: '可避免矩形 Type 1: 矩形单元格={arCells}，基础数寸={basePair}',
+    arType1IdentifyExtra: '单元格{cellsWithExtra}含有额外候选数',
+    arType1IdentifyNoExtra: '单元格{cellsWithoutExtra}仅含有基础数寸',
+    arType1Eliminate: '从{targetCells}中删除{totalCount}个候选数',
     nakedSingle: '唯一数法',
     hiddenSingleRow: '隐性唯一数法(行)',
     hiddenSingleCol: '隐性唯一数法(列)',
@@ -681,6 +686,12 @@ export const translations = {
     sdcEliminateFromLine: 'Remove Group B candidates {boxCandidates} from target cells {targetCells} in {lineType} {lineIndex}.',
     sdcEliminateFromBox: 'Remove Group A candidates {lineCandidates} from target cells {targetCells} in box {boxIndex}.',
     sdcVerifyResult: 'Elimination complete, removed candidates from {count} cells in total.',
+    // Avoidable Rectangle Type 1 technique translations
+    arType1Technique: 'Avoidable Rectangle Type 1',
+    arType1IdentifyRectangle: 'Avoidable Rectangle Type 1: Rectangle cells={arCells}, base pair={basePair}',
+    arType1IdentifyExtra: 'Cell {cellsWithExtra} has extra candidates',
+    arType1IdentifyNoExtra: 'Cells {cellsWithoutExtra} have only base pair',
+    arType1Eliminate: 'Remove {totalCount} candidates from {targetCells}',
     // Technique names
     nakedSingle: 'Naked Single',
     hiddenSingleRow: 'Hidden Single (Row)',

@@ -322,7 +322,7 @@ class TechniqueManager {
    */
   findSolutionStep(board, pencilNotes = {}, solution = null) {
     // 按优先级顺序检查各技巧
-    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish', 'alsXZ', 'sdc'];
+    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish', 'alsXZ', 'sdc', 'arType1'];
     
     for (const techniqueId of priorityOrder) {
       if (this.isTechniqueEnabled(techniqueId)) {

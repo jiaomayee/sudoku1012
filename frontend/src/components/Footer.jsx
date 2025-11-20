@@ -70,6 +70,7 @@ const Footer = () => {
           <Link href="/game" theme={theme}>{t('startGame')}</Link>
           <Link href="/techniques" theme={theme}>{t('techniques')}</Link>
           <Link href="/challenges" theme={theme}>{t('difficulty')}</Link>
+          <Link href="/custom" theme={theme}>{t('customSudoku')}</Link>
           <Link href="#" theme={theme}>{t('aboutUs')}</Link>
         </FooterLinks>
         <Copyright theme={theme}>

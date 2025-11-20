@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import App from './App';
 import HomePage from './pages/HomePage';
 import SudokuGamePage from './pages/SudokuGamePage';
+import CustomSudokuPage from './pages/CustomSudokuPage';
 import TechniqueLearningPage from './pages/TechniqueLearningPage';
 import ProgressPage from './pages/ProgressPage';
 import StatsPage from "./pages/StatisticsPage.jsx";
@@ -59,6 +60,11 @@ const pageMetadata = {
     title: 'Settings - Customize Your Sudoku Experience',
     description: 'Configure your preferences for the Sudoku learning platform.',
     keywords: 'sudoku settings,preferences,configuration'
+  },
+  '/custom': {
+    title: 'Custom Sudoku - Create Your Own Puzzles',
+    description: 'Create and solve your own custom Sudoku puzzles. Fill in the board and test your solving skills.',
+    keywords: 'custom sudoku,create sudoku,sudoku puzzle creator'
   }
 };
 
@@ -127,6 +133,7 @@ root.render(
                     <Route path="/home" element={<HomePage />} />
                     <Route path="/game" element={<SudokuGamePage />} />
                     <Route path="/game/:puzzleId" element={<SudokuGamePage />} />
+                    <Route path="/custom" element={<CustomSudokuPage />} />
                     <Route path="/techniques" element={<TechniqueLearningPage />} />
                     <Route path="/progress" element={<ProgressPage />} />
                     <Route path="/stats" element={<StatsPage />} />

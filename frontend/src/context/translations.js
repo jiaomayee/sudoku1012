@@ -208,6 +208,7 @@ export const translations = {
     updateNow: '立即更新',
     // Footer
     aboutUs: '关于我们',
+    customSudoku: '自定义数独',
     help: '使用帮助',
     sudokuRules: '数独规则',
     contactUs: '联系我们',
@@ -795,6 +796,7 @@ export const translations = {
     jellyfishColFormStructure: 'Number {number} forms a 4-row 4-column structure in columns {cols} and rows {rows}',
     // Footer
     aboutUs: 'About Us',
+    customSudoku: 'Custom Sudoku',
     help: 'Help',
     sudokuRules: 'Sudoku Rules',
     contactUs: 'Contact Us',

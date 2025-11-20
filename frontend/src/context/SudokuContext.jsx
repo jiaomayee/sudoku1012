@@ -68,6 +68,7 @@ export const SudokuContextProvider = ({ children }) => {
         
         // 检查是否有自定义数独保存在 localStorage
         let puzzleData = null;
+        let customDifficulty = null;
         try {
           const customPuzzleStr = localStorage.getItem('customPuzzle');
           if (customPuzzleStr) {
@@ -75,6 +76,7 @@ export const SudokuContextProvider = ({ children }) => {
             if (customPuzzle && customPuzzle.puzzle && customPuzzle.solution) {
               console.log('找到自定义数独，加载中...');
               puzzleData = customPuzzle;
+              customDifficulty = customPuzzle.difficulty || 'custom';
               // 清除了 localStorage，下次不会重复使用
               localStorage.removeItem('customPuzzle');
             }
@@ -129,6 +131,15 @@ export const SudokuContextProvider = ({ children }) => {
         
         setSolution(formattedData.solution);
         console.log('设置 solution 完成');
+        
+        // 设置难度
+        if (customDifficulty) {
+          setDifficulty(customDifficulty);
+          console.log('设置自定义难度:', customDifficulty);
+        } else {
+          setDifficulty('medium'); // 默认难度
+          console.log('设置默认难度: medium');
+        }
         
         setGameStarted(true);
         console.log('设置 gameStarted 为 true');

@@ -96,28 +96,43 @@ const CustomSudokuPage = () => {
   // 字段删除：此函数不再使用
 
   // 处理保存并返回
-  const handleSaveAndReturn = async () => {
-    // 1. 验证数独是否符合数独规则
+  const handleSaveAndReturn = () => {
+    // 1. 检查是否有足够的数字（至少17个）
+    let filledCount = 0;
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        if (board[i][j] !== 0) {
+          filledCount++;
+        }
+      }
+    }
+    
+    if (filledCount < 17) {
+      alert(t('invalidSudoku') || `数独至少需要17个数字，当前只有${filledCount}个`);
+      return;
+    }
+
+    // 2. 验证数独是否符合基本规则
     if (!isValidSudoku(board)) {
       alert(t('invalidSudoku') || '数独不符合规则，请检查棋盘数据');
       return;
     }
 
-    // 2. 验证是否有唯一解（使用前端验证）
+    // 3. 检查是否能求解
+    const solution = solveSudoku(board);
+    if (!solution) {
+      alert(t('noSolution') || '该数独无法求解，请检查棋盘数据');
+      return;
+    }
+
+    // 4. 验证是否有唯一解（使用前端验证）
     if (!hasUniqueSolution(board)) {
       alert(t('notUniqueSolution') || '该数独不仅有一个解，请修改棋盘数据');
       return;
     }
 
     try {
-      // 3. 求解
-      const solution = solveSudoku(board);
-      if (!solution) {
-        alert(t('noSolution') || '无法求解');
-        return;
-      }
-
-      // 4. 保存到本地缓存
+      // 5. 保存到本地缓存
       const customPuzzleData = {
         puzzle: board,
         solution: solution,
@@ -126,7 +141,7 @@ const CustomSudokuPage = () => {
       };
       localStorage.setItem('customPuzzle', JSON.stringify(customPuzzleData));
 
-      // 5. 跳转到开始游戏页面
+      // 6. 跳转到开始游戏页面
       navigate('/game');
     } catch (error) {
       console.error('数独验证失败:', error);

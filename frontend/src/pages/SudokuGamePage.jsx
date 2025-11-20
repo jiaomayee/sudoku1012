@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SudokuBoard from '../components/SudokuBoard';
 import ControlPanel from '../components/ControlPanel';
 import NavigationBlock from '../components/NavigationBlock';
@@ -19,6 +19,7 @@ import './SudokuGamePageStyles.css';
 
 const SudokuGamePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, startLoading, stopLoading } = useLoading();
   const sudokuContext = useSudoku();
   const { t } = useLanguage();
@@ -51,6 +52,45 @@ const SudokuGamePage = () => {
   const highlightedCells = sudokuContext?.highlightedCells || [];
   const pencilNotes = sudokuContext?.pencilNotes || [];
   const calculateTechniques = sudokuContext?.calculateTechniques || (() => {}); // 添加calculateTechniques函数引用
+  
+  // 检查自定义数独数据的函数
+  const checkCustomPuzzle = async () => {
+    try {
+      const customPuzzleStr = localStorage.getItem('customPuzzle');
+      if (customPuzzleStr) {
+        console.log('检测到自定义数独数据，重新初始化游戏...');
+        console.log('自定义数独数据内容:', customPuzzleStr);
+        // 如果有自定义数独数据，重新初始化游戏
+        if (sudokuContext?.generateNewPuzzle) {
+          startLoading();
+          await sudokuContext.generateNewPuzzle('custom');
+          stopLoading();
+        }
+      } else {
+        console.log('未检测到自定义数独数据');
+      }
+    } catch (error) {
+      console.error('检查自定义数独数据失败:', error);
+    }
+  };
+
+  // 组件挂载时检查自定义数独数据
+  useEffect(() => {
+    console.log('SudokuGamePage组件挂载，检查自定义数独数据...');
+    // 延迟检查，确保页面完全加载
+    const timer = setTimeout(checkCustomPuzzle, 500);
+    return () => clearTimeout(timer);
+  }, []); // 空依赖数组，只在组件挂载时执行一次
+
+  // 监听路由变化，检测从自定义数独页面跳转
+  useEffect(() => {
+    console.log('路由路径变化:', location.pathname);
+    // 如果路径是/game，检查自定义数独数据
+    if (location.pathname === '/game') {
+      const timer = setTimeout(checkCustomPuzzle, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [location.pathname]); // 当路径变化时触发
   
   // 计算每个数字的剩余未填入数量
   const calculateRemainingNumbers = () => {

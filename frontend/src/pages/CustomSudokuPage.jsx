@@ -139,10 +139,19 @@ const CustomSudokuPage = () => {
         difficulty: 'custom',
         timestamp: Date.now()
       };
+      console.log('保存自定义数独到localStorage:', customPuzzleData);
       localStorage.setItem('customPuzzle', JSON.stringify(customPuzzleData));
+      console.log('保存完成，跳转到游戏页面');
 
       // 6. 跳转到开始游戏页面
       navigate('/game');
+      
+      // 强制刷新页面以确保自定义数独被正确加载
+      // 使用更长的延迟，确保路由跳转完成
+      setTimeout(() => {
+        console.log('执行页面刷新以加载自定义数独...');
+        window.location.reload();
+      }, 300);
     } catch (error) {
       console.error('数独验证失败:', error);
       alert(t('validationError') || '验证失败，请检查棋盘数据');

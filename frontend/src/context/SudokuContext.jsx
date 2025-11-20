@@ -71,14 +71,17 @@ export const SudokuContextProvider = ({ children }) => {
         let customDifficulty = null;
         try {
           const customPuzzleStr = localStorage.getItem('customPuzzle');
+          console.log('检查localStorage中的customPuzzle:', customPuzzleStr);
           if (customPuzzleStr) {
             const customPuzzle = JSON.parse(customPuzzleStr);
+            console.log('解析后的自定义数独:', customPuzzle);
             if (customPuzzle && customPuzzle.puzzle && customPuzzle.solution) {
               console.log('找到自定义数独，加载中...');
               puzzleData = customPuzzle;
               customDifficulty = customPuzzle.difficulty || 'custom';
-              // 清除了 localStorage，下次不会重复使用
-              localStorage.removeItem('customPuzzle');
+              // 不清除 localStorage，让 SudokuGamePage 的路由监听逻辑来处理
+              // 这样可以确保在页面跳转后仍然能读取到数据
+              console.log('保留localStorage中的自定义数独数据，供页面跳转后使用');
             }
           }
         } catch (error) {
@@ -556,8 +559,27 @@ export const SudokuContextProvider = ({ children }) => {
       
       let puzzleData;
       
-      // 根据难度选择生成方式：专家难度从JSON文件获取，其他难度使用程序生成
-      if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
+      // 检查是否有自定义数独数据
+      try {
+        const customPuzzleStr = localStorage.getItem('customPuzzle');
+        if (customPuzzleStr && targetDifficulty === 'custom') {
+          console.log('检测到自定义数独数据，使用自定义数独');
+          const customPuzzle = JSON.parse(customPuzzleStr);
+          if (customPuzzle && customPuzzle.puzzle && customPuzzle.solution) {
+            puzzleData = customPuzzle;
+            // 清除localStorage中的数据，避免重复使用
+            localStorage.removeItem('customPuzzle');
+            console.log('已使用并清除自定义数独数据');
+          }
+        }
+      } catch (error) {
+        console.warn('读取自定义数独数据失败:', error);
+      }
+      
+      // 如果没有自定义数独数据，按正常流程生成
+      if (!puzzleData) {
+        // 根据难度选择生成方式：专家难度从JSON文件获取，其他难度使用程序生成
+        if (targetDifficulty === DIFFICULTY_LEVELS.EXPERT) {
         console.log('专家难度：尝试从JSON文件获取谜题');
         try {
           // 从JSON文件获取专家级谜题
@@ -576,8 +598,9 @@ export const SudokuContextProvider = ({ children }) => {
         }
       } else {
         console.log('非专家难度：使用程序生成谜题');
-        // 简单/中等/困难难度使用程序生成
-        puzzleData = await generateOfflinePuzzle(targetDifficulty);
+          // 简单/中等/困难难度使用程序生成
+          puzzleData = await generateOfflinePuzzle(targetDifficulty);
+        }
       }
 
       // 格式化数据为统一格式

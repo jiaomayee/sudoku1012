@@ -3,6 +3,7 @@ import { findNakedSingles, findNotesSingles } from './sudokuTechniques.js';
 // 注意：pairTechniques.js 文件不存在，相关函数应该在其他文件中定义
 import { findNakedPairs, findHiddenPairs } from './sudokuTechniques.js';
 import { findNakedTriples, findHiddenTriples } from './tripleTechniques.js';
+import { findPointingPairs } from './sudokuTechniques.js';
 import { findJellyfish } from './sudokuTechniques.js';
 import { findALSXZ } from './alsXZTechniques.js';
 import { findSDC } from './sdcTechniques.js';
@@ -122,6 +123,19 @@ const ALL_TECHNIQUES = {
     description: '在同一行、列或宫中，三个数字只能出现在三个单元格中时，删除这三个单元格的其他候选数',
     category: TECHNIQUE_CATEGORIES.INTERMEDIATE,
     function: findHiddenTriples,
+    enabled: true // 默认启用
+  },
+  // 添加指向对技巧
+  pointingPairs: {
+    id: 'pointingPairs',
+    name: '指向对法',
+    name_i18n: {
+      en: 'Pointing Pairs',
+      zh: '指向对法'
+    },
+    description: '当一个数字在某个3x3宫格中只能出现在同一行或同一列时，可以排除该行或列中其他宫格内该数字的可能性',
+    category: TECHNIQUE_CATEGORIES.INTERMEDIATE,
+    function: findPointingPairs,
     enabled: true // 默认启用
   },
   // 添加Jellyfish技巧

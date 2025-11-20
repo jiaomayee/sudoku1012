@@ -3569,28 +3569,26 @@ const ControlPanel = ({
               <button 
                 onClick={() => {
                   // 核心功能：刷新候选数 - 负责复杂逻辑，包括候选数填充和技巧机会计算
-                  let shouldFindTechniques = true;
+                  let shouldFillCandidates = true;
                   
                   // 首先检查是否需要重新计算候选数
                   if (calculateTechniques) {
-                    // calculateTechniques函数在特定条件下会返回false，表示不需要查找技巧
+                    // calculateTechniques函数返回true表示需要重新填充候选数，false表示直接计算技巧
                     const result = calculateTechniques();
                     if (result === false) {
-                      shouldFindTechniques = false;
+                      shouldFillCandidates = false;
                     }
                   }
                   
                   // 如果需要，执行候选数填充
-                  if (shouldFindTechniques && fillAllCandidates) {
+                  if (shouldFillCandidates && fillAllCandidates) {
                     fillAllCandidates();
                   }
                   
-                  // 只有在需要时才加载所有技巧求解
-                  if (shouldFindTechniques) {
-                    findTechniques();
-                    // 切换到技巧标签页，方便用户查看结果
-                    setActiveTab('techniques');
-                  }
+                  // 总是加载技巧求解（无论是否需要重新填充候选数）
+                  findTechniques();
+                  // 切换到技巧标签页，方便用户查看结果
+                  setActiveTab('techniques');
                 }}
                 style={{
                   width: '100%',

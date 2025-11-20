@@ -1549,7 +1549,7 @@ export const findPointingPairs = (board, pencilNotes = {}) => {
     for (let boxCol = 0; boxCol < 3; boxCol++) {
       // 检查每个数字
       for (let num = 1; num <= 9; num++) {
-        // 获取该数字在当前宫格中的可能位置
+        // 获取该数字在当前宫格中的可能位置（基于候选数）
         const possiblePositions = [];
         for (let r = 0; r < 3; r++) {
           for (let c = 0; c < 3; c++) {
@@ -1559,8 +1559,11 @@ export const findPointingPairs = (board, pencilNotes = {}) => {
             // 如果该单元格已有数字，跳过
             if (board[row][col] !== 0) continue;
             
-            // 检查数字是否有效
-            if (isValidMove(board, row, col, num)) {
+            // 检查该单元格是否包含该候选数
+            const notesKey = `${row}-${col}`;
+            const cellNotes = pencilNotes[notesKey] || [];
+            
+            if (cellNotes.includes(num)) {
               possiblePositions.push({ row, col, r, c });
             }
           }

@@ -4,8 +4,7 @@ import SudokuBoard from '../components/SudokuBoard';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useSudoku } from '../context/SudokuContext';
-import { api } from '../services/api';
-import { solveSudoku, isValidSudoku } from '../utils/sudokuUtils';
+import { solveSudoku, isValidSudoku, hasUniqueSolution } from '../utils/sudokuUtils';
 import styled from 'styled-components';
 
 const CustomSudokuContainer = styled.div`
@@ -98,26 +97,19 @@ const CustomSudokuPage = () => {
 
   // 处理保存并返回
   const handleSaveAndReturn = async () => {
-    // 1. 验证数齐是否符合数独规则
+    // 1. 验证数独是否符合数独规则
     if (!isValidSudoku(board)) {
       alert(t('invalidSudoku') || '数独不符合规则，请检查棋盘数据');
       return;
     }
 
-    try {
-      // 2. 验证是否有其他数一第
-      // 使用后端 API 执行严格验证
-      const response = await api.validateSudoku(board);
-      
-      if (!response || !response.unique_solution) {
-        alert(
-          response && !response.has_solution 
-            ? (t('noSolution') || '该数独不可解，请检查棋盘数据')
-            : (t('notUniqueSolution') || '该数独不仅有帮一个解，请修改棋盘数据')
-        );
-        return;
-      }
+    // 2. 验证是否有唯一解（使用前端验证）
+    if (!hasUniqueSolution(board)) {
+      alert(t('notUniqueSolution') || '该数独不仅有一个解，请修改棋盘数据');
+      return;
+    }
 
+    try {
       // 3. 求解
       const solution = solveSudoku(board);
       if (!solution) {
@@ -134,12 +126,8 @@ const CustomSudokuPage = () => {
       };
       localStorage.setItem('customPuzzle', JSON.stringify(customPuzzleData));
 
-      // 5. 跟跃到开始游戏页面设置数据
-      // 第一步：旅转到游戏页面
+      // 5. 跳转到开始游戏页面
       navigate('/game');
-
-      // 第二步：在游戏页面 useEffect 中检查 localStorage 并加载自定义数独
-      // 会由游戏页面负责加载
     } catch (error) {
       console.error('数独验证失败:', error);
       alert(t('validationError') || '验证失败，请检查棋盘数据');

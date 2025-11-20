@@ -24,6 +24,7 @@ from utils.sudoku_logic import (
     rate_difficulty,
     apply_sudoku_technique
 )
+from sudoku.algorithms.solver import count_solutions, is_board_solvable, is_board_unique
 from database.database import execute_query, row_to_dict, get_current_time
 import utils.common as common_utils
 
@@ -138,6 +139,59 @@ async def validate_sudoku_puzzle(
         raise HTTPException(status_code=500, detail="验证数独失败")
     
     return result
+
+@router.post("/validate-custom", response_model=Dict[str, Any])
+async def validate_custom_sudoku(
+    board: List[List[int]]
+):
+    """
+    验证自定义数独是否有效且有唯一解
+    
+    - **board**: 自定义数独棫布
+    """
+    try:
+        # 检查核列於核列值的齑合
+        if not isinstance(board, list) or len(board) != 9:
+            return {
+                "has_solution": False,
+                "unique_solution": False,
+                "message": "无效的数独题目格式"
+            }
+        
+        # 检查每一行是否为效效的数组
+        for row in board:
+            if not isinstance(row, list) or len(row) != 9:
+                return {
+                    "has_solution": False,
+                    "unique_solution": False,
+                    "message": "无效的数独题目格式"
+                }
+        
+        # 检查是否有解
+        if not is_board_solvable(board):
+            return {
+                "has_solution": False,
+                "unique_solution": False,
+                "message": "该数独无解"
+            }
+        
+        # 检查是否有唯一解
+        if is_board_unique(board):
+            return {
+                "has_solution": True,
+                "unique_solution": True,
+                "message": "该数独有唯一解"
+            }
+        else:
+            return {
+                "has_solution": True,
+                "unique_solution": False,
+                "message": "该数独不仅有一个解"
+            }
+    
+    except Exception as e:
+        logger.error(f"验证自定义数独失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="验证失败")
 
 @router.post("/hint/{puzzle_id}", response_model=Dict[str, Any])
 async def get_hint(

@@ -145,6 +145,19 @@ export const api = {
     }
   },
   
+  // 验证自定义数独（检查唯一解）
+  validateCustomSudoku: async (board) => {
+    try {
+      const response = await apiClient.post('/sudoku/validate-custom', {
+        board: board
+      });
+      return response;
+    } catch (error) {
+      console.error('验证自定义数独失败:', error);
+      throw error;
+    }
+  },
+  
   // 获取候选数
   getCandidates: async (board, row, col) => {
     try {

@@ -155,7 +155,11 @@ export const translations = {
     medium: '中等',
     hard: '困难',
     expert: '专家',
-    // 语言切换
+    custom: '自定义',
+    invalidSudoku: '数独不符合规则，请检查棋盘数据',
+    noSolution: '该数独不可解，请检查棋盘数据',
+    notUniqueSolution: '该数独不仅有一个解，请修改棋盘数据',
+    validationError: '验证失败，请检查棋盘数据',
     languageSwitch: '切换语言',
     languageOptions: {
       'zh-CN': '中文',
@@ -607,7 +611,8 @@ export const translations = {
       easy: 'Beginner friendly, fewer empty cells',
       medium: 'Intermediate challenge, requires some skills',
       hard: 'Expert level, logical reasoning',
-      expert: 'Extremely difficult, requires advanced techniques'
+      expert: 'Extremely difficult, requires advanced techniques',
+      custom: 'Your custom Sudoku puzzle'
     },
     // Challenge page
     beginnerChallenge: 'Beginner Introduction',

@@ -1702,19 +1702,22 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
   for (let row = 0; row < 9; row++) {
     // 检查每个数字
     for (let num = 1; num <= 9; num++) {
-      // 获取该数字在当前行中的可能位置
+      // 获取该数字在当前行中的可能位置（基于候选数）
       const possiblePositions = [];
       for (let col = 0; col < 9; col++) {
         // 如果该单元格已有数字，跳过
         if (board[row][col] !== 0) continue;
         
-        // 检查数字是否有效
-        if (isValidMove(board, row, col, num)) {
+        // 检查该单元格是否包含该候选数
+        const notesKey = `${row}-${col}`;
+        const cellNotes = pencilNotes[notesKey] || [];
+        
+        if (cellNotes.includes(num)) {
           possiblePositions.push({ row, col });
         }
       }
       
-      // 如果可能位置少于2个，无法形成排除
+      // 如果可能位置少于1个，无法形成排除
       if (possiblePositions.length < 1) continue;
       
       // 检查是否所有可能位置都在同一个宫格中
@@ -1782,19 +1785,22 @@ export const findBoxLineReduction = (board, pencilNotes = {}) => {
   for (let col = 0; col < 9; col++) {
     // 检查每个数字
     for (let num = 1; num <= 9; num++) {
-      // 获取该数字在当前列中的可能位置
+      // 获取该数字在当前列中的可能位置（基于候选数）
       const possiblePositions = [];
       for (let row = 0; row < 9; row++) {
         // 如果该单元格已有数字，跳过
         if (board[row][col] !== 0) continue;
         
-        // 检查数字是否有效
-        if (isValidMove(board, row, col, num)) {
+        // 检查该单元格是否包含该候选数
+        const notesKey = `${row}-${col}`;
+        const cellNotes = pencilNotes[notesKey] || [];
+        
+        if (cellNotes.includes(num)) {
           possiblePositions.push({ row, col });
         }
       }
       
-      // 如果可能位置少于2个，无法形成排除
+      // 如果可能位置少于1个，无法形成排除
       if (possiblePositions.length < 1) continue;
       
       // 检查是否所有可能位置都在同一个宫格中

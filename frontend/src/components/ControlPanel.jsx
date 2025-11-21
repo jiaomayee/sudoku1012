@@ -1005,8 +1005,8 @@ const ControlPanel = ({
           count: totalCount
         }), highlight: position }
       );
-    } else if (technique.type === 'arType1' || technique.type.includes('Avoidable Rectangle')) {
-      // Avoidable Rectangle Type 1技巧解题步骤
+    } else if (technique.type === 'uniqueness' || technique.type.includes('uniqueness_') || technique.type.includes('Avoidable Rectangle')) {
+    // 唯一性技巧解题步骤
       
       // 格式化矩形单元格位置显示
       const formattedARCells = technique.arCells && Array.isArray(technique.arCells)

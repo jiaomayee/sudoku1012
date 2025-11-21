@@ -268,8 +268,8 @@ export const translations = {
     sdcEliminateFromBox: '从第{boxIndex}宫的目标单元格{targetCells}中删除组A的候选数{lineCandidates}。',
     sdcVerifyResult: '完成删除，共从{count}个单元格中删除候选数。',
     // AR Type 1技巧解题步骤
-    arType1Technique: '可避免矩形 Type 1',
-    arType1IdentifyRectangle: '可避免矩形 Type 1: 矩形单元格={arCells}，基础数寸={basePair}',
+    uniquenessTechnique: '唯一性技巧',
+  uniquenessDescription: '通过分析可能导致多解的模式来消除候选数',
     arType1IdentifyExtra: '单元格{cellsWithExtra}含有额外候选数',
     arType1IdentifyNoExtra: '单元格{cellsWithoutExtra}仅含有基础数寸',
     arType1Eliminate: '从{targetCells}中删除{totalCount}个候选数',
@@ -692,9 +692,9 @@ export const translations = {
     sdcEliminateFromLine: 'Remove Group B candidates {boxCandidates} from target cells {targetCells} in {lineType} {lineIndex}.',
     sdcEliminateFromBox: 'Remove Group A candidates {lineCandidates} from target cells {targetCells} in box {boxIndex}.',
     sdcVerifyResult: 'Elimination complete, removed candidates from {count} cells in total.',
-    // Avoidable Rectangle Type 1 technique translations
-    arType1Technique: 'Avoidable Rectangle Type 1',
-    arType1IdentifyRectangle: 'Avoidable Rectangle Type 1: Rectangle cells={arCells}, base pair={basePair}',
+    // Uniqueness technique translations
+  uniquenessTechnique: 'Uniqueness Techniques',
+  uniquenessDescription: 'Eliminate candidates by analyzing patterns that could lead to multiple solutions',
     arType1IdentifyExtra: 'Cell {cellsWithExtra} has extra candidates',
     arType1IdentifyNoExtra: 'Cells {cellsWithoutExtra} have only base pair',
     arType1Eliminate: 'Remove {totalCount} candidates from {targetCells}',

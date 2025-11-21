@@ -7,7 +7,7 @@ import { findPointingPairs } from './sudokuTechniques.js';
 import { findJellyfish } from './sudokuTechniques.js';
 import { findALSXZ } from './alsXZTechniques.js';
 import { findSDC } from './sdcTechniques.js';
-import { findARType1 } from './arTechniques.js';
+import { findUniquenessOpportunities } from './uniquenessTechniques.js';
 // 导入显性数对指示功能
 import nakedPairIndicator from './nakedPairIndicator.js';
 // 导入ALS-XZ指示功能
@@ -175,16 +175,16 @@ const ALL_TECHNIQUES = {
     function: findSDC,
     enabled: true // 默认启用
   },
-  arType1: {
-    id: 'arType1',
-    name: 'Avoidable Rectangle Type 1',
+  uniqueness: {
+    id: 'uniqueness',
+    name: '唯一性技巧',
     name_i18n: {
-      en: 'Avoidable Rectangle Type 1',
-      zh: '可避免矩形 Type 1'
+      en: 'Uniqueness Techniques',
+      zh: '唯一性技巧'
     },
-    description: 'Avoidable Rectangle Type 1：通过识别形成矩形的四个单元格，消除导致多重解的候选数',
+    description: '通过分析可能导致多解的模式来消除候选数',
     category: TECHNIQUE_CATEGORIES.ADVANCED,
-    function: findARType1,
+    function: findUniquenessOpportunities,
     enabled: true // 默认启用
   }
   // 后续可以添加更多技巧
@@ -336,7 +336,7 @@ class TechniqueManager {
    */
   findSolutionStep(board, pencilNotes = {}, solution = null) {
     // 按优先级顺序检查各技巧
-    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish', 'alsXZ', 'sdc', 'arType1'];
+    const priorityOrder = ['nakedSingle', 'notesSingle', 'nakedPairs', 'hiddenPairs', 'nakedTriples', 'hiddenTriples', 'jellyfish', 'alsXZ', 'sdc', 'uniqueness'];
     
     for (const techniqueId of priorityOrder) {
       if (this.isTechniqueEnabled(techniqueId)) {

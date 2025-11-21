@@ -2,7 +2,7 @@
 import { isValidMove } from './sudokuUtils.js';
 import { findALSXZ } from './alsXZTechniques.js';
 import { findSDC } from './sdcTechniques.js';
-import { findARType1 } from './arTechniques.js';
+import { findUniquenessOpportunities } from './uniquenessTechniques.js';
 
 /**
  * 唯一数法 (Naked Single)：查找只有一个可能数字的单元格
@@ -3264,9 +3264,11 @@ export const applyTechnique = (technique, board) => {
  * @param {Array<Array<number>>} board - 当前数独棋盘
  * @param {Object} pencilNotes - 铅笔标注数据 {"row-col": [候选数数组]}
  * @param {boolean} includeCandidateTechniques - 是否包含候选数相关技巧
+ * @param {Array} solution - 解决方案（可选）
+ * @param {Array} fixedCells - 固定单元格（可选）
  * @returns {Array} - 所有可用的技巧机会
  */
-export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateTechniques = true, solution = null) => {
+export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateTechniques = true, solution = null, fixedCells = []) => {
   // 查找所有可用技巧机会
   const nakedSingles = findNakedSingles(board);
   const hiddenSingles = findHiddenSingles(board);
@@ -3287,7 +3289,7 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
   let jellyfish = [];
   let alsXZ = [];
   let sdc = [];
-  let arType1 = [];
+  let uniqueness = [];
   
   if (includeCandidateTechniques && Object.keys(pencilNotes).length > 0) {
     nakedPairs = findNakedPairs(board, pencilNotes);
@@ -3307,8 +3309,8 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
     alsXZ = findALSXZ(board, pencilNotes, solution);
     // 添加SDC技巧
     sdc = findSDC(board, pencilNotes, solution);
-    // 添加AR Type 1技巧
-    arType1 = findARType1(board, pencilNotes, solution);
+    // 添加唯一性技巧
+    uniqueness = findUniquenessOpportunities(board, pencilNotes, fixedCells);
   }
   
   // 按技巧难度顺序合并所有技巧机会
@@ -3341,8 +3343,8 @@ export const identifyAllTechniques = (board, pencilNotes = {}, includeCandidateT
       result.push(...alsXZ);
       // 添加SDC技巧
       result.push(...sdc);
-      // 添加AR Type 1技巧
-      result.push(...arType1);
+      // 添加唯一性技巧
+      result.push(...uniqueness);
   }
   
   return result;

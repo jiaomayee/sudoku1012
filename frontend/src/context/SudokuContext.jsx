@@ -1396,7 +1396,16 @@ export const SudokuContextProvider = ({ children }) => {
       
       // 传入参数，根据条件决定是否包含候选数技巧
       // 传入solution参数用于候选数保护验证（调试模式）
-      const techniques = identifyAllTechniques(currentBoard, pencilNotes, includeCandidateTechniques, solution);
+      // 计算固定单元格（原始谜题中的非零数字）
+      const fixedCells = [];
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          if (originalPuzzle[row][col] !== 0) {
+            fixedCells.push([row, col]);
+          }
+        }
+      }
+      const techniques = identifyAllTechniques(currentBoard, pencilNotes, includeCandidateTechniques, solution, fixedCells);
       setActiveTechniques(techniques);
       return techniques;
     } catch (error) {

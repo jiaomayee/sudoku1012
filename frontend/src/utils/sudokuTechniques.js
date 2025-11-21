@@ -2998,120 +2998,111 @@ export const findXYZWing = (board, pencilNotes = {}) => {
     return boxRow1 === boxRow2 && boxCol1 === boxCol2;
   };
   
-  // 获取两个单元格候选数的交集
-  const getIntersection = (notes1, notes2) => {
-    return notes1.filter(note => notes2.includes(note));
-  };
-  
   // 执行XYZ-Wing搜索
   const doubleCandidatesCells = getDoubleCandidatesCells();
   const tripleCandidatesCells = getTripleCandidatesCells();
   
-  // 遍历每个可能的枢纽单元格（XYZ单元格）
+  // 遍历每个可能的枢纽单元格（XYZ单元格）- 枢纽单元格应该是三候选数单元格
   for (let i = 0; i < tripleCandidatesCells.length; i++) {
     const pivotCell = tripleCandidatesCells[i];
     
-    // 尝试所有可能的x, y, z组合（枢纽单元格的三个候选数）
-    for (let xIndex = 0; xIndex < 3; xIndex++) {
-      for (let yIndex = 0; yIndex < 3; yIndex++) {
-        if (xIndex === yIndex) continue;
+    // 枢纽单元格包含X、Y、Z三个候选数
+    const x = pivotCell.notes[0];
+    const y = pivotCell.notes[1];
+    const z = pivotCell.notes[2];
+    
+    // 寻找XZ单元格：包含x和z，且与枢纽单元格共享行/列/宫
+    const xzCells = doubleCandidatesCells.filter(cell => 
+      cell.notes.includes(x) && cell.notes.includes(z) && 
+      areInSameUnit(cell, pivotCell) &&
+      !(cell.row === pivotCell.row && cell.col === pivotCell.col) // 确保不是同一个单元格
+    );
+    
+    // 寻找YZ单元格：包含y和z，且与枢纽单元格共享行/列/宫
+    const yzCells = doubleCandidatesCells.filter(cell => 
+      cell.notes.includes(y) && cell.notes.includes(z) && 
+      areInSameUnit(cell, pivotCell) &&
+      !(cell.row === pivotCell.row && cell.col === pivotCell.col) // 确保不是同一个单元格
+    );
+    
+    // 遍历所有可能的XZ和YZ单元格组合
+    for (let j = 0; j < xzCells.length; j++) {
+      const xzCell = xzCells[j];
+      
+      for (let k = 0; k < yzCells.length; k++) {
+        const yzCell = yzCells[k];
         
-        // 找出zIndex，即第三个候选数的索引
-        let zIndex = 0;
-        while (zIndex === xIndex || zIndex === yIndex) {
-          zIndex++;
+        // 确保XZ和YZ单元格不是同一个单元格
+        if (xzCell.row === yzCell.row && xzCell.col === yzCell.col) {
+          continue;
         }
         
-        const x = pivotCell.notes[xIndex];
-        const y = pivotCell.notes[yIndex];
-        const z = pivotCell.notes[zIndex];
+        // 确保两个翼单元格不在同一行、列或宫
+        if (areInSameUnit(xzCell, yzCell)) {
+          continue;
+        }
         
-        // 寻找XZ单元格：包含x和z，且与枢纽单元格共享行/列/宫
-        const xzCells = doubleCandidatesCells.filter(cell => 
-          cell.notes.includes(x) && cell.notes.includes(z) && 
-          areInSameUnit(cell, pivotCell)
-        );
+        // 找到受XYZ-Wing影响的单元格
+        const targetCells = [];
+        const removableCandidates = [];
+        const targetCellsDetails = [];
         
-        // 寻找YZ单元格：包含y和z，且与枢纽单元格共享行/列/宫
-        const yzCells = doubleCandidatesCells.filter(cell => 
-          cell.notes.includes(y) && cell.notes.includes(z) && 
-          areInSameUnit(cell, pivotCell)
-        );
-        
-        // 遍历所有可能的XZ和YZ单元格组合
-        for (let j = 0; j < xzCells.length; j++) {
-          const xzCell = xzCells[j];
-          
-          for (let k = 0; k < yzCells.length; k++) {
-            const yzCell = yzCells[k];
+        // 检查所有可能的交叉单元格
+        for (let row = 0; row < 9; row++) {
+          for (let col = 0; col < 9; col++) {
+            // 跳过已填数字的单元格
+            if (board[row][col] !== 0) continue;
             
-            // 确保XZ和YZ单元格不是同一个单元格
-            if (xzCell.row === yzCell.row && xzCell.col === yzCell.col) {
+            // 跳过枢纽和链接单元格
+            if ((row === pivotCell.row && col === pivotCell.col) ||
+                (row === xzCell.row && col === xzCell.col) ||
+                (row === yzCell.row && col === yzCell.col)) {
               continue;
             }
             
-            // 找到受XYZ-Wing影响的单元格
-            const targetCells = [];
-            const removableCandidates = [];
-            const targetCellsDetails = [];
+            // 检查该单元格是否同时与枢纽单元格、XZ单元格和YZ单元格在同一行、列或宫
+            const sharesWithPivot = areInSameUnit({row, col}, pivotCell);
+            const sharesWithXZ = areInSameUnit({row, col}, xzCell);
+            const sharesWithYZ = areInSameUnit({row, col}, yzCell);
             
-            // 检查所有可能的交叉单元格
-            for (let row = 0; row < 9; row++) {
-              for (let col = 0; col < 9; col++) {
-                // 跳过已填数字的单元格
-                if (board[row][col] !== 0) continue;
-                
-                // 跳过枢纽和链接单元格
-                if ((row === pivotCell.row && col === pivotCell.col) ||
-                    (row === xzCell.row && col === xzCell.col) ||
-                    (row === yzCell.row && col === yzCell.col)) {
-                  continue;
-                }
-                
-                // 检查该单元格是否同时与XZ和YZ单元格在同一行、列或宫
-                const sharesWithXZ = areInSameUnit({row, col}, xzCell);
-                const sharesWithYZ = areInSameUnit({row, col}, yzCell);
-                
-                // 同时受XZ和YZ单元格影响的单元格才可能是目标单元格
-                if (sharesWithXZ && sharesWithYZ) {
-                  // 检查该单元格是否包含公共候选数Z
-                  const notesKey = `${row}-${col}`;
-                  const cellNotes = pencilNotes[notesKey] || [];
-                  
-                  if (cellNotes.includes(z)) {
-                    targetCells.push([row, col]);
-                    removableCandidates.push(z);
-                    targetCellsDetails.push({
-                      row: row,
-                      col: col,
-                      notesToRemove: [z]
-                    });
-                  }
-                }
+            // 同时受枢纽单元格和两个翼单元格影响的单元格才可能是目标单元格
+            if (sharesWithPivot && sharesWithXZ && sharesWithYZ) {
+              // 检查该单元格是否包含公共候选数Z
+              const notesKey = `${row}-${col}`;
+              const cellNotes = pencilNotes[notesKey] || [];
+              
+              if (cellNotes.includes(z)) {
+                targetCells.push([row, col]);
+                removableCandidates.push(z);
+                targetCellsDetails.push({
+                  row: row,
+                  col: col,
+                  notesToRemove: [z]
+                });
               }
             }
-            
-            // 只有当有实际可删除的候选数时，才添加机会
-            if (targetCells.length > 0) {
-              opportunities.push({
-                type: 'xyzWing',
-                description: 'XYZ-Wing',
-                pivotCell: [pivotCell.row, pivotCell.col],
-                xzCell: [xzCell.row, xzCell.col],
-                yzCell: [yzCell.row, yzCell.col],
-                cells: [
-                  [pivotCell.row, pivotCell.col],
-                  [xzCell.row, xzCell.col],
-                  [yzCell.row, yzCell.col]
-                ],
-                x, y, z, common: z,
-                targetCells,
-                targetCellsDetails,
-                removableCandidates,
-                message: `XYZ-Wing技巧：这是一个由一个三候选数单元格和两个双候选数单元格组成的特殊结构。枢纽单元格(${pivotCell.row + 1},${pivotCell.col + 1})包含候选数[${pivotCell.notes.join(',')}]，XZ单元格(${xzCell.row + 1},${xzCell.col + 1})包含候选数[${xzCell.notes.join(',')}], YZ单元格(${yzCell.row + 1},${yzCell.col + 1})包含候选数[${yzCell.notes.join(',')}]. 由于枢纽单元格与XZ、YZ单元格分别共享候选数，且XZ和YZ单元格都包含候选数${z}，因此可以确定在同时受XZ和YZ单元格影响的交叉单元格中，候选数${z}不可能存在，可以删除这些交叉单元格中的数字${z}候选数`
-              });
-            }
           }
+        }
+        
+        // 只有当有实际可删除的候选数时，才添加机会
+        if (targetCells.length > 0) {
+          opportunities.push({
+            type: 'xyzWing',
+            description: 'XYZ-Wing',
+            pivotCell: [pivotCell.row, pivotCell.col],
+            xzCell: [xzCell.row, xzCell.col],
+            yzCell: [yzCell.row, yzCell.col],
+            cells: [
+              [pivotCell.row, pivotCell.col],
+              [xzCell.row, xzCell.col],
+              [yzCell.row, yzCell.col]
+            ],
+            x, y, z, common: z,
+            targetCells,
+            targetCellsDetails,
+            removableCandidates,
+            message: `XYZ-Wing技巧：这是一个由一个三候选数单元格和两个双候选数单元格组成的三角结构。枢纽单元格(${pivotCell.row + 1},${pivotCell.col + 1})包含候选数[${pivotCell.notes.join(',')}]，XZ单元格(${xzCell.row + 1},${xzCell.col + 1})包含候选数[${xzCell.notes.join(',')}], YZ单元格(${yzCell.row + 1},${yzCell.col + 1})包含候选数[${yzCell.notes.join(',')}]. 由于枢纽单元格与XZ、YZ单元格分别共享候选数，且XZ和YZ单元格都包含候选数${z}，因此可以确定在同时受XZ和YZ单元格影响的交叉单元格中，候选数${z}不可能存在，可以删除这些交叉单元格中的数字${z}候选数`
+          });
         }
       }
     }

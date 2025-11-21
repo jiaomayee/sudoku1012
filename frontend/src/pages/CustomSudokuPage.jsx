@@ -55,10 +55,47 @@ const CustomSudokuPage = () => {
   const navigate = useNavigate();
   
   // 初始化一个空的棋盘
-  const [board, setBoard] = useState(Array(9).fill().map(() => Array(9).fill(0)));
+  const initialBoard = Array(9).fill().map(() => Array(9).fill(0));
+  const [board, setBoard] = useState(initialBoard);
   const [selectedCell, setSelectedCell] = useState(null);
   const [pencilNotes, setPencilNotes] = useState({});
+  
+  // 将棋盘数据转换为81位字符串
+  const boardToText = (board) => {
+    let text = '';
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        text += board[i][j] || '0';
+      }
+    }
+    return text;
+  };
+  
+  // 用于文本输入框的状态变量，初始化时显示空棋盘的81个0
+  const [boardText, setBoardText] = useState(boardToText(initialBoard));
   const boardContainerRef = useRef(null);
+  
+  // 将81位字符串转换为棋盘数据
+  const textToBoard = (text) => {
+    const newBoard = Array(9).fill().map(() => Array(9).fill(0));
+    if (text.length === 81) {
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          const index = i * 9 + j;
+          const num = parseInt(text[index]);
+          if (!isNaN(num) && num >= 0 && num <= 9) {
+            newBoard[i][j] = num;
+          }
+        }
+      }
+    }
+    return newBoard;
+  };
+  
+  // 当棋盘数据变化时，更新文本输入框
+  useEffect(() => {
+    setBoardText(boardToText(board));
+  }, [board]);
 
   // 处理单元格点击
   const handleCellClick = (row, col) => {
@@ -216,16 +253,62 @@ const CustomSudokuPage = () => {
               gap: '10px'
             }}
           >
-            {/* 数字按钮 1-9（九宫格布局） */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(3, 1fr)', 
-              gap: '8px', 
-              width: '100%', 
-              maxWidth: '280px',
-              padding: '4px',
-              boxSizing: 'border-box'
-            }}>
+            {/* 数独数据文本输入框 */}
+          <div style={{ 
+            width: '100%', 
+            maxWidth: '280px',
+            marginBottom: '0px',
+            padding: '2px',
+            boxSizing: 'border-box'
+          }}>
+            <textarea
+              value={boardText}
+              onChange={(e) => {
+                // 只允许输入数字
+                const value = e.target.value.replace(/[^0-9]/g, '');
+                // 限制长度为81
+                const limitedValue = value.slice(0, 81);
+                setBoardText(limitedValue);
+                // 如果长度正好是81，则更新棋盘
+                if (limitedValue.length === 81) {
+                  setBoard(textToBoard(limitedValue));
+                }
+              }}
+              placeholder={t('enterSudokuData') || '输入81位数字（0表示空格）'}
+              rows={3}
+              style={{
+                width: '100%',
+                height: 'auto',
+                minHeight: '80px',
+                padding: '15px',
+                fontSize: '16px',
+                fontFamily: 'Arial, sans-serif',
+                borderRadius: '8px',
+                border: '2px solid #3498db',
+                boxSizing: 'border-box',
+                backgroundColor: '#ffffff',
+                color: '#333333',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+                resize: 'vertical',
+                '&:focus': {
+                  borderColor: '#2980b9'
+                }
+              }}
+              title={t('sudokuDataTooltip') || '输入81位数字，0表示空格，从左到右、从上到下填充棋盘'}
+            />
+          </div>
+          
+          {/* 数字按钮 1-9（九宫格布局） */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '8px', 
+            width: '100%', 
+            maxWidth: '280px',
+            padding: '4px',
+            boxSizing: 'border-box'
+          }}>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(number => {
                 const remainingCount = remainingNumbers[number] || 0;
                 const isDisabled = remainingCount === 0;
@@ -317,8 +400,8 @@ const CustomSudokuPage = () => {
               gap: '8px', 
               width: '100%',
               maxWidth: '280px',
-              marginTop: '10px',
-              padding: '4px',
+              marginTop: '0px',
+              padding: '2px',
               boxSizing: 'border-box'
             }}>
               {/* 清除按钮 */}

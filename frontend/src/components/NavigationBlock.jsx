@@ -480,8 +480,9 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         // 实际填入答案
         if (sudokuContext.fillCell) {
           // 延迟填入答案，确保高亮显示不会被清除
+          // 使用forceFill=true确保即使在铅笔模式下也能正确填入数字
           setTimeout(() => {
-            sudokuContext.fillCell(hint.row, hint.col, hint.value);
+            sudokuContext.fillCell(hint.row, hint.col, hint.value, true);
           }, 100);
         }
       } else {
@@ -518,8 +519,9 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           // 实际填入答案
           if (sudokuContext.fillCell) {
             // 延迟填入答案，确保高亮显示不会被清除
+            // 使用forceFill=true确保即使在铅笔模式下也能正确填入数字
             setTimeout(() => {
-              sudokuContext.fillCell(hint.row, hint.col, hint.value);
+              sudokuContext.fillCell(hint.row, hint.col, hint.value, true);
             }, 100);
           }
         } else {

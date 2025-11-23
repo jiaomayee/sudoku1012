@@ -515,6 +515,10 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
     // 检查是否为SDC技巧
     const isSDCTechnique = technique.type && (technique.type === 'sdc' || technique.type.includes('Sue De Coq'));
     
+    // 检查是否为数对技巧
+    const isNakedPairs = technique.type && (technique.type.includes('NakedPairs') || technique.type.includes('nakedPairs') || technique.type.includes('nakedPair'));
+    const isHiddenPairs = technique.type && (technique.type.includes('HiddenPairs') || technique.type.includes('hiddenPairs') || technique.type.includes('hiddenPair'));
+    
     // 基础技巧使用特殊的高亮逻辑
     if (isBasicTechnique) {
       const hasSingleCell = typeof technique.row === 'number' && typeof technique.col === 'number';
@@ -768,6 +772,64 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           }
         });
       });
+    } else if (isNakedPairs || isHiddenPairs) {
+      // 数对技巧使用特殊的高亮逻辑
+      // 高亮数对单元格
+      if (Array.isArray(cells) && cells.length > 0) {
+        cells.forEach(cell => {
+          const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+          const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+          
+          if (r !== null && c !== null) {
+            cellsToHighlight.push({
+              row: r,
+              col: c,
+              techniqueIndicator: true,
+              techniqueType: technique.type,
+              highlightType: 'condition',
+              isTarget: false,
+              backgroundColor: 'transparent',
+              borderColor: 'transparent',
+              // 数对技巧的特殊属性
+              pairNotes: values || []
+            });
+          }
+        });
+      }
+      
+      // 高亮目标单元格（需要删除候选数的单元格）
+      if (Array.isArray(targetCells) && targetCells.length > 0) {
+        targetCells.forEach(cell => {
+          const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+          const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+          
+          if (r !== null && c !== null) {
+            // 检查是否已经作为条件单元格高亮
+            const existingIndex = cellsToHighlight.findIndex(
+              cell => cell.row === r && cell.col === c
+            );
+            if (existingIndex === -1) {
+              // 新的目标单元格
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                techniqueType: technique.type,
+                highlightType: 'target',
+                isTarget: true,
+                backgroundColor: 'transparent',
+                borderColor: 'transparent'
+              });
+            } else {
+              // 如果已存在，更新类型为target
+              cellsToHighlight[existingIndex].highlightType = 'target';
+              cellsToHighlight[existingIndex].isTarget = true;
+              cellsToHighlight[existingIndex].backgroundColor = 'transparent';
+              cellsToHighlight[existingIndex].borderColor = 'transparent';
+            }
+          }
+        });
+      }
     } else if (isALSXZTechnique) {
       // 对于ALS-XZ技巧，使用ALS-XZ指示器生成高亮信息，但不直接调用指示器的方法
       // 确保ALS-XZ技巧的高亮处理是独立的，不影响其他技巧

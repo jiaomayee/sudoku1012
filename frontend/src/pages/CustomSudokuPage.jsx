@@ -183,12 +183,8 @@ const CustomSudokuPage = () => {
       // 6. 跳转到开始游戏页面
       navigate('/game');
       
-      // 强制刷新页面以确保自定义数独被正确加载
-      // 使用更长的延迟，确保路由跳转完成
-      setTimeout(() => {
-        console.log('执行页面刷新以加载自定义数独...');
-        window.location.reload();
-      }, 300);
+      // 移除页面刷新逻辑，因为这可能会干扰自定义数独的加载
+      // 原来的刷新逻辑可能会导致页面重新加载时丢失localStorage中的数据
     } catch (error) {
       console.error('数独验证失败:', error);
       alert(t('validationError') || '验证失败，请检查棋盘数据');

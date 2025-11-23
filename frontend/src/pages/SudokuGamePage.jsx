@@ -63,6 +63,7 @@ const SudokuGamePage = () => {
         // 如果有自定义数独数据，重新初始化游戏
         if (sudokuContext?.generateNewPuzzle) {
           startLoading();
+          // 使用自定义难度来加载自定义数独
           await sudokuContext.generateNewPuzzle('custom');
           stopLoading();
         }

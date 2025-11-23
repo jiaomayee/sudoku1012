@@ -164,6 +164,47 @@ export const SudokuContextProvider = ({ children }) => {
     initPuzzle();
   }, []); // 仅在组件挂载时运行一次
 
+  // 添加一个新的useEffect来监听路由变化，确保在页面跳转后能正确加载自定义数独
+  useEffect(() => {
+    const handleRouteChange = () => {
+      // 检查是否有自定义数独数据需要加载
+      try {
+        const customPuzzleStr = localStorage.getItem('customPuzzle');
+        if (customPuzzleStr) {
+          console.log('路由变化时检测到自定义数独数据:', customPuzzleStr);
+          const customPuzzle = JSON.parse(customPuzzleStr);
+          if (customPuzzle && customPuzzle.puzzle && customPuzzle.solution) {
+            console.log('路由变化时加载自定义数独数据');
+            const formattedData = formatPuzzleData(customPuzzle);
+            
+            setCurrentPuzzle(formattedData);
+            setOriginalPuzzle(formattedData.puzzle);
+            setCurrentBoard(formattedData.puzzle);
+            setSolution(formattedData.solution);
+            setDifficulty(customPuzzle.difficulty || 'custom');
+            setGameStarted(true);
+            setGameCompleted(false);
+            setTimerActive(true);
+            
+            // 清除localStorage中的自定义数独数据，避免重复加载
+            localStorage.removeItem('customPuzzle');
+            console.log('已加载并清除自定义数独数据');
+          }
+        }
+      } catch (error) {
+        console.warn('路由变化时读取自定义数独失败:', error);
+      }
+    };
+
+    // 监听路由变化事件
+    window.addEventListener('popstate', handleRouteChange);
+    
+    // 组件卸载时移除事件监听器
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, []);
+
   // 自动保存进度
   useEffect(() => {
     if (currentPuzzle && currentBoard && gameStarted && !gameCompleted) {
@@ -639,7 +680,9 @@ export const SudokuContextProvider = ({ children }) => {
         updateUserStats({ puzzlesStarted: 1 });
       }
 
-      toast.success('New puzzle generated!', { position: 'top-right', autoClose: 2000 });
+      if (showToast) {
+        toast.success('New puzzle generated!', { position: 'top-right', autoClose: 2000 });
+      }
       console.log('新谜题设置完成');
       return formattedData;
     } catch (error) {

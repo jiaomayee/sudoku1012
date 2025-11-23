@@ -378,7 +378,8 @@ export const calculateAllCandidates = (board) => {
 };
 
 // 应用基本的数独技巧并获取提示
-export const getHint = (board) => {
+// 添加solution参数，用于获取正确答案
+export const getHint = (board, solution) => {
   // 检查单元格是否为空且位置有效
   const isEmptyCell = (row, col) => {
     return row >= 0 && row < 9 && col >= 0 && col < 9 && board[row][col] === 0;
@@ -429,10 +430,12 @@ export const getHint = (board) => {
         
         // 如果只有一个可能的数字，就是唯一数
         if (possibleNumbers.length === 1) {
+          // 如果提供了solution，使用正确答案；否则使用计算出的唯一可能数字
+          const correctValue = solution && solution[row] && solution[row][col] ? solution[row][col] : possibleNumbers[0];
           return {
             row,
             col,
-            value: possibleNumbers[0],
+            value: correctValue,
             technique: 'nakedSingle',
             description: `唯一数法：该单元格(${row+1},${col+1})只有一个可能的数字`
           };
@@ -467,12 +470,14 @@ export const getHint = (board) => {
       }
       
       if (count === 1) {
+        // 如果提供了solution，使用正确答案；否则使用计算出的数字
+        const correctValue = solution && solution[row] && solution[row][lastCol] ? solution[row][lastCol] : num;
         return {
           row,
           col: lastCol,
-          value: num,
+          value: correctValue,
           technique: 'hiddenSingle',
-          description: `行摒除法：该数字在第${row+1}行只能放在第${col+1}列`
+          description: `行摒除法：该数字在第${row+1}行只能放在第${lastCol+1}列`
         };
       }
     }
@@ -503,12 +508,14 @@ export const getHint = (board) => {
       }
       
       if (count === 1) {
+        // 如果提供了solution，使用正确答案；否则使用计算出的数字
+        const correctValue = solution && solution[lastRow] && solution[lastRow][col] ? solution[lastRow][col] : num;
         return {
           row: lastRow,
           col,
-          value: num,
+          value: correctValue,
           technique: 'hiddenSingle',
-          description: `列摒除法：该数字在第${col+1}列只能放在第${row+1}行`
+          description: `列摒除法：该数字在第${col+1}列只能放在第${lastRow+1}行`
         };
       }
     }
@@ -551,12 +558,14 @@ export const getHint = (board) => {
         }
         
         if (count === 1) {
+          // 如果提供了solution，使用正确答案；否则使用计算出的数字
+          const correctValue = solution && solution[lastRow] && solution[lastRow][lastCol] ? solution[lastRow][lastCol] : num;
           return {
             row: lastRow,
             col: lastCol,
-            value: num,
+            value: correctValue,
             technique: 'hiddenSingle',
-            description: `宫摒除法：该数字在第${Math.floor(row/3)*3+1}-${Math.floor(row/3)*3+3}行第${Math.floor(col/3)*3+1}-${Math.floor(col/3)*3+3}宫只能放在第${row+1}行第${col+1}列`
+            description: `宫摒除法：该数字在第${Math.floor(row/3)*3+1}-${Math.floor(row/3)*3+3}行第${Math.floor(col/3)*3+1}-${Math.floor(col/3)*3+3}宫只能放在第${lastRow+1}行第${lastCol+1}列`
           };
         }
       }
@@ -570,10 +579,12 @@ export const getHint = (board) => {
     // 找出第一个可能的数字
     for (let num = 1; num <= 9; num++) {
       if (isValidMove(row, col, num)) {
+        // 如果提供了solution，使用正确答案；否则使用计算出的数字
+        const correctValue = solution && solution[row] && solution[row][col] ? solution[row][col] : num;
         return {
           row,
           col,
-          value: num,
+          value: correctValue,
           technique: 'random',
           description: `提示：第${row+1}行第${col+1}列这是一个可能的数字`
         };

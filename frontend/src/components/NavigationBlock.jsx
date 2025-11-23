@@ -495,7 +495,8 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   // 从utils中获取提示
   const getHintFromUtils = () => {
     if (sudokuContext && sudokuContext.currentBoard) {
-      return getHint(sudokuContext.currentBoard);
+      // 传递solution参数以确保获取正确的答案
+      return getHint(sudokuContext.currentBoard, sudokuContext.solution);
     }
     return null;
   };

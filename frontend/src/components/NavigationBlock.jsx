@@ -509,6 +509,12 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
       technique.type.includes('hiddenSingle')
     );
     
+    // 检查是否为ALS-XZ技巧
+    const isALSXZTechnique = technique.type && technique.type.includes('alsXZ');
+    
+    // 检查是否为SDC技巧
+    const isSDCTechnique = technique.type && (technique.type === 'sdc' || technique.type.includes('Sue De Coq'));
+    
     // 基础技巧使用特殊的高亮逻辑
     if (isBasicTechnique) {
       const hasSingleCell = typeof technique.row === 'number' && typeof technique.col === 'number';
@@ -621,6 +627,274 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           }
         }
       }
+    } else if (isSDCTechnique) {
+      // SDC技巧使用类似ALS-XZ的方式，通过highlightedCells传递数据给TechniqueOverlay进行React渲染
+      // 确保pencilNotes存在
+      const currentPencilNotes = sudokuContext.pencilNotes || {};
+      
+      // 收集所有SDC相关单元格
+      const sdcCellsInfo = new Map();
+      
+      // 处理SDC单元格（交叉单元格）
+      if (technique.sdcCells && Array.isArray(technique.sdcCells)) {
+        technique.sdcCells.forEach(([row, col]) => {
+          const cellKey = `${row}-${col}`;
+          const candidates = currentPencilNotes[cellKey] || [];
+          
+          if (candidates.length > 0) {
+            // 提取SDC候选数
+            const sdcCandidates = technique.sdcCandidates || [];
+            const cellSDCCandidates = candidates.filter(c => sdcCandidates.includes(c));
+            
+            if (!sdcCellsInfo.has(cellKey)) {
+              sdcCellsInfo.set(cellKey, {
+                row,
+                col,
+                sdcCandidates: [],
+                groupACandidates: [],
+                groupBCandidates: [],
+                removableCandidates: []
+              });
+            }
+            
+            const cellInfo = sdcCellsInfo.get(cellKey);
+            if (cellSDCCandidates.length > 0) {
+              cellInfo.sdcCandidates.push(...cellSDCCandidates);
+            }
+          }
+        });
+      }
+      
+      // 处理组A单元格
+      if (technique.groupA && technique.groupA.cells && Array.isArray(technique.groupA.cells)) {
+        technique.groupA.cells.forEach(([row, col]) => {
+          const cellKey = `${row}-${col}`;
+          const candidates = currentPencilNotes[cellKey] || [];
+          
+          if (candidates.length > 0) {
+            const groupACandidates = technique.groupA.candidates || [];
+            const cellGroupACandidates = candidates.filter(c => groupACandidates.includes(c));
+            
+            if (!sdcCellsInfo.has(cellKey)) {
+              sdcCellsInfo.set(cellKey, {
+                row,
+                col,
+                sdcCandidates: [],
+                groupACandidates: [],
+                groupBCandidates: [],
+                removableCandidates: []
+              });
+            }
+            
+            const cellInfo = sdcCellsInfo.get(cellKey);
+            if (cellGroupACandidates.length > 0) {
+              cellInfo.groupACandidates.push(...cellGroupACandidates);
+            }
+          }
+        });
+      }
+      
+      // 处理组B单元格
+      if (technique.groupB && technique.groupB.cells && Array.isArray(technique.groupB.cells)) {
+        technique.groupB.cells.forEach(([row, col]) => {
+          const cellKey = `${row}-${col}`;
+          const candidates = currentPencilNotes[cellKey] || [];
+          
+          if (candidates.length > 0) {
+            const groupBCandidates = technique.groupB.candidates || [];
+            const cellGroupBCandidates = candidates.filter(c => groupBCandidates.includes(c));
+            
+            if (!sdcCellsInfo.has(cellKey)) {
+              sdcCellsInfo.set(cellKey, {
+                row,
+                col,
+                sdcCandidates: [],
+                groupACandidates: [],
+                groupBCandidates: [],
+                removableCandidates: []
+              });
+            }
+            
+            const cellInfo = sdcCellsInfo.get(cellKey);
+            if (cellGroupBCandidates.length > 0) {
+              cellInfo.groupBCandidates.push(...cellGroupBCandidates);
+            }
+          }
+        });
+      }
+      
+      // 处理可删除的目标候选数
+      if (Array.isArray(technique.removableCandidates)) {
+        technique.removableCandidates.forEach(candidate => {
+          const { row, col, value } = candidate;
+          const cellKey = `${row}-${col}`;
+          const candidates = currentPencilNotes[cellKey] || [];
+          
+          if (candidates.includes(value)) {
+            if (!sdcCellsInfo.has(cellKey)) {
+              sdcCellsInfo.set(cellKey, {
+                row,
+                col,
+                sdcCandidates: [],
+                groupACandidates: [],
+                groupBCandidates: [],
+                removableCandidates: []
+              });
+            }
+            
+            const cellInfo = sdcCellsInfo.get(cellKey);
+            cellInfo.removableCandidates.push(value);
+          }
+        });
+      }
+      
+      // 将所有单元格信息转换为高亮单元格
+      sdcCellsInfo.forEach((cellInfo, cellKey) => {
+        cellsToHighlight.push({
+          row: cellInfo.row,
+          col: cellInfo.col,
+          techniqueIndicator: true,
+          techniqueType: technique.type,
+          highlightType: 'sdc',
+          isTarget: false,
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
+          // SDC特定的候选数信息
+          sdcCandidates: {
+            sdcCandidates: cellInfo.sdcCandidates,
+            groupACandidates: cellInfo.groupACandidates,
+            groupBCandidates: cellInfo.groupBCandidates,
+            removableCandidates: cellInfo.removableCandidates
+          }
+        });
+      });
+    } else if (isALSXZTechnique) {
+      // 对于ALS-XZ技巧，使用ALS-XZ指示器生成高亮信息，但不直接调用指示器的方法
+      // 确保ALS-XZ技巧的高亮处理是独立的，不影响其他技巧
+      // ALS-XZ技巧只高亮候选数，不高亮单元格背景
+      
+      // 确保pencilNotes存在
+      const currentPencilNotes = sudokuContext.pencilNotes || {};
+      
+      // 收集所有ALS单元格，用于候选数高亮
+      const alsXZCellsInfo = new Map();
+      
+      // 处理ALS1中的单元格及其候选数
+      if (technique.als1 && Array.isArray(technique.als1.cells)) {
+        technique.als1.cells.forEach(([row, col]) => {
+          const cellKey = `${row}-${col}`;
+          const candidates = currentPencilNotes[cellKey] || [];
+          
+          // 只处理实际存在的候选数
+          if (candidates.length > 0) {
+            // 分类候选数：X候选数 vs 其他候选数
+            const xCandidates = candidates.filter(c => c === technique.x);
+            const otherCandidates = candidates.filter(c => c !== technique.x);
+            
+            if (!alsXZCellsInfo.has(cellKey)) {
+              alsXZCellsInfo.set(cellKey, {
+                row,
+                col,
+                xCandidates: [],
+                als1Candidates: [],
+                als2Candidates: [],
+                removableCandidates: []
+              });
+            }
+            
+            const cellInfo = alsXZCellsInfo.get(cellKey);
+            // 只添加实际存在的候选数
+            if (xCandidates.length > 0) {
+              cellInfo.xCandidates.push(...xCandidates);
+            }
+            if (otherCandidates.length > 0) {
+              cellInfo.als1Candidates.push(...otherCandidates);
+            }
+          }
+        });
+      }
+      
+      // 处理ALS2中的单元格及其候选数
+      if (technique.als2 && Array.isArray(technique.als2.cells)) {
+        technique.als2.cells.forEach(([row, col]) => {
+          const cellKey = `${row}-${col}`;
+          const candidates = currentPencilNotes[cellKey] || [];
+          
+          // 只处理实际存在的候选数
+          if (candidates.length > 0) {
+            // 分类候选数：X候选数 vs 其他候选数
+            const xCandidates = candidates.filter(c => c === technique.x);
+            const otherCandidates = candidates.filter(c => c !== technique.x);
+            
+            if (!alsXZCellsInfo.has(cellKey)) {
+              alsXZCellsInfo.set(cellKey, {
+                row,
+                col,
+                xCandidates: [],
+                als1Candidates: [],
+                als2Candidates: [],
+                removableCandidates: []
+              });
+            }
+            
+            const cellInfo = alsXZCellsInfo.get(cellKey);
+            // 只添加实际存在的候选数
+            if (xCandidates.length > 0) {
+              cellInfo.xCandidates.push(...xCandidates);
+            }
+            if (otherCandidates.length > 0) {
+              cellInfo.als2Candidates.push(...otherCandidates);
+            }
+          }
+        });
+      }
+      
+      // 处理可删除的目标候选数
+      if (Array.isArray(technique.removableCandidates)) {
+        technique.removableCandidates.forEach(candidate => {
+          const { row, col, value } = candidate;
+          const cellKey = `${row}-${col}`;
+          const candidates = currentPencilNotes[cellKey] || [];
+          
+          // 只处理实际存在的候选数
+          if (candidates.includes(value)) {
+            if (!alsXZCellsInfo.has(cellKey)) {
+              alsXZCellsInfo.set(cellKey, {
+                row,
+                col,
+                xCandidates: [],
+                als1Candidates: [],
+                als2Candidates: [],
+                removableCandidates: []
+              });
+            }
+            
+            const cellInfo = alsXZCellsInfo.get(cellKey);
+            cellInfo.removableCandidates.push(value);
+          }
+        });
+      }
+      
+      // 将所有单元格信息转换为高亮单元格
+      alsXZCellsInfo.forEach((cellInfo, cellKey) => {
+        cellsToHighlight.push({
+          row: cellInfo.row,
+          col: cellInfo.col,
+          techniqueIndicator: true,
+          techniqueType: technique.type,
+          highlightType: 'alsXZ',
+          isTarget: false,
+          backgroundColor: 'transparent', // 不高亮单元格背景
+          borderColor: 'transparent',
+          // ALS-XZ特定的候选数信息
+          alsXZCandidates: {
+            xCandidates: cellInfo.xCandidates,
+            als1Candidates: cellInfo.als1Candidates,
+            als2Candidates: cellInfo.als2Candidates,
+            removableCandidates: cellInfo.removableCandidates
+          }
+        });
+      });
     } else {
       // 对于其他技巧，使用统一的高亮逻辑
       // 高亮条件单元格

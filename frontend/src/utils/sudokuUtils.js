@@ -434,7 +434,7 @@ export const getHint = (board) => {
             col,
             value: possibleNumbers[0],
             technique: 'nakedSingle',
-            description: '唯一数法：该单元格只有一个可能的数字'
+            description: `唯一数法：该单元格(${row+1},${col+1})只有一个可能的数字`
           };
         }
       }
@@ -472,7 +472,7 @@ export const getHint = (board) => {
           col: lastCol,
           value: num,
           technique: 'hiddenSingle',
-          description: '行摒除法：该数字在这一行只能放在这个位置'
+          description: `行摒除法：该数字在第${row+1}行只能放在第${col+1}列`
         };
       }
     }
@@ -508,7 +508,7 @@ export const getHint = (board) => {
           col,
           value: num,
           technique: 'hiddenSingle',
-          description: '列摒除法：该数字在这一列只能放在这个位置'
+          description: `列摒除法：该数字在第${col+1}列只能放在第${row+1}行`
         };
       }
     }
@@ -556,7 +556,7 @@ export const getHint = (board) => {
             col: lastCol,
             value: num,
             technique: 'hiddenSingle',
-            description: '宫摒除法：该数字在这一宫只能放在这个位置'
+            description: `宫摒除法：该数字在第${Math.floor(row/3)*3+1}-${Math.floor(row/3)*3+3}行第${Math.floor(col/3)*3+1}-${Math.floor(col/3)*3+3}宫只能放在第${row+1}行第${col+1}列`
           };
         }
       }
@@ -575,7 +575,7 @@ export const getHint = (board) => {
           col,
           value: num,
           technique: 'random',
-          description: '提示：这是一个可能的数字'
+          description: `提示：第${row+1}行第${col+1}列这是一个可能的数字`
         };
       }
     }

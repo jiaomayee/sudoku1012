@@ -448,6 +448,11 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
       // 使用现有的getHint方法获取提示
       if (sudokuContext && typeof sudokuContext.getHint === 'function') {
         hint = await sudokuContext.getHint();
+        
+        // 如果API调用失败，使用utils中的getHint作为备选方案
+        if (!hint) {
+          hint = getHintFromUtils();
+        }
       } else {
         // 如果没有getHint方法，使用utils中的getHint
         hint = getHintFromUtils();
@@ -484,10 +489,46 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
       }
     } catch (error) {
       console.error('获取答案提示失败:', error);
-      toast.error(t('hintError', { defaultMessage: '获取答案提示时出错，请重试' }), {
-        position: 'top-right',
-        autoClose: 2000
-      });
+      
+      // 即使出现错误，也尝试使用本地的utils函数
+      try {
+        const hint = getHintFromUtils();
+        if (hint) {
+          // 显示提示信息
+          toast.info(`${t('answerHint', '答案提示')}: ${hint.description}`, {
+            position: 'top-right',
+            autoClose: 3000
+          });
+          
+          // 高亮显示提示的单元格
+          if (sudokuContext.setHighlightedCells) {
+            sudokuContext.setHighlightedCells([{
+              row: hint.row,
+              col: hint.col,
+              techniqueIndicator: true,
+              targetNumber: hint.value,
+              isTarget: true,
+              techniqueType: 'hint'
+            }]);
+          }
+          
+          // 实际填入答案
+          if (sudokuContext.fillCell) {
+            sudokuContext.fillCell(hint.row, hint.col, hint.value);
+          }
+        } else {
+          toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {
+            position: 'top-right',
+            autoClose: 2000
+          });
+        }
+      } catch (fallbackError) {
+        console.error('使用备选方案获取答案提示失败:', fallbackError);
+        toast.error(t('hintError', { defaultMessage: '获取答案提示时出错，请重试' }), {
+          position: 'top-right',
+          autoClose: 2000
+        });
+      }
     }
   };
   

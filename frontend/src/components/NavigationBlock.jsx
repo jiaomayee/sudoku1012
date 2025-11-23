@@ -897,59 +897,226 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
       });
     } else {
       // 对于其他技巧，使用统一的高亮逻辑
-      // 高亮条件单元格
-      if (Array.isArray(cells) && cells.length > 0) {
-        cells.forEach(cell => {
-          const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
-          const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
-          
-          if (r !== null && c !== null) {
+      // 检查是否为指向对或宫线摒除技巧
+      const isPointingPairs = technique.type && technique.type.includes('pointingPairs');
+      const isBoxLineReduction = technique.type && technique.type.includes('boxLineReduction');
+      
+      // 检查是否为三链数技巧
+      const isNakedTriple = technique.type && technique.type.includes('nakedTriple');
+      const isHiddenTriple = technique.type && technique.type.includes('hiddenTriple');
+      
+      // 检查是否为四链数技巧
+      const isNakedQuad = technique.type && technique.type.includes('nakedQuad');
+      const isHiddenQuad = technique.type && technique.type.includes('hiddenQuad');
+      
+      // 检查是否为X-Wing、Y-Wing、Swordfish、XYZ-Wing、Jellyfish等技巧
+      const isXWing = technique.type && (technique.type.includes('xWing') || technique.type.includes('x-wing'));
+      const isYWing = technique.type && (technique.type.includes('yWing') || technique.type.includes('y-wing'));
+      const isSwordfish = technique.type && technique.type.includes('swordfish');
+      const isXYZWing = technique.type && (technique.type.includes('xyzWing') || technique.type.includes('xyz-wing'));
+      const isJellyfish = technique.type && technique.type.includes('jellyfish');
+      
+      if (isPointingPairs || isBoxLineReduction) {
+        // 指向对或宫线摒除技巧
+        // 高亮源单元格（条件单元格）
+        if (Array.isArray(technique.sourceCells) && technique.sourceCells.length > 0) {
+          technique.sourceCells.forEach(([row, col]) => {
             cellsToHighlight.push({
-              row: r,
-              col: c,
+              row,
+              col,
               techniqueIndicator: true,
               techniqueType: technique.type,
               highlightType: 'condition',
               isTarget: false,
-              backgroundColor: 'transparent', // 非基础技巧不高亮单元格背景
+              backgroundColor: 'transparent',
               borderColor: 'transparent'
             });
-          }
-        });
-      }
-      
-      // 高亮目标单元格
-      if (Array.isArray(targetCells) && targetCells.length > 0) {
-        targetCells.forEach(cell => {
-          const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
-          const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
-          
-          if (r !== null && c !== null) {
-            // 检查是否已经作为条件单元格高亮
-            const existingIndex = cellsToHighlight.findIndex(
-              cell => cell.row === r && cell.col === c
-            );
-            if (existingIndex === -1) {
-              // 新的目标单元格
+          });
+        }
+        
+        // 高亮目标单元格（删除候选数的单元格）
+        if (Array.isArray(technique.targetCells) && technique.targetCells.length > 0) {
+          technique.targetCells.forEach(([row, col]) => {
+            cellsToHighlight.push({
+              row,
+              col,
+              techniqueIndicator: true,
+              techniqueType: technique.type,
+              highlightType: 'target',
+              isTarget: true,
+              backgroundColor: 'transparent',
+              borderColor: 'transparent'
+            });
+          });
+        }
+      } else if (isNakedTriple || isHiddenTriple || isNakedQuad || isHiddenQuad) {
+        // 三链数或四链数技巧
+        // 高亮条件单元格
+        if (Array.isArray(cells) && cells.length > 0) {
+          cells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
               cellsToHighlight.push({
                 row: r,
                 col: c,
                 techniqueIndicator: true,
                 techniqueType: technique.type,
-                highlightType: 'target', // 目标单元格标识
-                isTarget: true,
-                backgroundColor: 'transparent', // 透明背景
-                borderColor: 'transparent' // 透明边框
+                highlightType: 'condition',
+                isTarget: false,
+                backgroundColor: 'transparent',
+                borderColor: 'transparent'
               });
-            } else {
-              // 如果已存在，更新类型为target
-              cellsToHighlight[existingIndex].highlightType = 'target';
-              cellsToHighlight[existingIndex].isTarget = true;
-              cellsToHighlight[existingIndex].backgroundColor = 'transparent'; // 透明背景
-              cellsToHighlight[existingIndex].borderColor = 'transparent'; // 透明边框
             }
-          }
-        });
+          });
+        }
+        
+        // 高亮目标单元格
+        if (Array.isArray(targetCells) && targetCells.length > 0) {
+          targetCells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
+              // 检查是否已经作为条件单元格高亮
+              const existingIndex = cellsToHighlight.findIndex(
+                cell => cell.row === r && cell.col === c
+              );
+              if (existingIndex === -1) {
+                // 新的目标单元格
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  techniqueType: technique.type,
+                  highlightType: 'target',
+                  isTarget: true,
+                  backgroundColor: 'transparent',
+                  borderColor: 'transparent'
+                });
+              } else {
+                // 如果已存在，更新类型为target
+                cellsToHighlight[existingIndex].highlightType = 'target';
+                cellsToHighlight[existingIndex].isTarget = true;
+                cellsToHighlight[existingIndex].backgroundColor = 'transparent';
+                cellsToHighlight[existingIndex].borderColor = 'transparent';
+              }
+            }
+          });
+        }
+      } else if (isXWing || isYWing || isSwordfish || isXYZWing || isJellyfish) {
+        // X-Wing、Y-Wing、Swordfish、XYZ-Wing、Jellyfish等技巧
+        // 高亮条件单元格
+        if (Array.isArray(cells) && cells.length > 0) {
+          cells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                techniqueType: technique.type,
+                highlightType: 'condition',
+                isTarget: false,
+                backgroundColor: 'transparent',
+                borderColor: 'transparent'
+              });
+            }
+          });
+        }
+        
+        // 高亮目标单元格
+        if (Array.isArray(targetCells) && targetCells.length > 0) {
+          targetCells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
+              // 检查是否已经作为条件单元格高亮
+              const existingIndex = cellsToHighlight.findIndex(
+                cell => cell.row === r && cell.col === c
+              );
+              if (existingIndex === -1) {
+                // 新的目标单元格
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  techniqueType: technique.type,
+                  highlightType: 'target',
+                  isTarget: true,
+                  backgroundColor: 'transparent',
+                  borderColor: 'transparent'
+                });
+              } else {
+                // 如果已存在，更新类型为target
+                cellsToHighlight[existingIndex].highlightType = 'target';
+                cellsToHighlight[existingIndex].isTarget = true;
+                cellsToHighlight[existingIndex].backgroundColor = 'transparent';
+                cellsToHighlight[existingIndex].borderColor = 'transparent';
+              }
+            }
+          });
+        }
+      } else {
+        // 对于其他技巧，使用统一的高亮逻辑
+        // 高亮条件单元格
+        if (Array.isArray(cells) && cells.length > 0) {
+          cells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                techniqueType: technique.type,
+                highlightType: 'condition',
+                isTarget: false,
+                backgroundColor: 'transparent', // 非基础技巧不高亮单元格背景
+                borderColor: 'transparent'
+              });
+            }
+          });
+        }
+        
+        // 高亮目标单元格
+        if (Array.isArray(targetCells) && targetCells.length > 0) {
+          targetCells.forEach(cell => {
+            const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+            const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+            
+            if (r !== null && c !== null) {
+              // 检查是否已经作为条件单元格高亮
+              const existingIndex = cellsToHighlight.findIndex(
+                cell => cell.row === r && cell.col === c
+              );
+              if (existingIndex === -1) {
+                // 新的目标单元格
+                cellsToHighlight.push({
+                  row: r,
+                  col: c,
+                  techniqueIndicator: true,
+                  techniqueType: technique.type,
+                  highlightType: 'target', // 目标单元格标识
+                  isTarget: true,
+                  backgroundColor: 'transparent', // 透明背景
+                  borderColor: 'transparent' // 透明边框
+                });
+              } else {
+                // 如果已存在，更新类型为target
+                cellsToHighlight[existingIndex].highlightType = 'target';
+                cellsToHighlight[existingIndex].isTarget = true;
+                cellsToHighlight[existingIndex].backgroundColor = 'transparent'; // 透明背景
+                cellsToHighlight[existingIndex].borderColor = 'transparent'; // 透明边框
+              }
+            }
+          });
+        }
       }
     }
     

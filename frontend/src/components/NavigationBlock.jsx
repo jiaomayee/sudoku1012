@@ -4,9 +4,11 @@ import { useTheme } from '../context/ThemeContext';
 import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
-import { toast } from 'react-toastify'; // 添加 toast 导入
+import { toast } from 'react-toastify';
+import { getHint } from '../utils/sudokuUtils'; // 添加 getHint 导入
 import DifficultySelectModal from './DifficultySelectModal';
 import ModeSwitchModal from './ModeSwitchModal';
+import ConfirmModal from './ConfirmModal';
 
 // 导入模式上下文
 import { ModeContext } from '../context/ModeContext';
@@ -224,8 +226,10 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   const [isLongPressActive, setIsLongPressActive] = useState(false); // 控制长按状态
   const [showProgressBar, setShowProgressBar] = useState(false); // 控制进度条显示
   const [progress, setProgress] = useState(0); // 进度条进度
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // 控制确认对话框显示
+  const [confirmModalConfig, setConfirmModalConfig] = useState({}); // 确认对话框配置
   const progressTimer = useRef(null); // 进度条动画计时器
-  const longPressTimer = useRef(null); // 长按计时器
+  const longPressTimer = useRef(null); // 长按计计时器
   
   // 添加状态用于跟踪技巧提示功能
   const [techniqueIndex, setTechniqueIndex] = useState(0); // 跟踪当前技巧索引
@@ -373,11 +377,8 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           const nextIndex = (techniqueIndex + 1) % techniques.length;
           setTechniqueIndex(nextIndex);
         } else {
-          // 如果没有找到技巧，显示提示
-          toast.info(t('noTechniquesAvailable', { defaultMessage: '当前没有可用的技巧机会' }), {
-            position: 'top-right',
-            autoClose: 2000
-          });
+          // 没有可用技巧时的处理逻辑
+          handleNoTechniquesAvailable();
         }
       } catch (error) {
         console.error('获取技巧失败:', error);
@@ -393,6 +394,123 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         onGetHint();
       }
     }
+  };
+  
+  // 处理没有可用技巧的情况
+  const handleNoTechniquesAvailable = () => {
+    // 检查候选数是否完整
+    if (sudokuContext && typeof sudokuContext.areCandidatesComplete === 'function') {
+      const candidatesComplete = sudokuContext.areCandidatesComplete();
+      
+      if (!candidatesComplete) {
+        // 候选数不完整，提示用户是否刷新候选数
+        setConfirmModalConfig({
+          title: t('candidatesIncompleteTitle', '候选数不完整'),
+          message: t('candidatesIncompleteMessage', '当前候选数不完整，是否需要刷新填充候选数并查找新的技巧机会？'),
+          confirmText: t('yes', '是'),
+          cancelText: t('no', '否'),
+          onConfirm: () => {
+            // 执行刷新候选数操作
+            if (sudokuContext.fillAllCandidates) {
+              sudokuContext.fillAllCandidates();
+            }
+          }
+        });
+        setShowConfirmModal(true);
+      } else {
+        // 候选数完整，提示用户是否需要答案提示
+        setConfirmModalConfig({
+          title: t('noTechniquesAvailableTitle', '没有可用技巧'),
+          message: t('noTechniquesAvailableMessage', '当前没有可用的技巧机会，是否需要提示一个答案？'),
+          confirmText: t('yes', '是'),
+          cancelText: t('no', '否'),
+          onConfirm: () => {
+            // 提供答案提示
+            provideAnswerHint();
+          }
+        });
+        setShowConfirmModal(true);
+      }
+    } else {
+      // 如果无法检查候选数完整性，直接显示提示
+      toast.info(t('noTechniquesAvailable', { defaultMessage: '当前没有可用的技巧机会' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
+    }
+  };
+  
+  // 提供答案提示
+  const provideAnswerHint = () => {
+    // 使用现有的getHint方法获取提示
+    if (sudokuContext && typeof sudokuContext.getHint === 'function') {
+      sudokuContext.getHint().then(hint => {
+        if (hint) {
+          // 显示提示信息
+          toast.info(`${t('answerHint', '答案提示')}: ${hint.description}`, {
+            position: 'top-right',
+            autoClose: 3000
+          });
+          
+          // 高亮显示提示的单元格
+          if (sudokuContext.setHighlightedCells) {
+            sudokuContext.setHighlightedCells([{
+              row: hint.row,
+              col: hint.col,
+              techniqueIndicator: true,
+              targetNumber: hint.value,
+              isTarget: true,
+              techniqueType: 'hint'
+            }]);
+          }
+        } else {
+          toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {
+            position: 'top-right',
+            autoClose: 2000
+          });
+        }
+      }).catch(error => {
+        console.error('获取答案提示失败:', error);
+        toast.error(t('hintError', { defaultMessage: '获取答案提示时出错，请重试' }), {
+          position: 'top-right',
+          autoClose: 2000
+        });
+      });
+    } else {
+      // 如果没有getHint方法，使用utils中的getHint
+      const hint = getHintFromUtils();
+      if (hint) {
+        toast.info(`${t('answerHint', '答案提示')}: ${hint.description}`, {
+          position: 'top-right',
+          autoClose: 3000
+        });
+        
+        // 高亮显示提示的单元格
+        if (sudokuContext.setHighlightedCells) {
+          sudokuContext.setHighlightedCells([{
+            row: hint.row,
+            col: hint.col,
+            techniqueIndicator: true,
+            targetNumber: hint.value,
+            isTarget: true,
+            techniqueType: 'hint'
+          }]);
+        }
+      } else {
+        toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {
+          position: 'top-right',
+          autoClose: 2000
+        });
+      }
+    }
+  };
+  
+  // 从utils中获取提示
+  const getHintFromUtils = () => {
+    if (sudokuContext && sudokuContext.currentBoard) {
+      return getHint(sudokuContext.currentBoard);
+    }
+    return null;
   };
   
   // 处理技巧高亮的函数（与ControlPanel中的一致）
@@ -817,6 +935,17 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         onClose={handleModeSwitchClose}
         currentMode={mode}
         onConfirm={handleModeSwitchConfirm}
+      />
+      
+      {/* 确认对话框 */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmModalConfig.onConfirm}
+        title={confirmModalConfig.title}
+        message={confirmModalConfig.message}
+        confirmText={confirmModalConfig.confirmText}
+        cancelText={confirmModalConfig.cancelText}
       />
     </>
   );

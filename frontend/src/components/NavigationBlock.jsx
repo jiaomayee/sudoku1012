@@ -479,7 +479,10 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         
         // 实际填入答案
         if (sudokuContext.fillCell) {
-          sudokuContext.fillCell(hint.row, hint.col, hint.value);
+          // 延迟填入答案，确保高亮显示不会被清除
+          setTimeout(() => {
+            sudokuContext.fillCell(hint.row, hint.col, hint.value);
+          }, 100);
         }
       } else {
         toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {
@@ -514,7 +517,10 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           
           // 实际填入答案
           if (sudokuContext.fillCell) {
-            sudokuContext.fillCell(hint.row, hint.col, hint.value);
+            // 延迟填入答案，确保高亮显示不会被清除
+            setTimeout(() => {
+              sudokuContext.fillCell(hint.row, hint.col, hint.value);
+            }, 100);
           }
         } else {
           toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {

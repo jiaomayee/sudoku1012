@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useSudoku, DIFFICULTY_LEVELS } from '../context/SudokuContext';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
+import { toast } from 'react-toastify'; // 添加 toast 导入
 import DifficultySelectModal from './DifficultySelectModal';
 import ModeSwitchModal from './ModeSwitchModal';
 
@@ -220,6 +221,11 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   const [showDifficultyModal, setShowDifficultyModal] = useState(false); // 控制难度选择模态框显示
   const [isNotesButtonActive, setIsNotesButtonActive] = useState(false); // 控制候选数按钮激活状态
   const [showModeSwitchModal, setShowModeSwitchModal] = useState(false); // 控制模式切换确认模态框显示
+  const [isLongPressActive, setIsLongPressActive] = useState(false); // 控制长按状态
+  const [showProgressBar, setShowProgressBar] = useState(false); // 控制进度条显示
+  const [progress, setProgress] = useState(0); // 进度条进度
+  const progressTimer = useRef(null); // 进度条动画计时器
+  const longPressTimer = useRef(null); // 长按计时器
   
   // 添加状态用于跟踪技巧提示功能
   const [techniqueIndex, setTechniqueIndex] = useState(0); // 跟踪当前技巧索引
@@ -309,6 +315,11 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   
   // 修改处理技巧提示按钮点击的函数
   const handleHintClick = () => {
+    // 取消选中棋盘单元格
+    if (sudokuContext && typeof sudokuContext.setSelectedCell === 'function') {
+      sudokuContext.setSelectedCell(null);
+    }
+    
     // 检查sudokuContext是否存在identifyTechniques函数
     if (sudokuContext && typeof sudokuContext.identifyTechniques === 'function') {
       try {

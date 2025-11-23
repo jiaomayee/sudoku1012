@@ -369,6 +369,15 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           
           // 启动该技巧的指示功能
           if (sudokuContext.setHighlightedCells) {
+            // 清除之前的ALS-XZ和SDC指示器高亮
+            // 这与ControlPanel.jsx中的handleTechniqueSelect函数保持一致
+            if (window.alsXZIndicator) {
+              window.alsXZIndicator.clearHighlights();
+            }
+            if (window.sdcIndicator) {
+              window.sdcIndicator.clearHighlights();
+            }
+            
             // 处理技巧高亮
             handleTechniqueHighlighting(currentTechnique);
           }

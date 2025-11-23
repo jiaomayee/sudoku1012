@@ -463,6 +463,11 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
               techniqueType: 'hint'
             }]);
           }
+          
+          // 实际填入答案
+          if (sudokuContext.fillCell) {
+            sudokuContext.fillCell(hint.row, hint.col, hint.value);
+          }
         } else {
           toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {
             position: 'top-right',
@@ -495,6 +500,11 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
             isTarget: true,
             techniqueType: 'hint'
           }]);
+        }
+        
+        // 实际填入答案
+        if (sudokuContext.fillCell) {
+          sudokuContext.fillCell(hint.row, hint.col, hint.value);
         }
       } else {
         toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {

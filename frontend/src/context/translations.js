@@ -510,7 +510,10 @@ export const translations = {
     candidateErrorDetected: '存在候选数删减错误，数据刷新',
     // 手动删除候选数提示
     manualCandidateRemovalRequired: '请手动清除选定候选数',
-    pairTechniqueIdentified: '技巧已识别，请手动移除相关候选数'
+    pairTechniqueIdentified: '技巧已识别，请手动移除相关候选数',
+    // 候选数不完整提示
+    candidatesIncompleteTitle: '需刷新候选数',
+    candidatesIncompleteMessage: '需刷新候选数，提供更多技巧机会！'
   },
   'en-US': {
     // Common
@@ -660,14 +663,125 @@ export const translations = {
     confirmDeleteProgress: 'Confirm Delete Progress',
     clearAllProgressWarning: 'This action will delete all game progress and cannot be undone. Are you sure you want to continue?',
     deleteProgressWarning: 'This action will delete the selected game progress and cannot be undone. Are you sure you want to continue?',
-    // Technique learning
-    techniqueLearning: 'Technique Learning',
-    selectTechnique: 'Select Technique',
-    practiceMode: 'Practice Mode',
-    techniqueDescription: 'Technique Description',
-    techniqueExamples: 'Technique Examples',
+    confirmDelete: 'Confirm Delete',
+    
+    // 设置页面
+    settingsPageTitle: 'Settings',
+    language: 'Language',
+    theme: 'Theme',
+    lightTheme: 'Light Theme',
+    darkTheme: 'Dark Theme',
+    systemTheme: 'System Theme',
+    customTheme: 'Custom Theme',
+    editTheme: 'Edit Theme',
+    saveChanges: 'Save Changes',
+    themeSelection: 'Theme Selection',
+    gameSettings: 'Game Settings',
+    soundEffects: 'Sound Effects',
+    autoCheck: 'Auto Check',
+    showHints: 'Show Hints',
+    
+
+    
+    // 其他常用文本
+    confirm: 'Confirm',
+    continue: 'Continue',
+    complete: 'Complete',
+    start: 'Start',
+    pause: 'Pause',
+    time: 'Time',
+    easy: 'Easy',
+    medium: 'Medium',
+    hard: 'Hard',
+    expert: 'Expert',
+    custom: 'Custom',
+    invalidSudoku: 'Sudoku does not meet the rules, please check the board data',
+    noSolution: 'This Sudoku is unsolvable, please check the board data',
+    notUniqueSolution: 'This Sudoku has more than one solution, please modify the board data',
+    validationError: 'Validation failed, please check the board data',
+    languageSwitch: 'Switch Language',
+    languageOptions: {
+      'zh-CN': 'Chinese',
+      'en-US': 'English',
+    },
+    // SEO相关内容
+    welcomeTitle: 'Welcome to play Sudoku for free, learn advanced Sudoku techniques',
+    welcomeContent: 'We provide free online Sudoku games for you to enjoy puzzle-solving anytime. Whether you are a beginner or a Sudoku expert, you can find suitable challenges here. Meanwhile, we have carefully designed a Sudoku technique learning module to help you master Sudoku solving methods from beginner to advanced levels and improve your solving skills. This project is free and open-source on GitHub, welcome to visit and contribute.',
+    rulesTitle: 'Basic Sudoku Rules',
+    rulesContent: 'Sudoku is a logic-based number placement puzzle. A standard Sudoku consists of a 9×9 grid divided into nine 3×3 subgrids. The objective is to fill the grid with digits from 1 to 9, such that each row, column, and each of the nine 3×3 subgrids contains all of the digits from 1 to 9 without repetition. Players need to use known numbers to logically deduce the remaining empty cells to complete the Sudoku.',
+    techniquesTitle: 'Sudoku Techniques Introduction',
+    techniquesContent: "Sudoku techniques can be divided into multiple difficulty levels:<br><strong>Basic Techniques</strong>: Singles, Block/Box Line Reduction, Naked Pairs, Hidden Pairs, Naked Triples<br><strong>Intermediate Techniques</strong>: X-Wing, Swordfish, XY-Wing, XYZ-Wing, Unique Rectangle (Type 1)<br><strong>Advanced Techniques</strong>: Simple Chains, XY-Chain, ALS-XZ Rule, Unique Rectangle (Types 2-4), Alternating Inference Chains (AIC)",
+    // 增加更多数独技巧类型
+    pointingPairs: 'Pointing Pairs',
+    boxLineReduction: 'Box-Line Reduction',
+    swordfish: 'Swordfish',
+    jellyfish: 'Jellyfish',
+    skyscraper: 'Skyscraper',
+    twoStringKite: 'Two-String Kite',
+    emptyRectangle: 'Empty Rectangle',
+    uniquenessRectangle: 'Uniqueness Rectangle',
+    hiddenRectangle: 'Hidden Rectangle',
+    uniqueRectangleType1: 'Unique Rectangle Type 1',
+    uniqueRectangleType2: 'Unique Rectangle Type 2',
+    uniqueRectangleType3: 'Unique Rectangle Type 3',
+    uniqueRectangleType4: 'Unique Rectangle Type 4',
+    xYChain: 'XY-Chain',
+    xChain: 'X-Chain',
+    simpleColoring: 'Simple Coloring',
+    forcingChain: 'Forcing Chain',
+    alternatingInferenceChain: 'Alternating Inference Chain',
+    niceLoop: 'Nice Loop',
+    alS_XZ: 'ALS-XZ Rule',
+    alS_XY_Wing: 'ALS-XY-Wing',
+    alS_Wing: 'ALS-Wing',
+    deathBlossom: 'Death Blossom',
+    sueDeCoq: 'Sue De Coq',
+    sdc: 'Sue De Coq',  // SDC技巧别名
+    wXYZ_Wing: 'WXYZ-Wing',
+    remotePairs: 'Remote Pairs',
+    bivalueUniversalGrave: 'Bivalue Universal Grave',
+    almostLockedSet: 'Almost Locked Set',
+    // 错误提示
+    loadGameFailed: 'Failed to load game, please try again later',
+    deleteProgressFailed: 'Failed to delete progress, please try again later',
+    clearProgressFailed: 'Failed to clear progress, please try again later',
     startPractice: 'Start practicing {techniqueName} technique!',
-    // Technique names (English)
+    // 更新通知
+    updateAvailable: 'New version available!',
+    updateNow: 'Update Now',
+    // Footer
+    aboutUs: 'About Us',
+    customSudoku: 'Custom Sudoku',
+    help: 'Help',
+    sudokuRules: 'Sudoku Rules',
+    contactUs: 'Contact Us',
+    copyright: 'All Rights Reserved',
+    version: 'Version',
+    appName: 'SudokuTech',
+    // 主题编辑器消息
+    themeSaved: 'Theme saved',
+    themeReset: 'Theme reset',
+    themeExported: 'Theme exported',
+    themeImported: 'Theme imported successfully',
+    themeImportFailed: 'Theme import failed: ',
+    // 游戏页面提示
+    enterPencilMode: 'Enter Pencil Mode, you can add candidate numbers',
+    exitPencilMode: 'Exit Pencil Mode, return to normal input',
+    notesCalculated: 'Candidates calculated and filled for all blank cells!',
+    foundRandomTechnique: 'Random technique found: ',
+    // 解题技巧和步骤
+    findSingleCandidateCell: 'Find cell with only one possible number',
+    cellOnlyHasSingleCandidate: 'Cell {position} only has one possible number {value}',
+    fillNumber: 'Fill number {value}',
+    findHiddenSingleInRegion: 'Find hidden single in {regionType} {regionNum}',
+    numberOnlyInPosition: 'Number {value} can only appear in position {position} in {regionType} {regionNum}',
+    row: 'row',
+    col: 'column',
+    box: 'box',
+    multipleCells: 'Multiple cells',
+    // 额外翻译
+    error: 'Error',
+    // 技巧类型翻译键
     nakedSingleTechnique: 'Naked Single',
     nakedPairTechnique: 'Naked Pair',
     hiddenPairTechnique: 'Hidden Pair',
@@ -684,7 +798,7 @@ export const translations = {
     alsXZ: 'ALS-XZ Rule',
     sdcTechnique: 'Sue De Coq',
     sdc: 'Sue De Coq',
-    // SDC technique solving steps
+    // SDC技巧解题步骤
     sdcIdentifySDCCells: 'Sue De Coq: SDC cells={sdcCells}, candidates={sdcCandidates}',
     sdcIdentifyGroups: 'Group A ({lineType} {lineIndex})={groupACells} candidates {groupACandidates}, Group B (box {boxIndex})={groupBCells} candidates {groupBCandidates}',
     sdcAnalyzeIntersection: 'Analyze candidate distribution: Group A candidates {groupACandidates} can only appear in other boxes of {lineType} {lineIndex}, Group B candidates {groupBCandidates} can only appear in other {lineType}s of box {boxIndex}.',
@@ -692,13 +806,12 @@ export const translations = {
     sdcEliminateFromLine: 'Remove Group B candidates {boxCandidates} from target cells {targetCells} in {lineType} {lineIndex}.',
     sdcEliminateFromBox: 'Remove Group A candidates {lineCandidates} from target cells {targetCells} in box {boxIndex}.',
     sdcVerifyResult: 'Elimination complete, removed candidates from {count} cells in total.',
-    // Uniqueness technique translations
-  uniquenessTechnique: 'Uniqueness Techniques',
+    // AR Type 1技巧解题步骤
+    uniquenessTechnique: 'Uniqueness Techniques',
   uniquenessDescription: 'Eliminate candidates by analyzing patterns that could lead to multiple solutions',
     arType1IdentifyExtra: 'Cell {cellsWithExtra} has extra candidates',
     arType1IdentifyNoExtra: 'Cells {cellsWithoutExtra} have only base pair',
     arType1Eliminate: 'Remove {totalCount} candidates from {targetCells}',
-    // Technique names
     nakedSingle: 'Naked Single',
     hiddenSingleRow: 'Hidden Single (Row)',
     hiddenSingleCol: 'Hidden Single (Column)',
@@ -944,6 +1057,9 @@ export const translations = {
     candidateErrorDetected: 'Candidate deletion error detected, refreshing data',
     // Manual candidate removal提示
     manualCandidateRemovalRequired: 'Please manually clear the selected candidates',
-    pairTechniqueIdentified: 'Technique identified, please manually remove related candidates'
+    pairTechniqueIdentified: 'Technique identified, please manually remove related candidates',
+    // 候选数不完整提示
+    candidatesIncompleteTitle: 'Need to refresh candidates',
+    candidatesIncompleteMessage: 'Need to refresh candidates, more technique opportunities available!'
   }
 };

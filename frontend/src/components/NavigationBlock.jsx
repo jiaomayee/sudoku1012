@@ -453,18 +453,6 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           autoClose: 3000
         });
         
-        // 高亮显示提示的单元格
-        if (sudokuContext.setHighlightedCells) {
-          sudokuContext.setHighlightedCells([{
-            row: hint.row,
-            col: hint.col,
-            techniqueIndicator: true,
-            targetNumber: hint.value,
-            isTarget: true,
-            techniqueType: 'hint'
-          }]);
-        }
-        
         // 实际填入答案
         if (sudokuContext.fillCell) {
           // 添加调试日志
@@ -475,6 +463,11 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           setTimeout(() => {
             console.log('实际填入答案:', hint.row, hint.col, hint.value);
             sudokuContext.fillCell(hint.row, hint.col, hint.value, true);
+            
+            // 填入答案后选中该单元格
+            if (sudokuContext.setSelectedCell) {
+              sudokuContext.setSelectedCell({ row: hint.row, col: hint.col });
+            }
           }, 100);
         }
       } else {

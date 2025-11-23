@@ -443,20 +443,8 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   // 提供答案提示
   const provideAnswerHint = async () => {
     try {
-      let hint = null;
-      
-      // 使用现有的getHint方法获取提示
-      if (sudokuContext && typeof sudokuContext.getHint === 'function') {
-        hint = await sudokuContext.getHint();
-        
-        // 如果API调用失败，使用utils中的getHint作为备选方案
-        if (!hint) {
-          hint = getHintFromUtils();
-        }
-      } else {
-        // 如果没有getHint方法，使用utils中的getHint
-        hint = getHintFromUtils();
-      }
+      // 直接使用前端的utils函数获取提示，不调用后端API
+      const hint = getHintFromUtils();
       
       if (hint) {
         // 显示提示信息
@@ -497,54 +485,10 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
       }
     } catch (error) {
       console.error('获取答案提示失败:', error);
-      
-      // 即使出现错误，也尝试使用本地的utils函数
-      try {
-        const hint = getHintFromUtils();
-        if (hint) {
-          // 显示提示信息
-          toast.info(`${t('answerHint', '答案提示')}: ${hint.description}`, {
-            position: 'top-right',
-            autoClose: 3000
-          });
-          
-          // 高亮显示提示的单元格
-          if (sudokuContext.setHighlightedCells) {
-            sudokuContext.setHighlightedCells([{
-              row: hint.row,
-              col: hint.col,
-              techniqueIndicator: true,
-              targetNumber: hint.value,
-              isTarget: true,
-              techniqueType: 'hint'
-            }]);
-          }
-          
-          // 实际填入答案
-          if (sudokuContext.fillCell) {
-            // 添加调试日志
-            console.log('准备填入答案（备选方案）:', hint);
-            
-            // 延迟填入答案，确保高亮显示不会被清除
-            // 使用forceFill=true确保即使在铅笔模式下也能正确填入数字
-            setTimeout(() => {
-              console.log('实际填入答案（备选方案）:', hint.row, hint.col, hint.value);
-              sudokuContext.fillCell(hint.row, hint.col, hint.value, true);
-            }, 100);
-          }
-        } else {
-          toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {
-            position: 'top-right',
-            autoClose: 2000
-          });
-        }
-      } catch (fallbackError) {
-        console.error('使用备选方案获取答案提示失败:', fallbackError);
-        toast.error(t('hintError', { defaultMessage: '获取答案提示时出错，请重试' }), {
-          position: 'top-right',
-          autoClose: 2000
-        });
-      }
+      toast.error(t('hintError', { defaultMessage: '获取答案提示时出错，请重试' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
     }
   };
   

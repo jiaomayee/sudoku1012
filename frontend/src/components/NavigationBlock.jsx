@@ -441,50 +441,20 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   };
   
   // 提供答案提示
-  const provideAnswerHint = () => {
-    // 使用现有的getHint方法获取提示
-    if (sudokuContext && typeof sudokuContext.getHint === 'function') {
-      sudokuContext.getHint().then(hint => {
-        if (hint) {
-          // 显示提示信息
-          toast.info(`${t('answerHint', '答案提示')}: ${hint.description}`, {
-            position: 'top-right',
-            autoClose: 3000
-          });
-          
-          // 高亮显示提示的单元格
-          if (sudokuContext.setHighlightedCells) {
-            sudokuContext.setHighlightedCells([{
-              row: hint.row,
-              col: hint.col,
-              techniqueIndicator: true,
-              targetNumber: hint.value,
-              isTarget: true,
-              techniqueType: 'hint'
-            }]);
-          }
-          
-          // 实际填入答案
-          if (sudokuContext.fillCell) {
-            sudokuContext.fillCell(hint.row, hint.col, hint.value);
-          }
-        } else {
-          toast.info(t('noHintAvailable', { defaultMessage: '无法提供答案提示' }), {
-            position: 'top-right',
-            autoClose: 2000
-          });
-        }
-      }).catch(error => {
-        console.error('获取答案提示失败:', error);
-        toast.error(t('hintError', { defaultMessage: '获取答案提示时出错，请重试' }), {
-          position: 'top-right',
-          autoClose: 2000
-        });
-      });
-    } else {
-      // 如果没有getHint方法，使用utils中的getHint
-      const hint = getHintFromUtils();
+  const provideAnswerHint = async () => {
+    try {
+      let hint = null;
+      
+      // 使用现有的getHint方法获取提示
+      if (sudokuContext && typeof sudokuContext.getHint === 'function') {
+        hint = await sudokuContext.getHint();
+      } else {
+        // 如果没有getHint方法，使用utils中的getHint
+        hint = getHintFromUtils();
+      }
+      
       if (hint) {
+        // 显示提示信息
         toast.info(`${t('answerHint', '答案提示')}: ${hint.description}`, {
           position: 'top-right',
           autoClose: 3000
@@ -512,6 +482,12 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           autoClose: 2000
         });
       }
+    } catch (error) {
+      console.error('获取答案提示失败:', error);
+      toast.error(t('hintError', { defaultMessage: '获取答案提示时出错，请重试' }), {
+        position: 'top-right',
+        autoClose: 2000
+      });
     }
   };
   

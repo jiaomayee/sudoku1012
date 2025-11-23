@@ -479,9 +479,13 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
         
         // 实际填入答案
         if (sudokuContext.fillCell) {
+          // 添加调试日志
+          console.log('准备填入答案:', hint);
+          
           // 延迟填入答案，确保高亮显示不会被清除
           // 使用forceFill=true确保即使在铅笔模式下也能正确填入数字
           setTimeout(() => {
+            console.log('实际填入答案:', hint.row, hint.col, hint.value);
             sudokuContext.fillCell(hint.row, hint.col, hint.value, true);
           }, 100);
         }
@@ -518,9 +522,13 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
           
           // 实际填入答案
           if (sudokuContext.fillCell) {
+            // 添加调试日志
+            console.log('准备填入答案（备选方案）:', hint);
+            
             // 延迟填入答案，确保高亮显示不会被清除
             // 使用forceFill=true确保即使在铅笔模式下也能正确填入数字
             setTimeout(() => {
+              console.log('实际填入答案（备选方案）:', hint.row, hint.col, hint.value);
               sudokuContext.fillCell(hint.row, hint.col, hint.value, true);
             }, 100);
           }

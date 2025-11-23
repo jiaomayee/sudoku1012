@@ -1605,7 +1605,10 @@ export const SudokuContextProvider = ({ children }) => {
   // 提示下一步
   const getHint = async () => {
     try {
+      console.log('调用API获取提示，currentBoard:', currentBoard);
+      console.log('solution:', solution);
       const result = await api.getHint(currentBoard, solution);
+      console.log('API返回的提示结果:', result);
       return result;
     } catch (error) {
       console.error('获取提示失败:', error);
@@ -1910,7 +1913,8 @@ export const SudokuContextProvider = ({ children }) => {
       identifyTechniques,
       applyTechniqueToBoard,
       getHint,
-      validateCellInput
+      validateCellInput,
+      areCandidatesComplete
     };
 
   return <SudokuContext.Provider value={value}>{children}</SudokuContext.Provider>;

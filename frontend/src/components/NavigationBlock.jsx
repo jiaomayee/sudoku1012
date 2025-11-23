@@ -637,8 +637,9 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
               techniqueType: technique.type,
               highlightType: 'condition',
               isTarget: false,
-              backgroundColor: 'transparent', // 非基础技巧不高亮单元格背景
-              borderColor: 'transparent'
+              // 修改背景色和边框色，使其更明显
+              backgroundColor: 'rgba(100, 181, 246, 0.3)', // 半透明蓝色
+              borderColor: '#64B5F6' // 蓝色边框
             });
           }
         });
@@ -664,15 +665,17 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
                 techniqueType: technique.type,
                 highlightType: 'target', // 目标单元格标识
                 isTarget: true,
-                backgroundColor: 'transparent', // 透明背景
-                borderColor: 'transparent' // 透明边框
+                // 修改背景色和边框色，使其更明显
+                backgroundColor: 'rgba(76, 175, 80, 0.3)', // 半透明绿色
+                borderColor: '#4CAF50' // 绿色边框
               });
             } else {
               // 如果已存在，更新类型为target
               cellsToHighlight[existingIndex].highlightType = 'target';
               cellsToHighlight[existingIndex].isTarget = true;
-              cellsToHighlight[existingIndex].backgroundColor = 'transparent'; // 透明背景
-              cellsToHighlight[existingIndex].borderColor = 'transparent'; // 透明边框
+              // 修改背景色和边框色，使其更明显
+              cellsToHighlight[existingIndex].backgroundColor = 'rgba(76, 175, 80, 0.3)'; // 半透明绿色
+              cellsToHighlight[existingIndex].borderColor = '#4CAF50'; // 绿色边框
             }
           }
         });

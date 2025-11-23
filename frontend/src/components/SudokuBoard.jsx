@@ -83,11 +83,11 @@ const Cell = styled.div`
   
   /* 非基础技巧水标 - 浅化错务 */
   &.advanced-technique-highlight {
-    background: rgba(200, 230, 245, 0.08) !important; /* 非常浅蓝色，仅8%透明度 */
+    background: rgba(100, 181, 246, 0.3) !important; /* 半透明蓝色 */
     color: #666666 !important;
     opacity: 1;
     box-sizing: border-box !important;
-    /* 不设置边框，保持元有的香港线显示 */
+    border: 1px solid #64B5F6 !important; /* 蓝色边框 */
   }
   
 

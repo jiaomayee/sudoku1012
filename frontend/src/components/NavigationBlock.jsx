@@ -221,13 +221,10 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   const [isNotesButtonActive, setIsNotesButtonActive] = useState(false); // 控制候选数按钮激活状态
   const [showModeSwitchModal, setShowModeSwitchModal] = useState(false); // 控制模式切换确认模态框显示
   
-  // 添加状态用于跟踪长按功能
-  const [isLongPressActive, setIsLongPressActive] = useState(false); // 控制是否处于长按状态
-  const [showProgressBar, setShowProgressBar] = useState(false); // 控制进度条显示
-  const [progress, setProgress] = useState(0); // 进度条进度
-  const longPressTimer = useRef(null); // 长按计时器
-  const progressTimer = useRef(null); // 进度条计时器
-
+  // 添加状态用于跟踪技巧提示功能
+  const [techniqueIndex, setTechniqueIndex] = useState(0); // 跟踪当前技巧索引
+  const [availableTechniques, setAvailableTechniques] = useState([]); // 存储可用技巧列表
+  
   // 添加对自动打开新游戏窗口事件的监听
   useEffect(() => {
     const handleOpenNewGameWindow = () => {
@@ -308,6 +305,272 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
   // 关闭模式切换窗口
   const handleModeSwitchClose = () => {
     setShowModeSwitchModal(false);
+  };
+  
+  // 修改处理技巧提示按钮点击的函数
+  const handleHintClick = () => {
+    // 检查sudokuContext是否存在identifyTechniques函数
+    if (sudokuContext && typeof sudokuContext.identifyTechniques === 'function') {
+      try {
+        // 获取所有可用的技巧机会
+        const techniques = sudokuContext.identifyTechniques();
+        
+        // 检查是否有可用技巧
+        if (techniques && techniques.length > 0) {
+          // 如果这是第一次点击或技巧列表已更新，重置索引
+          if (availableTechniques.length !== techniques.length || 
+              JSON.stringify(availableTechniques) !== JSON.stringify(techniques)) {
+            setAvailableTechniques(techniques);
+            setTechniqueIndex(0);
+          }
+          
+          // 获取当前技巧
+          const currentTechnique = techniques[techniqueIndex];
+          
+          // 格式化技巧信息进行显示
+          let techniqueInfo = t('foundTechnique', '找到技巧：');
+          
+          // 获取技巧名称（支持国际化）
+          const techniqueName = t(currentTechnique.type) || t('unknownTechnique') || currentTechnique.type;
+          techniqueInfo += techniqueName;
+          
+          // 添加位置信息
+          if (currentTechnique.row !== undefined && currentTechnique.col !== undefined) {
+            const positionLabel = t('position', { defaultMessage: '位置' });
+            techniqueInfo += ` ${positionLabel}:(${currentTechnique.row + 1},${currentTechnique.col + 1})`;
+          }
+          
+          // 添加数字信息（如果有）
+          if (currentTechnique.value !== undefined) {
+            const numberLabel = t('number', { defaultMessage: '数字' });
+            techniqueInfo += ` ${numberLabel}:${currentTechnique.value}`;
+          }
+          
+          // 弹窗提示当前技巧
+          toast.info(techniqueInfo, {
+            position: 'top-right',
+            autoClose: 3000
+          });
+          
+          // 启动该技巧的指示功能
+          if (sudokuContext.setHighlightedCells) {
+            // 处理技巧高亮
+            handleTechniqueHighlighting(currentTechnique);
+          }
+          
+          // 更新索引，准备下次点击时显示下一个技巧
+          const nextIndex = (techniqueIndex + 1) % techniques.length;
+          setTechniqueIndex(nextIndex);
+        } else {
+          // 如果没有找到技巧，显示提示
+          toast.info(t('noTechniquesAvailable', { defaultMessage: '当前没有可用的技巧机会' }), {
+            position: 'top-right',
+            autoClose: 2000
+          });
+        }
+      } catch (error) {
+        console.error('获取技巧失败:', error);
+        toast.error(t('techniqueError', { defaultMessage: '获取技巧时出错，请重试' }), {
+          position: 'top-right',
+          autoClose: 2000
+        });
+      }
+    } else {
+      console.error('identifyTechniques 函数不可用');
+      // 如果无法获取技巧，回退到原来的随机提示功能
+      if (onGetHint) {
+        onGetHint();
+      }
+    }
+  };
+  
+  // 处理技巧高亮的函数（与ControlPanel中的一致）
+  const handleTechniqueHighlighting = (technique) => {
+    const cellsToHighlight = [];
+    
+    // 确保必要的字段存在
+    const { cells = [], targetCells = [], values = [], removableCandidates = [], result = {} } = technique;
+    const { operation } = result;
+    
+    // 检查是否为基础技巧
+    const isBasicTechnique = technique.type && (
+      technique.type === 'nakedSingle' ||
+      technique.type === 'notesSingle' ||
+      technique.type.includes('hiddenSingle')
+    );
+    
+    // 基础技巧使用特殊的高亮逻辑
+    if (isBasicTechnique) {
+      const hasSingleCell = typeof technique.row === 'number' && typeof technique.col === 'number';
+      if (!hasSingleCell) {
+        sudokuContext.setHighlightedCells(cellsToHighlight);
+        return cellsToHighlight; // 如果没有单元格信息，返回空数组
+      }
+      
+      const row = technique.row;
+      const col = technique.col;
+      let value = technique.value || technique.number || '';
+      
+      // 添加目标单元格
+      cellsToHighlight.push({
+        row: row,
+        col: col,
+        techniqueIndicator: true,
+        targetNumber: value,
+        isTarget: true,
+        techniqueType: technique.type
+      });
+      
+      // 根据技巧类型添加区域高亮单元格
+      if (technique.type === 'hiddenSingleRow') {
+        for (let c = 0; c < 9; c++) {
+          if (c !== col) {
+            cellsToHighlight.push({
+              row: row,
+              col: c,
+              techniqueIndicator: true,
+              regionHighlight: true
+            });
+          }
+        }
+      } else if (technique.type === 'hiddenSingleCol') {
+        for (let r = 0; r < 9; r++) {
+          if (r !== row) {
+            cellsToHighlight.push({
+              row: r,
+              col: col,
+              techniqueIndicator: true,
+              regionHighlight: true
+            });
+          }
+        }
+      } else if (technique.type === 'hiddenSingleBox') {
+        const boxRow = Math.floor(row / 3);
+        const boxCol = Math.floor(col / 3);
+        for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+          for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+            if (r !== row || c !== col) {
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+            }
+          }
+        }
+      } else if (technique.type === 'nakedSingle' || technique.type === 'notesSingle') {
+        // 唯一余数：高亮所有区域（行、列、宫）
+        // 使用Set来去重
+        const addedCells = new Set();
+        addedCells.add(`${row}-${col}`); // 目标单元格
+        
+        // 添加整行
+        for (let c = 0; c < 9; c++) {
+          const key = `${row}-${c}`;
+          if (!addedCells.has(key)) {
+            cellsToHighlight.push({
+              row: row,
+              col: c,
+              techniqueIndicator: true,
+              regionHighlight: true
+            });
+            addedCells.add(key);
+          }
+        }
+        
+        // 添加整列
+        for (let r = 0; r < 9; r++) {
+          const key = `${r}-${col}`;
+          if (!addedCells.has(key)) {
+            cellsToHighlight.push({
+              row: r,
+              col: col,
+              techniqueIndicator: true,
+              regionHighlight: true
+            });
+            addedCells.add(key);
+          }
+        }
+        
+        // 添加整宫
+        const boxRow = Math.floor(row / 3);
+        const boxCol = Math.floor(col / 3);
+        for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+          for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+            const key = `${r}-${c}`;
+            if (!addedCells.has(key)) {
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                regionHighlight: true
+              });
+              addedCells.add(key);
+            }
+          }
+        }
+      }
+    } else {
+      // 对于其他技巧，使用统一的高亮逻辑
+      // 高亮条件单元格
+      if (Array.isArray(cells) && cells.length > 0) {
+        cells.forEach(cell => {
+          const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+          const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+          
+          if (r !== null && c !== null) {
+            cellsToHighlight.push({
+              row: r,
+              col: c,
+              techniqueIndicator: true,
+              techniqueType: technique.type,
+              highlightType: 'condition',
+              isTarget: false,
+              backgroundColor: 'transparent', // 非基础技巧不高亮单元格背景
+              borderColor: 'transparent'
+            });
+          }
+        });
+      }
+      
+      // 高亮目标单元格
+      if (Array.isArray(targetCells) && targetCells.length > 0) {
+        targetCells.forEach(cell => {
+          const r = Array.isArray(cell) ? cell[0] : (typeof cell.row === 'number' ? cell.row : null);
+          const c = Array.isArray(cell) ? cell[1] : (typeof cell.col === 'number' ? cell.col : null);
+          
+          if (r !== null && c !== null) {
+            // 检查是否已经作为条件单元格高亮
+            const existingIndex = cellsToHighlight.findIndex(
+              cell => cell.row === r && cell.col === c
+            );
+            if (existingIndex === -1) {
+              // 新的目标单元格
+              cellsToHighlight.push({
+                row: r,
+                col: c,
+                techniqueIndicator: true,
+                techniqueType: technique.type,
+                highlightType: 'target', // 目标单元格标识
+                isTarget: true,
+                backgroundColor: 'transparent', // 透明背景
+                borderColor: 'transparent' // 透明边框
+              });
+            } else {
+              // 如果已存在，更新类型为target
+              cellsToHighlight[existingIndex].highlightType = 'target';
+              cellsToHighlight[existingIndex].isTarget = true;
+              cellsToHighlight[existingIndex].backgroundColor = 'transparent'; // 透明背景
+              cellsToHighlight[existingIndex].borderColor = 'transparent'; // 透明边框
+            }
+          }
+        });
+      }
+    }
+    
+    // 设置高亮单元格
+    sudokuContext.setHighlightedCells(cellsToHighlight);
   };
   
   // 处理按钮按下
@@ -468,8 +731,8 @@ const NavigationBlock = ({ onNewGame, onPauseTimer, onGetHint, onShowTechniques,
             </ButtonIcon>
           </NavButton>
           
-          {/* 技巧提示按钮 */}
-          <NavButton onClick={onGetHint} title={t('hint')}>
+          {/* 技巧提示按钮 - 修改为依次显示技巧 */}
+          <NavButton onClick={handleHintClick} title={t('hint')}>
             <ButtonIcon><Icons.Hint /></ButtonIcon>
           </NavButton>
           

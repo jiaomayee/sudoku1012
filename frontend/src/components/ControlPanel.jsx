@@ -2177,6 +2177,20 @@ const ControlPanel = ({
             }
           }
           
+          // 对于显性数对和隐性数对，检查是否有values字段
+          if (technique.type && (technique.type.includes('nakedPair') || technique.type.includes('hiddenPair'))) {
+            if (Array.isArray(technique.values) && technique.values.length > 0) {
+              return technique.values;
+            }
+          }
+          
+          // 对于隐性三链数，使用values字段
+          if (technique.type && technique.type.includes('hiddenTriple')) {
+            if (Array.isArray(technique.values) && technique.values.length > 0) {
+              return technique.values;
+            }
+          }
+          
           if (technique.type && technique.type.includes('yWing')) {
             // Y-Wing技巧：需要区分枢纽单元格和翼单元格
             if (technique.x !== undefined && technique.y !== undefined && technique.z !== undefined) {

@@ -513,7 +513,10 @@ export const translations = {
     pairTechniqueIdentified: '技巧已识别，请手动移除相关候选数',
     // 候选数不完整提示
     candidatesIncompleteTitle: '需刷新候选数',
-    candidatesIncompleteMessage: '需刷新候选数，提供更多技巧机会！'
+    candidatesIncompleteMessage: '需刷新候选数，提供更多技巧机会！',
+    // 没有可用技巧提示
+    noTechniquesAvailableTitle: '没有可用技巧',
+    noTechniquesAvailableMessage: '没有可用技巧，提供一个数独答案'
   },
   'en-US': {
     // Common
@@ -1060,6 +1063,9 @@ export const translations = {
     pairTechniqueIdentified: 'Technique identified, please manually remove related candidates',
     // 候选数不完整提示
     candidatesIncompleteTitle: 'Need to refresh candidates',
-    candidatesIncompleteMessage: 'Need to refresh candidates, more technique opportunities available!'
+    candidatesIncompleteMessage: 'Need to refresh candidates, more technique opportunities available!',
+    // 没有可用技巧提示
+    noTechniquesAvailableTitle: 'No techniques available',
+    noTechniquesAvailableMessage: 'No techniques available, provide a Sudoku answer'
   }
 };

@@ -66,7 +66,17 @@ const getTechniqueDisplayType = (primaryType, secondaryType, t) => {
       'nakedTripleBox': t('nakedTripleTechnique'),
       'hiddenTripleRow': t('hiddenTripleTechnique'),
       'hiddenTripleCol': t('hiddenTripleTechnique'),
-      'hiddenTripleBox': t('hiddenTripleTechnique')
+      'hiddenTripleBox': t('hiddenTripleTechnique'),
+      'uniqueness': t('uniquenessTechnique'),
+      'uniqueness_type1': t('uniquenessTechnique'),
+      'uniqueness_type2': t('uniquenessTechnique'),
+      'uniqueness_type3': t('uniquenessTechnique'),
+      'uniqueness_type4': t('uniquenessTechnique'),
+      'uniqueness_1': t('uniquenessTechnique'),
+      'uniqueness_avoidable_rectangle_1': t('avoidableRectangleTechnique'),
+      'uniqueness_avoidable_rectangle_2': t('avoidableRectangleTechnique'),
+      'uniqueness_bug_plus_1': t('uniquenessTechnique'),
+      'Avoidable Rectangle': t('avoidableRectangleTechnique')
     };
     return techniqueNames[primaryType] || primaryType;
   };
@@ -1172,10 +1182,15 @@ const ControlPanel = ({
     }
     console.log('=== value提取过程调试结束 ===');
     
+    // 检查是否为唯一性技巧
+    const isUniquenessTechnique = selectedTechnique && (selectedTechnique.type === 'uniqueness' || selectedTechnique.type.includes('uniqueness_') || selectedTechnique.type.includes('Avoidable Rectangle'));
+    
     // 检查技巧类型是否匹配
     const isTargetTechnique = selectedTechnique && hasSingleCell && 
-        ['nakedSingle', 'hiddenSingleRow', 'hiddenSingleCol', 'hiddenSingleBox', 'notesSingle'].includes(selectedTechnique.type);
+        ['nakedSingle', 'hiddenSingleRow', 'hiddenSingleCol', 'hiddenSingleBox', 'notesSingle'].includes(selectedTechnique.type) &&
+        !isUniquenessTechnique;
     console.log('isTargetTechnique:', isTargetTechnique);
+    console.log('isUniquenessTechnique:', isUniquenessTechnique);
     console.log('setHighlightedCells exists:', !!setHighlightedCells);
     
     // 检查坐标是否在有效范围内
@@ -1186,7 +1201,8 @@ const ControlPanel = ({
     
     // 对于候选数唯一法、隐性唯一数法和唯一数法，重新设计技巧指示功能
     if (setHighlightedCells && selectedTechnique && hasSingleCell && 
-        ['nakedSingle', 'hiddenSingleRow', 'hiddenSingleCol', 'hiddenSingleBox', 'notesSingle'].includes(selectedTechnique.type)) {
+        ['nakedSingle', 'hiddenSingleRow', 'hiddenSingleCol', 'hiddenSingleBox', 'notesSingle'].includes(selectedTechnique.type) &&
+        !isUniquenessTechnique) {
       
       const cellsToHighlight = [];
       
@@ -1547,6 +1563,9 @@ const ControlPanel = ({
       // 检查是否为SDC技巧
       const isSDCTechnique = technique.type && (technique.type === 'sdc' || technique.type.includes('Sue De Coq'));
       
+      // 检查是否为唯一性技巧
+      const isUniquenessTechnique = technique.type && (technique.type === 'uniqueness' || technique.type.includes('uniqueness_') || technique.type.includes('Avoidable Rectangle'));
+      
       // SDC技巧使用类似ALS-XZ的方式，通过highlightedCells传递数据给TechniqueOverlay进行React渲染
       if (isSDCTechnique) {
         // 确保pencilNotes存在
@@ -1684,6 +1703,162 @@ const ControlPanel = ({
               sdcCandidates: cellInfo.sdcCandidates,
               groupACandidates: cellInfo.groupACandidates,
               groupBCandidates: cellInfo.groupBCandidates,
+              removableCandidates: cellInfo.removableCandidates
+            }
+          });
+        });
+      } else if (isUniquenessTechnique) {
+        // 对于唯一性技巧，实现专门的高亮处理，区分条件候选数和目标候选数
+        
+        // 确保pencilNotes存在
+        const currentPencilNotes = pencilNotes || {};
+        
+        // 收集所有唯一性技巧相关的单元格信息
+        const uniquenessCellsInfo = new Map();
+        
+        // 先收集所有可删除的候选数和目标单元格，以便后续排除
+        const allRemovableCandidates = new Set();
+        const targetCells = new Set();
+        if (Array.isArray(technique.removableCandidates)) {
+          technique.removableCandidates.forEach(candidate => {
+            allRemovableCandidates.add(candidate.value);
+            // 将目标单元格添加到集合中
+            targetCells.add(`${candidate.row}-${candidate.col}`);
+          });
+        }
+        
+        // 处理矩形单元格及其候选数
+        if (technique.arCells && Array.isArray(technique.arCells)) {
+          technique.arCells.forEach(([row, col]) => {
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            // 只处理实际存在的候选数
+            if (candidates.length > 0) {
+              if (!uniquenessCellsInfo.has(cellKey)) {
+                uniquenessCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  baseCandidates: [],
+                  extraCandidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = uniquenessCellsInfo.get(cellKey);
+              
+              // 只有非目标单元格才处理条件候选数（绿底黑字高亮）
+              if (!targetCells.has(cellKey)) {
+                // 分类候选数：基础数对候选数 vs 额外候选数，排除可删除的候选数
+                const baseCandidates = candidates.filter(c => technique.basePair && technique.basePair.includes(c) && !allRemovableCandidates.has(c));
+                const extraCandidates = candidates.filter(c => technique.basePair && !technique.basePair.includes(c) && !allRemovableCandidates.has(c));
+                
+                // 只添加实际存在的候选数
+                if (baseCandidates.length > 0) {
+                  cellInfo.baseCandidates.push(...baseCandidates);
+                }
+                if (extraCandidates.length > 0) {
+                  cellInfo.extraCandidates.push(...extraCandidates);
+                }
+              }
+            }
+          });
+        }
+        
+        // 处理含有额外候选数的单元格
+        if (technique.cellsWithExtra && Array.isArray(technique.cellsWithExtra)) {
+          technique.cellsWithExtra.forEach(cell => {
+            const { row, col } = cell;
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            // 只处理实际存在的候选数
+            if (candidates.length > 0) {
+              if (!uniquenessCellsInfo.has(cellKey)) {
+                uniquenessCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  baseCandidates: [],
+                  extraCandidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = uniquenessCellsInfo.get(cellKey);
+              
+              // 只有非目标单元格才处理条件候选数（绿底黑字高亮）
+              if (!targetCells.has(cellKey)) {
+                // 分类候选数：基础数对候选数 vs 额外候选数，排除可删除的候选数
+                const baseCandidates = candidates.filter(c => technique.basePair && technique.basePair.includes(c) && !allRemovableCandidates.has(c));
+                const extraCandidates = candidates.filter(c => technique.basePair && !technique.basePair.includes(c) && !allRemovableCandidates.has(c));
+                
+                // 只添加实际存在的候选数
+                if (baseCandidates.length > 0) {
+                  cellInfo.baseCandidates.push(...baseCandidates);
+                }
+                if (extraCandidates.length > 0) {
+                  cellInfo.extraCandidates.push(...extraCandidates);
+                }
+              }
+            }
+          });
+        }
+        
+        // 处理可删除的目标候选数
+        if (Array.isArray(technique.removableCandidates)) {
+          technique.removableCandidates.forEach(candidate => {
+            const { row, col, value } = candidate;
+            const cellKey = `${row}-${col}`;
+            const candidates = currentPencilNotes[cellKey] || [];
+            
+            // 只处理实际存在的候选数
+            if (candidates.includes(value)) {
+              if (!uniquenessCellsInfo.has(cellKey)) {
+                uniquenessCellsInfo.set(cellKey, {
+                  row,
+                  col,
+                  baseCandidates: [],
+                  extraCandidates: [],
+                  removableCandidates: []
+                });
+              }
+              
+              const cellInfo = uniquenessCellsInfo.get(cellKey);
+              cellInfo.removableCandidates.push(value);
+            }
+          });
+        }
+        
+        // 对于目标单元格，确保baseCandidates和extraCandidates为空，避免条件候选数高亮覆盖目标候选数
+        if (Array.isArray(technique.removableCandidates)) {
+          technique.removableCandidates.forEach(candidate => {
+            const { row, col } = candidate;
+            const cellKey = `${row}-${col}`;
+            if (uniquenessCellsInfo.has(cellKey)) {
+              const cellInfo = uniquenessCellsInfo.get(cellKey);
+              // 清空baseCandidates，避免条件候选数高亮覆盖目标候选数
+              cellInfo.baseCandidates = [];
+              // 清空extraCandidates，避免额外候选数高亮覆盖目标候选数
+              cellInfo.extraCandidates = [];
+            }
+          });
+        }
+        
+        // 将所有单元格信息转换为高亮单元格
+        uniquenessCellsInfo.forEach((cellInfo, cellKey) => {
+          cellsToHighlight.push({
+            row: cellInfo.row,
+            col: cellInfo.col,
+            techniqueIndicator: true,
+            techniqueType: technique.type,
+            highlightType: 'uniqueness',
+            isTarget: false,
+            backgroundColor: 'transparent', // 不高亮单元格背景
+            borderColor: 'transparent',
+            // 唯一性技巧特定的候选数信息
+            uniquenessCandidates: {
+              baseCandidates: cellInfo.baseCandidates,
+              extraCandidates: cellInfo.extraCandidates,
               removableCandidates: cellInfo.removableCandidates
             }
           });

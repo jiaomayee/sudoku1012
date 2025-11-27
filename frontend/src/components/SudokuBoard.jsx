@@ -325,9 +325,12 @@ const Cell = styled.div`
 `;
 
 // 原始的铅笔模式数字标注组件 - 恢复高亮功能
-const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false, targetCandidateNumber = null }) => {
+const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false, targetCandidateNumber = null, removableCandidates = [] }) => {
   // 确保notes是数组且不为null或undefined
   const activeNotes = Array.isArray(notes) ? notes : [];
+  
+  // 确保removableCandidates是数组
+  const removableCandidatesArray = Array.isArray(removableCandidates) ? removableCandidates : [];
   
   // 容器样式 - 使用grid布局实现9宫格
   const containerStyle = {
@@ -384,6 +387,21 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false, t
     padding: '0'
   };
   
+  // 可删除候选数的样式 - 红底白字高亮
+  const removableCandidateStyle = {
+    backgroundColor: '#e74c3c', // 红色背景
+    color: 'white', // 白色字体
+    borderRadius: '4px', // 矩形背景
+    fontWeight: 'bold',
+    width: '80%',
+    height: '80%',
+    margin: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0'
+  };
+  
   return (
     <div style={containerStyle}>
       {/* 渲染所有9个位置的固定容器，确保位置固定不变 */}
@@ -401,6 +419,9 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false, t
         // 判断是否为候选数唯一法的目标候选数（绿色圆形高亮）
         const isTargetCandidate = targetCandidateNumber && number === targetCandidateNumber;
         
+        // 判断是否为可删除候选数（红底白字高亮）
+        const isRemovable = removableCandidatesArray.includes(number);
+        
         return (
           <div
             key={number}
@@ -414,9 +435,9 @@ const PencilNotes = ({ notes = [], highlightedNumber = null, selected = false, t
               paddingBottom: row === 2 ? (window.innerHeight > window.innerWidth ? '3px' : '2px') : '1px', // 第三行(789)增大下边距
               paddingLeft: col === 0 ? '2px' : '1px', // 第一列(147)增大左边距
               paddingRight: col === 2 ? '2px' : '1px', // 第三列(369)增大右边距
-              // 优先应用候选数唯一法的绿色圆形高亮
-              ...(isActive && isTargetCandidate ? targetCandidateStyle : 
-                  // 其次应用普通高亮样式
+              // 优先级：可删除候选数 > 目标候选数 > 普通高亮
+              ...(isActive && isRemovable ? removableCandidateStyle : 
+                  isActive && isTargetCandidate ? targetCandidateStyle : 
                   isActive && isHighlighted ? highlightedItemStyle : {}),
               // 非活跃候选数的透明度设为0，保持布局但不显示
               opacity: isActive ? 1 : 0
@@ -626,6 +647,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
           let targetCandidateNumber = null; // 候选数唯一法的目标候选数
           let displayTargetNumber = null; // 技巧指示要显示的数字
           let isTechniqueTarget = false; // 是否为技巧目标单元格
+          let removableCandidates = []; // 可删除的候选数
           
           // 逻辑1：检查是否为技巧指示的目标单元格（优先级最高）
           if (highlightedCells && Array.isArray(highlightedCells) && highlightedCells.length > 0) {
@@ -648,6 +670,22 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
             const sameNumberCell = highlightedCells.find(cell => cell.sameNumber);
             if (sameNumberCell && sameNumberCell.number) {
               highlightedNumber = sameNumberCell.number;
+            }
+            
+            // 逻辑4：获取可删除的候选数
+            if (currentCellData) {
+              // 支持多种属性名：直接的removableCandidates/notesToRemove，以及各种技巧特定的候选数
+              removableCandidates = currentCellData.removableCandidates || 
+                                   currentCellData.notesToRemove || 
+                                   (currentCellData.alsXZCandidates && currentCellData.alsXZCandidates.removableCandidates) ||
+                                   (currentCellData.sdcCandidates && currentCellData.sdcCandidates.removableCandidates) ||
+                                   (currentCellData.uniquenessCandidates && currentCellData.uniquenessCandidates.removableCandidates) ||
+                                   [];
+              
+              // 确保是数组
+              if (!Array.isArray(removableCandidates)) {
+                removableCandidates = [];
+              }
             }
           }
           
@@ -697,6 +735,7 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
                         highlightedNumber={highlightedNumber} 
                         selected={selectedCell && selectedCell.row === rowIndex && selectedCell.col === colIndex}
                         targetCandidateNumber={targetCandidateNumber}
+                        removableCandidates={removableCandidates}
                       />
                     )}
                     {/* 技巧指示数字 - 用白色显示 */}

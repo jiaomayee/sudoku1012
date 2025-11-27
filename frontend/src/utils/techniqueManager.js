@@ -341,7 +341,15 @@ class TechniqueManager {
     for (const techniqueId of priorityOrder) {
       if (this.isTechniqueEnabled(techniqueId)) {
         const technique = this.techniques[techniqueId];
-        const opportunities = technique.function(board, pencilNotes, solution);
+        let opportunities;
+        
+        // 根据技巧类型传递正确的参数
+        if (techniqueId === 'uniqueness') {
+          // 唯一性技巧需要fixedCells参数，而不是solution
+          opportunities = technique.function(board, pencilNotes);
+        } else {
+          opportunities = technique.function(board, pencilNotes, solution);
+        }
         
         if (opportunities && opportunities.length > 0) {
           // 返回第一个找到的机会，并添加技巧信息

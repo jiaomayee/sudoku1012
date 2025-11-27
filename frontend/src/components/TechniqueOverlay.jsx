@@ -171,9 +171,11 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
 
   // 渲染高亮候选数组
   const renderHighlightGroups = (highlightGroups, cell) => {
-    return highlightGroups.map((group, groupIndex) => {
-      return group.notes.map((note) => {
-        if (typeof note !== 'number' || note < 1 || note > 9) return null;
+    const result = [];
+    
+    highlightGroups.forEach((group, groupIndex) => {
+      group.notes.forEach((note) => {
+        if (typeof note !== 'number' || note < 1 || note > 9) return;
         
         // 计算候选数的位置（3x3网格）
         const noteIndex = note - 1; // 转换为0-8的索引
@@ -255,6 +257,27 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             borderRadius = '50%'; // 圆形背景
             zIndex = 90; // 最高层级
             break;
+          case 'uniqueness-base':
+            backgroundColor = '#90EE90'; // 浅绿底，用于基础数对候选数
+            textColor = '#000000'; // 黑色文字
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
+            zIndex = 75;
+            break;
+          case 'uniqueness-extra':
+            backgroundColor = '#ADD8E6'; // 浅蓝底，用于额外候选数
+            textColor = '#000000'; // 黑色文字
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
+            zIndex = 80;
+            break;
+          case 'uniqueness-removeable':
+            backgroundColor = '#FF0000'; // 红底，用于可删除的候选数
+            textColor = '#FFFFFF'; // 白色文字
+            boxShadow = '0 1px 2px rgba(0, 0, 0, 0.3)';
+            borderRadius = '50%'; // 圆形背景
+            zIndex = 90; // 最高层级
+            break;
           default:
             backgroundColor = '#FFFFFF';
             textColor = '#000000';
@@ -264,7 +287,7 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
             break;
         }
         
-        return (
+        result.push(
           <div
             key={`alsXZ-${groupIndex}-${cell.row}-${cell.col}-${note}-${group.type}`}
             style={{
@@ -310,6 +333,8 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
         );
       });
     });
+    
+    return result;
   };
   
   // 渲染条件候选数高亮
@@ -409,8 +434,53 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
       return null;
     }
     
+    // 优先检查是否为唯一性技巧，使用新的uniquenessCandidates属性
+    if (cell.techniqueType && (cell.techniqueType === 'uniqueness' || cell.techniqueType.includes('uniqueness_') || cell.techniqueType.includes('Avoidable Rectangle')) && cell.uniquenessCandidates) {
+      const highlightGroups = [];
+      const { baseCandidates, extraCandidates, removableCandidates } = cell.uniquenessCandidates;
+      
+      // 检查当前单元格是否为目标单元格（有可删除的候选数）
+      const isTargetCell = removableCandidates && removableCandidates.length > 0;
+      
+      // 1. 基础数对候选数（浅绿底黑字）- 仅非目标单元格渲染
+      if (!isTargetCell && baseCandidates && baseCandidates.length > 0) {
+        highlightGroups.push({
+          notes: baseCandidates,
+          type: 'uniqueness-base'
+        });
+      }
+      
+      // 2. 额外候选数（浅蓝底黑字）- 仅非目标单元格渲染
+      if (!isTargetCell && extraCandidates && extraCandidates.length > 0) {
+        highlightGroups.push({
+          notes: extraCandidates,
+          type: 'uniqueness-extra'
+        });
+      }
+      
+      // 3. 可删除的目标候选数（红底白字）- 优先级最高，仅目标单元格渲染
+      if (isTargetCell && removableCandidates && removableCandidates.length > 0) {
+        highlightGroups.push({
+          notes: removableCandidates,
+          type: 'uniqueness-removeable'
+        });
+      }
+      
+      // 渲染所有高亮组
+      if (highlightGroups.length > 0) {
+        return renderHighlightGroups(highlightGroups, cell);
+      }
+      
+      return null;
+    }
+    
     // 如果是ALS-XZ技巧，不执行常规高亮（已在上面处理）
     if (cell.techniqueType && cell.techniqueType.includes('alsXZ')) {
+      return null;
+    }
+    
+    // 如果是唯一性技巧，不执行常规高亮（已在上面处理）
+    if (cell.techniqueType && (cell.techniqueType === 'uniqueness' || cell.techniqueType.includes('uniqueness_') || cell.techniqueType.includes('Avoidable Rectangle'))) {
       return null;
     }
     
@@ -552,6 +622,8 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
   const getCellStyle = (cell) => {
     // 检查是否为ALS-XZ技巧，如果是，移除单元格高亮
     const isALSXZTechnique = cell.techniqueType && cell.techniqueType.includes('alsXZ');
+    const isSDCTechnique = cell.techniqueType && (cell.techniqueType === 'sdc' || cell.techniqueType.includes('Sue De Coq'));
+    const isUniquenessTechnique = cell.techniqueType && (cell.techniqueType === 'uniqueness' || cell.techniqueType.includes('uniqueness_') || cell.techniqueType.includes('Avoidable Rectangle'));
     const isBasicTechnique = cell.techniqueType && (
       cell.techniqueType === 'nakedSingle' ||
       cell.techniqueType === 'notesSingle' ||
@@ -567,6 +639,16 @@ const TechniqueOverlay = ({ highlightedCells, boardWidth, boardHeight, isPortrai
     
     // 对于ALS-XZ技巧，只高亮候选数，不高亮单元格
     if (isALSXZTechnique) {
+      return null;
+    }
+    
+    // 对于SDC技巧，只高亮候选数，不高亮单元格
+    if (isSDCTechnique) {
+      return null;
+    }
+    
+    // 对于唯一性技巧，只高亮候选数，不高亮单元格
+    if (isUniquenessTechnique) {
       return null;
     }
     

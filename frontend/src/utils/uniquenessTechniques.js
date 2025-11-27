@@ -101,6 +101,31 @@ export const findAvoidableRectangleType1 = (board, pencilNotes, fixedCells = [])
           
           // 检查空角是否包含数字number作为候选
           if (emptyCandidates.includes(number)) {
+            // 构建详细的解题步骤
+            const steps = [
+              {
+                type: 'identify_pattern',
+                description: '识别可避免矩形模式：三个已填单元格形成矩形，第四个为空',
+                cells: [
+                  [cell1.row, cell1.col],
+                  [cell2.row, cell2.col],
+                  [filledCorner.row, filledCorner.col],
+                  [emptyCorner.row, emptyCorner.col]
+                ]
+              },
+              {
+                type: 'analyze_candidates',
+                description: `空单元格${emptyCorner.row+1},${emptyCorner.col+1}包含候选数${number}，这会导致多解`,
+                cells: [[emptyCorner.row, emptyCorner.col]]
+              },
+              {
+                type: 'eliminate_candidates',
+                description: `为避免多解，删除单元格${emptyCorner.row+1},${emptyCorner.col+1}中的候选数${number}`,
+                targetCells: [[emptyCorner.row, emptyCorner.col]],
+                removableCandidates: [number]
+              }
+            ];
+            
             // 创建避免矩形机会
             opportunities.push({
               type: 'uniqueness_avoidable_rectangle_1',
@@ -132,6 +157,8 @@ export const findAvoidableRectangleType1 = (board, pencilNotes, fixedCells = [])
                 [filledCorner.row, filledCorner.col],
                 [emptyCorner.row, emptyCorner.col]
               ],
+              values: [number, filledCorner.value || number],
+              steps: steps,
               message: `Avoidable Rectangle Type 1：删除r${emptyCorner.row + 1}c${emptyCorner.col + 1}的候选数${number}`
             });
           }
@@ -207,6 +234,38 @@ export const findAvoidableRectangleType2 = (board, pencilNotes, fixedCells = [])
               }
               
               if (targetCells.length > 0) {
+                // 构建详细的解题步骤
+                const steps = [
+                  {
+                    type: 'identify_pattern',
+                    description: '识别可避免矩形模式：两个对角已填，另外两个角为空',
+                    cells: [
+                      [cell1.row, cell1.col],
+                      [cell2.row, cell2.col],
+                      [cell3.row, cell3.col],
+                      [cell4.row, cell4.col]
+                    ]
+                  },
+                  {
+                    type: 'analyze_candidates',
+                    description: `两个空单元格${cell3.row+1},${cell3.col+1}和${cell4.row+1},${cell4.col+1}都包含候选数${number}和${extraCandidate}`,
+                    cells: [
+                      [cell3.row, cell3.col],
+                      [cell4.row, cell4.col]
+                    ]
+                  },
+                  {
+                    type: 'find_targets',
+                    description: `找到能同时看到两个空角的单元格`,
+                    targetCells: targetCells.map(cell => [cell.row, cell.col])
+                  },
+                  {
+                    type: 'eliminate_candidates',
+                    description: `为避免多解，删除这些单元格中的候选数${extraCandidate}`,
+                    removableCandidates: [extraCandidate]
+                  }
+                ];
+                
                 opportunities.push({
                   type: 'uniqueness_avoidable_rectangle_2',
                   description: 'Avoidable Rectangle Type 2',
@@ -229,6 +288,9 @@ export const findAvoidableRectangleType2 = (board, pencilNotes, fixedCells = [])
                     [cell3.row, cell3.col],
                     [cell4.row, cell4.col]
                   ],
+                  targetCells: targetCells.map(cell => [cell.row, cell.col]),
+                  values: [number, extraCandidate],
+                  steps: steps,
                   message: `Avoidable Rectangle Type 2：删除能同时看到两个空角的单元格中的候选数${extraCandidate}`
                 });
               }
@@ -287,7 +349,7 @@ export const findUniqueRectangleType1 = (board, pencilNotes) => {
       const candidates4 = getCandidates(pencilNotes, cell4Pos[0], cell4Pos[1]);
       
       // 检查三个单元格是否只有两个候选数，第四个有额外候选数
-      let threeBivalue = 0;
+      let threeBivalue = 2; // cell1和cell2已经是双候选数单元格
       let extraCell = null;
       
       if (candidates3.length === 2 && candidates3.includes(cand1) && candidates3.includes(cand2)) threeBivalue++;
@@ -296,7 +358,32 @@ export const findUniqueRectangleType1 = (board, pencilNotes) => {
       if (candidates3.length > 2 && candidates3.includes(cand1) && candidates3.includes(cand2)) extraCell = cell3Pos;
       if (candidates4.length > 2 && candidates4.includes(cand1) && candidates4.includes(cand2)) extraCell = cell4Pos;
       
-      if (threeBivalue === 2 && extraCell) {
+      if (threeBivalue === 3 && extraCell) {
+        // 构建详细的解题步骤
+        const steps = [
+          {
+            type: 'identify_pattern',
+            description: '识别唯一矩形模式：四个单元格形成矩形，共享两个候选数',
+            cells: [
+              [cell1.row, cell1.col],
+              [cell2.row, cell2.col],
+              [cell3Pos[0], cell3Pos[1]],
+              [cell4Pos[0], cell4Pos[1]]
+            ]
+          },
+          {
+            type: 'analyze_candidates',
+            description: `三个单元格只有候选数${cand1}和${cand2}，第四个单元格${extraCell[0]+1},${extraCell[1]+1}有额外候选数`,
+            cells: [extraCell]
+          },
+          {
+            type: 'eliminate_candidates',
+            description: `为避免多解，删除单元格${extraCell[0]+1},${extraCell[1]+1}中的候选数${cand1}和${cand2}`,
+            targetCells: [extraCell],
+            removableCandidates: [cand1, cand2]
+          }
+        ];
+        
         opportunities.push({
           type: 'uniqueness_1',
           description: 'Unique Rectangle Type 1',
@@ -318,6 +405,9 @@ export const findUniqueRectangleType1 = (board, pencilNotes) => {
             [cell3Pos[0], cell3Pos[1]],
             [cell4Pos[0], cell4Pos[1]]
           ],
+          targetCells: [extraCell],
+          values: [cand1, cand2],
+          steps: steps,
           message: `Unique Rectangle Type 1：删除r${extraCell[0] + 1}c${extraCell[1] + 1}的候选数${cand1}和${cand2}`
         });
       }
@@ -390,6 +480,31 @@ export const findBugPlus1 = (board, pencilNotes) => {
         .filter(c => c !== candidate)
         .map(c => ({ row, col, value: c }));
       
+      // 构建详细的解题步骤
+      const steps = [
+        {
+          type: 'identify_pattern',
+          description: '识别BUG+1模式：只有一个单元格有三个候选数，其余都是两个候选数',
+          cells: [threeCandidateCell]
+        },
+        {
+          type: 'analyze_candidates',
+          description: `单元格${row+1},${col+1}有候选数${threeCandidateValues.join(',')}`,
+          cells: [threeCandidateCell]
+        },
+        {
+          type: 'count_occurrences',
+          description: `候选数${candidate}在行、列、宫中各出现三次，这是有效的候选数`,
+          cells: [threeCandidateCell]
+        },
+        {
+          type: 'eliminate_candidates',
+          description: `删除单元格${row+1},${col+1}中的其他候选数${removableCandidates.map(c => c.value).join('和')}`,
+          targetCells: [threeCandidateCell],
+          removableCandidates: removableCandidates.map(c => c.value)
+        }
+      ];
+      
       return [{
         type: 'uniqueness_bug_plus_1',
         description: 'BUG+1',
@@ -397,6 +512,9 @@ export const findBugPlus1 = (board, pencilNotes) => {
         validCandidate: candidate,
         removableCandidates: removableCandidates,
         cells: [threeCandidateCell],
+        targetCells: [threeCandidateCell],
+        values: threeCandidateValues,
+        steps: steps,
         message: `BUG+1：删除r${row + 1}c${col + 1}的候选数${removableCandidates.map(c => c.value).join('和')}`
       }];
     }

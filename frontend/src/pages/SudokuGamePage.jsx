@@ -215,7 +215,7 @@ const SudokuGamePage = () => {
       // 当没有选中单元格时，高亮相同数字的单元格和候选数
       if (!selectedCell) {
         // 收集所有包含相同数字的单元格
-        const highlightedCells = [];
+        const numberCells = [];
         
         // 遍历棋盘，找出所有包含相同数字的单元格
         for (let row = 0; row < 9; row++) {
@@ -223,11 +223,67 @@ const SudokuGamePage = () => {
             // 检查当前单元格的值
             const cellValue = currentBoard && currentBoard[row] ? currentBoard[row][col] : 0;
             
-            // 如果单元格的值与点击的数字相同，就添加到高亮列表中
+            // 如果单元格的值与点击的数字相同，就添加到列表中
             if (cellValue === number && number > 0) {
-              highlightedCells.push({ row, col, number });
+              numberCells.push({ row, col, number });
             }
           }
+        }
+        
+        // 收集所有需要高亮的单元格：包含相同数字的单元格及其同行、同列、同宫的单元格
+        const highlightedCells = [];
+        const highlightedCellSet = new Set(); // 用于去重
+        
+        // 辅助函数：获取单元格所在的行、列、宫的所有单元格
+        const getRegionCells = (targetRow, targetCol) => {
+          const regionCells = [];
+          const boxRow = Math.floor(targetRow / 3);
+          const boxCol = Math.floor(targetCol / 3);
+          
+          // 添加同行的所有单元格
+          for (let col = 0; col < 9; col++) {
+            const cellKey = `${targetRow}-${col}`;
+            if (!highlightedCellSet.has(cellKey)) {
+              highlightedCellSet.add(cellKey);
+              regionCells.push({ row: targetRow, col, regionHighlight: true });
+            }
+          }
+          
+          // 添加同列的所有单元格
+          for (let row = 0; row < 9; row++) {
+            const cellKey = `${row}-${targetCol}`;
+            if (!highlightedCellSet.has(cellKey)) {
+              highlightedCellSet.add(cellKey);
+              regionCells.push({ row, col: targetCol, regionHighlight: true });
+            }
+          }
+          
+          // 添加同宫的所有单元格
+          for (let row = boxRow * 3; row < (boxRow + 1) * 3; row++) {
+            for (let col = boxCol * 3; col < (boxCol + 1) * 3; col++) {
+              const cellKey = `${row}-${col}`;
+              if (!highlightedCellSet.has(cellKey)) {
+                highlightedCellSet.add(cellKey);
+                regionCells.push({ row, col, regionHighlight: true });
+              }
+            }
+          }
+          
+          return regionCells;
+        };
+        
+        // 对于每个包含相同数字的单元格，获取其所在的行、列、宫的所有单元格
+        for (const cell of numberCells) {
+          // 首先添加当前单元格，标记为包含相同数字
+          const cellKey = `${cell.row}-${cell.col}`;
+          if (!highlightedCellSet.has(cellKey)) {
+            highlightedCellSet.add(cellKey);
+            highlightedCells.push({ ...cell, sameNumber: true });
+          }
+          
+          // 然后添加其所在的行、列、宫的所有单元格
+          const regionCells = getRegionCells(cell.row, cell.col);
+          highlightedCells.push(...regionCells);
         }
         
         // 设置高亮单元格

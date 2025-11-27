@@ -541,18 +541,23 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
       if (currentCellData && currentCellData.regionHighlight) {
         classes.push('same-region');
       } else if (currentCellData) {
-        // 判断是否为基础技巧
-        const isBasicTechnique = currentCellData.techniqueType && (
-          currentCellData.techniqueType === 'nakedSingle' ||
-          currentCellData.techniqueType === 'notesSingle' ||
-          currentCellData.techniqueType.includes('hiddenSingle')
-        );
-        
-        // 基础技巧使用原始 highlighted 类，非基础技巧使用 advanced-technique-highlight 类
-        if (isBasicTechnique) {
-          classes.push('highlighted');
+        // 如果是相同数字的单元格，添加same-number样式
+        if (currentCellData.sameNumber) {
+          classes.push('same-number');
         } else {
-          classes.push('advanced-technique-highlight');
+          // 判断是否为基础技巧
+          const isBasicTechnique = currentCellData.techniqueType && (
+            currentCellData.techniqueType === 'nakedSingle' ||
+            currentCellData.techniqueType === 'notesSingle' ||
+            currentCellData.techniqueType.includes('hiddenSingle')
+          );
+          
+          // 基础技巧使用原始 highlighted 类，非基础技巧使用 advanced-technique-highlight 类
+          if (isBasicTechnique) {
+            classes.push('highlighted');
+          } else {
+            classes.push('advanced-technique-highlight');
+          }
         }
       }
     }
@@ -636,6 +641,13 @@ const SudokuBoard = ({ board, selectedCell, onCellClick, originalPuzzle, isPenci
               if (currentCellData.techniqueType === 'notesSingle') {
                 targetCandidateNumber = currentCellData.targetNumber;
               }
+            }
+            
+            // 逻辑3：点击数字按钮时，高亮相同数字的候选数
+            // 查找highlightedCells中是否有sameNumber为true的单元格，如果有，获取其number值
+            const sameNumberCell = highlightedCells.find(cell => cell.sameNumber);
+            if (sameNumberCell && sameNumberCell.number) {
+              highlightedNumber = sameNumberCell.number;
             }
           }
           

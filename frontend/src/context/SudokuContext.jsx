@@ -1640,6 +1640,9 @@ export const SudokuContextProvider = ({ children }) => {
     
     // 使用fillCell方法填入正确答案，传入forceFill=true确保直接填入数字
     fillCell(row, col, correctValue, true);
+    
+    // 选中刚刚填入数字的单元格，以便用户了解填入的数字位置
+    setSelectedCell({ row, col });
   };
 
   // 计算并填充所有空白格子的候选数

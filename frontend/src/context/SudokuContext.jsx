@@ -1609,12 +1609,37 @@ export const SudokuContextProvider = ({ children }) => {
       return result;
     } catch (error) {
       console.error('获取提示失败:', error);
-      toast.error('获取提示失败，请重试', {
-        position: 'top-right',
-        autoClose: 2000
-      });
+      toast.error('获取提示失败，请重试', { position: 'top-right', autoClose: 2000 });
       return null;
     }
+  };
+
+  // 基于回溯法的帮助功能：随机选择一个空白单元格，填入正确答案
+  const solveOneCell = () => {
+    if (!gameStarted || gameCompleted || !solution) return;
+    
+    // 找到所有空白单元格
+    const emptyCells = [];
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        // 跳过预填数字和已有数字的单元格
+        if (currentBoard[row][col] === 0 && !(originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] !== 0)) {
+          emptyCells.push({ row, col });
+        }
+      }
+    }
+    
+    if (emptyCells.length === 0) return;
+    
+    // 随机选择一个空白单元格
+    const randomIndex = Math.floor(Math.random() * emptyCells.length);
+    const { row, col } = emptyCells[randomIndex];
+    
+    // 从solution中获取正确答案
+    const correctValue = solution[row][col];
+    
+    // 使用fillCell方法填入正确答案，传入forceFill=true确保直接填入数字
+    fillCell(row, col, correctValue, true);
   };
 
   // 计算并填充所有空白格子的候选数
@@ -1911,7 +1936,8 @@ export const SudokuContextProvider = ({ children }) => {
       applyTechniqueToBoard,
       getHint,
       validateCellInput,
-      areCandidatesComplete
+      areCandidatesComplete,
+      solveOneCell
     };
 
   return <SudokuContext.Provider value={value}>{children}</SudokuContext.Provider>;

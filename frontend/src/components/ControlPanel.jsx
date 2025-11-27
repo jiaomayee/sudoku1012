@@ -6,6 +6,8 @@ import { useSudoku } from '../context/SudokuContext';
 import { useLanguage } from '../context/LanguageContext';
 // 导入模式上下文
 import { ModeContext } from '../context/ModeContext';
+// 导入确认模态框组件
+import ConfirmModal from './ConfirmModal';
 
 // 添加对显性数对指示功能的支持
 import nakedPairIndicator from '../utils/nakedPairIndicator';
@@ -107,7 +109,7 @@ const ControlPanel = ({
   
   // 从上下文获取技巧和应用技巧的方法
   const sudokuContext = useSudoku();
-  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells, setSelectedCell, selectedCell, pencilNotes } = sudokuContext || {};
+  const { identifyTechniques, applyTechniqueToBoard, gameStarted, currentBoard, setHighlightedCells, setSelectedCell, selectedCell, pencilNotes, areCandidatesComplete } = sudokuContext || {};
   
   // 退出技巧模式的函数
   const exitTechniqueMode = useCallback(() => {
@@ -138,6 +140,14 @@ const ControlPanel = ({
   
   // 保存选中技巧的详细步骤
   const [techniqueSteps, setTechniqueSteps] = useState([]);
+  
+  // 确认模态框状态
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalConfig, setConfirmModalConfig] = useState({
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
   
   // 监听游戏开始状态变化，确保新建游戏时显示键盘标签页
   useEffect(() => {
@@ -3603,6 +3613,28 @@ const ControlPanel = ({
                   findTechniques();
                   // 切换到技巧标签页，方便用户查看结果
                   setActiveTab('techniques');
+                  
+                  // 检查是否有可用技巧
+                  setTimeout(() => {
+                    // 检查候选数是否完整填充
+                    const isCandidatesComplete = areCandidatesComplete ? areCandidatesComplete() : false;
+                    
+                    if (availableTechniques.length === 0 && isCandidatesComplete) {
+                      // 没有可用技巧且候选数已完整填充，显示弹窗提示
+                      setConfirmModalConfig({
+                        title: t('noTechniquesHelpTitle'),
+                        message: t('noTechniquesHelpMessage'),
+                        onConfirm: () => {
+                          // 用户选择"是"，基于回溯法提供帮助
+                          // 随机选中一个空白单元格，填入正确答案
+                          if (sudokuContext && sudokuContext.solveOneCell) {
+                            sudokuContext.solveOneCell();
+                          }
+                        }
+                      });
+                      setShowConfirmModal(true);
+                    }
+                  }, 100);
                 }}
                 style={{
                   width: '100%',
@@ -3893,6 +3925,17 @@ const ControlPanel = ({
           )}
         </div>
       </div>
+      
+      {/* 确认模态框 */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmModalConfig.onConfirm}
+        title={confirmModalConfig.title}
+        message={confirmModalConfig.message}
+        confirmText={t('noTechniquesHelpConfirm')}
+        cancelText={t('noTechniquesHelpCancel')}
+      />
     </div>
   );
 };

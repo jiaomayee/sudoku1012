@@ -516,7 +516,12 @@ export const translations = {
     candidatesIncompleteMessage: '需刷新候选数，提供更多技巧机会！',
     // 没有可用技巧提示
     noTechniquesAvailableTitle: '没有可用技巧',
-    noTechniquesAvailableMessage: '没有可用技巧，提供一个数独答案'
+    noTechniquesAvailableMessage: '没有可用技巧，提供一个数独答案',
+    // 回溯法帮助提示
+    noTechniquesHelpTitle: '没有可用技巧',
+    noTechniquesHelpMessage: '当前已无可用技巧，基于回溯法提供帮助继续游戏',
+    noTechniquesHelpConfirm: '是',
+    noTechniquesHelpCancel: '否'
   },
   'en-US': {
     // Common
@@ -866,8 +871,14 @@ export const translations = {
     manualHandleTechnique: 'Manual',
     solutionSteps: 'Solution Steps',
     selectTechniqueFirst: 'Please select a technique from the list first',
+// 没有可用技巧提示
     noTechniquesAvailable: 'No techniques available',
     refreshCandidatesTooltip: 'Click to refresh candidates and load all technique solutions',
+    // 回溯法帮助提示
+    noTechniquesHelpTitle: 'No Techniques Available',
+    noTechniquesHelpMessage: 'No techniques available, provide help to continue the game based on backtracking method',
+    noTechniquesHelpConfirm: 'Yes',
+    noTechniquesHelpCancel: 'No',
     // New translation keys
     candidatesTab: 'Candidates',
     hintsTab: 'Hints',

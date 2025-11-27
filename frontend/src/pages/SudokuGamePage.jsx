@@ -222,14 +222,9 @@ const SudokuGamePage = () => {
           for (let col = 0; col < 9; col++) {
             // 检查当前单元格的值
             const cellValue = currentBoard && currentBoard[row] ? currentBoard[row][col] : 0;
-            // 检查是否是预填数字或用户填入的正确数字
-            const isPrefilled = originalPuzzle && originalPuzzle[row] && originalPuzzle[row][col] === number;
-            const isCorrectUserInput = cellValue === number && 
-                                     sudokuContext?.lockedCells && 
-                                     sudokuContext.lockedCells.has(`${row}-${col}`);
             
-            // 如果是预填数字或用户填入的正确数字且与点击的数字相同
-            if ((isPrefilled || isCorrectUserInput) && number > 0) {
+            // 如果单元格的值与点击的数字相同，就添加到高亮列表中
+            if (cellValue === number && number > 0) {
               highlightedCells.push({ row, col, number });
             }
           }
@@ -627,15 +622,15 @@ const SudokuGamePage = () => {
               />
               {/* 外挂式技巧遮罩层 - 唯一余数技巧专用 */}
               <TechniqueMaskOverlay 
-                highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
-                boardWidth={boardContainerRef.current?.offsetWidth || 450}
-                boardHeight={boardContainerRef.current?.offsetHeight || 450}
-                isPortrait={isPortrait}
-              />
+                  highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
+                  boardWidth={boardContainerRef.current?.offsetWidth || 450}
+                  boardHeight={boardContainerRef.current?.offsetHeight || 450}
+                  isPortrait={isPortrait}
+                />
                 
               {/* 外挂式技巧高亮层 */}
               <TechniqueOverlay 
-                highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
+                highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
                 boardWidth={boardContainerRef.current?.offsetWidth || 450}
                 boardHeight={boardContainerRef.current?.offsetHeight || 450}
                 isPortrait={isPortrait}
@@ -643,7 +638,7 @@ const SudokuGamePage = () => {
                 
               {/* 显性数对法专用覆盖层 */}
               <NakedPairOverlay 
-                highlightedCells={highlightedCells.filter(cell => 
+                highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => 
                   cell.techniqueIndicator === true && 
                   cell.techniqueType && 
                   cell.techniqueType.includes('nakedPair')
@@ -710,7 +705,7 @@ const SudokuGamePage = () => {
                   board={currentBoard || Array(9).fill().map(() => Array(9).fill(0))}
                   originalPuzzle={originalPuzzle}
                   selectedCell={selectedCell}
-                  highlightedCells={highlightedCells}
+                  highlightedCells={sudokuContext?.highlightedCells || []}
                   incorrectCells={sudokuContext?.incorrectCells || new Set()}
                   onCellClick={handleCellClick}
                   isPencilMode={isPencilMode}
@@ -718,7 +713,7 @@ const SudokuGamePage = () => {
                 />
                 {/* 外挂式技巧遮罩层 - 唯一余数技巧专用 */}
                 <TechniqueMaskOverlay 
-                  highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
+                  highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
                   boardWidth={boardContainerRef.current?.offsetWidth || 450}
                   boardHeight={boardContainerRef.current?.offsetHeight || 450}
                   isPortrait={isPortrait}
@@ -726,7 +721,7 @@ const SudokuGamePage = () => {
                 
                 {/* 外挂式技巧高亮层 */}
                 <TechniqueOverlay 
-                  highlightedCells={highlightedCells.filter(cell => cell.techniqueIndicator)}
+                  highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => cell.techniqueIndicator)}
                   boardWidth={boardContainerRef.current?.offsetWidth || 450}
                   boardHeight={boardContainerRef.current?.offsetHeight || 450}
                   isPortrait={isPortrait}
@@ -734,7 +729,7 @@ const SudokuGamePage = () => {
                 
                 {/* 显性数对法专用覆盖层 */}
                 <NakedPairOverlay 
-                  highlightedCells={highlightedCells.filter(cell => 
+                  highlightedCells={(sudokuContext?.highlightedCells || []).filter(cell => 
                     cell.techniqueIndicator === true && 
                     cell.techniqueType && 
                     cell.techniqueType.includes('nakedPair')

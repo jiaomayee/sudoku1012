@@ -1,6 +1,6 @@
 {
   "name": "sudoku-learning-frontend",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "数独学习应用前端",
   "private": true,
   "dependencies": {

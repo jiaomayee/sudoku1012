@@ -556,6 +556,454 @@ const ControlPanel = ({
           if (regionType === t('col') && typeof firstCell[1] === 'number') {
             // 列区域：获取列号
             regionNum = firstCell[1] + 1;
+          } else if (typeof firstCell[0] === 'number') {
+            // 行或宫区域：获取行号
+            regionNum = firstCell[0] + 1;
+          }
+        } else if (firstCell) {
+          // 对象格式 {row, col}
+          if (regionType === t('col') && firstCell.col !== undefined) {
+            // 列区域：获取列号
+            regionNum = firstCell.col + 1;
+          } else if (firstCell.row !== undefined) {
+            // 行或宫区域：获取行号
+            regionNum = firstCell.row + 1;
+          }
+        }
+      }
+      
+      const tripleNumbers = Array.isArray(technique.values) ? technique.values.join(',') : '三链数';
+      
+      // 格式化三链数单元格位置显示
+      const formattedCells = technique.cells && Array.isArray(technique.cells) 
+        ? technique.cells.map(cell => {
+            // 处理两种格式：对象格式 {row,col} 或数组格式 [row,col]
+            if (Array.isArray(cell)) {
+              // 数组格式 [row, col]
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              // 对象格式 {row, col}
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : position;
+      
+      // 手动计算目标单元格：区域内除了三链数单元格之外的所有单元格，并且排除已填入数字的单元格
+      const targetCells = [];
+      
+      // 根据区域类型确定目标单元格
+      if (regionType === t('row') && regionNum > 0) {
+        // 行区域：同一行中的其他单元格
+        for (let col = 0; col < 9; col++) {
+          // 检查是否是三链数中的单元格
+          const isInTriple = technique.cells.some(cell => 
+            (Array.isArray(cell) && cell[0] === regionNum - 1 && cell[1] === col) ||
+            (cell.row !== undefined && cell.row === regionNum - 1 && cell.col === col)
+          );
+          // 检查单元格是否已填入数字
+          const hasValue = currentBoard && currentBoard[regionNum - 1] && currentBoard[regionNum - 1][col] > 0;
+          if (!isInTriple && !hasValue) {
+            targetCells.push([regionNum - 1, col]);
+          }
+        }
+      } else if (regionType === t('col') && regionNum > 0) {
+        // 列区域：同一列中的其他单元格
+        for (let row = 0; row < 9; row++) {
+          // 检查是否是三链数中的单元格
+          const isInTriple = technique.cells.some(cell => 
+            (Array.isArray(cell) && cell[0] === row && cell[1] === regionNum - 1) ||
+            (cell.row !== undefined && cell.row === row && cell.col === regionNum - 1)
+          );
+          // 检查单元格是否已填入数字
+          const hasValue = currentBoard && currentBoard[row] && currentBoard[row][regionNum - 1] > 0;
+          if (!isInTriple && !hasValue) {
+            targetCells.push([row, regionNum - 1]);
+          }
+        }
+      } else if (regionType === t('box') && regionNum > 0) {
+        // 宫区域：同一宫中的其他单元格
+        const boxRow = Math.floor((regionNum - 1) / 3) * 3;
+        const boxCol = ((regionNum - 1) % 3) * 3;
+        
+        for (let r = 0; r < 3; r++) {
+          for (let c = 0; c < 3; c++) {
+            const row = boxRow + r;
+            const col = boxCol + c;
+            
+            // 检查是否是三链数中的单元格
+            const isInTriple = technique.cells.some(cell => 
+              (Array.isArray(cell) && cell[0] === row && cell[1] === col) ||
+              (cell.row !== undefined && cell.row === row && cell.col === col)
+            );
+            // 检查单元格是否已填入数字
+            const hasValue = currentBoard && currentBoard[row] && currentBoard[row][col] > 0;
+            if (!isInTriple && !hasValue) {
+              targetCells.push([row, col]);
+            }
+          }
+        }
+      }
+      
+      // 格式化目标单元格位置显示
+      const formattedTargetCells = targetCells.length > 0
+        ? targetCells.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: `在${regionType}${regionNum}中查找三链数`, highlight: '' },
+        { step: 2, description: t('foundNakedTriple', { numbers: tripleNumbers, cells: formattedCells }), highlight: position },
+        { step: 3, description: t('removeCandidatesFromTargets', { numbers: tripleNumbers, targets: formattedTargetCells }), highlight: position }
+      );
+    } else if (technique.type.includes('HiddenTriples') || technique.type.includes('hiddenTriples') || technique.type.includes('hiddenTriple')) {
+      // 隐性三链数法解题步骤
+      const regionType = technique.type.includes('Row') ? t('row') : 
+                         (technique.type.includes('Col') ? t('col') : t('box'));
+      
+      let regionNum = 0;
+      if (hasSingleCell) {
+        regionNum = technique.type.includes('Row') ? row + 1 : 
+                    (technique.type.includes('Col') ? col + 1 : 
+                    Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
+      } else if (technique.row !== undefined && regionType === t('row')) {
+        // 对于行区域，从technique对象获取行号
+        regionNum = technique.row + 1;
+      } else if (technique.col !== undefined && regionType === t('col')) {
+        // 对于列区域，从technique对象获取列号
+        regionNum = technique.col + 1;
+      } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
+        // 如果有cells数组，根据区域类型获取正确的区域号
+        const firstCell = technique.cells[0];
+        if (Array.isArray(firstCell)) {
+          // 数组格式 [row, col]
+          if (regionType === t('col') && typeof firstCell[1] === 'number') {
+            // 列区域：获取列号
+            regionNum = firstCell[1] + 1;
+          } else if (regionType === t('box') && typeof firstCell[0] === 'number' && typeof firstCell[1] === 'number') {
+            // 宫区域：根据单元格位置计算宫号
+            regionNum = Math.floor(firstCell[0] / 3) * 3 + Math.floor(firstCell[1] / 3) + 1;
+          } else if (typeof firstCell[0] === 'number') {
+            // 行区域：获取行号
+            regionNum = firstCell[0] + 1;
+          }
+        } else if (firstCell) {
+          // 对象格式 {row, col}
+          if (regionType === t('col') && firstCell.col !== undefined) {
+            // 列区域：获取列号
+            regionNum = firstCell.col + 1;
+          } else if (regionType === t('box') && firstCell.row !== undefined && firstCell.col !== undefined) {
+            // 宫区域：根据单元格位置计算宫号
+            regionNum = Math.floor(firstCell.row / 3) * 3 + Math.floor(firstCell.col / 3) + 1;
+          } else if (firstCell.row !== undefined) {
+            // 行区域：获取行号
+            regionNum = firstCell.row + 1;
+          }
+        }
+      }
+      
+      const tripleNumbers = Array.isArray(technique.values) ? technique.values.join(',') : '三链数';
+      
+      // 格式化三链数单元格位置显示
+      const formattedCells = technique.cells && Array.isArray(technique.cells) 
+        ? technique.cells.map(cell => {
+            // 处理两种格式：对象格式 {row,col} 或数组格式 [row,col]
+            if (Array.isArray(cell)) {
+              // 数组格式 [row, col]
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              // 对象格式 {row, col}
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : position;
+      
+      steps.push(
+        { step: 1, description: t('findHiddenTripleInRegion', { regionType: regionType, regionNum: regionNum }), highlight: '' },
+        { step: 2, description: t('foundNumbersOnlyInCells', { numbers: tripleNumbers, cells: formattedCells }), highlight: position },
+        { step: 3, description: t('removeOtherCandidates', { cells: formattedCells, numbers: tripleNumbers }), highlight: position }
+      );
+    } else if (technique.type.includes('uniqueness_type1') || technique.type.includes('uniqueness_1')) {
+      // 唯一矩形类型1解题步骤
+      const arCells = technique.cells && Array.isArray(technique.cells) ? technique.cells : [];
+      const basePair = technique.basePair && Array.isArray(technique.basePair) ? technique.basePair : [];
+      const withExtra = technique.withExtra && Array.isArray(technique.withExtra) ? technique.withExtra : [];
+      const withoutExtra = technique.withoutExtra && Array.isArray(technique.withoutExtra) ? technique.withoutExtra : [];
+      const targetCells = technique.targetCells && Array.isArray(technique.targetCells) ? technique.targetCells : [];
+      const totalCount = technique.totalCount || 0;
+      
+      // 格式化单元格位置显示
+      const formattedARCells = arCells.length > 0
+        ? arCells.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedBasePair = basePair.length > 0
+        ? basePair.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedWithExtra = withExtra.length > 0
+        ? withExtra.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedWithoutExtra = withoutExtra.length > 0
+        ? withoutExtra.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedTargetCells = targetCells.length > 0
+        ? targetCells.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('arType1IdentifyPattern', { arCells: formattedARCells, basePair: basePair }), highlight: '' },
+        { step: 2, description: t('arType1IdentifyExtra', { cellsWithExtra: formattedWithExtra }), highlight: position },
+        { step: 3, description: t('arType1IdentifyNoExtra', { cellsWithoutExtra: formattedWithoutExtra }), highlight: position },
+        { step: 4, description: t('arType1Eliminate', { targetCells: formattedTargetCells, totalCount: totalCount }), highlight: position }
+      );
+    } else if (technique.type.includes('uniqueness_avoidable_rectangle_1')) {
+      // 避免矩形类型1解题步骤
+      const arCells = technique.cells && Array.isArray(technique.cells) ? technique.cells : [];
+      const basePair = technique.basePair && Array.isArray(technique.basePair) ? technique.basePair : [];
+      const withExtra = technique.withExtra && Array.isArray(technique.withExtra) ? technique.withExtra : [];
+      const withoutExtra = technique.withoutExtra && Array.isArray(technique.withoutExtra) ? technique.withoutExtra : [];
+      const targetCells = technique.targetCells && Array.isArray(technique.targetCells) ? technique.targetCells : [];
+      const totalCount = technique.totalCount || 0;
+      
+      // 格式化单元格位置显示
+      const formattedARCells = arCells.length > 0
+        ? arCells.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedBasePair = basePair.length > 0
+        ? basePair.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedWithExtra = withExtra.length > 0
+        ? withExtra.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedWithoutExtra = withoutExtra.length > 0
+        ? withoutExtra.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedTargetCells = targetCells.length > 0
+        ? targetCells.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('arType1IdentifyPattern', { arCells: formattedARCells, basePair: basePair }), highlight: '' },
+        { step: 2, description: t('arType1IdentifyExtra', { cellsWithExtra: formattedWithExtra }), highlight: position },
+        { step: 3, description: t('arType1IdentifyNoExtra', { cellsWithoutExtra: formattedWithoutExtra }), highlight: position },
+        { step: 4, description: t('arType1Eliminate', { targetCells: formattedTargetCells, totalCount: totalCount }), highlight: position }
+      );
+    } else if (technique.type.includes('uniqueness_bug_plus_1')) {
+      // 唯一矩形+1解题步骤
+      const arCells = technique.cells && Array.isArray(technique.cells) ? technique.cells : [];
+      const basePair = technique.basePair && Array.isArray(technique.basePair) ? technique.basePair : [];
+      const withExtra = technique.withExtra && Array.isArray(technique.withExtra) ? technique.withExtra : [];
+      const withoutExtra = technique.withoutExtra && Array.isArray(technique.withoutExtra) ? technique.withoutExtra : [];
+      const bugPlus1TargetCells = technique.targetCells && Array.isArray(technique.targetCells) ? technique.targetCells : [];
+      const totalCount = technique.totalCount || 0;
+      
+      // 格式化单元格位置显示
+      const formattedARCells = arCells.length > 0
+        ? arCells.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedBasePair = basePair.length > 0
+        ? basePair.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedWithExtra = withExtra.length > 0
+        ? withExtra.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedWithoutExtra = withoutExtra.length > 0
+        ? withoutExtra.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      const formattedBugPlus1TargetCells = bugPlus1TargetCells.length > 0
+        ? bugPlus1TargetCells.map(cell => {
+            if (Array.isArray(cell)) {
+              const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
+              const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            } else {
+              const rowNum = cell.row !== undefined ? cell.row + 1 : '?';
+              const colNum = cell.col !== undefined ? cell.col + 1 : '?';
+              return `(${rowNum},${colNum})`;
+            }
+          }).join(' ')
+        : t('multipleCells');
+      
+      steps.push(
+        { step: 1, description: t('arType1IdentifyPattern', { arCells: formattedARCells, basePair: basePair }), highlight: '' },
+        { step: 2, description: t('arType1IdentifyExtra', { cellsWithExtra: formattedWithExtra }), highlight: position },
+        { step: 3, description: t('arType1IdentifyNoExtra', { cellsWithoutExtra: formattedWithoutExtra }), highlight: position },
+        { step: 4, description: t('arType1Eliminate', { targetCells: formattedBugPlus1TargetCells, totalCount: totalCount }), highlight: position }
+      );
+      let regionNum = 0;
+      if (hasSingleCell) {
+        regionNum = technique.type.includes('Row') ? row + 1 : 
+                    (technique.type.includes('Col') ? col + 1 : 
+                    Math.floor(row / 3) * 3 + Math.floor(col / 3) + 1);
+      } else if (technique.row !== undefined && regionType === t('row')) {
+        // 对于行区域，从technique对象获取行号
+        regionNum = technique.row + 1;
+      } else if (technique.col !== undefined && regionType === t('col')) {
+        // 对于列区域，从technique对象获取列号
+        regionNum = technique.col + 1;
+      } else if (technique.cells && Array.isArray(technique.cells) && technique.cells.length > 0) {
+        // 如果有cells数组，根据区域类型获取正确的区域号
+        const firstCell = technique.cells[0];
+        if (Array.isArray(firstCell)) {
+          // 数组格式 [row, col]
+          if (regionType === t('col') && typeof firstCell[1] === 'number') {
+            // 列区域：获取列号
+            regionNum = firstCell[1] + 1;
           } else if (regionType === t('box') && typeof firstCell[0] === 'number' && typeof firstCell[1] === 'number') {
             // 宫区域：根据单元格位置计算宫号
             regionNum = Math.floor(firstCell[0] / 3) * 3 + Math.floor(firstCell[1] / 3) + 1;
@@ -655,8 +1103,8 @@ const ControlPanel = ({
       }
       
       // 格式化目标单元格位置显示
-      const formattedTargetCells = targetCells.length > 0
-        ? targetCells.map(cell => {
+      const formattedTripleTargetCells = tripleTargetCells.length > 0
+        ? tripleTargetCells.map(cell => {
             if (Array.isArray(cell)) {
               const rowNum = typeof cell[0] === 'number' ? cell[0] + 1 : '?';
               const colNum = typeof cell[1] === 'number' ? cell[1] + 1 : '?';
@@ -672,7 +1120,7 @@ const ControlPanel = ({
       steps.push(
         { step: 1, description: t('findTripleInRegion', { regionType: regionType, regionNum: regionNum }), highlight: '' },
         { step: 2, description: t('foundNakedTriple', { numbers: tripleNumbers, cells: formattedCells }), highlight: position },
-        { step: 3, description: t('removeCandidatesFromTargets', { numbers: tripleNumbers, targets: formattedTargetCells }), highlight: position }
+        { step: 3, description: t('removeCandidatesFromTargets', { numbers: tripleNumbers, targets: formattedTripleTargetCells }), highlight: position }
       );
     } else if (technique.type.includes('hiddenTriple')) {
       // 隐性三链数法解题步骤
@@ -3688,6 +4136,21 @@ const ControlPanel = ({
                       // SDC技巧
                       primaryType = t('sdc');
                       // SDC通常不需要二级类型
+                      secondaryType = '';
+                    } else if (technique.type.includes('uniqueness') || technique.type.includes('Unique Rectangle') || technique.type.includes('Avoidable Rectangle') || technique.type.includes('BUG')) {
+                      // Uniqueness技巧
+                      if (technique.type.includes('avoidable_rectangle_1') || technique.type.includes('Avoidable Rectangle Type 1')) {
+                        primaryType = t('avoidableRectangleTechnique') + ' ' + t('type1');
+                      } else if (technique.type.includes('avoidable_rectangle_2') || technique.type.includes('Avoidable Rectangle Type 2')) {
+                        primaryType = t('avoidableRectangleTechnique') + ' ' + t('type2');
+                      } else if (technique.type.includes('bug_plus_1') || technique.type.includes('BUG+1')) {
+                        primaryType = t('uniquenessTechnique') + ' BUG+1';
+                      } else if (technique.type.includes('uniqueness_1') || technique.type.includes('Unique Rectangle Type 1')) {
+                        primaryType = t('uniquenessTechnique') + ' ' + t('type1');
+                      } else {
+                        primaryType = t('uniquenessTechnique');
+                      }
+                      // Uniqueness通常不需要二级类型
                       secondaryType = '';
                     } else {
                       // 检查是否是应该保持英文的技巧
